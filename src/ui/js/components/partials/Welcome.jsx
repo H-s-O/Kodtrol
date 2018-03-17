@@ -1,5 +1,5 @@
 import React from 'react';
-import { Jumbotron, Button } from 'react-bootstrap';
+import { Jumbotron, Button, ButtonToolbar } from 'react-bootstrap';
 
 export default props => (
   <Jumbotron>
@@ -8,9 +8,9 @@ export default props => (
       New to [software]? Why not learn more on how to use this software, or go create
       your first script right away!
     </p>
-    <p>
+    <ButtonToolbar>
       <Button bsStyle="primary">Create new script</Button>
       <Button bsStyle="default">Learn more</Button>
-    </p>
+    </ButtonToolbar>
   </Jumbotron>
 );

@@ -1,21 +1,26 @@
-const {app, BrowserWindow} = require('electron')
-  const path = require('path')
-  const url = require('url')
+import { app, BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
+import url from 'url';
+import ScriptsManager from './main/ScriptsManager';
+
+ScriptsManager.init();
 
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
   let win
 
   function createWindow () {
+    BrowserWindow.addDevToolsExtension('/Users/hugo/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.1.0_0')
+
     // Create the browser window.
     win = new BrowserWindow({width: 1200, height: 900})
-
     // and load the index.html of the app.
-    win.loadURL(url.format({
-      pathname: path.join(__dirname, '../dist/ui/index.html'),
-      protocol: 'file:',
-      slashes: true
-    }))
+    // win.loadURL(url.format({
+    //   pathname: path.join(__dirname, '../dist/ui/index.html'),
+    //   protocol: 'file:',
+    //   slashes: true
+    // }))
+    win.loadURL('http://localhost:8080/');
 
     // Emitted when the window is closed.
     win.on('closed', () => {
@@ -50,3 +55,8 @@ const {app, BrowserWindow} = require('electron')
 
   // In this file you can include the rest of your app's specific main process
   // code. You can also put them in separate files and require them here.
+
+  ipcMain.on('asynchronous-message', (evt, arg) => {
+    console.log('ipcMain', arg)  // prints "ping"
+    ScriptsManager.saveScript('sdads', arg);
+  })

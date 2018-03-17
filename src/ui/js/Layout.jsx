@@ -20,7 +20,11 @@ export default props => (
         <ScriptsBrowser />
       </Col>
       <Col md={6} className={styles.fullHeight}>
-        <ScriptEditor />
+        <ScriptEditor
+          value={props.editorValue}
+          onChange={props.onEditorChange}
+          onSave={props.onEditorSave}
+        />
       </Col>
       <Col md={4} className={styles.fullHeight}>
         <Panel title="Preview">

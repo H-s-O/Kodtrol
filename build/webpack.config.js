@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const nodeExternals = require('webpack-node-externals');
 
 const APP_DIR = path.join(__dirname, '../src/ui');
 const OUTPUT_DIR = path.join(__dirname, '../dist/ui');
@@ -18,6 +19,7 @@ module.exports = {
     contentBase: OUTPUT_DIR,
     hot: true,
   },
+  target: 'electron-renderer',
   module: {
      rules: [
        {

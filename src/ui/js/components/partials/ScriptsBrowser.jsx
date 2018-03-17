@@ -14,13 +14,17 @@ const propTypes = {
 const defaultProps = {
   value: [
     {
+      icon: 'folder-open',
+      label: '3e script',
+    },
+    {
       icon: 'file',
       label: 'premier script',
     },
     {
       icon: 'file',
       label: '2e script',
-    }
+    },
   ],
 };
 
