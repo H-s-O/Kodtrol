@@ -27,7 +27,7 @@ export default class ScriptsManager {
 
   static saveScript(scriptName, scriptValue) {
     const processedMacros = macros.process(scriptValue);
-    const convertedFunctions = processedMacros.replace(/function (loop|start|end)/g, '$1');
+    const convertedFunctions = processedMacros.replace(/function (loop|start|end|beat)/g, '$1');
     const className = `Script_${scriptName}`;
     const compiledClass = ScriptsManager.compileClass(className, convertedFunctions);
     console.log(compiledClass);

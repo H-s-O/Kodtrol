@@ -52,12 +52,19 @@ export default class MainRenderer {
       return;
     }
     this.running = true;
+    this.clock.on('position', this.triggerClock);
     this.clock.start();
     setInterval(this.render, (1 / 40) * 1000);
   }
 
+  triggerClock(time) {
+      if (this.script && typeof this.script.beat === 'function') {
+        this.script.beat(this.devices, time);
+      }
+  }
+
   render() {
-    if (this.script) {
+    if (this.script && typeof this.script.loop === 'function') {
       this.script.loop(this.devices);
     }
 
