@@ -1,10 +1,6 @@
-const DMX = require('dmx');
-const Device = require('./Device');
-const MidiClock = require('midi-clock')
 
-const clock = MidiClock();
-clock.setTempo(96);
-clock.start();
+
+
 
 const devices = [];
 for (let i = 0; i < 4; i++) {
@@ -37,9 +33,6 @@ for (let i = 0; i < 4; i++) {
     },
   ));
 }
-
-const dmx = new DMX();
-dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
 
 let prevRandom = -1;
 clock.on('position', (position) => {

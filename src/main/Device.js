@@ -27,7 +27,7 @@ module.exports = class Device {
   }
 
   getChannel(channel) {
-    return this._channels[channel];
+    return this._channels[channel] || 0;
   }
 
   setChannel(channel, value) {
@@ -35,7 +35,7 @@ module.exports = class Device {
   }
 
   getVar(name) {
-    return this._vars[name];
+    return this._vars[name] || 0;
   }
 
   setVar(name, value) {

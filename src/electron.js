@@ -2,8 +2,11 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import url from 'url';
 import ScriptsManager from './main/ScriptsManager';
+import MainRenderer from './main/MainRenderer';
 
 ScriptsManager.init();
+
+const mainRenderer = new MainRenderer();
 
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
@@ -58,5 +61,7 @@ ScriptsManager.init();
 
   ipcMain.on('asynchronous-message', (evt, arg) => {
     console.log('ipcMain', arg)  // prints "ping"
-    ScriptsManager.saveScript('sdads', arg);
+    const scriptPath = ScriptsManager.saveScript('sdads', arg);
+    mainRenderer.reloadScript(scriptPath);
+    mainRenderer.run();
   })

@@ -1,82 +1,81 @@
 const DMX = require('dmx');
 const Device = require('./Device');
 const MidiClock = require('midi-clock')
+const autoBind = require('auto-bind-inheritance');
 
-const clock = MidiClock();
-clock.setTempo(96);
-clock.start();
+export default class MainRenderer {
+  constructor() {
+    autoBind(this);
 
-const devices = [];
-for (let i = 0; i < 4; i++) {
-  devices.push(new Device(
-    (i * 8),
-    8,
-    {
-      1: 127,
-      2: 80,
-      3: 8,
-      // 3: 120,
-      4: 0,
-      // 4: 0,
-      // 5: Math.round(Math.random()*127),
-      // 5: [85,71][+(i % 2 === 0)],
-      5: 0,
-      6: 0,
-      7: 127,
-      8: 0,
-    },
-    {
-      pan: (i * 0.6),
-      panMult: (i === 0 || i === 2) ? -1 : 1,
-    },
-  ));
-}
+    this.running = false;
 
-const dmx = new DMX();
-dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
+    this.clock = MidiClock();
+    this.clock.setTempo(96);
 
-let prevRandom = -1;
-clock.on('position', (position) => {
-  // const microPosition = position % 24;
-  const microPosition = position % 12;
-  // const microPosition = position % 6;
-  if (microPosition === 0) {
-    // let prevDimmer = devices[devices.length - 1].getVar('dimmer');
-    // devices.forEach((device) => {
-    //   const savedDimmer = device.getVar('dimmer');
-    //   device.setVar('dimmer', prevDimmer);
-    //   prevDimmer = savedDimmer;
-    // });
-    let rand;
-    do {
-      rand = Math.round(Math.random() * 3);
-    } while (rand === prevRandom);
-    devices.forEach((device, index) => {
-      device.setChannel(5, Math.round(Math.random() * 8) * 14);
-      // device.setVar('dimmer', index === rand ? 255 : 32);
-      // device.setVar('dimmer', index === rand ? 80 : 32);
-      // device.setVar('color', index === rand ? 84 : 85);
-    });
-    prevRandom = rand;
+    this.dmx = new DMX();
+    this.dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
+
+    this.script = null;
+
+    const devices = [];
+    for (let i = 0; i < 4; i++) {
+      devices.push(new Device(
+        (i * 8),
+        8,
+        {
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 8,
+          5: 0,
+          6: 0,
+          7: 0,
+          8: 0,
+        },
+        {
+          tilt: (i * 0.4),
+          pan: (i * 0.6),
+          dimmer: i === 0 ? 200 : 32,
+          dimmerFollow: i === 0 ? 200 : 32,
+          panMult: (i === 0 || i === 2) ? -1 : 1,
+          tiltMult: (i === 0 || i === 2) ? -1 : 1,
+          color: 85,
+          // color: 1,
+        },
+      ));
+    }
+    this.devices = devices;
   }
-});
 
-setInterval(() => {
-  devices.forEach((device) => {
-    let pan = device.getVar('pan');
-    let panMult = device.getVar('panMult');
-    pan += 0.1 * panMult;
-    device.setVar('pan', pan);
-    device.setChannel(1, 127 + (Math.round(Math.sin(pan) * 64)));
-  });
+  run() {
+    if (this.running) {
+      return;
+    }
+    this.running = true;
+    this.clock.start();
+    setInterval(this.render, (1 / 40) * 1000);
+  }
 
+  render() {
+    if (this.script) {
+      this.script.loop(this.devices);
+    }
 
-  const allData = devices.reduce((obj, device) => ({
-    ...obj,
-    ...Object.entries(device.data).reduce((data, [channel, value]) => ({
-      ...data,
-      [Number(channel) + device.startingChannel]: value,
-    }), {}),
-  }), {});
-  dmx.update('main', allData);
-}, (1 / 40) * 1000)
+    const allData = this.devices.reduce((obj, device) => ({
+      ...obj,
+      ...Object.entries(device.data).reduce((data, [channel, value]) => ({
+        ...data,
+        [Number(channel) + device.startingChannel]: value,
+      }), {}),
+    }), {});
+    this.dmx.update('main', allData);
+  }
+
+  reloadScript(scriptPath) {
+    const scriptClass = require(scriptPath);
+    this.script = new scriptClass;
+    if (typeof this.script.start === 'function') {
+      this.script.start(this.devices);
+    }
+  }
+}
