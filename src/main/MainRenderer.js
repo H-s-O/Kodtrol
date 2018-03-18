@@ -72,6 +72,7 @@ export default class MainRenderer {
   }
 
   reloadScript(scriptPath) {
+    delete require.cache[scriptPath];
     const scriptClass = require(scriptPath);
     this.script = new scriptClass;
     if (typeof this.script.start === 'function') {

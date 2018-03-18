@@ -31,7 +31,7 @@ export default class ScriptsManager {
     const className = `Script_${scriptName}`;
     const compiledClass = ScriptsManager.compileClass(className, convertedFunctions);
     console.log(compiledClass);
-    const filePath = `/Users/hugo/Desktop/${className}_${Date.now()}.js`;
+    const filePath = `/Users/hugo/Desktop/${className}.js`;
     fs.writeFileSync(filePath, compiledClass);
     return filePath;
   }
