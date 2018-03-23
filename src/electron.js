@@ -24,6 +24,16 @@ const mainRenderer = new MainRenderer();
     //   slashes: true
     // }))
     win.loadURL('http://localhost:8080/');
+    const contents = win.webContents;
+    contents.on('did-finish-load', () => {
+      const scripts = ScriptsManager.listScripts().map((script) => ({
+        name: script,
+      }));
+      console.log(scripts);
+      // setInterval(() => {
+        contents.send('updateScripts', scripts);
+      // }, 1000);
+    });
 
     // Emitted when the window is closed.
     win.on('closed', () => {

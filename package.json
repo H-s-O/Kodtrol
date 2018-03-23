@@ -22,6 +22,7 @@
     "dmx": "0.0.7",
     "domready": "^1.0.8",
     "electron": "^1.8.2",
+    "glob": "^7.1.2",
     "lodash": "^4.17.5",
     "midi-clock": "0.0.1",
     "prop-types": "^15.6.0",
@@ -31,8 +32,11 @@
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.2.0",
     "react-draw": "^0.6.1",
+    "react-redux": "^5.0.7",
     "react-split-pane": "^0.1.77",
-    "react-splitter-layout": "^3.0.0"
+    "react-splitter-layout": "^3.0.0",
+    "redux": "^3.7.2",
+    "redux-electron-ipc": "^1.1.12"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

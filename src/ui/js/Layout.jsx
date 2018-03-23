@@ -13,31 +13,35 @@ import Timeline from './components/partials/Timeline';
 
 import styles from '../styles/layout.scss';
 
-export default props => (
-  <Grid fluid>
-    <Row className={styles.topRow}>
-      <Col md={2} className={styles.fullHeight}>
-        <ScriptsBrowser />
-      </Col>
-      <Col md={6} className={styles.fullHeight}>
-        <ScriptEditor
-          value={props.editorValue}
-          onChange={props.onEditorChange}
-          onSave={props.onEditorSave}
-        />
-      </Col>
-      <Col md={4} className={styles.fullHeight}>
-        <Panel title="Preview">
-          <Welcome />
-        </Panel>
-      </Col>
-    </Row>
-    <Row className={styles.bottomRow}>
-      <Col md={12} className={styles.fullHeight}>
-        <Timeline>
-          Timeline here lel!
-        </Timeline>
-      </Col>
-    </Row>
-  </Grid>
-);
+export default props => {
+  return (
+    <Grid fluid>
+      <Row className={styles.topRow}>
+        <Col md={2} className={styles.fullHeight}>
+          <ScriptsBrowser
+            value={props.scripts}
+          />
+        </Col>
+        <Col md={6} className={styles.fullHeight}>
+          <ScriptEditor
+            value={props.editorValue}
+            onChange={props.onEditorChange}
+            onSave={props.onEditorSave}
+          />
+        </Col>
+        <Col md={4} className={styles.fullHeight}>
+          <Panel title="Preview">
+            <Welcome />
+          </Panel>
+        </Col>
+      </Row>
+      <Row className={styles.bottomRow}>
+        <Col md={12} className={styles.fullHeight}>
+          <Timeline>
+            Timeline here lel!
+          </Timeline>
+        </Col>
+      </Row>
+    </Grid>
+  );
+};

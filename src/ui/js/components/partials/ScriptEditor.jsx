@@ -19,6 +19,10 @@ export default class ScriptEditor extends Component {
     this.editorValue = null;
   }
 
+  shouldComponentUpdate() {
+    return false;
+  }
+
   onEditorChange(value, evt) {
     this.editorValue = value;
   }

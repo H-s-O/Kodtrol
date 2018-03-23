@@ -28,29 +28,32 @@ const defaultProps = {
   ],
 };
 
-const ScriptsBrowser = props => (
-  <Panel
-    title="Scripts"
-    className={styles.fullHeight}
-    headingContent={
-      <div
-        className="pull-right"
-      >
-        <Button
-          bsSize="xsmall"
+const ScriptsBrowser = props => {
+  // console.log('ScriptsBrowser', props);
+  return (
+    <Panel
+      title="Scripts"
+      className={styles.fullHeight}
+      headingContent={
+        <div
+          className="pull-right"
         >
-          <Glyphicon
-            glyph="plus"
-          />
-        </Button>
-      </div>
-    }
-  >
-    <TreeView
-      value={props.value}
-    />
-  </Panel>
-);
+          <Button
+            bsSize="xsmall"
+          >
+            <Glyphicon
+              glyph="plus"
+            />
+          </Button>
+        </div>
+      }
+    >
+      <TreeView
+        value={props.value}
+      />
+    </Panel>
+  );
+};
 
 ScriptsBrowser.propTypes = propTypes;
 ScriptsBrowser.defaultProps = defaultProps;
