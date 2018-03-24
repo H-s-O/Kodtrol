@@ -20,30 +20,21 @@ export default class MainRenderer {
     const devices = [];
     for (let i = 0; i < 4; i++) {
       devices.push(new Device(
+        'scan',
         (i * 8),
-        8,
-        {
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 8,
-          5: 0,
-          6: 0,
-          7: 0,
-          8: 0,
-        },
-        {
-          tilt: (i * 0.4),
-          pan: (i * 0.6),
-          dimmer: i === 0 ? 200 : 32,
-          dimmerFollow: i === 0 ? 200 : 32,
-          panMult: (i === 0 || i === 2) ? -1 : 1,
-          tiltMult: (i === 0 || i === 2) ? -1 : 1,
-          color: 85,
-          // color: 1,
-        },
+        8
       ));
     }
+    devices.push(new Device(
+      'par',
+      51,
+      1
+    ));
+    devices.push(new Device(
+      'par',
+      52,
+      1
+    ));
     this.devices = devices;
   }
 
@@ -75,6 +66,7 @@ export default class MainRenderer {
         [Number(channel) + device.startingChannel]: value,
       }), {}),
     }), {});
+    // console.log(allData);
     this.dmx.update('main', allData);
   }
 
@@ -85,5 +77,7 @@ export default class MainRenderer {
     if (typeof this.script.start === 'function') {
       this.script.start(this.devices);
     }
+    this.clock.stop();
+    this.clock.start();
   }
 }

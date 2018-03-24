@@ -31,14 +31,15 @@ export default class ScriptsManager {
   }
 
   static saveScript(scriptName, scriptValue) {
+    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/premier script.js`);
+    fs.writeFileSync(filePath, scriptValue);
     const processedMacros = macros.process(scriptValue);
     const convertedFunctions = processedMacros.replace(/function (loop|start|end|beat)/g, '$1');
     const className = `Script_${scriptName}`;
     const compiledClass = ScriptsManager.compileClass(className, convertedFunctions);
-    console.log(compiledClass);
-    const filePath = path.join(ScriptsManager.projectFilePath, `scripts_compiled/${className}.js`);
-    fs.writeFileSync(filePath, compiledClass);
-    return filePath;
+    const compiledFilePath = path.join(ScriptsManager.projectFilePath, `scripts_compiled/${className}.js`);
+    fs.writeFileSync(compiledFilePath, compiledClass);
+    return compiledFilePath;
   }
 
   static compileClass(className, classBody) {
