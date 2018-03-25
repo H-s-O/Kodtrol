@@ -8,6 +8,8 @@ ScriptsManager.init();
 
 const mainRenderer = new MainRenderer();
 
+let currentScript = null;
+
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
   let win
@@ -70,12 +72,13 @@ const mainRenderer = new MainRenderer();
   // code. You can also put them in separate files and require them here.
 
   ipcMain.on('saveScript', (evt, arg) => {
-    const scriptPath = ScriptsManager.saveScript('sdads', arg);
+    const scriptPath = ScriptsManager.saveScript(currentScript, arg);
     mainRenderer.reloadScript(scriptPath);
     mainRenderer.run();
   })
 
   ipcMain.on('scriptSelect', (evt, arg) => {
+    currentScript = arg;
     const scriptContent = ScriptsManager.loadScript(arg);
     win.webContents.send('editScript', scriptContent);
   });

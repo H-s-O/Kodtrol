@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
 import BaseScript from './lib/BaseScript';
+import safeClassName from './lib/safeClassName';
 
 export default class ScriptsManager {
   static init() {
@@ -22,15 +23,15 @@ export default class ScriptsManager {
   }
 
   static loadScript(scriptName) {
-    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/premier script.js`);
+    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptName}.js`);
     const scriptContent = fs.readFileSync(filePath, 'utf8');
     return scriptContent;
   }
 
   static saveScript(scriptName, scriptValue) {
-    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/premier script.js`);
+    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptName}.js`);
     fs.writeFileSync(filePath, scriptValue);
-    const className = `Script_${scriptName}`;
+    const className = safeClassName(`Script_${scriptName}`);
     const compiledClass = ScriptsManager.compileClass(className, scriptValue);
     const compiledFilePath = path.join(ScriptsManager.projectFilePath, `scripts_compiled/${className}.js`);
     fs.writeFileSync(compiledFilePath, compiledClass);
