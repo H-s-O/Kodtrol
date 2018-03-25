@@ -1,29 +1,20 @@
 import fs from 'fs';
 import path from 'path';
-import macros from './lib/macros';
 import glob from 'glob';
+import BaseScript from './lib/BaseScript';
 
 export default class ScriptsManager {
   static init() {
-    // register macros
-    macros.define('clamp', (value, min, max, node) => (
-      `(${value} < ${min} ? ${min} : ${value} > ${max} ? ${max} : ${value})`
-    ));
-    macros.define('map', (value, valueMin, valueMax, outMin, outMax, node) => (
-      `(${outMin} + (((${value} - ${valueMin}) / (${valueMax} - ${valueMin}) * (${outMax} - ${outMin}))))`
-    ));
-    macros.define('random', (min, max, node) => (
-      `(${min} + (Math.random() * (${max} - ${min})))`
-    ));
-    macros.define('round', (value, node) => (
-      `Math.round(${value})`
-    ));
-    macros.define('roundUp', (value, node) => (
-      `Math.ceil(${value})`
-    ));
-    macros.define('roundDown', (value, node) => (
-      `Math.floor(${value})`
-    ));
+    const baseProto = BaseScript.prototype;
+    this.macros = Object.getOwnPropertyNames(baseProto).
+      filter((prop) => (
+        typeof baseProto[prop] === 'function' && prop !== 'constructor' && prop[0] === '_'
+      ))
+      .reduce((acc, prop) => ({
+        ...acc,
+        [prop.substring(1)]: baseProto[prop].toString(),
+      }), {});
+    this.macrosRegexp = new RegExp(`[^.](${Object.keys(this.macros).join('|')})`, 'g');
   }
 
   static get projectFilePath() {
@@ -39,18 +30,27 @@ export default class ScriptsManager {
   static saveScript(scriptName, scriptValue) {
     const filePath = path.join(ScriptsManager.projectFilePath, `scripts/premier script.js`);
     fs.writeFileSync(filePath, scriptValue);
-    console.log('saveScript');
-    const processedMacros = macros.process(scriptValue);
-    const convertedFunctions = processedMacros.replace(/function (loop|start|end|beat)/g, '$1');
     const className = `Script_${scriptName}`;
-    const compiledClass = ScriptsManager.compileClass(className, convertedFunctions);
+    const compiledClass = ScriptsManager.compileClass(className, scriptValue);
     const compiledFilePath = path.join(ScriptsManager.projectFilePath, `scripts_compiled/${className}.js`);
     fs.writeFileSync(compiledFilePath, compiledClass);
     return compiledFilePath;
   }
 
   static compileClass(className, classBody) {
-    return `module.exports = class ${className} {\n${classBody}\n}`;
+    const helpersList = [];
+    const convertedFunctions = classBody.replace(/function (loop|start|end|beat)/g, '$1');
+    const convertedMacros = convertedFunctions.replace(this.macrosRegexp, (fullMatch, macro) => {
+      if (helpersList.indexOf(macro) === -1) {
+        helpersList.push(macro);
+      }
+      return `_${macro}`;
+    });
+    const helpersContent = helpersList
+      .map((helper) => (this.macros[helper]))
+      .join('\n');
+    const finalBody = `${helpersContent}\nmodule.exports = class ${className} {\n${convertedMacros}\n}`;
+    return finalBody;
   }
 
   static listScripts() {
