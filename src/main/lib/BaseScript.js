@@ -12,4 +12,7 @@ module.exports = class BaseScript {
   _randomIndex(arr) {
     return (Math.floor(Math.random() * arr.length));
   }
+  _isBeatDivision(beat, division) {
+    return (beat > 0 && beat % division === 0);
+  }
 };
