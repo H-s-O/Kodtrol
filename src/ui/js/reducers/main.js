@@ -13,6 +13,14 @@ export default (state = {}, action) => {
       };
       break;
 
+    case 'EDIT_SCRIPT':
+      console.log('EDIT_SCRIPT', action);
+      return {
+        ...state,
+        currentScript: action.currentScript,
+      };
+      break;
+
     default:
       return state;
       break;

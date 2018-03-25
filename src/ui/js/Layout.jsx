@@ -20,11 +20,12 @@ export default props => {
         <Col md={2} className={styles.fullHeight}>
           <ScriptsBrowser
             value={props.scripts}
+            onScriptSelect={props.onScriptSelect}
           />
         </Col>
         <Col md={6} className={styles.fullHeight}>
           <ScriptEditor
-            value={props.editorValue}
+            value={props.currentScript}
             onChange={props.onEditorChange}
             onSave={props.onEditorSave}
           />

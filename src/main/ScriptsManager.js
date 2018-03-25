@@ -30,9 +30,16 @@ export default class ScriptsManager {
     return '/Users/hugo/Desktop/project.manuscrit';
   }
 
+  static loadScript(scriptName) {
+    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/premier script.js`);
+    const scriptContent = fs.readFileSync(filePath, 'utf8');
+    return scriptContent;
+  }
+
   static saveScript(scriptName, scriptValue) {
     const filePath = path.join(ScriptsManager.projectFilePath, `scripts/premier script.js`);
     fs.writeFileSync(filePath, scriptValue);
+    console.log('saveScript');
     const processedMacros = macros.process(scriptValue);
     const convertedFunctions = processedMacros.replace(/function (loop|start|end|beat)/g, '$1');
     const className = `Script_${scriptName}`;

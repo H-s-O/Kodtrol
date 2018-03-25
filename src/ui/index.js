@@ -7,10 +7,11 @@ import createIpc, { send } from 'redux-electron-ipc';
 
 import Main from './js/Main';
 import main from './js/reducers/main';
-import { updateScripts } from './js/actions/ipc';
+import { updateScripts, editScript } from './js/actions/ipc';
 
 const ipc = createIpc({
   'updateScripts': updateScripts,
+  'editScript': editScript,
 });
 
 const store = createStore(main, applyMiddleware(ipc));

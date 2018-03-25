@@ -12,20 +12,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  value: [
-    {
-      icon: 'folder-open',
-      label: '3e script',
-    },
-    {
-      icon: 'file',
-      label: 'premier script',
-    },
-    {
-      icon: 'file',
-      label: '2e script',
-    },
-  ],
+  value: [],
 };
 
 const ScriptsBrowser = props => {
@@ -50,6 +37,7 @@ const ScriptsBrowser = props => {
     >
       <TreeView
         value={props.value}
+        onClickItem={(it) => props.onScriptSelect(it.label)}
       />
     </Panel>
   );

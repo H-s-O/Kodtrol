@@ -69,9 +69,13 @@ const mainRenderer = new MainRenderer();
   // In this file you can include the rest of your app's specific main process
   // code. You can also put them in separate files and require them here.
 
-  ipcMain.on('asynchronous-message', (evt, arg) => {
-    console.log('ipcMain', arg)  // prints "ping"
+  ipcMain.on('saveScript', (evt, arg) => {
     const scriptPath = ScriptsManager.saveScript('sdads', arg);
     mainRenderer.reloadScript(scriptPath);
     mainRenderer.run();
   })
+
+  ipcMain.on('scriptSelect', (evt, arg) => {
+    const scriptContent = ScriptsManager.loadScript(arg);
+    win.webContents.send('editScript', scriptContent);
+  });

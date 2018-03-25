@@ -16,26 +16,34 @@ const Main = class Main extends Component {
 
   onEditorSave(value) {
     console.log('onEditorSave', value);
-    ipcRenderer.send('asynchronous-message', value);
+    ipcRenderer.send('saveScript', value);
+  }
+
+  onScriptSelect(scriptName) {
+    console.log('onScriptSelect', scriptName);
+    ipcRenderer.send('scriptSelect', scriptName);
   }
 
   render() {
-    const { scripts } = this.props;
+    const { scripts, currentScript } = this.props;
     // console.log('render', scripts);
     return (
       <Layout
         scripts={scripts}
+        currentScript={currentScript}
         onEditorSave={this.onEditorSave}
+        onScriptSelect={this.onScriptSelect}
       />
     );
   }
 }
 
 const mapStateToProps = (state) => {
-  const { scripts } = state;
+  const { scripts, currentScript } = state;
   // console.log('mapStateToProps', state);
   return {
     scripts,
+    currentScript,
   }
 };
 

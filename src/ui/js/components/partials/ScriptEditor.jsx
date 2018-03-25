@@ -19,9 +19,9 @@ export default class ScriptEditor extends Component {
     this.editorValue = null;
   }
 
-  shouldComponentUpdate() {
-    return false;
-  }
+  // shouldComponentUpdate() {
+  //   return false;
+  // }
 
   onEditorChange(value, evt) {
     this.editorValue = value;
@@ -30,6 +30,7 @@ export default class ScriptEditor extends Component {
   onSaveClick(evt) {
     const { onSave } = this.props;
     if (onSave) {
+      console.log('onSave', this.editorValue);
       onSave(this.editorValue);
     }
   }
@@ -37,6 +38,9 @@ export default class ScriptEditor extends Component {
   render() {
     const { onChange, value, onSave } = this.props;
 
+    // @TODO fix
+    this.editorValue = value;
+    
     return (
       <Panel
         title="Script editor"
@@ -51,11 +55,13 @@ export default class ScriptEditor extends Component {
         }
       >
         <AceEditor
+          value={value}
           onChange={this.onEditorChange}
-          fontSize={13}
+          fontSize={12}
+          tabSize={2}
           showPrintMargin={false}
           width="100%"
-          height="100%"
+          height="92%"
           mode="javascript"
           theme="tomorrow_night_eighties"
           name="UNIQUE_ID_OF_DIV"
