@@ -17,23 +17,18 @@ export default props => {
   return (
     <Grid fluid>
       <Row className={styles.topRow}>
-        <Col md={2} className={styles.fullHeight}>
+        <Col md={3} className={styles.fullHeight}>
           <ScriptsBrowser
             value={props.scripts}
             onScriptSelect={props.onScriptSelect}
           />
         </Col>
-        <Col md={6} className={styles.fullHeight}>
+        <Col md={9} className={styles.fullHeight}>
           <ScriptEditor
             value={props.currentScript}
             onChange={props.onEditorChange}
             onSave={props.onEditorSave}
           />
-        </Col>
-        <Col md={4} className={styles.fullHeight}>
-          <Panel title="Preview">
-            <Welcome />
-          </Panel>
         </Col>
       </Row>
       <Row className={styles.bottomRow}>
