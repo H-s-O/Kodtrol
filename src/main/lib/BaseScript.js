@@ -15,4 +15,7 @@ module.exports = class BaseScript {
   _isBeatDivision(beat, division) {
     return (beat > 0 && beat % division === 0);
   }
+  _step(value, step) {
+    return (Math.round(value / step) * step);
+  }
 };
