@@ -15,7 +15,7 @@ export default class ScriptsManager {
         ...acc,
         [prop.substring(1)]: baseProto[prop].toString(),
       }), {});
-    this.macrosRegexp = new RegExp(`[^.](${Object.keys(this.macros).join('|')})`, 'g');
+    this.macrosRegexp = new RegExp(`(?<!.)?(${Object.keys(this.macros).join('|')})`, 'g');
   }
 
   static get projectFilePath() {

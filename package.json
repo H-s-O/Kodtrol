@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "webpack-dev-server --open --config build/webpack.config.js",
     "build": "npx webpack --config build/webpack.config.js -p",
-    "start": "npx electron -r babel-register .",
+    "start": "npx electron --js-flags=\"--harmony_regexp_lookbehind\" -r babel-register .",
     "package": "npm run build && npx electron-packager dist MyApp"
   },
   "author": "HsO <hugostonge@gmail.com>",
