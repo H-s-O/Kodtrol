@@ -90,7 +90,7 @@ export default class MainRenderer {
       }
     } catch (err) {
       this.script = null;
-      console.error(error);
+      console.error(err);
     }
     this.clock.stop();
     this.clock.start();
