@@ -18,13 +18,13 @@ module.exports = class BaseScript {
   _step(value, step = 1) {
     return (Math.round(value / step) * step);
   }
-  _smoothFollow(device, varName, divider = 1, value = null) {
+  _smoothFollow(device, varName, divider = 1, value = null, initValue = null) {
     if (value === null) {
       value = device.getVar(varName);
     }
     const followVarName = `${varName}__follow`;
     if (!device.varIsSet(followVarName)) {
-      device.setVar(followVarName, value);
+      device.setVar(followVarName, initValue !== null ? initValue : value);
     }
     let follow = device.getVar(followVarName);
     const diff = value - follow;
