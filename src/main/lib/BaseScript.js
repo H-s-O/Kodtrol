@@ -15,7 +15,29 @@ module.exports = class BaseScript {
   _isBeatDivision(beat, division) {
     return (beat > 0 && beat % division === 0);
   }
-  _step(value, step) {
+  _step(value, step = 1) {
     return (Math.round(value / step) * step);
+  }
+  _smoothFollow(device, varName, divider = 1, value = null) {
+    if (value === null) {
+      value = device.getVar(varName);
+    }
+    const followVarName = `${varName}__follow`;
+    if (!device.varIsSet(followVarName)) {
+      device.setVar(followVarName, value);
+    }
+    let follow = device.getVar(followVarName);
+    const diff = value - follow;
+    follow += diff / divider;
+    device.setVar(followVarName, follow);
+    return follow;
+  }
+  _smoothReset(device, varName, value = null) {
+    if (value === null) {
+      value = device.getVar(varName);
+    }
+    const followVarName = `${varName}__follow`;
+    device.setVar(followVarName, value);
+    return value;
   }
 };

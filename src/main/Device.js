@@ -47,6 +47,10 @@ module.exports = class Device {
     return this.setChannel(channel, func(this.getChannel(channel)));
   }
 
+  varIsSet(name) {
+    return name in this._vars;
+  }
+
   getVar(name) {
     return this._vars[name] || 0;
   }
