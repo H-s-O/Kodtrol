@@ -49,14 +49,24 @@ export default class MainRenderer {
   }
 
   triggerClock(time) {
+    try {
       if (this.script && typeof this.script.beat === 'function') {
         this.script.beat(this.devices, time);
       }
+    } catch (err) {
+      this.script = null;
+      console.error(err);
+    }
   }
 
   render() {
-    if (this.script && typeof this.script.loop === 'function') {
-      this.script.loop(this.devices);
+    try {
+      if (this.script && typeof this.script.loop === 'function') {
+        this.script.loop(this.devices);
+      }
+    } catch (err) {
+      this.script = null;
+      console.error(err);
     }
 
     const allData = this.devices.reduce((obj, device) => ({
@@ -74,8 +84,13 @@ export default class MainRenderer {
     delete require.cache[scriptPath];
     const scriptClass = require(scriptPath);
     this.script = new scriptClass;
-    if (typeof this.script.start === 'function') {
-      this.script.start(this.devices);
+    try {
+      if (typeof this.script.start === 'function') {
+        this.script.start(this.devices);
+      }
+    } catch (err) {
+      this.script = null;
+      console.error(error);
     }
     this.clock.stop();
     this.clock.start();
