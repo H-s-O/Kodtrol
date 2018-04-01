@@ -22,18 +22,33 @@ export default class MainRenderer {
       devices.push(new Device(
         'scan',
         (i * 8),
-        8
+        8,
+        {
+          pan: 1,
+          tilt: 2,
+          shutter: 3,
+          gobo: 4,
+          color: 5,
+          dimmer: 7,
+          'function': 8,
+        },
       ));
     }
     devices.push(new Device(
       'par',
       51,
-      1
+      1,
+      {
+        dimmer: 1,
+      },
     ));
     devices.push(new Device(
       'par',
       52,
-      1
+      1,
+      {
+        dimmer: 1,
+      },
     ));
     this.devices = devices;
   }

@@ -1,9 +1,10 @@
 module.exports = class Device {
-  constructor(type, startingChannel, numChannels, initChannels = null, vars = {}) {
+  constructor(type, startingChannel, numChannels, channelAliases = null, initChannels = null, vars = {}) {
     this._type = type;
     this._startingChannel = startingChannel;
     this._numChannels = numChannels;
     this._vars = vars;
+    this._channelAliases = channelAliases;
 
     if (initChannels) {
       this._channels = initChannels;
@@ -36,10 +37,16 @@ module.exports = class Device {
   }
 
   getChannel(channel) {
+    if (typeof channel === 'string') {
+      channel = this._channelAliases[channel];
+    }
     return this._channels[channel] || 0;
   }
 
   setChannel(channel, value) {
+    if (typeof channel === 'string') {
+      channel = this._channelAliases[channel];
+    }
     this._channels[channel] = value;
   }
 
