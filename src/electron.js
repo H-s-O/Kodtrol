@@ -15,7 +15,7 @@ let currentScript = null;
   let win
 
   function createWindow () {
-    BrowserWindow.addDevToolsExtension('/Users/hugo/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.1.0_0')
+    // BrowserWindow.addDevToolsExtension('/Users/hugo/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.1.0_0')
 
     // Create the browser window.
     win = new BrowserWindow({width: 1200, height: 900})
