@@ -9,8 +9,12 @@ module.exports = class BaseScript {
   _randomBetween(min, max) {
     return (min + (Math.random() * (max - min)));
   }
-  _randomIndex(arr) {
-    return (Math.floor(Math.random() * arr.length));
+  _randomIndex(arr, except = null) {
+    let index;
+    do {
+      index = (Math.floor(Math.random() * arr.length));
+    } while (index === except);
+    return index;
   }
   _isBeatDivision(beat, division) {
     return (beat > 0 && beat % division === 0);
