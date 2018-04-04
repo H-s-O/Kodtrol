@@ -50,6 +50,22 @@ export default class MainRenderer {
         dimmer: 1,
       },
     ));
+    for (let i = 0; i < 4; i++) {
+      devices.push(new Device(
+        'rgb',
+        100 + (i * 7),
+        7,
+        {
+          dimmer: 1,
+          strobe: 2,
+          voice: 3,
+          speed: 4,
+          red: 5,
+          green: 6,
+          blue: 7,
+        },
+      ));
+    }
     this.devices = devices;
   }
 
