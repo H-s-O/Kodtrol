@@ -24,6 +24,11 @@ const Main = class Main extends Component {
     ipcRenderer.send('scriptSelect', scriptName);
   }
 
+  onScriptCreate(scriptName) {
+    console.log('onScriptCreate', scriptName);
+    ipcRenderer.send('scriptCreate', scriptName);
+  }
+
   render() {
     const { scripts, currentScript } = this.props;
     // console.log('render', scripts);
@@ -33,6 +38,7 @@ const Main = class Main extends Component {
         currentScript={currentScript}
         onEditorSave={this.onEditorSave}
         onScriptSelect={this.onScriptSelect}
+        onScriptCreate={this.onScriptCreate}
       />
     );
   }

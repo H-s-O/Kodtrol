@@ -82,3 +82,14 @@ let currentScript = null;
     const scriptContent = ScriptsManager.loadScript(arg);
     win.webContents.send('editScript', scriptContent);
   });
+
+  ipcMain.on('scriptCreate', (evt, arg) => {
+    currentScript = arg;
+    ScriptsManager.createScript(arg);
+    const scripts = ScriptsManager.listScripts().map((script) => ({
+      name: script,
+    }));
+    win.webContents.send('updateScripts', scripts);
+    const scriptContent = ScriptsManager.loadScript(arg);
+    win.webContents.send('editScript', scriptContent);
+  });

@@ -21,6 +21,7 @@ export default props => {
           <ScriptsBrowser
             value={props.scripts}
             onScriptSelect={props.onScriptSelect}
+            onScriptCreate={props.onScriptCreate}
           />
         </Col>
         <Col md={9} className={styles.fullHeight}>

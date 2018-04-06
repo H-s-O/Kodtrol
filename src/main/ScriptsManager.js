@@ -28,6 +28,12 @@ export default class ScriptsManager {
     return scriptContent;
   }
 
+  static createScript(scriptName) {
+    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptName}.js`);
+    fs.writeFileSync(filePath, '');
+    return filePath;
+  }
+
   static saveScript(scriptName, scriptValue) {
     const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptName}.js`);
     fs.writeFileSync(filePath, scriptValue);
