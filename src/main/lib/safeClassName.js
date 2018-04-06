@@ -1,3 +1,3 @@
 export default (fileName) => (
-  fileName.replace(' ', '_')
+  fileName.replace(/ /g, '_')
 );
