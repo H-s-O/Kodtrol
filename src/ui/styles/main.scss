@@ -1,11 +1,14 @@
 $icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
 $grid-gutter-width: 10px;
 
-// @see https://github.com/webpack-contrib/css-loader/issues/589
 @import "~bootswatch/slate/variables";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap";
 @import "~bootswatch/slate/bootswatch";
 @import "~css-electron-reset/index.css";
+
+:global button, button:hover {
+  cursor: default;
+}
 
 :global #root {
   padding: 10px 5px;
