@@ -7,7 +7,7 @@ $grid-gutter-width: 10px;
 @import "~css-electron-reset/index.css";
 
 :global button, button:hover {
-  cursor: default;
+  cursor: default !important;
 }
 
 :global #root {
