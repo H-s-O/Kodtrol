@@ -24,32 +24,40 @@ const Main = class Main extends Component {
     ipcRenderer.send('scriptSelect', scriptName);
   }
 
-  onScriptCreate(scriptName) {
-    console.log('onScriptCreate', scriptName);
-    ipcRenderer.send('scriptCreate', scriptName);
+  onScriptCreate(scriptData) {
+    console.log('onScriptCreate', scriptData);
+    ipcRenderer.send('scriptCreate', scriptData);
+  }
+
+  onDeviceCreate(deviceData) {
+    console.log('onDeviceCreate', deviceData);
+    ipcRenderer.send('deviceCreate', deviceData);
   }
 
   render() {
-    const { scripts, currentScript } = this.props;
+    const { scripts, currentScript, devices } = this.props;
     // console.log('render', scripts);
     return (
       <Layout
         scripts={scripts}
+        devices={devices}
         currentScript={currentScript}
         onEditorSave={this.onEditorSave}
         onScriptSelect={this.onScriptSelect}
         onScriptCreate={this.onScriptCreate}
+        onDeviceCreate={this.onDeviceCreate}
       />
     );
   }
 }
 
 const mapStateToProps = (state) => {
-  const { scripts, currentScript } = state;
+  const { scripts, currentScript, devices } = state;
   // console.log('mapStateToProps', state);
   return {
     scripts,
     currentScript,
+    devices,
   }
 };
 

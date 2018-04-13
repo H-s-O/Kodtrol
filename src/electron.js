@@ -1,10 +1,16 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import { get, set } from 'lodash';
 import path from 'path';
 import url from 'url';
+
+import { readAppConfig, writeAppConfig, createProject } from './main/lib/fileSystem';
+import { createProjectDialog } from './main/lib/dialogs';
 import ScriptsManager from './main/ScriptsManager';
+import DevicesManager from './main/DevicesManager';
 import MainRenderer from './main/MainRenderer';
 
 ScriptsManager.init();
+DevicesManager.init();
 
 const mainRenderer = new MainRenderer();
 
@@ -13,6 +19,7 @@ let currentScript = null;
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
   let win
+  let currentProjectFilePath;
 
   function createWindow () {
     // BrowserWindow.addDevToolsExtension('/Users/hugo/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.1.0_0')
@@ -32,9 +39,13 @@ let currentScript = null;
         name: script,
       }));
       console.log(scripts);
-      // setInterval(() => {
-        contents.send('updateScripts', scripts);
-      // }, 1000);
+      contents.send('updateScripts', scripts);
+
+      const devices = DevicesManager.listDevices().map((device) => ({
+        name: device,
+      }));
+      console.log(devices);
+      contents.send('updateDevices', devices);
     });
 
     // Emitted when the window is closed.
@@ -49,7 +60,23 @@ let currentScript = null;
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
-  app.on('ready', createWindow)
+  app.on('ready', () => {
+    const appConfig = readAppConfig();
+    const configCurrentProject = get(appConfig, 'currentProjectFilePath');
+    if (!configCurrentProject) {
+      const requestedProjectPath = createProjectDialog();
+      currentProjectFilePath = createProject(requestedProjectPath);
+      set(appConfig, 'currentProjectFilePath', currentProjectFilePath);
+      writeAppConfig(appConfig);
+    } else {
+      currentProjectFilePath = configCurrentProject;
+    }
+
+    ScriptsManager.projectFilePath = currentProjectFilePath;
+    DevicesManager.projectFilePath = currentProjectFilePath;
+
+    createWindow();
+  })
 
   // Quit when all windows are closed.
   app.on('window-all-closed', () => {
@@ -84,12 +111,21 @@ let currentScript = null;
   });
 
   ipcMain.on('scriptCreate', (evt, arg) => {
-    currentScript = arg;
-    ScriptsManager.createScript(arg);
+    const { name } = arg;
+    currentScript = name;
+    ScriptsManager.createScript(name);
     const scripts = ScriptsManager.listScripts().map((script) => ({
       name: script,
     }));
     win.webContents.send('updateScripts', scripts);
-    const scriptContent = ScriptsManager.loadScript(arg);
+    const scriptContent = ScriptsManager.loadScript(name);
     win.webContents.send('editScript', scriptContent);
+  });
+
+  ipcMain.on('deviceCreate', (evt, arg) => {
+    DevicesManager.createDevice(arg);
+    const devices = DevicesManager.listDevices().map((device) => ({
+      name: device,
+    }));
+    win.webContents.send('updateDevices', devices);
   });

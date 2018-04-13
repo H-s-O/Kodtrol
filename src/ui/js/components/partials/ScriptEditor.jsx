@@ -40,7 +40,7 @@ export default class ScriptEditor extends Component {
 
     // @TODO fix
     this.editorValue = value;
-    
+
     return (
       <Panel
         title="Script editor"
@@ -66,7 +66,7 @@ export default class ScriptEditor extends Component {
           theme="tomorrow_night_eighties"
           name="UNIQUE_ID_OF_DIV"
           editorProps={{
-            $blockScrolling: true
+            $blockScrolling: Infinity
           }}
         />
       </Panel>

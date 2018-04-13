@@ -21,6 +21,7 @@
     "dmx": "0.0.7",
     "domready": "^1.0.8",
     "electron": "^1.8.2",
+    "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
     "lodash": "^4.17.5",
     "midi-clock": "0.0.1",

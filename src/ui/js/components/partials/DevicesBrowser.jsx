@@ -5,23 +5,21 @@ import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel } from '
 import { isFunction } from 'lodash';
 import Panel from './Panel';
 import TreeView from './TreeView';
-import AddScript from '../modals/AddScript';
+import AddDevice from '../modals/AddDevice';
 
-import styles from '../../../styles/components/partials/scriptsbrowser.scss';
+import styles from '../../../styles/components/partials/devicesbrowser.scss';
 
 const propTypes = {
   value: PropTypes.arrayOf(PropTypes.shape({})),
-  onScriptSelect: PropTypes.func,
-  onScriptCreate: PropTypes.func,
+  onDeviceCreate: PropTypes.func,
 };
 
 const defaultProps = {
   value: [],
-  onScriptSelect: null,
-  onScriptCreate: null,
+  onDeviceCreate: null,
 };
 
-class ScriptsBrowser extends Component {
+class DevicesBrowser extends Component {
   constructor(props) {
     super(props);
     autoBind(this);
@@ -51,10 +49,10 @@ class ScriptsBrowser extends Component {
     });
   }
 
-  onAddSuccess(scriptData) {
-    const { onScriptCreate } = this.props;
-    if (isFunction(onScriptCreate)) {
-      onScriptCreate(scriptData);
+  onAddSuccess(deviceData) {
+    const { onDeviceCreate } = this.props;
+    if (isFunction(onDeviceCreate)) {
+      onDeviceCreate(deviceData);
     }
     this.setState({
       showAddModal: false,
@@ -66,7 +64,7 @@ class ScriptsBrowser extends Component {
     const { showAddModal } = this.state;
     return (
       <Panel
-        title="Scripts"
+        title="Devices"
         className={styles.fullHeight}
         headingContent={
           <div
@@ -87,7 +85,7 @@ class ScriptsBrowser extends Component {
           value={value}
           onClickItem={this.onScriptSelect}
         />
-        <AddScript
+        <AddDevice
           show={showAddModal}
           onCancel={this.onAddCancel}
           onSuccess={this.onAddSuccess}
@@ -97,7 +95,7 @@ class ScriptsBrowser extends Component {
   }
 };
 
-ScriptsBrowser.propTypes = propTypes;
-ScriptsBrowser.defaultProps = defaultProps;
+DevicesBrowser.propTypes = propTypes;
+DevicesBrowser.defaultProps = defaultProps;
 
-export default ScriptsBrowser;
+export default DevicesBrowser;

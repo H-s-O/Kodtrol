@@ -18,8 +18,12 @@ export default class ScriptsManager {
     this.macrosRegexp = new RegExp(`(?<!.)?(${Object.keys(this.macros).join('|')})`, 'g');
   }
 
+  static set projectFilePath(path) {
+    this._projectFilePath = path;
+  }
+
   static get projectFilePath() {
-    return '/Users/hugo/Desktop/project.manuscrit';
+    return this._projectFilePath;
   }
 
   static loadScript(scriptName) {

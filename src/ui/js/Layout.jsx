@@ -8,6 +8,7 @@ import SmallWell from './components/partials/SmallWell';
 import Welcome from './components/partials/Welcome';
 import ScriptEditor from './components/partials/ScriptEditor';
 import ScriptsBrowser from './components/partials/ScriptsBrowser';
+import DevicesBrowser from './components/partials/DevicesBrowser';
 // import Preview from './components/partials/Preview';
 import Timeline from './components/partials/Timeline';
 
@@ -17,14 +18,21 @@ export default props => {
   return (
     <Grid fluid>
       <Row className={styles.topRow}>
-        <Col md={3} className={styles.fullHeight}>
+        <Col md={2} className={styles.fullHeight}>
+          <DevicesBrowser
+            value={props.devices}
+            onScriptSelect={props.onScriptSelect}
+            onDeviceCreate={props.onDeviceCreate}
+          />
+        </Col>
+        <Col md={2} className={styles.fullHeight}>
           <ScriptsBrowser
             value={props.scripts}
             onScriptSelect={props.onScriptSelect}
             onScriptCreate={props.onScriptCreate}
           />
         </Col>
-        <Col md={9} className={styles.fullHeight}>
+        <Col md={8} className={styles.fullHeight}>
           <ScriptEditor
             value={props.currentScript}
             onChange={props.onEditorChange}
