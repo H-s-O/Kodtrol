@@ -27,7 +27,10 @@ export default class DevicesManager {
   static createDevice(deviceData) {
     const id = uniqid();
     const filePath = path.join(DevicesManager.projectFilePath, `devices/${id}.json`);
-    writeJson(filePath, deviceData);
+    writeJson(filePath, {
+      id,
+      ...deviceData
+    });
     return id;
   }
 

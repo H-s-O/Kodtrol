@@ -44,8 +44,9 @@ const main = async () => {
       console.log(scripts);
       contents.send('updateScripts', scripts);
 
-      const devices = DevicesManager.listDevices().map((device) => ({
-        name: device,
+      const devices = DevicesManager.listDevices().map(({id, name}) => ({
+        id,
+        name,
       }));
       console.log(devices);
       contents.send('updateDevices', devices);
