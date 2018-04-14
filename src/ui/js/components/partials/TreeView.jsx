@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from 'react-autobind';
 import classNames from 'classnames'
+import { isFunction } from 'lodash';
 import { ListGroup, ListGroupItem, Glyphicon } from 'react-bootstrap';
 
 import styles from '../../../styles/components/partials/treeview.scss';
@@ -26,7 +27,7 @@ class TreeView extends Component {
 
   onClickItem(it) {
     const { onClickItem } = this.props;
-    if (onClickItem) {
+    if (isFunction(onClickItem)) {
       onClickItem(it);
     }
   }
@@ -37,7 +38,6 @@ class TreeView extends Component {
       <li
         key={index}
         className={classNames({
-          [styles.listItem]: true,
           'list-group-item': true,
         })}
         onClick={() => this.onClickItem(it)}
@@ -47,7 +47,11 @@ class TreeView extends Component {
           glyph={it.icon}
         />
       )}
-      { it.label }
+      <span
+        className={styles.itemLabel}
+      >
+        { it.label }
+      </span>
       { actions }
       </li>
     );

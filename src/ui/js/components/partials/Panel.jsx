@@ -16,10 +16,6 @@ export default props => (
         { props.headingContent }
       </Panel.Heading>
     )}
-    <Panel.Body
-      style={{ height: '100%' }}
-    >
-      { props.children }
-    </Panel.Body>
+    { props.children }
   </Panel>
 );
