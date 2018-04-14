@@ -5,6 +5,7 @@ export default (state = {}, action) => {
         ...state,
         scripts: action.scripts.map((script) => {
           return {
+            id: script.id,
             icon: 'file',
             label: script.name,
           };
@@ -17,6 +18,7 @@ export default (state = {}, action) => {
         ...state,
         devices: action.devices.map((device) => {
           return {
+            id: device.id,
             icon: 'modal-window',
             label: device.name,
           };

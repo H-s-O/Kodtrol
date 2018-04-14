@@ -29,13 +29,13 @@ class DevicesBrowser extends Component {
     };
   }
 
-  onScriptSelect(it) {
-    const name = it.label;
-    const { onScriptSelect } = this.props;
-    if (isFunction(onScriptSelect)) {
-      onScriptSelect(name);
-    }
-  }
+  // onScriptSelect(it) {
+  //   const name = it.label;
+  //   const { onScriptSelect } = this.props;
+  //   if (isFunction(onScriptSelect)) {
+  //     onScriptSelect(name);
+  //   }
+  // }
 
   onAddClick() {
     this.setState({

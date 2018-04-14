@@ -21,7 +21,6 @@ export default props => {
         <Col md={2} className={styles.fullHeight}>
           <DevicesBrowser
             value={props.devices}
-            onScriptSelect={props.onScriptSelect}
             onDeviceCreate={props.onDeviceCreate}
           />
         </Col>
@@ -35,7 +34,6 @@ export default props => {
         <Col md={8} className={styles.fullHeight}>
           <ScriptEditor
             value={props.currentScript}
-            onChange={props.onEditorChange}
             onSave={props.onEditorSave}
           />
         </Col>

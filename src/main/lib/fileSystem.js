@@ -1,6 +1,10 @@
-import { readJsonSync, writeJsonSync, ensureFileSync, ensureDirSync } from 'fs-extra';
+import { readJsonSync, writeJsonSync, ensureFileSync, ensureDirSync, writeFileSync } from 'fs-extra';
 import { app } from 'electron';
 import path from 'path';
+
+export {
+  writeFileSync as writeFile,
+};
 
 export const getAppConfigPath = () => {
   const userData = app.getPath('userData');

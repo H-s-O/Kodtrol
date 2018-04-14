@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
+import uniqid from 'uniqid';
 import BaseScript from './lib/BaseScript';
 import safeClassName from './lib/safeClassName';
-import { writeJson } from './lib/fileSystem';
+import { writeJson, readJson } from './lib/fileSystem';
 
 export default class DevicesManager {
   static init() {
@@ -17,32 +18,39 @@ export default class DevicesManager {
     return this._projectFilePath;
   }
 
-  static loadDevice(deviceName) {
-    const filePath = path.join(DevicesManager.projectFilePath, `devices/${deviceName}.json`);
+  static loadDevice(deviceId) {
+    const filePath = path.join(DevicesManager.projectFilePath, `devices/${deviceId}.json`);
     const deviceContent = fs.readFileSync(filePath, 'utf8');
     return deviceContent;
   }
 
   static createDevice(deviceData) {
-    const { name } = deviceData;
-    const filePath = path.join(DevicesManager.projectFilePath, `devices/${name}.json`);
+    const id = uniqid();
+    const filePath = path.join(DevicesManager.projectFilePath, `devices/${id}.json`);
     writeJson(filePath, deviceData);
-    return filePath;
+    return id;
   }
 
-  static saveDevice(scriptName, scriptValue) {
-    const filePath = path.join(DevicesManager.projectFilePath, `devices/${scriptName}.json`);
-    fs.writeFileSync(filePath, scriptValue);
-    const className = safeClassName(`Script_${scriptName}`);
-    const compiledClass = DevicesManager.compileClass(className, scriptValue);
-    const compiledFilePath = path.join(DevicesManager.projectFilePath, `scripts_compiled/${className}.js`);
-    fs.writeFileSync(compiledFilePath, compiledClass);
-    return compiledFilePath;
+  static saveDevice(deviceName, deviceValue) {
+    // const filePath = path.join(DevicesManager.projectFilePath, `devices/${deviceId}.json`);
+    // fs.writeFileSync(filePath, scriptValue);
+    // const className = safeClassName(`Script_${scriptName}`);
+    // const compiledClass = DevicesManager.compileClass(className, scriptValue);
+    // const compiledFilePath = path.join(DevicesManager.projectFilePath, `scripts_compiled/${className}.js`);
+    // fs.writeFileSync(compiledFilePath, compiledClass);
+    // return compiledFilePath;
   }
 
   static listDevices() {
     const pathPattern = path.join(DevicesManager.projectFilePath, 'devices/**/*.json');
-    const foundScripts = glob.sync(pathPattern).map((script) => (path.basename(script, '.json')));
-    return foundScripts;
+    const foundDevices = glob.sync(pathPattern).map((device) => {
+      const deviceData = readJson(device);
+      const { id, name } = deviceData;
+      return {
+        id,
+        name,
+      };
+    });
+    return foundDevices;
   }
 }

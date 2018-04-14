@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import AceEditor from 'react-ace';
 import brace from 'brace';
 import autoBind from 'react-autobind';
+import { isFunction, get } from 'lodash';
 import { Button } from 'react-bootstrap';
 
 import Panel from './Panel';
@@ -28,34 +29,38 @@ export default class ScriptEditor extends Component {
   }
 
   onSaveClick(evt) {
-    const { onSave } = this.props;
-    if (onSave) {
-      console.log('onSave', this.editorValue);
-      onSave(this.editorValue);
+    const { onSave, value } = this.props;
+    if (isFunction(onSave)) {
+      const { id } = value;
+      onSave({
+        id,
+        content: this.editorValue
+      });
     }
   }
 
   render() {
-    const { onChange, value, onSave } = this.props;
+    const { value, onSave } = this.props;
+    const content = get(value, 'content', undefined);
 
     // @TODO fix
-    this.editorValue = value;
+    this.editorValue = content;
 
     return (
       <Panel
         title="Script editor"
         className={styles.fullHeight}
-        headingContent={
+        headingContent={ value && (
           <Button
             bsSize="xsmall"
             onClick={this.onSaveClick}
           >
             Save
           </Button>
-        }
+        )}
       >
         <AceEditor
-          value={value}
+          value={content}
           onChange={this.onEditorChange}
           fontSize={12}
           tabSize={2}

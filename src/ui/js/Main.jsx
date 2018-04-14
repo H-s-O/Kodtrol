@@ -14,9 +14,9 @@ const Main = class Main extends Component {
     autoBind(this);
   }
 
-  onEditorSave(value) {
-    console.log('onEditorSave', value);
-    ipcRenderer.send('saveScript', value);
+  onEditorSave(scriptData) {
+    console.log('onEditorSave', scriptData);
+    ipcRenderer.send('saveScript', scriptData);
   }
 
   onScriptSelect(scriptName) {

@@ -27,7 +27,7 @@ const main = async () => {
     BrowserWindow.addDevToolsExtension(path.join(__dirname, '../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/3.2.1_0'));
 
     // Create the browser window.
-    win = new BrowserWindow({width: 1200, height: 900})
+    win = new BrowserWindow({width: 1600, height: 900})
     // and load the index.html of the app.
     // win.loadURL(url.format({
     //   pathname: path.join(__dirname, '../dist/ui/index.html'),
@@ -37,8 +37,9 @@ const main = async () => {
     win.loadURL('http://localhost:8080/');
     const contents = win.webContents;
     contents.on('did-finish-load', () => {
-      const scripts = ScriptsManager.listScripts().map((script) => ({
-        name: script,
+      const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
+        id,
+        name,
       }));
       console.log(scripts);
       contents.send('updateScripts', scripts);
@@ -101,7 +102,8 @@ const main = async () => {
   // code. You can also put them in separate files and require them here.
 
   ipcMain.on('saveScript', (evt, arg) => {
-    const scriptPath = ScriptsManager.saveScript(currentScript, arg);
+    const { id, content } = arg;
+    const scriptPath = ScriptsManager.saveScript(id, content);
     mainRenderer.reloadScript(scriptPath);
     mainRenderer.run();
   })
@@ -109,25 +111,32 @@ const main = async () => {
   ipcMain.on('scriptSelect', (evt, arg) => {
     currentScript = arg;
     const scriptContent = ScriptsManager.loadScript(arg);
-    win.webContents.send('editScript', scriptContent);
+    win.webContents.send('editScript', {
+      id: arg,
+      content: scriptContent,
+    });
   });
 
   ipcMain.on('scriptCreate', (evt, arg) => {
     const { name } = arg;
-    currentScript = name;
-    ScriptsManager.createScript(name);
-    const scripts = ScriptsManager.listScripts().map((script) => ({
-      name: script,
+    currentScript = ScriptsManager.createScript(name);
+    const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
+      id,
+      name,
     }));
     win.webContents.send('updateScripts', scripts);
-    const scriptContent = ScriptsManager.loadScript(name);
-    win.webContents.send('editScript', scriptContent);
+    const scriptContent = ScriptsManager.loadScript(currentScript);
+    win.webContents.send('editScript', {
+      id: currentScript,
+      content: scriptContent,
+    });
   });
 
   ipcMain.on('deviceCreate', (evt, arg) => {
     DevicesManager.createDevice(arg);
-    const devices = DevicesManager.listDevices().map((device) => ({
-      name: device,
+    const devices = DevicesManager.listDevices().map(({id, name}) => ({
+      id,
+      name,
     }));
     win.webContents.send('updateDevices', devices);
   });

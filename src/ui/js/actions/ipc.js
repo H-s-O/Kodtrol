@@ -3,9 +3,9 @@ export const updateScripts = (event, scripts) => ({
   scripts,
 });
 
-export const editScript = (event, script) => ({
+export const editScript = (event, scriptData) => ({
   type: 'EDIT_SCRIPT',
-  currentScript: script,
+  currentScript: scriptData,
 });
 
 export const updateDevices = (event, devices) => ({
