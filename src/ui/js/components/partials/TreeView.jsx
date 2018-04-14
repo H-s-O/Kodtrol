@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from 'react-autobind';
+import classNames from 'classnames'
 import { ListGroup, ListGroupItem, Glyphicon } from 'react-bootstrap';
 
 import styles from '../../../styles/components/partials/treeview.scss';
@@ -8,11 +9,13 @@ import styles from '../../../styles/components/partials/treeview.scss';
 const propTypes = {
   value: PropTypes.arrayOf(PropTypes.shape({})),
   onClickItem: PropTypes.func,
+  actions: PropTypes.node,
 };
 
 const defaultProps = {
   value: [],
   onClickItem: null,
+  actions: null,
 };
 
 class TreeView extends Component {
@@ -29,10 +32,14 @@ class TreeView extends Component {
   }
 
   renderItem(it, index) {
+    const { actions } = this.props;
     return (
-      <ListGroupItem
+      <li
         key={index}
-        className={styles.listItem}
+        className={classNames({
+          [styles.listItem]: true,
+          'list-group-item': true,
+        })}
         onClick={() => this.onClickItem(it)}
       >
       { it.icon && (
@@ -41,14 +48,17 @@ class TreeView extends Component {
         />
       )}
       { it.label }
-      </ListGroupItem>
+      { actions }
+      </li>
     );
   }
 
   render() {
     const { value } = this.props;
     return (
-      <ListGroup>
+      <ListGroup
+        componentClass="ul"
+      >
         { value.map(this.renderItem) }
       </ListGroup>
     );

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import autoBind from 'react-autobind';
-import { isFunction } from 'lodash';
-import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
+import { isFunction, set } from 'lodash';
+import { Button, Form, ControlLabel, Glyphicon, Modal, FormGroup, FormControl, Col, Table } from 'react-bootstrap';
 
 class AddDevice extends Component {
   constructor(props) {
@@ -10,8 +10,25 @@ class AddDevice extends Component {
 
     this.state = {
       name: null,
+      groups: null,
       type: null,
+      startChannel: null,
+      channels: [],
     };
+  }
+
+  resetFields() {
+    this.setState({
+      name: null,
+      groups: null,
+      type: null,
+      startChannel: null,
+      channels: [],
+    });
+  }
+
+  onEnter() {
+    this.resetFields();
   }
 
   onNameChange(e) {
@@ -20,9 +37,42 @@ class AddDevice extends Component {
     });
   }
 
+  onGroupChange(e) {
+    this.setState({
+      groups: e.target.value,
+    });
+  }
+
   onTypeChange(e) {
     this.setState({
       type: e.target.value,
+    });
+  }
+
+  onStartChannelChange(e) {
+    this.setState({
+      startChannel: e.target.value,
+    });
+  }
+
+  onAddChannelClick() {
+    const { channels } = this.state;
+    this.setState({
+      channels: [
+        ...channels,
+        {
+          defaultValue: null,
+          alias: null,
+        },
+      ],
+    });
+  }
+
+  onChannelChange(e, index, field) {
+    const value = e.target.value;
+    const channels = set(this.state.channels, `[${index}].${field}`, value);
+    this.setState({
+      channels,
     });
   }
 
@@ -36,50 +86,209 @@ class AddDevice extends Component {
   onSaveClick() {
     const { onSuccess } = this.props;
     if (isFunction(onSuccess)) {
-      const { name, type } = this.state;
-      onSuccess({
+      const { name, type, groups } = this.state;
+      const data = {
         name,
         type,
-      });
+        groups,
+      };
+      if (type === 'dmx') {
+        const { channels, startChannel } = this.state;
+        data.channels = channels;
+        data.startChannel = startChannel;
+      }
+      onSuccess(data);
     }
   }
 
   render() {
     const { show } = this.props;
+    const { type, channels } = this.state;
     return (
       <Modal
         show={show}
-        bsSize="small"
+        onEnter={this.onEnter}
         keyboard
       >
         <Modal.Body>
-          <FormControl
-            type="text"
-            placeholder="Enter new device name"
-            onChange={this.onNameChange}
-          />
-          <FormControl
-            componentClass="select"
-            onChange={this.onTypeChange}
-            defaultValue=""
+          <Form
+            horizontal
           >
-            <option
-              value=""
-              disabled
+            <FormGroup
             >
-              Select device type
-            </option>
-            <option
-              value="dmx"
+              <Col
+                componentClass={ControlLabel}
+                sm={3}
+              >
+                Device name
+              </Col>
+              <Col
+                sm={9}
+              >
+                <FormControl
+                  type="text"
+                  onChange={this.onNameChange}
+                />
+              </Col>
+            </FormGroup>
+            <FormGroup
             >
-              DMX / ArtNet
-            </option>
-            <option
-              value="serial"
+              <Col
+                componentClass={ControlLabel}
+                sm={3}
+              >
+                Group(s)
+              </Col>
+              <Col
+                sm={9}
+              >
+                <FormControl
+                  type="text"
+                  onChange={this.onGroupChange}
+                />
+              </Col>
+            </FormGroup>
+            <FormGroup
             >
-              Serial
-            </option>
-          </FormControl>
+              <Col
+                componentClass={ControlLabel}
+                sm={3}
+              >
+                Device type
+              </Col>
+              <Col
+                componentClass={ControlLabel}
+                sm={9}
+              >
+                <FormControl
+                  componentClass="select"
+                  onChange={this.onTypeChange}
+                  defaultValue=""
+                >
+                  <option
+                    value=""
+                    disabled
+                  >
+                    --
+                  </option>
+                  <option
+                    value="dmx"
+                  >
+                    DMX / ArtNet
+                  </option>
+                  <option
+                    value="serial"
+                  >
+                    Serial
+                  </option>
+                </FormControl>
+              </Col>
+            </FormGroup>
+            {type === 'dmx' && (
+              <FormGroup
+              >
+                <Col
+                  componentClass={ControlLabel}
+                  sm={3}
+                >
+                  Starting channel
+                </Col>
+                <Col
+                  sm={9}
+                >
+                  <FormControl
+                    type="number"
+                    onChange={this.onStartChannelChange}
+                  />
+                </Col>
+              </FormGroup>
+            )}
+            {type === 'dmx' && (
+              <FormGroup
+              >
+                <Col
+                  componentClass={ControlLabel}
+                  sm={3}
+                >
+                  Channel definitions
+                </Col>
+                <Col
+                  sm={9}
+                >
+                <Table
+                  striped
+                  bordered
+                >
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Default value</th>
+                      <th>Alias</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {channels.map((it, index) => (
+                      <tr
+                        key={`channel-${index}`}
+                      >
+                        <td>
+                          {index + 1}
+                        </td>
+                        <td>
+                          <FormControl
+                            type="number"
+                            bsSize="small"
+                            onChange={(e) => this.onChannelChange(e, index, 'defaultValue')}
+                          />
+                        </td>
+                        <td>
+                          <FormControl
+                            type="text"
+                            bsSize="small"
+                            onChange={(e) => this.onChannelChange(e, index, 'alias')}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                    <tr>
+                      <td
+                        colSpan="3"
+                      >
+                        <Button
+                          bsSize="xsmall"
+                          onClick={this.onAddChannelClick}
+                        >
+                          <Glyphicon
+                            glyph="plus"
+                          />
+                        </Button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  </Table>
+                </Col>
+              </FormGroup>
+            )}
+            {type === 'serial' && (
+              <FormGroup
+              >
+                <Col
+                  componentClass={ControlLabel}
+                  sm={3}
+                >
+                  Port
+                </Col>
+                <Col
+                  sm={9}
+                >
+                  <FormControl
+                    type="text"
+                    onChange={this.onPortChange}
+                  />
+                </Col>
+              </FormGroup>
+            )}
+          </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button

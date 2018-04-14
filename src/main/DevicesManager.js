@@ -24,12 +24,9 @@ export default class DevicesManager {
   }
 
   static createDevice(deviceData) {
-    const { name, type } = deviceData;
+    const { name } = deviceData;
     const filePath = path.join(DevicesManager.projectFilePath, `devices/${name}.json`);
-    writeJson(filePath, {
-      name,
-      type,
-    });
+    writeJson(filePath, deviceData);
     return filePath;
   }
 
