@@ -9,12 +9,13 @@ import ScriptsManager from './main/ScriptsManager';
 import DevicesManager from './main/DevicesManager';
 import MainRenderer from './main/MainRenderer';
 
-ScriptsManager.init();
-DevicesManager.init();
+const main = async () => {
+  ScriptsManager.init();
+  DevicesManager.init();
 
-const mainRenderer = new MainRenderer();
+  const mainRenderer = new MainRenderer();
 
-let currentScript = null;
+  let currentScript = null;
 
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
@@ -22,7 +23,8 @@ let currentScript = null;
   let currentProjectFilePath;
 
   function createWindow () {
-    // BrowserWindow.addDevToolsExtension('/Users/hugo/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.1.0_0')
+    console.log(__dirname);
+    BrowserWindow.addDevToolsExtension(path.join(__dirname, '../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/3.2.1_0'));
 
     // Create the browser window.
     win = new BrowserWindow({width: 1200, height: 900})
@@ -129,3 +131,6 @@ let currentScript = null;
     }));
     win.webContents.send('updateDevices', devices);
   });
+};
+
+main();
