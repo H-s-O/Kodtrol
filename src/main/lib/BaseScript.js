@@ -16,6 +16,13 @@ module.exports = class BaseScript {
     } while (index === except);
     return index;
   }
+  _randomValue(arr, except = null) {
+    let index;
+    do {
+      index = (Math.floor(Math.random() * arr.length));
+    } while (index === except);
+    return arr[index];
+  }
   _isBeatDivision(beat, division) {
     return (beat > 0 && beat % division === 0);
   }
