@@ -86,6 +86,10 @@ class DevicesBrowser extends Component {
         }
       >
         <TreeView
+          style={{
+            overflowY: 'auto',
+            height: '94%',
+          }}
           value={value}
           onClickItem={this.onScriptSelect}
           actions={(

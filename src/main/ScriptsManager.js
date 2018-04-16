@@ -36,14 +36,12 @@ export default class ScriptsManager {
     return scriptContent;
   }
 
-  static createScript(scriptName) {
+  static createScript(scriptData) {
     const id = uniqid();
     const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${id}.json`);
     writeJson(filePath, {
       id,
-      name: scriptName,
-      content: '',
-      devices: [],
+      ...scriptData,
     });
     return id;
   }

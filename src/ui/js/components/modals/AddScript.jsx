@@ -1,7 +1,18 @@
 import React, { Component } from 'react';
 import autoBind from 'react-autobind';
-import { isFunction } from 'lodash';
-import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
+import PropTypes from 'prop-types';
+import { isFunction, set } from 'lodash';
+import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, Form, Col, Table } from 'react-bootstrap';
+
+const propTypes = {
+  initialValue: PropTypes.shape({}),
+  mode: PropTypes.string,
+};
+
+const defaultProps = {
+  initialValue: null,
+  mode: 'add',
+};
 
 class AddScript extends Component {
   constructor(props) {
@@ -10,12 +21,33 @@ class AddScript extends Component {
 
     this.state = {
       name: null,
+      devices: [],
     };
   }
 
   onNameChange(e) {
     this.setState({
       name: e.target.value,
+    });
+  }
+
+  onAddDeviceClick() {
+    const { devices } = this.state;
+    this.setState({
+      devices: [
+        ...devices,
+        {
+          id: null,
+        },
+      ],
+    });
+  }
+
+  onDeviceChange(e, index, field) {
+    const value = e.target.value;
+    const devices = set(this.state.devices, `[${index}].${field}`, value);
+    this.setState({
+      devices,
     });
   }
 
@@ -29,27 +61,124 @@ class AddScript extends Component {
   onSaveClick() {
     const { onSuccess } = this.props;
     if (isFunction(onSuccess)) {
-      const { name } = this.state;
+      const { name, devices } = this.state;
       onSuccess({
         name,
+        devices,
       });
     }
   }
 
   render() {
-    const { show } = this.props;
+    const { show, devices: sourceDevices } = this.props;
+    const { devices } = this.state;
     return (
       <Modal
         show={show}
-        bsSize="small"
         keyboard
       >
+      <Modal.Header
+      >
+        <Modal.Title
+        >
+          Add script
+        </Modal.Title>
+      </Modal.Header>
         <Modal.Body>
-          <FormControl
-            type="text"
-            placeholder="Enter new script name"
-            onChange={this.onNameChange}
-          />
+          <Form
+            horizontal
+          >
+            <FormGroup
+            >
+              <Col
+                componentClass={ControlLabel}
+                sm={3}
+              >
+                Script name
+              </Col>
+              <Col
+                sm={9}
+              >
+                <FormControl
+                  type="text"
+                  onChange={this.onNameChange}
+                />
+              </Col>
+            </FormGroup>
+
+            <FormGroup
+            >
+              <Col
+                componentClass={ControlLabel}
+                sm={3}
+              >
+                Associated devices
+              </Col>
+              <Col
+                sm={9}
+              >
+              <Table
+                striped
+                bordered
+              >
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Device</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {devices.map((it, index) => (
+                    <tr
+                      key={`device-${index}`}
+                    >
+                      <td>
+                        {index + 1}
+                      </td>
+                      <td>
+                        <FormControl
+                          componentClass="select"
+                          bsSize="small"
+                          onChange={(e) => this.onDeviceChange(e, index, 'id')}
+                          defaultValue=""
+                        >
+                          <option
+                            value=""
+                            disabled
+                          >
+                            --
+                          </option>
+                          {sourceDevices.map((it, index) => (
+                            <option
+                              key={`device-${index}`}
+                              value={it.id}
+                            >
+                              { it.label }
+                            </option>
+                          ))}
+                        </FormControl>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td
+                      colSpan="2"
+                    >
+                      <Button
+                        bsSize="xsmall"
+                        onClick={this.onAddDeviceClick}
+                      >
+                        <Glyphicon
+                          glyph="plus"
+                        />
+                      </Button>
+                    </td>
+                  </tr>
+                </tbody>
+                </Table>
+              </Col>
+            </FormGroup>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -68,5 +197,8 @@ class AddScript extends Component {
     );
   }
 }
+
+AddScript.propTypes = propTypes;
+AddScript.defaultProps = defaultProps;
 
 export default AddScript;

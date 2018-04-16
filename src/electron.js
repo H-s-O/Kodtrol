@@ -119,8 +119,7 @@ const main = async () => {
   });
 
   ipcMain.on('scriptCreate', (evt, arg) => {
-    const { name } = arg;
-    currentScript = ScriptsManager.createScript(name);
+    currentScript = ScriptsManager.createScript(arg);
     const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
       id,
       name,

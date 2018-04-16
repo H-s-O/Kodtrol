@@ -1,7 +1,18 @@
 import React, { Component } from 'react';
 import autoBind from 'react-autobind';
+import PropTypes from 'prop-types';
 import { isFunction, set } from 'lodash';
 import { Button, Form, ControlLabel, Glyphicon, Modal, FormGroup, FormControl, Col, Table } from 'react-bootstrap';
+
+const propTypes = {
+  initialValue: PropTypes.shape({}),
+  mode: PropTypes.string,
+};
+
+const defaultProps = {
+  initialValue: null,
+  mode: 'add',
+};
 
 class AddDevice extends Component {
   constructor(props) {
@@ -110,6 +121,13 @@ class AddDevice extends Component {
         onEnter={this.onEnter}
         keyboard
       >
+        <Modal.Header
+        >
+          <Modal.Title
+          >
+            Add device
+          </Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <Form
             horizontal
@@ -307,5 +325,8 @@ class AddDevice extends Component {
     );
   }
 }
+
+AddDevice.propTypes = propTypes;
+AddDevice.defaultProps = defaultProps;
 
 export default AddDevice;

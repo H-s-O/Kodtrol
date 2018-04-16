@@ -1,6 +1,8 @@
 import React from 'react';
 import { Panel } from 'react-bootstrap';
 
+import styles from '../../../styles/components/partials/panel.scss';
+
 export default props => (
   <Panel className={props.className}>
     { props.title && (

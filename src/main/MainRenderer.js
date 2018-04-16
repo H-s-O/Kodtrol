@@ -10,7 +10,7 @@ export default class MainRenderer {
     this.running = false;
 
     this.clock = MidiClock();
-    this.clock.setTempo(88);
+    this.clock.setTempo(90);
 
     this.dmx = new DMX();
     this.dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');

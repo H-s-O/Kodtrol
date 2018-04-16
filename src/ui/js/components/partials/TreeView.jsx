@@ -11,12 +11,14 @@ const propTypes = {
   value: PropTypes.arrayOf(PropTypes.shape({})),
   onClickItem: PropTypes.func,
   actions: PropTypes.node,
+  style: PropTypes.shape({}),
 };
 
 const defaultProps = {
   value: [],
   onClickItem: null,
   actions: null,
+  style: null,
 };
 
 class TreeView extends Component {
@@ -58,10 +60,11 @@ class TreeView extends Component {
   }
 
   render() {
-    const { value } = this.props;
+    const { value, style } = this.props;
     return (
       <ListGroup
         componentClass="ul"
+        style={style}
       >
         { value.map(this.renderItem) }
       </ListGroup>

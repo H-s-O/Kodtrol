@@ -17,6 +17,7 @@ const propTypes = {
 
 const defaultProps = {
   value: [],
+  devices: [],
   onScriptSelect: null,
   onScriptCreate: null,
 };
@@ -62,7 +63,7 @@ class ScriptsBrowser extends Component {
   }
 
   render() {
-    const { value } = this.props;
+    const { value, devices } = this.props;
     const { showAddModal } = this.state;
     return (
       <Panel
@@ -84,6 +85,10 @@ class ScriptsBrowser extends Component {
         }
       >
         <TreeView
+          style={{
+            overflowY: 'auto',
+            height: '94%',
+          }}
           value={value}
           onClickItem={this.onScriptSelect}
           actions={(
@@ -113,6 +118,7 @@ class ScriptsBrowser extends Component {
           show={showAddModal}
           onCancel={this.onAddCancel}
           onSuccess={this.onAddSuccess}
+          devices={devices}
         />
       </Panel>
     );
