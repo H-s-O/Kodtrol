@@ -105,8 +105,8 @@ const main = async () => {
 
   ipcMain.on('saveScript', (evt, arg) => {
     const { id, content } = arg;
-    const scriptPath = ScriptsManager.saveScript(id, content);
-    mainRenderer.reloadScript(scriptPath);
+    const scriptData = ScriptsManager.saveScript(id, content);
+    mainRenderer.reloadScript(scriptData, DevicesManager.devices);
     mainRenderer.run();
   })
 

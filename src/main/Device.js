@@ -1,4 +1,4 @@
-module.exports = class Device {
+export default class Device {
   constructor(type, startingChannel, numChannels, channelAliases = null, initChannels = null, vars = {}) {
     this._type = type;
     this._startingChannel = startingChannel;
@@ -10,7 +10,7 @@ module.exports = class Device {
       this._channels = initChannels;
     } else {
       this._channels = {}
-      for (let i = 1; i < this._numChannels + 1; i++) {
+      for (let i = 0; i < this._numChannels; i++) {
         this._channels[i] = 0;
       }
     }
@@ -40,14 +40,14 @@ module.exports = class Device {
     if (typeof channel === 'string') {
       channel = this._channelAliases[channel];
     }
-    return this._channels[channel] || 0;
+    return this._channels[channel - 1] || 0;
   }
 
   setChannel(channel, value) {
     if (typeof channel === 'string') {
       channel = this._channelAliases[channel];
     }
-    this._channels[channel] = value;
+    this._channels[channel - 1] = value;
   }
 
   updateChannel(channel, func) {

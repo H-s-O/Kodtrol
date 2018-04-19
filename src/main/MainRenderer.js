@@ -1,7 +1,8 @@
-const DMX = require('dmx');
-const Device = require('./Device');
-const MidiClock = require('midi-clock')
-const autoBind = require('auto-bind-inheritance');
+import DMX from 'dmx';
+import Device from './Device';
+import MidiClock from 'midi-clock';
+import autoBind from 'auto-bind-inheritance';
+import { pick } from 'lodash';
 
 export default class MainRenderer {
   constructor() {
@@ -16,57 +17,58 @@ export default class MainRenderer {
     this.dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
 
     this.script = null;
-
-    const devices = [];
-    for (let i = 0; i < 4; i++) {
-      devices.push(new Device(
-        'scan',
-        (i * 8),
-        8,
-        {
-          pan: 1,
-          tilt: 2,
-          shutter: 3,
-          gobo: 4,
-          color: 5,
-          dimmer: 7,
-          'function': 8,
-        },
-      ));
-    }
-    devices.push(new Device(
-      'par',
-      51,
-      1,
-      {
-        dimmer: 1,
-      },
-    ));
-    devices.push(new Device(
-      'par',
-      52,
-      1,
-      {
-        dimmer: 1,
-      },
-    ));
-    for (let i = 0; i < 4; i++) {
-      devices.push(new Device(
-        'rgb',
-        100 + (i * 7),
-        7,
-        {
-          dimmer: 1,
-          strobe: 2,
-          voice: 3,
-          speed: 4,
-          red: 5,
-          green: 6,
-          blue: 7,
-        },
-      ));
-    }
-    this.devices = devices;
+    this.devices = null;
+    //
+    // const devices = [];
+    // for (let i = 0; i < 4; i++) {
+    //   devices.push(new Device(
+    //     'scan',
+    //     (i * 8),
+    //     8,
+    //     {
+    //       pan: 1,
+    //       tilt: 2,
+    //       shutter: 3,
+    //       gobo: 4,
+    //       color: 5,
+    //       dimmer: 7,
+    //       'function': 8,
+    //     },
+    //   ));
+    // }
+    // devices.push(new Device(
+    //   'par',
+    //   51,
+    //   1,
+    //   {
+    //     dimmer: 1,
+    //   },
+    // ));
+    // devices.push(new Device(
+    //   'par',
+    //   52,
+    //   1,
+    //   {
+    //     dimmer: 1,
+    //   },
+    // ));
+    // for (let i = 0; i < 4; i++) {
+    //   devices.push(new Device(
+    //     'rgb',
+    //     100 + (i * 7),
+    //     7,
+    //     {
+    //       dimmer: 1,
+    //       strobe: 2,
+    //       voice: 3,
+    //       speed: 4,
+    //       red: 5,
+    //       green: 6,
+    //       blue: 7,
+    //     },
+    //   ));
+    // }
+    // this.devices = devices;
   }
 
   run() {
@@ -111,10 +113,28 @@ export default class MainRenderer {
     this.dmx.update('main', allData);
   }
 
-  reloadScript(scriptPath) {
+  reloadScript(info, devices) {
+    const { compiledScript: scriptPath, scriptData } = info;
     delete require.cache[scriptPath];
     const scriptClass = require(scriptPath);
     this.script = new scriptClass;
+    this.devices = Object.values(pick(devices, scriptData.devices.map(({id}) => id)))
+      .map((device) => new Device(
+        device.groups,
+        Number(device.startChannel),
+        device.channels.length,
+        device.channels
+          .filter(({alias}) => alias !== null)
+          .reduce((obj, channel, index) => ({
+            ...obj,
+            [channel.alias]: index + 1,
+          }), {}),
+        device.channels
+          .reduce((obj, channel, index) => ({
+            ...obj,
+            [index]: Number(channel.defaultValue),
+          }), {}),
+      ));
     try {
       if (typeof this.script.start === 'function') {
         this.script.start(this.devices);

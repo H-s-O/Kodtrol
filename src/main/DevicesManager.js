@@ -8,6 +8,7 @@ import { writeJson, readJson } from './lib/fileSystem';
 
 export default class DevicesManager {
   static init() {
+    this._devices = {};
   }
 
   static set projectFilePath(path) {
@@ -49,11 +50,16 @@ export default class DevicesManager {
     const foundDevices = glob.sync(pathPattern).map((device) => {
       const deviceData = readJson(device);
       const { id, name } = deviceData;
+      this._devices[id] = deviceData;
       return {
         id,
         name,
       };
     });
     return foundDevices;
+  }
+
+  static get devices() {
+    return this._devices;
   }
 }

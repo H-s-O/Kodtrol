@@ -56,7 +56,11 @@ export default class ScriptsManager {
     const compiledClass = ScriptsManager.compileClass(className, scriptValue);
     const compiledFilePath = path.join(ScriptsManager.projectFilePath, `scripts_compiled/${scriptId}.js`);
     writeFile(compiledFilePath, compiledClass);
-    return compiledFilePath;
+
+    return {
+      scriptData,
+      compiledScript: compiledFilePath,
+    };
   }
 
   static compileClass(className, classBody) {
