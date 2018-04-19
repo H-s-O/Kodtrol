@@ -124,7 +124,7 @@ export default class MainRenderer {
         Number(device.startChannel),
         device.channels.length,
         device.channels
-          .filter(({alias}) => alias !== null)
+          // .filter(({alias}) => alias !== null) // @TODO fix
           .reduce((obj, channel, index) => ({
             ...obj,
             [channel.alias]: index + 1,
