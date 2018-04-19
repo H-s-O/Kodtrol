@@ -40,6 +40,7 @@ const main = async () => {
       const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
         id,
         name,
+        current: id === currentScript,
       }));
       console.log(scripts);
       contents.send('updateScripts', scripts);
@@ -111,6 +112,12 @@ const main = async () => {
 
   ipcMain.on('scriptSelect', (evt, arg) => {
     currentScript = arg;
+    const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
+      id,
+      name,
+      current: id === currentScript,
+    }));
+    win.webContents.send('updateScripts', scripts);
     const scriptContent = ScriptsManager.loadScript(arg);
     win.webContents.send('editScript', {
       id: arg,
@@ -123,6 +130,7 @@ const main = async () => {
     const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
       id,
       name,
+      current: id === currentScript,
     }));
     win.webContents.send('updateScripts', scripts);
     const scriptContent = ScriptsManager.loadScript(currentScript);

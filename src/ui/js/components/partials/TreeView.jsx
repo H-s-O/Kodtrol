@@ -41,6 +41,7 @@ class TreeView extends Component {
         key={index}
         className={classNames({
           'list-group-item': true,
+          'active': it.active,
         })}
         onClick={() => this.onClickItem(it)}
       >

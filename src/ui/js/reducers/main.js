@@ -8,6 +8,7 @@ export default (state = {}, action) => {
             id: script.id,
             icon: 'file',
             label: script.name,
+            active: script.current,
           };
         }),
       };
