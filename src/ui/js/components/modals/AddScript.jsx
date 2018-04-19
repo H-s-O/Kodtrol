@@ -25,6 +25,17 @@ class AddScript extends Component {
     };
   }
 
+  resetFields() {
+    this.setState({
+      name: null,
+      devices: [],
+    });
+  }
+
+  onEnter() {
+    this.resetFields();
+  }
+
   onNameChange(e) {
     this.setState({
       name: e.target.value,
@@ -75,6 +86,7 @@ class AddScript extends Component {
     return (
       <Modal
         show={show}
+        onEnter={this.onEnter}
         keyboard
       >
       <Modal.Header
