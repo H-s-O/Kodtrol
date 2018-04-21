@@ -18,6 +18,7 @@ export default class MainRenderer {
 
     this.script = null;
     this.devices = null;
+    this.allDevices = null;
     //
     // const devices = [];
     // for (let i = 0; i < 4; i++) {
@@ -102,18 +103,38 @@ export default class MainRenderer {
       console.error(err);
     }
 
-    const allData = this.devices.reduce((obj, device) => ({
-      ...obj,
-      ...Object.entries(device.data).reduce((data, [channel, value]) => ({
-        ...data,
-        [Number(channel) + device.startingChannel]: value,
+    const baseData = {
+      ...Object.values(this.allDevices).reduce((obj, device) => ({
+        ...obj,
+        ...device.channels.reduce((obj2, channel, index) => {
+          return {
+            ...obj2,
+            [Number(device.startChannel) + index]: channel.defaultValue,
+          };
+        }, {}),
       }), {}),
-    }), {});
+    };
+    const renderData = {
+      ...this.devices.reduce((obj, device) => ({
+        ...obj,
+        ...Object.entries(device.data).reduce((data, [channel, value]) => ({
+          ...data,
+          [Number(channel) + device.startingChannel]: value,
+        }), {}),
+      }), {}),
+    };
+    const allData = {
+      ...baseData,
+      ...renderData,
+    };
     // console.log(allData);
+    // console.log(baseData);
+    // console.log(renderData);
     this.dmx.update('main', allData);
   }
 
   reloadScript(info, devices) {
+    this.allDevices = devices;
     const { compiledScript: scriptPath, scriptData } = info;
     delete require.cache[scriptPath];
     const scriptClass = require(scriptPath);
