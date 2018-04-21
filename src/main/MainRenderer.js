@@ -19,6 +19,7 @@ export default class MainRenderer {
     this.script = null;
     this.devices = null;
     this.allDevices = null;
+    this.baseData = {};
     //
     // const devices = [];
     // for (let i = 0; i < 4; i++) {
@@ -103,17 +104,6 @@ export default class MainRenderer {
       console.error(err);
     }
 
-    const baseData = {
-      ...Object.values(this.allDevices).reduce((obj, device) => ({
-        ...obj,
-        ...device.channels.reduce((obj2, channel, index) => {
-          return {
-            ...obj2,
-            [Number(device.startChannel) + index]: channel.defaultValue,
-          };
-        }, {}),
-      }), {}),
-    };
     const renderData = {
       ...this.devices.reduce((obj, device) => ({
         ...obj,
@@ -124,17 +114,18 @@ export default class MainRenderer {
       }), {}),
     };
     const allData = {
-      ...baseData,
+      ...this.baseData,
       ...renderData,
     };
-    // console.log(allData);
-    // console.log(baseData);
+    // console.log(this.baseData);
     // console.log(renderData);
+    // console.log(allData);
     this.dmx.update('main', allData);
   }
 
   reloadScript(info, devices) {
     this.allDevices = devices;
+    this.baseData = this.computeBaseData(devices);
     const { compiledScript: scriptPath, scriptData } = info;
     delete require.cache[scriptPath];
     const scriptClass = require(scriptPath);
@@ -167,5 +158,19 @@ export default class MainRenderer {
     }
     this.clock.stop();
     this.clock.start();
+  }
+
+  computeBaseData(allDevices) {
+    return {
+      ...Object.values(allDevices).reduce((obj, device) => ({
+        ...obj,
+        ...device.channels.reduce((obj2, channel, index) => {
+          return {
+            ...obj2,
+            [Number(device.startChannel) + index]: channel.defaultValue,
+          };
+        }, {}),
+      }), {}),
+    };
   }
 }
