@@ -141,6 +141,7 @@ export default class MainRenderer {
     this.script = new scriptClass;
     this.devices = Object.values(pick(devices, scriptData.devices.map(({id}) => id)))
       .map((device) => new Device(
+        device.name,
         device.groups,
         Number(device.startChannel),
         device.channels.length,

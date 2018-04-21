@@ -1,5 +1,6 @@
 export default class Device {
-  constructor(type, startingChannel, numChannels, channelAliases = null, initChannels = null, vars = {}) {
+  constructor(name, type, startingChannel, numChannels, channelAliases = null, initChannels = null, vars = {}) {
+    this._name = name;
     this._type = type;
     this._startingChannel = startingChannel;
     this._numChannels = numChannels;
@@ -24,6 +25,10 @@ export default class Device {
     return this._numChannels;
   }
 
+  get name() {
+    return this._name;
+  }
+  
   get type() {
     return this._type;
   }
