@@ -87,7 +87,8 @@ export default class MainRenderer {
   triggerClock(time) {
     try {
       if (this.script && typeof this.script.beat === 'function') {
-        this.script.beat(this.devices, time);
+        const data = this.script.beat(this.devices, time, this.scriptData);
+        this.scriptData = data || this.scriptData;
       }
     } catch (err) {
       this.script = null;
