@@ -17,6 +17,7 @@ export default class MainRenderer {
     this.dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
 
     this.script = null;
+    this.scriptData = null;
     this.devices = null;
     this.allDevices = null;
     this.baseData = {};
@@ -97,7 +98,8 @@ export default class MainRenderer {
   render() {
     try {
       if (this.script && typeof this.script.loop === 'function') {
-        this.script.loop(this.devices);
+        const data = this.script.loop(this.devices, this.scriptData);
+        this.scriptData = data || this.scriptData;
       }
     } catch (err) {
       this.script = null;
@@ -150,7 +152,8 @@ export default class MainRenderer {
       ));
     try {
       if (typeof this.script.start === 'function') {
-        this.script.start(this.devices);
+        const data = this.script.start(this.devices);
+        this.scriptData = data || {};
       }
     } catch (err) {
       this.script = null;
