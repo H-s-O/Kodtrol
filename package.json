@@ -21,6 +21,7 @@
     "css-electron-reset": "^1.0.0",
     "dmx": "0.0.7",
     "domready": "^1.0.8",
+    "eases": "^1.0.8",
     "electron": "^1.8.2",
     "fs-extra": "^5.0.0",
     "glob": "^7.1.2",

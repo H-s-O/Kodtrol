@@ -9,15 +9,21 @@ import safeClassName from './lib/safeClassName';
 
 export default class ScriptsManager {
   static init() {
-    const baseProto = BaseScript.prototype;
-    this.macros = Object.getOwnPropertyNames(baseProto).
+    const baseProto = BaseScript;
+    this.macros = Object.keys(baseProto).
       filter((prop) => (
-        typeof baseProto[prop] === 'function' && prop !== 'constructor' && prop[0] === '_'
+        typeof baseProto[prop] === 'function' && prop[0] === '_'
       ))
-      .reduce((acc, prop) => ({
-        ...acc,
-        [prop.substring(1)]: baseProto[prop].toString(),
-      }), {});
+      .reduce((acc, prop) => {
+        let funcBody = baseProto[prop].toString();
+        if (baseProto[prop].name !== prop) {
+          funcBody = funcBody.replace(/function (.+)\(/, `function ${prop}(`);
+        }
+        return {
+          ...acc,
+          [prop.substring(1)]: funcBody,
+        };
+      }, {});
     this.macrosRegexp = new RegExp(`(?<!.)?(${Object.keys(this.macros).join('|')})`, 'g');
   }
 
