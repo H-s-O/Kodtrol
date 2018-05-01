@@ -41,9 +41,11 @@ export default props => {
       </Row>
       <Row className={styles.bottomRow}>
         <Col md={12} className={styles.fullHeight}>
-          <Timeline>
-            Timeline here lel!
-          </Timeline>
+          <Timeline
+            timelines={props.timelines}
+            timelineData={props.currentTimeline}
+            onTimelineSelect={props.onTimelineSelect}
+          />
         </Col>
       </Row>
     </Grid>

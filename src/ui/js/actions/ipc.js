@@ -12,3 +12,13 @@ export const updateDevices = (event, devices) => ({
   type: 'UPDATE_DEVICES',
   devices,
 });
+
+export const updateTimelines = (event, timelines) => ({
+  type: 'UPDATE_TIMELINES',
+  timelines,
+});
+
+export const editTimeline = (event, timelineData) => ({
+  type: 'EDIT_TIMELINE',
+  currentTimeline: timelineData,
+});

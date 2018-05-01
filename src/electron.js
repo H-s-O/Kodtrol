@@ -7,15 +7,18 @@ import { readAppConfig, writeAppConfig, createProject } from './main/lib/fileSys
 import { createProjectDialog } from './main/lib/dialogs';
 import ScriptsManager from './main/ScriptsManager';
 import DevicesManager from './main/DevicesManager';
+import TimelinesManager from './main/TimelinesManager';
 import MainRenderer from './main/MainRenderer';
 
 const main = async () => {
   ScriptsManager.init();
   DevicesManager.init();
+  TimelinesManager.init();
 
   const mainRenderer = new MainRenderer();
 
   let currentScript = null;
+  let currentTimeline = null;
 
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
@@ -42,15 +45,22 @@ const main = async () => {
         name,
         current: id === currentScript,
       }));
-      console.log(scripts);
+      // console.log(scripts);
       contents.send('updateScripts', scripts);
 
       const devices = DevicesManager.listDevices().map(({id, name}) => ({
         id,
         name,
       }));
-      console.log(devices);
+      // console.log(devices);
       contents.send('updateDevices', devices);
+
+      const timelines = TimelinesManager.listTimelines().map(({id, name}) => ({
+        id,
+        name,
+      }));
+      // console.log(timelines);
+      contents.send('updateTimelines', timelines);
     });
 
     // Emitted when the window is closed.
@@ -79,6 +89,7 @@ const main = async () => {
 
     ScriptsManager.projectFilePath = currentProjectFilePath;
     DevicesManager.projectFilePath = currentProjectFilePath;
+    TimelinesManager.projectFilePath = currentProjectFilePath;
 
     createWindow();
   })
@@ -147,6 +158,22 @@ const main = async () => {
       name,
     }));
     win.webContents.send('updateDevices', devices);
+  });
+
+  ipcMain.on('timelineSelect', (evt, arg) => {
+    currentTimeline = arg;
+    const timelines = TimelinesManager.listTimelines().map(({id, name}) => ({
+      id,
+      name,
+      current: id === currentTimeline,
+    }));
+    win.webContents.send('updateTimelines', timelines);
+    const timelineContent = TimelinesManager.loadTimeline(arg);
+    win.webContents.send('editTimeline', timelineContent);
+    // win.webContents.send('editTimeline', {
+    //   id: arg,
+    //   content: timelineContent,
+    // });
   });
 };
 

@@ -27,11 +27,29 @@ export default (state = {}, action) => {
       };
       break;
 
+    case 'UPDATE_TIMELINES':
+      return {
+        ...state,
+        timelines: action.timelines.map((timeline) => {
+          return {
+            id: timeline.id,
+            label: timeline.name,
+          };
+        }),
+      };
+      break;
+
     case 'EDIT_SCRIPT':
-      console.log('EDIT_SCRIPT', action);
       return {
         ...state,
         currentScript: action.currentScript,
+      };
+      break;
+
+    case 'EDIT_TIMELINE':
+      return {
+        ...state,
+        currentTimeline: action.currentTimeline,
       };
       break;
 
