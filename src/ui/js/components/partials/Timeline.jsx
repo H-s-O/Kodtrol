@@ -82,7 +82,7 @@ class Timeline extends Component {
     return (
       <svg
         key={`layer-group-${index}`}
-        y={percentString(0.1 + (index / layersCount))}
+        y={percentString(1 - (0.26 * (index / layersCount)) - 0.1)}
       >
         { layer.map(this.renderTimelineLayerBlock) }
       </svg>
@@ -144,7 +144,7 @@ class Timeline extends Component {
           fill="url(#timeline-marks)"
         />
       </g>
-      { layers.map(this.renderTimelineLayer) }
+      { layers.length && layers.map(this.renderTimelineLayer) }
       { layers.length && this.renderTimelineTracker() }
       </svg>
     );
@@ -203,7 +203,7 @@ class Timeline extends Component {
     const { timelineData, timelines } = this.props;
     return (
       <Panel
-        title="Timeline"
+        title="Timeline editor"
         className={styles.fullHeight}
         headingContent={
           <ButtonToolbar>
