@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
-import { get, set } from 'lodash';
+import { get, set, uniq } from 'lodash';
 import path from 'path';
 import url from 'url';
 
@@ -9,6 +9,8 @@ import ScriptsManager from './main/ScriptsManager';
 import DevicesManager from './main/DevicesManager';
 import TimelinesManager from './main/TimelinesManager';
 import MainRenderer from './main/MainRenderer';
+import TimelineRenderer from './main/render/TimelineRenderer';
+import TimelineRendererEvent from './main/events/TimelineRendererEvent';
 
 const main = async () => {
   ScriptsManager.init();
@@ -19,6 +21,7 @@ const main = async () => {
 
   let currentScript = null;
   let currentTimeline = null;
+  let currentRenderer = null;
 
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
@@ -58,6 +61,7 @@ const main = async () => {
       const timelines = TimelinesManager.listTimelines().map(({id, name}) => ({
         id,
         name,
+        current: id === currentTimeline,
       }));
       // console.log(timelines);
       contents.send('updateTimelines', timelines);
@@ -96,6 +100,10 @@ const main = async () => {
 
   // Quit when all windows are closed.
   app.on('window-all-closed', () => {
+    if (currentRenderer) {
+      currentRenderer.removeAllListeners();
+      currentRenderer.destroy();
+    }
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     // if (process.platform !== 'darwin') {
@@ -117,8 +125,8 @@ const main = async () => {
   ipcMain.on('saveScript', (evt, arg) => {
     const { id, content } = arg;
     const scriptData = ScriptsManager.saveScript(id, content);
-    mainRenderer.reloadScript(scriptData, DevicesManager.devices);
-    mainRenderer.run();
+    // mainRenderer.reloadScript(scriptData, DevicesManager.devices);
+    // mainRenderer.run();
   })
 
   ipcMain.on('scriptSelect', (evt, arg) => {
@@ -174,6 +182,29 @@ const main = async () => {
     //   id: arg,
     //   content: timelineContent,
     // });
+
+    if (currentRenderer) {
+      currentRenderer.removeAllListeners();
+      currentRenderer.destroy();
+    }
+    currentRenderer = new TimelineRenderer(timelineContent);
+    const timelineScripts = currentRenderer.scriptIds;
+    const timelineScriptsClasses = timelineScripts.reduce((obj, scriptId) => ({
+      ...obj,
+      [scriptId]: {
+        scriptClass: ScriptsManager.loadCompiledScript(scriptId),
+        scriptData: ScriptsManager.loadScriptData(scriptId),
+      },
+    }), {});
+    currentRenderer.updateScripts(timelineScriptsClasses);
+    currentRenderer.updateDevices(DevicesManager.devices);
+    currentRenderer.init();
+    currentRenderer.on(TimelineRendererEvent.UPDATE_POSITION, (position) => {
+      win.webContents.send('updateTimelineInfo', {
+        position,
+      });
+    });
+    currentRenderer.start();
   });
 };
 

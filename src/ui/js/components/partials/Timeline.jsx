@@ -35,7 +35,7 @@ const defaultProps = {
   //     ],
   //   ],
   // },
-  position: 150,
+  position: 0,
   zoom: 1,
   onTimelineSelect: null,
 };

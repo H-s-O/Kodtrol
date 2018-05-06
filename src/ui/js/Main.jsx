@@ -40,12 +40,13 @@ const Main = class Main extends Component {
   }
 
   render() {
-    const { scripts, currentScript, devices, timelines, currentTimeline } = this.props;
+    const { scripts, currentScript, devices, timelines, currentTimeline, timelineInfo } = this.props;
     return (
       <Layout
         scripts={scripts}
         devices={devices}
         timelines={timelines}
+        timelineInfo={timelineInfo}
         currentScript={currentScript}
         currentTimeline={currentTimeline}
         onEditorSave={this.onEditorSave}
@@ -59,7 +60,7 @@ const Main = class Main extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const { scripts, currentScript, devices, timelines, currentTimeline } = state;
+  const { scripts, currentScript, devices, timelines, currentTimeline, timelineInfo } = state;
   // console.log('mapStateToProps', state);
   return {
     scripts,
@@ -67,6 +68,7 @@ const mapStateToProps = (state) => {
     devices,
     timelines,
     currentTimeline,
+    timelineInfo,
   }
 };
 

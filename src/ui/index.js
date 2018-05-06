@@ -7,7 +7,7 @@ import createIpc, { send } from 'redux-electron-ipc';
 
 import Main from './js/Main';
 import main from './js/reducers/main';
-import { updateScripts, editScript, updateDevices, updateTimelines, editTimeline } from './js/actions/ipc';
+import { updateScripts, editScript, updateDevices, updateTimelines, editTimeline, updateTimelineInfo } from './js/actions/ipc';
 
 const ipc = createIpc({
   'updateScripts': updateScripts,
@@ -15,6 +15,7 @@ const ipc = createIpc({
   'editTimeline': editTimeline,
   'updateDevices': updateDevices,
   'updateTimelines': updateTimelines,
+  'updateTimelineInfo': updateTimelineInfo,
 });
 
 const store = createStore(main, applyMiddleware(ipc));

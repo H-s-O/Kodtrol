@@ -7,7 +7,7 @@ export default (state = {}, action) => {
           return {
             id: script.id,
             icon: 'file',
-            label: script.name,
+            label: `${script.name} (${script.id.substr(-5)})`,
             active: script.current,
           };
         }),
@@ -36,6 +36,13 @@ export default (state = {}, action) => {
             label: timeline.name,
           };
         }),
+      };
+      break;
+
+    case 'UPDATE_TIMELINE_INFO':
+      return {
+        ...state,
+        timelineInfo: action.timelineInfo,
       };
       break;
 

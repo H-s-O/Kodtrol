@@ -19,6 +19,10 @@ export default class DevicesManager {
     return this._projectFilePath;
   }
 
+  static get devices() {
+    return this._devices;
+  }
+
   static loadDevice(deviceId) {
     const filePath = path.join(DevicesManager.projectFilePath, `devices/${deviceId}.json`);
     const deviceContent = fs.readFileSync(filePath, 'utf8');
@@ -57,9 +61,5 @@ export default class DevicesManager {
       };
     });
     return foundDevices;
-  }
-
-  static get devices() {
-    return this._devices;
   }
 }

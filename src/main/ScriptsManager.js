@@ -9,6 +9,8 @@ import safeClassName from './lib/safeClassName';
 
 export default class ScriptsManager {
   static init() {
+    this._scripts = {};
+
     const baseProto = BaseScript;
     this.macros = Object.keys(baseProto).
       filter((prop) => (
@@ -35,11 +37,27 @@ export default class ScriptsManager {
     return this._projectFilePath;
   }
 
+  static get scripts() {
+    return this._scripts;
+  }
+
   static loadScript(scriptId) {
     const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptId}.json`);
     const scriptData = readJson(filePath);
     const scriptContent = get(scriptData, 'content', '');
     return scriptContent;
+  }
+
+  static loadScriptData(scriptId) {
+    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptId}.json`);
+    const scriptData = readJson(filePath);
+    return scriptData;
+  }
+
+  static loadCompiledScript(scriptId) {
+    const scriptPath = ScriptsManager.getCompiledScriptPath(scriptId);
+    const scriptClass = require(scriptPath);
+    return scriptClass;
   }
 
   static createScript(scriptData) {
@@ -60,13 +78,20 @@ export default class ScriptsManager {
 
     const className = safeClassName(`Script_${scriptId}`);
     const compiledClass = ScriptsManager.compileClass(className, scriptValue);
-    const compiledFilePath = path.join(ScriptsManager.projectFilePath, `scripts_compiled/${scriptId}.js`);
+    const compiledFilePath = ScriptsManager.getCompiledScriptPath(scriptId);
     writeFile(compiledFilePath, compiledClass);
+
+    ScriptsManager.invalidateCompiledScript(scriptId);
 
     return {
       scriptData,
       compiledScript: compiledFilePath,
     };
+  }
+
+  static invalidateCompiledScript(scriptId) {
+    const scriptPath = ScriptsManager.getCompiledScriptPath(scriptId);
+    delete require.cache[scriptPath];
   }
 
   static compileClass(className, classBody) {
@@ -96,5 +121,9 @@ export default class ScriptsManager {
       }
     });
     return foundScripts;
+  }
+
+  static getCompiledScriptPath(scriptId) {
+    return path.join(ScriptsManager.projectFilePath, `scripts_compiled/${scriptId}.js`);
   }
 }

@@ -18,6 +18,11 @@ export const updateTimelines = (event, timelines) => ({
   timelines,
 });
 
+export const updateTimelineInfo = (event, timelineInfo) => ({
+  type: 'UPDATE_TIMELINE_INFO',
+  timelineInfo,
+});
+
 export const editTimeline = (event, timelineData) => ({
   type: 'EDIT_TIMELINE',
   currentTimeline: timelineData,

@@ -1,4 +1,5 @@
 import React from 'react';
+import { get } from 'lodash';
 import { Grid, Row, Col, Well } from 'react-bootstrap';
 // import SplitPane from 'react-splitter-layout';
 import SplitPane from 'react-split-pane';
@@ -42,6 +43,7 @@ export default props => {
       <Row className={styles.bottomRow}>
         <Col md={12} className={styles.fullHeight}>
           <Timeline
+            position={get(props.timelineInfo, 'position', 0)}
             timelines={props.timelines}
             timelineData={props.currentTimeline}
             onTimelineSelect={props.onTimelineSelect}
