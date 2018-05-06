@@ -185,33 +185,17 @@ class Timeline extends Component {
     );
   }
 
-  renderTimelinesSelect(timelines) {
+  renderAddItems() {
     return (
-      <Form
-        inline
-      >
-        <FormControl
-          bsSize="small"
-          componentClass="select"
-          onChange={this.onTimelineChange}
-          defaultValue=""
+      <ButtonGroup>
+        <Button
+          bsSize="xsmall"
         >
-          <option
-            value=""
-            disabled
-          >
-            --
-          </option>
-          { timelines.map(({ id, label }, index) => (
-            <option
-              key={`timeline-${index}`}
-              value={id}
-            >
-              { label }
-            </option>
-          )) }
-        </FormControl>
-      </Form>
+          <Glyphicon
+            glyph="plus"
+          />
+        </Button>
+      </ButtonGroup>
     );
   }
 
@@ -224,6 +208,7 @@ class Timeline extends Component {
         headingContent={
           <ButtonToolbar>
             { this.renderTimelineControls() }
+            { this.renderAddItems() }
             <Button
               bsSize="xsmall"
             >
@@ -231,7 +216,6 @@ class Timeline extends Component {
                 glyph="search"
               />
             </Button>
-            { this.renderTimelinesSelect(timelines) }
           </ButtonToolbar>
         }
       >

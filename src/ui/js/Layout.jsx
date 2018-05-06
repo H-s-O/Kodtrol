@@ -10,6 +10,7 @@ import Welcome from './components/partials/Welcome';
 import ScriptEditor from './components/partials/ScriptEditor';
 import ScriptsBrowser from './components/partials/ScriptsBrowser';
 import DevicesBrowser from './components/partials/DevicesBrowser';
+import TimelinesBrowser from './components/partials/TimelinesBrowser';
 // import Preview from './components/partials/Preview';
 import Timeline from './components/partials/Timeline';
 
@@ -41,12 +42,18 @@ export default props => {
         </Col>
       </Row>
       <Row className={styles.bottomRow}>
-        <Col md={12} className={styles.fullHeight}>
+        <Col md={2} className={styles.fullHeight}>
+          <TimelinesBrowser
+            timelines={props.timelines}
+            onTimelineSelect={props.onTimelineSelect}
+            onTimelineCreate={props.onTimelineCreate}
+          />
+        </Col>
+        <Col md={10} className={styles.fullHeight}>
           <Timeline
             position={get(props.timelineInfo, 'position', 0)}
             timelines={props.timelines}
             timelineData={props.currentTimeline}
-            onTimelineSelect={props.onTimelineSelect}
           />
         </Col>
       </Row>

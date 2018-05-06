@@ -4,6 +4,7 @@ import glob from 'glob';
 import uniqid from 'uniqid';
 import safeClassName from './lib/safeClassName';
 import { writeJson, readJson } from './lib/fileSystem';
+import Timeline from './models/Timeline';
 
 export default class TimelinesManager {
   static init() {

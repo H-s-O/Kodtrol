@@ -34,6 +34,7 @@ export default (state = {}, action) => {
           return {
             id: timeline.id,
             label: timeline.name,
+            active: timeline.current,
           };
         }),
       };

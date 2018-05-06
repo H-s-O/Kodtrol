@@ -206,6 +206,18 @@ const main = async () => {
     });
     currentRenderer.start();
   });
+
+  ipcMain.on('timelineCreate', (evt, arg) => {
+    currentTimeline = TimelinesManager.createTimeline(arg);
+    const timelines = TimelinesManager.listTimelines().map(({id, name}) => ({
+      id,
+      name,
+      current: id === currentTimeline,
+    }));
+    win.webContents.send('updateTimelines', timelines);
+    const timelineContent = TimelinesManager.loadTimeline(currentTimeline);
+    win.webContents.send('editTimeline', timelineContent);
+  });
 };
 
 main();
