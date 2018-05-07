@@ -218,6 +218,12 @@ const main = async () => {
     const timelineContent = TimelinesManager.loadTimeline(currentTimeline);
     win.webContents.send('editTimeline', timelineContent);
   });
+
+  ipcMain.on('saveTimeline', (evt, arg) => {
+    const { id, content } = arg;
+    const timelineData = TimelinesManager.saveTimeline(id, content);
+    win.webContents.send('editTimeline', timelineData);
+  })
 };
 
 main();

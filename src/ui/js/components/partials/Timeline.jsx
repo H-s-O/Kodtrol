@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from 'react-autobind';
 import { get, isFunction } from 'lodash';
-import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form } from 'react-bootstrap';
+import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import Panel from './Panel';
 import percentString from '../../lib/percentString';
 
@@ -12,7 +12,7 @@ const propTypes = {
   timelines: PropTypes.arrayOf(PropTypes.shape({})),
   timelineData: PropTypes.shape({}),
   zoom: PropTypes.number,
-  onTimelineSelect: PropTypes.func,
+  onSave: PropTypes.func,
 };
 
 const defaultProps = {
@@ -37,7 +37,7 @@ const defaultProps = {
   // },
   position: 0,
   zoom: 1,
-  onTimelineSelect: null,
+  onSave: null,
 };
 
 class Timeline extends Component {
@@ -46,10 +46,20 @@ class Timeline extends Component {
     autoBind(this);
   }
 
-  onTimelineChange(e) {
-    const { onTimelineSelect } = this.props;
-    if (isFunction(onTimelineSelect)) {
-      onTimelineSelect(e.target.value);
+  onAddLayerClick() {
+    const { timelineData } = this.props;
+    timelineData.layers.push([]);
+    this.triggerSave(timelineData);
+  }
+
+  triggerSave(value) {
+    const { onSave } = this.props;
+    if (isFunction(onSave)) {
+      const { id } = value;
+      onSave({
+        id,
+        content: value,
+      });
     }
   }
 
@@ -84,6 +94,12 @@ class Timeline extends Component {
         key={`layer-group-${index}`}
         y={percentString(1 - (0.26 * (index / layersCount)) - 0.1)}
       >
+        <rect
+          width="100%"
+          height="25"
+          fill="#000"
+          fillOpacity="0.25"
+        />
         { layer.map(this.renderTimelineLayerBlock) }
       </svg>
     );
@@ -187,15 +203,20 @@ class Timeline extends Component {
 
   renderAddItems() {
     return (
-      <ButtonGroup>
-        <Button
-          bsSize="xsmall"
-        >
+      <DropdownButton
+        noCaret
+        title={(
           <Glyphicon
             glyph="plus"
           />
-        </Button>
-      </ButtonGroup>
+        )}
+        key="asdas"
+        bsSize="xsmall"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MenuItem onSelect={this.onAddLayerClick}>Add layer</MenuItem>
+        <MenuItem eventKey="2">Add block</MenuItem>
+      </DropdownButton>
     );
   }
 
@@ -206,17 +227,19 @@ class Timeline extends Component {
         title="Timeline editor"
         className={styles.fullHeight}
         headingContent={
-          <ButtonToolbar>
-            { this.renderTimelineControls() }
-            { this.renderAddItems() }
-            <Button
-              bsSize="xsmall"
-            >
-              <Glyphicon
-                glyph="search"
-              />
-            </Button>
-          </ButtonToolbar>
+          timelineData && (
+            <ButtonToolbar>
+              { this.renderTimelineControls() }
+              { this.renderAddItems() }
+              <Button
+                bsSize="xsmall"
+              >
+                <Glyphicon
+                  glyph="search"
+                />
+              </Button>
+            </ButtonToolbar>
+          )
         }
       >
         <div

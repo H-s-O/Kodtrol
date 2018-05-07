@@ -54,6 +54,7 @@ export default props => {
             position={get(props.timelineInfo, 'position', 0)}
             timelines={props.timelines}
             timelineData={props.currentTimeline}
+            onSave={props.onTimelineSave}
           />
         </Col>
       </Row>

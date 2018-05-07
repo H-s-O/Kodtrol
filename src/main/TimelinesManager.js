@@ -30,19 +30,16 @@ export default class TimelinesManager {
     const filePath = path.join(TimelinesManager.projectFilePath, `timelines/${id}.json`);
     writeJson(filePath, {
       id,
+      layers: [],
       ...timelineData
     });
     return id;
   }
 
   static saveTimeline(timelineId, timelineData) {
-    // const filePath = path.join(TimelinesManager.projectFilePath, `timelines/${deviceId}.json`);
-    // fs.writeFileSync(filePath, scriptValue);
-    // const className = safeClassName(`Script_${scriptName}`);
-    // const compiledClass = TimelinesManager.compileClass(className, scriptValue);
-    // const compiledFilePath = path.join(TimelinesManager.projectFilePath, `scripts_compiled/${className}.js`);
-    // fs.writeFileSync(compiledFilePath, compiledClass);
-    // return compiledFilePath;
+    const filePath = path.join(TimelinesManager.projectFilePath, `timelines/${timelineId}.json`);
+    writeJson(filePath, timelineData);
+    return timelineData;
   }
 
   static listTimelines() {
