@@ -1,17 +1,17 @@
 import EventEmitter from 'events';
 import autoBind from 'auto-bind-inheritance';
 import { get, flatten, uniq, pick } from 'lodash';
-import DMX from 'dmx';
 import Device from '../Device';
 import TimelineRendererEvent from '../events/TimelineRendererEvent';
 
 export default class TimelineRenderer extends EventEmitter {
-  constructor(timelineData) {
+  constructor(timelineData, outputs) {
     super();
     try { // @TODO fix warning
       autoBind(this);
     } catch (err) {}
 
+    this._outputs = outputs;
     this._tempo = get(timelineData, 'tempo');
     this._duration = get(timelineData, 'duration');
     this._inTime = get(timelineData, 'inTime');
@@ -58,19 +58,16 @@ export default class TimelineRenderer extends EventEmitter {
             .reduce((obj, channel, index) => ({
               ...obj,
               [channel.alias]: index + 1,
-            }), {}),
-          device.channels
-            .reduce((obj, channel, index) => ({
-              ...obj,
-              [index]: Number(channel.defaultValue),
-            }), {}),
+            }), {})
+          // device.channels
+          //   .reduce((obj, channel, index) => ({
+          //     ...obj,
+          //     [index]: Number(channel.defaultValue),
+          //   }), {}),
         ));
     }
 
     this._baseData = this.computeBaseData(this._devices);
-
-    this._dmx = new DMX();
-    this._dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
   }
 
   get playing() {
@@ -160,7 +157,7 @@ export default class TimelineRenderer extends EventEmitter {
     // console.log(this._baseData);
     // console.log(renderData);
     // console.log(allData);
-    this._dmx.update('main', allData);
+    this._outputs.main.update('main', allData);
 
     this.emit(TimelineRendererEvent.UPDATE_POSITION, this._currentTime);
   }
@@ -170,6 +167,10 @@ export default class TimelineRenderer extends EventEmitter {
 
     for (let id in this._scriptInstances) {
       this._scriptInstances[id].started = false;
+      this._scriptInstances[id].data = {};
+      for (let device in this._scriptInstances[id].devices) {
+        this._scriptInstances[id].devices[device].resetChannels();
+      }
     }
   }
 

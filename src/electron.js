@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { get, set, uniq } from 'lodash';
 import path from 'path';
 import url from 'url';
+import DMX from 'dmx';
 
 import { readAppConfig, writeAppConfig, createProject } from './main/lib/fileSystem';
 import { createProjectDialog } from './main/lib/dialogs';
@@ -13,6 +14,9 @@ import TimelineRenderer from './main/render/TimelineRenderer';
 import TimelineRendererEvent from './main/events/TimelineRendererEvent';
 
 const main = async () => {
+  let dmx = new DMX();
+      dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
+
   ScriptsManager.init();
   DevicesManager.init();
   TimelinesManager.init();
@@ -186,8 +190,9 @@ const main = async () => {
     if (currentRenderer) {
       currentRenderer.removeAllListeners();
       currentRenderer.destroy();
+      currentRenderer = null;
     }
-    currentRenderer = new TimelineRenderer(timelineContent);
+    currentRenderer = new TimelineRenderer(timelineContent, { main: dmx });
     const timelineScripts = currentRenderer.scriptIds;
     const timelineScriptsClasses = timelineScripts.reduce((obj, scriptId) => ({
       ...obj,

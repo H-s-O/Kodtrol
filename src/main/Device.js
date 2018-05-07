@@ -7,14 +7,14 @@ export default class Device {
     this._vars = vars;
     this._channelAliases = channelAliases;
 
-    if (initChannels) {
-      this._channels = initChannels;
-    } else {
-      this._channels = {}
-      for (let i = 0; i < this._numChannels; i++) {
-        this._channels[i] = 0;
-      }
-    }
+    // if (initChannels) {
+    //   this._channels = initChannels;
+    // } else {
+      this._channels = {};
+    //   for (let i = 0; i < this._numChannels; i++) {
+    //     this._channels[i] = 0;
+    //   }
+    // }
   }
 
   get startingChannel() {
@@ -28,13 +28,17 @@ export default class Device {
   get name() {
     return this._name;
   }
-  
+
   get type() {
     return this._type;
   }
 
   get data() {
     return this._channels;
+  }
+
+  resetChannels() {
+    this._channels = {};
   }
 
   is(type) {
