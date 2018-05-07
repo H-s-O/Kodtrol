@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from 'react-autobind';
 import classNames from 'classnames'
@@ -21,7 +21,7 @@ const defaultProps = {
   style: null,
 };
 
-class TreeView extends Component {
+class TreeView extends PureComponent {
   constructor(props) {
     super(props);
     autoBind(this);

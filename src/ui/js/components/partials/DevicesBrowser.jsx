@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from 'react-autobind';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
@@ -19,7 +19,7 @@ const defaultProps = {
   onDeviceCreate: null,
 };
 
-class DevicesBrowser extends Component {
+class DevicesBrowser extends PureComponent {
   constructor(props) {
     super(props);
     autoBind(this);

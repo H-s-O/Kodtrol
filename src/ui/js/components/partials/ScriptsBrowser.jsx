@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from 'react-autobind';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
@@ -22,7 +22,7 @@ const defaultProps = {
   onScriptCreate: null,
 };
 
-class ScriptsBrowser extends Component {
+class ScriptsBrowser extends PureComponent {
   constructor(props) {
     super(props);
     autoBind(this);

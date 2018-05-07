@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import AceEditor from 'react-ace';
 import brace from 'brace';
 import autoBind from 'react-autobind';
@@ -12,7 +12,7 @@ import styles from '../../../styles/components/partials/scripteditor.scss';
 import 'brace/mode/javascript';
 import 'brace/theme/tomorrow_night_eighties';
 
-export default class ScriptEditor extends Component {
+export default class ScriptEditor extends PureComponent {
   constructor(props) {
     super(props);
     autoBind(this);
