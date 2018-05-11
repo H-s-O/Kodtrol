@@ -87,6 +87,7 @@ class DevicesBrowser extends PureComponent {
       >
         <TreeView
           style={{
+            overflowX: 'visible',
             overflowY: 'auto',
             height: '94%',
           }}

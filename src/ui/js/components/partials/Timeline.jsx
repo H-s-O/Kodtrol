@@ -5,11 +5,13 @@ import { get, isFunction } from 'lodash';
 import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import Panel from './Panel';
 import percentString from '../../lib/percentString';
+import AddTimelineBlock from '../modals/AddTimelineBlock';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
 const propTypes = {
   timelines: PropTypes.arrayOf(PropTypes.shape({})),
+  scripts: PropTypes.arrayOf(PropTypes.shape({})),
   timelineData: PropTypes.shape({}),
   zoom: PropTypes.number,
   onSave: PropTypes.func,
@@ -17,6 +19,7 @@ const propTypes = {
 
 const defaultProps = {
   timelines: [],
+  scripts: [],
   timelineData: null,
   // timelineData: {
   //   tempo: 120,
@@ -44,12 +47,39 @@ class Timeline extends Component {
   constructor(props) {
     super(props);
     autoBind(this);
+
+    this.state = {
+      showAddBlockModal: false,
+    };
   }
 
   onAddLayerClick() {
     const { timelineData } = this.props;
     timelineData.layers.push([]);
     this.triggerSave(timelineData);
+  }
+
+  onAddBlockClick() {
+    this.setState({
+      showAddBlockModal: true,
+    });
+  }
+
+  onAddBlockSuccess(blockData) {
+    const { layer, ...blockInfo } = blockData;
+    const { timelineData } = this.props;
+    timelineData.layers[Number(layer)].push(blockInfo);
+    this.triggerSave(timelineData);
+
+    this.setState({
+      showAddBlockModal: false,
+    });
+  }
+
+  onAddBlockCancel() {
+    this.setState({
+      showAddBlockModal: false,
+    });
   }
 
   triggerSave(value) {
@@ -215,13 +245,15 @@ class Timeline extends Component {
         onClick={(e) => e.stopPropagation()}
       >
         <MenuItem onSelect={this.onAddLayerClick}>Add layer</MenuItem>
-        <MenuItem eventKey="2">Add block</MenuItem>
+        <MenuItem onSelect={this.onAddBlockClick}>Add block</MenuItem>
       </DropdownButton>
     );
   }
 
   render() {
-    const { timelineData, timelines } = this.props;
+    const { timelineData, timelines, scripts } = this.props;
+    const { showAddBlockModal } = this.state;
+
     return (
       <Panel
         title="Timeline editor"
@@ -247,6 +279,13 @@ class Timeline extends Component {
         >
           { this.renderTimeline(timelineData) }
         </div>
+        <AddTimelineBlock
+          show={showAddBlockModal}
+          onCancel={this.onAddBlockCancel}
+          onSuccess={this.onAddBlockSuccess}
+          scripts={scripts}
+          layers={(timelineData || {}).layers}
+        />
       </Panel>
     );
   }
