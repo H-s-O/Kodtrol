@@ -52,5 +52,7 @@ export const createProject = (projectPath) => {
   ensureDir(compiledScriptsDir);
   const devicesDir = path.join(projectDir, 'devices');
   ensureDir(devicesDir);
+  const timelinesDir = path.join(projectDir, 'timelines');
+  ensureDir(timelinesDir);
   return projectDir;
 };
