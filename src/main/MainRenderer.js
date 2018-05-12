@@ -1,21 +1,20 @@
-import DMX from 'dmx';
 import Device from './Device';
 import MidiClock from 'midi-clock';
 import autoBind from 'auto-bind-inheritance';
 import { pick } from 'lodash';
 
 export default class MainRenderer {
-  constructor() {
+  constructor(dmx) {
     autoBind(this);
+
+    this.dmx = dmx;
 
     this.running = false;
 
     this.clock = MidiClock();
     this.clock.setTempo(88);
 
-    this.dmx = new DMX();
-    // this.dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
-
+    this.interval = null;
     this.script = null;
     this.scriptData = null;
     this.devices = null;
@@ -81,7 +80,7 @@ export default class MainRenderer {
     this.running = true;
     this.clock.on('position', this.triggerClock);
     this.clock.start();
-    setInterval(this.render, (1 / 40) * 1000);
+    this.interval = setInterval(this.render, (1 / 40) * 1000);
   }
 
   triggerClock(time) {
@@ -96,6 +95,12 @@ export default class MainRenderer {
     }
   }
 
+  destroy() {
+    clearInterval(this.interval);
+    this.clock.stop();
+    this.dmx = null;
+  }
+  
   render() {
     try {
       if (this.script && typeof this.script.loop === 'function') {

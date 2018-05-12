@@ -21,11 +21,10 @@ const main = async () => {
   DevicesManager.init();
   TimelinesManager.init();
 
-  const mainRenderer = new MainRenderer();
-
   let currentScript = null;
   let currentTimeline = null;
   let currentRenderer = null;
+  let mainRenderer = null;
 
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
@@ -129,8 +128,16 @@ const main = async () => {
   ipcMain.on('saveScript', (evt, arg) => {
     const { id, content } = arg;
     const scriptData = ScriptsManager.saveScript(id, content);
-    // mainRenderer.reloadScript(scriptData, DevicesManager.devices);
-    // mainRenderer.run();
+    if (currentRenderer) {
+      currentRenderer.removeAllListeners();
+      currentRenderer.destroy();
+      currentRenderer = null;
+    }
+    if (!mainRenderer) {
+      mainRenderer = new MainRenderer(dmx);
+    }
+    mainRenderer.reloadScript(scriptData, DevicesManager.devices);
+    mainRenderer.run();
   })
 
   ipcMain.on('scriptSelect', (evt, arg) => {
@@ -186,6 +193,11 @@ const main = async () => {
     //   id: arg,
     //   content: timelineContent,
     // });
+
+    if (mainRenderer) {
+      mainRenderer.destroy();
+      mainRenderer = null;
+    }
 
     if (currentRenderer) {
       currentRenderer.removeAllListeners();
