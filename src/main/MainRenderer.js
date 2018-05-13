@@ -12,7 +12,7 @@ export default class MainRenderer {
     this.running = false;
 
     this.clock = MidiClock();
-    this.clock.setTempo(88);
+    this.clock.setTempo(96);
 
     this.interval = null;
     this.script = null;
@@ -100,7 +100,7 @@ export default class MainRenderer {
     this.clock.stop();
     this.dmx = null;
   }
-  
+
   render() {
     try {
       if (this.script && typeof this.script.loop === 'function') {
