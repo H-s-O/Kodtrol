@@ -15,6 +15,7 @@ import TimelineRendererEvent from './main/events/TimelineRendererEvent';
 
 const main = async () => {
   let dmx = new DMX();
+      // dmx.addUniverse('main', 'null', '/dev/tty.usbserial-EN086444');
       dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
 
   ScriptsManager.init();

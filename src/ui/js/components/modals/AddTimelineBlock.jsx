@@ -26,23 +26,33 @@ class AddTimelineBlock extends Component {
     autoBind(this);
 
     this.state = {
-      name: null,
-      script: null,
-      layer: null,
+      name: '',
+      script: '',
+      layer: '',
       inTime: 0,
       outTime: 0,
-      color: null,
+      color: '',
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.initialValue != this.props.initialValue) {
+      // console.log(nextProps.initialValue);
+      this.setState({
+        ...nextProps.initialValue,
+      });
+      console.log(this.state);
+    }
   }
 
   resetFields() {
     this.setState({
-      name: null,
-      script: null,
-      layer: null,
+      name: '',
+      script: '',
+      layer: '',
       inTime: 0,
       outTime: 0,
-      color: null,
+      color: '',
     });
   }
 
@@ -104,8 +114,9 @@ class AddTimelineBlock extends Component {
   }
 
   render() {
-    const { show, scripts, layers } = this.props;
-    const { color } = this.state;
+    const { show, scripts, layers, initialValue } = this.props;
+    const { color, name, inTime, outTime, script, layer } = this.state;
+
     return (
       <Modal
         show={show}
@@ -116,7 +127,7 @@ class AddTimelineBlock extends Component {
       >
         <Modal.Title
         >
-          Add block
+          { initialValue ? "Edit" : "Add" } block
         </Modal.Title>
       </Modal.Header>
         <Modal.Body>
@@ -136,6 +147,7 @@ class AddTimelineBlock extends Component {
               >
                 <FormControl
                   type="text"
+                  value={name}
                   onChange={this.onNameChange}
                 />
               </Col>
@@ -154,7 +166,7 @@ class AddTimelineBlock extends Component {
                 <FormControl
                   componentClass="select"
                   onChange={this.onScriptChange}
-                  defaultValue=""
+                  defaultValue={script}
                 >
                   <option
                     value=""
@@ -187,7 +199,7 @@ class AddTimelineBlock extends Component {
                 <FormControl
                   componentClass="select"
                   onChange={this.onLayerChange}
-                  defaultValue=""
+                  defaultValue={layer}
                 >
                   <option
                     value=""
@@ -219,6 +231,7 @@ class AddTimelineBlock extends Component {
               >
                 <FormControl
                   type="number"
+                  value={inTime}
                   onChange={this.onInTimeChange}
                 />
               </Col>
@@ -236,6 +249,7 @@ class AddTimelineBlock extends Component {
               >
                 <FormControl
                   type="number"
+                  value={outTime}
                   onChange={this.onOutTimeChange}
                 />
               </Col>
@@ -252,6 +266,7 @@ class AddTimelineBlock extends Component {
                 sm={9}
               >
                 <GithubPicker
+                  value={color}
                   triangle="hide"
                   width="100%"
                   onChangeComplete={this.onColorChange}

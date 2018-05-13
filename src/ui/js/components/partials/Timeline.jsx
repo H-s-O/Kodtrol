@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from 'react-autobind';
+import { remote } from 'electron';
 import { get, isFunction } from 'lodash';
 import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import Panel from './Panel';
@@ -50,6 +51,7 @@ class Timeline extends Component {
 
     this.state = {
       showAddBlockModal: false,
+      editBlockData: null,
     };
   }
 
@@ -62,6 +64,29 @@ class Timeline extends Component {
   onAddBlockClick() {
     this.setState({
       showAddBlockModal: true,
+      editBlockData: null,
+    });
+  }
+
+  onEditBlockClick(blockData) {
+    this.setState({
+      showAddBlockModal: true,
+      editBlockData: blockData,
+    });
+  }
+
+  onTimelineBlockContextMenu(e, block) {
+    const { Menu, MenuItem } = remote;
+
+    const menu = new Menu();
+    menu.append(new MenuItem({
+      label: 'Edit block...',
+      click: () => this.onEditBlockClick(block),
+    }));
+
+    e.preventDefault();
+    menu.popup({
+      window: remote.getCurrentWindow(),
     });
   }
 
@@ -101,6 +126,7 @@ class Timeline extends Component {
       <svg
         key={`block-${index}`}
         x={percentString(inTime / duration)}
+        onContextMenu={(e) => this.onTimelineBlockContextMenu(e, block)}
       >
         <rect
           width={percentString((outTime - inTime) / duration)}
@@ -252,7 +278,7 @@ class Timeline extends Component {
 
   render() {
     const { timelineData, timelines, scripts } = this.props;
-    const { showAddBlockModal } = this.state;
+    const { showAddBlockModal, editBlockData } = this.state;
 
     return (
       <Panel
@@ -280,6 +306,7 @@ class Timeline extends Component {
           { this.renderTimeline(timelineData) }
         </div>
         <AddTimelineBlock
+          initialValue={editBlockData}
           show={showAddBlockModal}
           onCancel={this.onAddBlockCancel}
           onSuccess={this.onAddBlockSuccess}
