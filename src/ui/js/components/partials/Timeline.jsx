@@ -16,6 +16,7 @@ const propTypes = {
   timelineData: PropTypes.shape({}),
   zoom: PropTypes.number,
   onSave: PropTypes.func,
+  onStatusUpdate: PropTypes.func,
 };
 
 const defaultProps = {
@@ -42,12 +43,15 @@ const defaultProps = {
   position: 0,
   zoom: 1,
   onSave: null,
+  onStatusUpdate: null,
 };
 
 class Timeline extends Component {
   constructor(props) {
     super(props);
     autoBind(this);
+
+    this.timelineContainer = null;
 
     this.state = {
       showAddBlockModal: false,
@@ -73,6 +77,22 @@ class Timeline extends Component {
       showAddBlockModal: true,
       editBlockData: blockData,
     });
+  }
+
+  onTimelineClick(e) {
+    e.preventDefault();
+
+    const { onStatusUpdate, timelineData } = this.props;
+    if (isFunction(onStatusUpdate)) {
+      const duration = get(timelineData, 'duration');
+      const { clientX } = e;
+      const { left, right } = this.timelineContainer.getBoundingClientRect();
+      const percent = (clientX - left) / right;
+      const newPosition = duration * percent;
+      onStatusUpdate({
+        position: newPosition,
+      });
+    }
   }
 
   onTimelineBlockContextMenu(e, block) {
@@ -301,7 +321,9 @@ class Timeline extends Component {
         }
       >
         <div
+          ref={ (ref) => this.timelineContainer = ref }
           style={ { width: '100%', height: '90%', overflowX: 'auto' }}
+          onClick={ this.onTimelineClick }
         >
           { this.renderTimeline(timelineData) }
         </div>

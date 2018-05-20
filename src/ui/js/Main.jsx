@@ -49,6 +49,11 @@ const Main = class Main extends Component {
     ipcRenderer.send('saveTimeline', timelineData);
   }
 
+  onTimelineStatusUpdate(timelineStatus) {
+    console.log('onTimelineStatusUpdate', timelineStatus);
+    ipcRenderer.send('timelineStatus', timelineStatus);
+  }
+
   render() {
     const { scripts, currentScript, devices, timelines, currentTimeline, timelineInfo } = this.props;
     return (
@@ -66,6 +71,7 @@ const Main = class Main extends Component {
         onTimelineSelect={this.onTimelineSelect}
         onTimelineCreate={this.onTimelineCreate}
         onTimelineSave={this.onTimelineSave}
+        onTimelineStatusUpdate={this.onTimelineStatusUpdate}
       />
     );
   }

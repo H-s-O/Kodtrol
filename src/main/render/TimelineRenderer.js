@@ -20,6 +20,7 @@ export default class TimelineRenderer extends EventEmitter {
 
     this._currentTime = 0;
     this._startTime = 0;
+    this._position = 0;
     this._interval = null;
     this._playing = false;
     this._fps = 40;
@@ -95,6 +96,7 @@ export default class TimelineRenderer extends EventEmitter {
     if (this._playing) return;
 
     this._startTime = Date.now();
+    this._position = 0;
 
     this.render();
 
@@ -113,8 +115,14 @@ export default class TimelineRenderer extends EventEmitter {
     this._playing = false;
   }
 
+  setPosition(position) {
+    this._position = position;
+    this._startTime = Date.now();
+    this.resetScriptInstances();
+  }
+
   render() {
-    this._currentTime = Date.now() - this._startTime;
+    this._currentTime = (Date.now() - this._startTime) + this._position;
     if (this._currentTime > this._outTime) {
       this.restartTimeline();
       this._currentTime = 0;
@@ -219,7 +227,11 @@ export default class TimelineRenderer extends EventEmitter {
 
   restartTimeline() {
     this._startTime = Date.now();
+    this._position = 0;
+    this.resetScriptInstances();
+  }
 
+  resetScriptInstances() {
     for (let id in this._scriptInstances) {
       this._scriptInstances[id].started = false;
       this._scriptInstances[id].data = {};

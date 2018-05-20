@@ -55,6 +55,7 @@ export default props => {
             timelines={props.timelines}
             timelineData={props.currentTimeline}
             onSave={props.onTimelineSave}
+            onStatusUpdate={props.onTimelineStatusUpdate}
             scripts={props.scripts}
           />
         </Col>

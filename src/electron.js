@@ -242,6 +242,15 @@ const main = async () => {
     const timelineData = TimelinesManager.saveTimeline(id, content);
     win.webContents.send('editTimeline', timelineData);
   })
+
+  ipcMain.on('timelineStatus', (evt, arg) => {
+    if (currentRenderer) {
+      const position = get(arg, 'position', null);
+      if (position != null) {
+        currentRenderer.setPosition(position);
+      }
+    }
+  })
 };
 
 main();
