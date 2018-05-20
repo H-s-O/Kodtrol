@@ -21,7 +21,7 @@ export default (state = {}, action) => {
           return {
             id: device.id,
             icon: 'modal-window',
-            label: device.name,
+            label: `${device.name} (${device.id.substr(-5)})`,
           };
         }),
       };
