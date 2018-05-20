@@ -138,10 +138,17 @@ export default class TimelineRenderer extends EventEmitter {
           this._scriptInstances[block.id].started = true;
         }
 
+        const blockInfo = {
+          inTime: block.inTime,
+          outTime: block.outTime,
+          currentTime: this._currentTime,
+          blockPercent: ((this._currentTime - block.inTime) / block.outTime),
+        }
+
         // Script loop
         try {
           if (typeof this._scriptInstances[block.id].instance.loop === 'function') {
-            const data = this._scriptInstances[block.id].instance.loop(this._scriptInstances[block.id].devices, this._scriptInstances[block.id].data);
+            const data = this._scriptInstances[block.id].instance.loop(this._scriptInstances[block.id].devices, this._scriptInstances[block.id].data, blockInfo);
             this._scriptInstances[block.id].data = data || this._scriptInstances[block.id].data;
           }
         } catch (err) {
