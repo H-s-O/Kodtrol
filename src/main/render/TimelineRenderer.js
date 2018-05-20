@@ -150,7 +150,7 @@ export default class TimelineRenderer extends EventEmitter {
           inTime: block.inTime,
           outTime: block.outTime,
           currentTime: this._currentTime,
-          blockPercent: ((this._currentTime - block.inTime) / block.outTime),
+          blockPercent: ((this._currentTime - block.inTime) / (block.outTime - block.inTime)),
         }
 
         // Script loop
