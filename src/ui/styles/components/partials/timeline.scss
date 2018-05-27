@@ -1,1 +1,41 @@
 @import '../../utils.scss';
+
+.timeline {
+  height: 100%;
+
+  .timelineTracker {
+    width: 1px;
+    height: 100%;
+    position: absolute;
+    background-color: #F00;
+  }
+
+  .timelineLayer {
+    position: absolute;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.25);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .timelineBlock {
+      position: absolute;
+      color: #FFF;
+      height: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:hover {
+        opacity: 0.8;
+        overflow: visible;
+      }
+
+      .timelimeBlockLabel {
+        display: inline-block;
+        padding: 3px;
+        white-space: nowrap;
+      }
+    }
+  }
+}

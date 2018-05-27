@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from 'react-autobind';
 import { remote } from 'electron';
@@ -46,7 +46,7 @@ const defaultProps = {
   onStatusUpdate: null,
 };
 
-class Timeline extends Component {
+class Timeline extends PureComponent {
   constructor(props) {
     super(props);
     autoBind(this);
@@ -103,6 +103,17 @@ class Timeline extends Component {
     timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].filter((block) => {
       return block.id != blockData.id;
     });
+
+    this.triggerSave(timelineData);
+  }
+
+  onDeleteLayerClick(index) {
+    const { timelineData } = this.props;
+
+    timelineData.layers = timelineData.layers.filter((layer, layerIndex) => {
+      return layerIndex != index;
+    });
+
     this.triggerSave(timelineData);
   }
 
@@ -135,6 +146,23 @@ class Timeline extends Component {
       click: () => this.onDeleteBlockClick(block),
     }));
 
+    e.stopPropagation();
+    e.preventDefault();
+    menu.popup({
+      window: remote.getCurrentWindow(),
+    });
+  }
+
+  onTimelineLayerContextMenu(e, index) {
+    const { Menu, MenuItem } = remote;
+
+    const menu = new Menu();
+    menu.append(new MenuItem({
+      label: 'Delete layer',
+      click: () => this.onDeleteLayerClick(index),
+    }));
+
+    e.stopPropagation();
     e.preventDefault();
     menu.popup({
       window: remote.getCurrentWindow(),
@@ -186,61 +214,56 @@ class Timeline extends Component {
     const duration = get(timelineData, 'duration');
     const { inTime, outTime, color, name } = block;
     return (
-      <svg
+      <div
+        title={name}
+        className={styles.timelineBlock}
         key={`block-${index}`}
-        x={percentString(inTime / duration)}
+        style={{
+          left: percentString(inTime / duration),
+          backgroundColor: color,
+          width: percentString((outTime - inTime) / duration),
+        }}
         onContextMenu={(e) => this.onTimelineBlockContextMenu(e, block)}
       >
-        <rect
-          width={percentString((outTime - inTime) / duration)}
-          height={25}
-          fill={color}
-        />
-        <text
-          x="5"
-          y="15"
+        <span
+          style={{
+            backgroundColor: color,
+          }}
+          className={styles.timelimeBlockLabel}
         >
           { name }
-        </text>
-      </svg>
+        </span>
+      </div>
     );
   }
 
   renderTimelineLayer(layer, index, layers) {
-    const layersCount = layers.length;
+    const layersCount = Math.max(4, layers.length);
+    const layerHeight = (1 / layersCount);
+    const top = percentString(1 - ((index + 1) * layerHeight));
+    const height = percentString(layerHeight * 0.9);
     return (
-      <svg
+      <div
+        className={styles.timelineLayer}
         key={`layer-group-${index}`}
-        y={percentString(1 - (0.26 * (index / layersCount)) - 0.1)}
+        style={{ top, height }}
+        onContextMenu={(e) => this.onTimelineLayerContextMenu(e, index)}
       >
-        <rect
-          width="100%"
-          height="25"
-          fill="#000"
-          fillOpacity="0.25"
-        />
         { layer.map(this.renderTimelineLayerBlock) }
-      </svg>
+      </div>
     );
   }
 
   renderTimelineTracker() {
     const { position, timelineData } = this.props;
     const duration = get(timelineData, 'duration');
+    const left = percentString(position / duration);
     return (
-      <svg
-        x={percentString(position / duration)}
+      <div
+        className={styles.timelineTracker}
+        style={{ left }}
       >
-        <polygon
-          points="0,20 -20,0 20,0"
-          fill="red"
-        />
-        <rect
-          width="1"
-          height="100%"
-          fill="red"
-        />
-      </svg>
+      </div>
     );
   }
 
@@ -248,40 +271,13 @@ class Timeline extends Component {
     const { zoom } = this.props;
     const layers = get(data, 'layers', []);
     return (
-      <svg
-        width={percentString(zoom)}
-        height="100%"
+      <div
+        className={styles.timeline}
+        style={{ width: percentString(zoom) }}
       >
-      <defs>
-        <pattern
-          id="timeline-marks"
-          x="0"
-          y="0"
-          width="20"
-          height="20"
-          patternUnits="userSpaceOnUse"
-        >
-          <rect
-            x="0"
-            y="0"
-            width="1"
-            height="20"
-            fill="#222"
-          />
-        </pattern>
-      </defs>
-      <g>
-        <rect
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
-          fill="url(#timeline-marks)"
-        />
-      </g>
-      { layers.length && layers.map(this.renderTimelineLayer) }
-      { layers.length && this.renderTimelineTracker() }
-      </svg>
+      { layers.length ? layers.map(this.renderTimelineLayer) : null }
+      { layers.length ? this.renderTimelineTracker() : null }
+      </div>
     );
   }
 
@@ -365,7 +361,7 @@ class Timeline extends Component {
       >
         <div
           ref={ (ref) => this.timelineContainer = ref }
-          style={ { width: '100%', height: '90%', overflowX: 'auto' }}
+          style={ { position: 'relative', width: '100%', height: '90%', overflowX: 'auto' }}
           onClick={ this.onTimelineClick }
         >
           { this.renderTimeline(timelineData) }
