@@ -96,6 +96,16 @@ class Timeline extends Component {
     });
   }
 
+  onDeleteBlockClick(blockData) {
+    const layer = this.findBlockLayer(blockData);
+    const { timelineData } = this.props;
+
+    timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].filter((block) => {
+      return block.id != blockData.id;
+    });
+    this.triggerSave(timelineData);
+  }
+
   onTimelineClick(e) {
     e.preventDefault();
 
@@ -119,6 +129,10 @@ class Timeline extends Component {
     menu.append(new MenuItem({
       label: 'Edit block...',
       click: () => this.onEditBlockClick(block),
+    }));
+    menu.append(new MenuItem({
+      label: 'Delete block',
+      click: () => this.onDeleteBlockClick(block),
     }));
 
     e.preventDefault();
