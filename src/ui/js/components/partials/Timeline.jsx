@@ -125,8 +125,9 @@ class Timeline extends PureComponent {
       const duration = get(timelineData, 'duration');
       const { clientX } = e;
       const { left, right } = this.timelineContainer.getBoundingClientRect();
-      const percent = (clientX - left) / right;
+      const percent = (clientX - left) / (right - left);
       const newPosition = duration * percent;
+
       onStatusUpdate({
         position: newPosition,
       });
@@ -263,6 +264,10 @@ class Timeline extends PureComponent {
         className={styles.timelineTracker}
         style={{ left }}
       >
+        <div
+          className={styles.arrow}
+        >
+        </div>
       </div>
     );
   }
