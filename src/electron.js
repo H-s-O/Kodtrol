@@ -47,6 +47,11 @@ const main = async () => {
     win.loadURL('http://localhost:8080/');
     const contents = win.webContents;
     contents.on('did-finish-load', () => {
+      // disable page zoom/scale
+      contents.setZoomFactor(1);
+      contents.setVisualZoomLevelLimits(1, 1);
+      contents.setLayoutZoomLevelLimits(0, 0);
+
       const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
         id,
         name,
