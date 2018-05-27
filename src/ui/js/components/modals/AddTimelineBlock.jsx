@@ -106,12 +106,13 @@ class AddTimelineBlock extends Component {
   }
 
   onSaveClick() {
-    const { onSuccess } = this.props;
+    const { onSuccess, initialValue } = this.props;
     if (isFunction(onSuccess)) {
-      onSuccess({
-        id: uniqid(),
-        ...this.state,
-      });
+      const data = { ...this.state };
+      if (initialValue === null) {
+        data.id = uniqid();
+      }
+      onSuccess(data);
     }
   }
 
