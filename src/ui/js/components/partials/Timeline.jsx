@@ -59,6 +59,20 @@ class Timeline extends Component {
     };
   }
 
+  findBlockLayer(sourceBlockData) {
+    const { timelineData } = this.props;
+    for (let layerIndex in timelineData.layers) {
+      const layerData = timelineData.layers[layerIndex];
+      for (let blockIndex in layerData) {
+        const blockData = layerData[blockIndex];
+        if (blockData.id == sourceBlockData.id) {
+          return layerIndex;
+        }
+      }
+    }
+    return null;
+  }
+
   onAddLayerClick() {
     const { timelineData } = this.props;
     timelineData.layers.push([]);
@@ -75,7 +89,10 @@ class Timeline extends Component {
   onEditBlockClick(blockData) {
     this.setState({
       showAddBlockModal: true,
-      editBlockData: blockData,
+      editBlockData: {
+        ...blockData,
+        layer: this.findBlockLayer(blockData),
+      },
     });
   }
 
@@ -113,7 +130,18 @@ class Timeline extends Component {
   onAddBlockSuccess(blockData) {
     const { layer, ...blockInfo } = blockData;
     const { timelineData } = this.props;
-    timelineData.layers[Number(layer)].push(blockInfo);
+    const { editBlockData } = this.state;
+
+    if (editBlockData !== null) {
+      timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].map((block) => {
+        if (block.id == blockInfo.id) {
+          return blockInfo;
+        }
+        return block;
+      });
+    } else {
+      timelineData.layers[Number(layer)].push(blockInfo);
+    }
     this.triggerSave(timelineData);
 
     this.setState({
@@ -124,6 +152,7 @@ class Timeline extends Component {
   onAddBlockCancel() {
     this.setState({
       showAddBlockModal: false,
+      editBlockData: null,
     });
   }
 

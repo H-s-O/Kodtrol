@@ -10,7 +10,7 @@ const propTypes = {
   initialValue: PropTypes.shape({}),
   mode: PropTypes.string,
   scripts: PropTypes.arrayOf(PropTypes.shape({})),
-  layers: PropTypes.arrayOf(PropTypes.shape({})),
+  layers: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({}))),
 };
 
 const defaultProps = {
@@ -26,6 +26,7 @@ class AddTimelineBlock extends Component {
     autoBind(this);
 
     this.state = {
+      id: '',
       name: '',
       script: '',
       layer: '',
@@ -37,16 +38,14 @@ class AddTimelineBlock extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.initialValue != this.props.initialValue) {
-      // console.log(nextProps.initialValue);
-      this.setState({
-        ...nextProps.initialValue,
-      });
-      console.log(this.state);
+      // this.resetFields();
+      this.setState({...nextProps.initialValue});
     }
   }
 
   resetFields() {
     this.setState({
+      id: '',
       name: '',
       script: '',
       layer: '',
@@ -57,7 +56,10 @@ class AddTimelineBlock extends Component {
   }
 
   onEnter() {
-    this.resetFields();
+    const { initialValue } = this.props;
+    if (initialValue === null) {
+      this.resetFields();
+    }
   }
 
   onNameChange(e) {
@@ -266,7 +268,7 @@ class AddTimelineBlock extends Component {
                 sm={9}
               >
                 <GithubPicker
-                  value={color}
+                  color={color}
                   triangle="hide"
                   width="100%"
                   onChangeComplete={this.onColorChange}
@@ -285,7 +287,7 @@ class AddTimelineBlock extends Component {
             bsStyle="success"
             onClick={this.onSaveClick}
           >
-            Add
+            { initialValue ? "Edit" : "Add" }
           </Button>
         </Modal.Footer>
       </Modal>
