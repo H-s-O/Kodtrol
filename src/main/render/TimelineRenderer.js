@@ -163,7 +163,7 @@ export default class TimelineRenderer extends EventEmitter {
           console.error(err);
         }
 
-        return {
+        const renderOutput = {
           ...renderDataObj,
           ...this._scriptInstances[block.id].devices.reduce((obj, device) => ({
             ...obj,
@@ -173,6 +173,12 @@ export default class TimelineRenderer extends EventEmitter {
             }), {}),
           }), {}),
         };
+
+        // this._scriptInstances[block.id].devices.forEach((device) => {
+        //   device.resetChannels();
+        // });
+
+        return renderOutput;
       }, {});
 
     const allData = {

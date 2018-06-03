@@ -42,6 +42,12 @@
         overflow: visible;
       }
 
+      &.lightBlock {
+        .timelimeBlockLabel {
+          color: #000;
+        }
+      }
+
       .timelimeBlockLabel {
         display: inline-block;
         padding: 3px;

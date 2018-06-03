@@ -7,6 +7,7 @@ import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form
 import Panel from './Panel';
 import percentString from '../../lib/percentString';
 import AddTimelineBlock from '../modals/AddTimelineBlock';
+import TimelineLayer from '../timeline/TimelineLayer';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
@@ -86,7 +87,7 @@ class Timeline extends PureComponent {
     });
   }
 
-  onEditBlockClick(blockData) {
+  onEditBlock(blockData) {
     this.setState({
       showAddBlockModal: true,
       editBlockData: {
@@ -96,7 +97,7 @@ class Timeline extends PureComponent {
     });
   }
 
-  onDeleteBlockClick(blockData) {
+  onDeleteBlock(blockData) {
     const layer = this.findBlockLayer(blockData);
     const { timelineData } = this.props;
 
@@ -107,7 +108,7 @@ class Timeline extends PureComponent {
     this.triggerSave(timelineData);
   }
 
-  onDeleteLayerClick(index) {
+  onDeleteLayer(index) {
     const { timelineData } = this.props;
 
     timelineData.layers = timelineData.layers.filter((layer, layerIndex) => {
@@ -132,42 +133,6 @@ class Timeline extends PureComponent {
         position: newPosition,
       });
     }
-  }
-
-  onTimelineBlockContextMenu(e, block) {
-    const { Menu, MenuItem } = remote;
-
-    const menu = new Menu();
-    menu.append(new MenuItem({
-      label: 'Edit block...',
-      click: () => this.onEditBlockClick(block),
-    }));
-    menu.append(new MenuItem({
-      label: 'Delete block',
-      click: () => this.onDeleteBlockClick(block),
-    }));
-
-    e.stopPropagation();
-    e.preventDefault();
-    menu.popup({
-      window: remote.getCurrentWindow(),
-    });
-  }
-
-  onTimelineLayerContextMenu(e, index) {
-    const { Menu, MenuItem } = remote;
-
-    const menu = new Menu();
-    menu.append(new MenuItem({
-      label: 'Delete layer',
-      click: () => this.onDeleteLayerClick(index),
-    }));
-
-    e.stopPropagation();
-    e.preventDefault();
-    menu.popup({
-      window: remote.getCurrentWindow(),
-    });
   }
 
   onAddBlockSuccess(blockData) {
@@ -210,48 +175,20 @@ class Timeline extends PureComponent {
     }
   }
 
-  renderTimelineLayerBlock(block, index) {
+  renderTimelineLayer(layer, index, layers) {
     const { timelineData } = this.props;
     const duration = get(timelineData, 'duration');
-    const { inTime, outTime, color, name } = block;
     return (
-      <div
-        title={name}
-        className={styles.timelineBlock}
-        key={`block-${index}`}
-        style={{
-          left: percentString(inTime / duration),
-          backgroundColor: color,
-          width: percentString((outTime - inTime) / duration),
-        }}
-        onContextMenu={(e) => this.onTimelineBlockContextMenu(e, block)}
-      >
-        <span
-          style={{
-            backgroundColor: color,
-          }}
-          className={styles.timelimeBlockLabel}
-        >
-          { name }
-        </span>
-      </div>
-    );
-  }
-
-  renderTimelineLayer(layer, index, layers) {
-    const layersCount = Math.max(4, layers.length);
-    const layerHeight = (1 / layersCount);
-    const top = percentString(1 - ((index + 1) * layerHeight));
-    const height = percentString(layerHeight * 0.9);
-    return (
-      <div
-        className={styles.timelineLayer}
-        key={`layer-group-${index}`}
-        style={{ top, height }}
-        onContextMenu={(e) => this.onTimelineLayerContextMenu(e, index)}
-      >
-        { layer.map(this.renderTimelineLayerBlock) }
-      </div>
+      <TimelineLayer
+        key={`layer-${index}`}
+        duration={duration}
+        data={layer}
+        totalLayers={layers.length}
+        index={index}
+        onDeleteLayer={this.onDeleteLayer}
+        onDeleteBlock={this.onDeleteBlock}
+        onEditBlock={this.onEditBlock}
+      />
     );
   }
 

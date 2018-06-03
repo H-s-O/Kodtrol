@@ -42,20 +42,27 @@ class TreeView extends PureComponent {
         className={classNames({
           'list-group-item': true,
           'active': it.active,
+          [styles.item]: true,
         })}
         onClick={() => this.onClickItem(it)}
       >
-      { it.icon && (
+      { it.icon ? (
         <Glyphicon
           glyph={it.icon}
         />
-      )}
+      ) : null }
       <span
         className={styles.itemLabel}
       >
         { it.label }
       </span>
-      { actions }
+      { actions ? (
+        <div
+          className={styles.actions}
+        >
+          { actions }
+        </div>
+      ) : null }
       </li>
     );
   }

@@ -1,3 +1,20 @@
-.itemLabel {
-  margin-left: 5px;
+.item {
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+
+  .itemLabel {
+    margin-left: 5px;
+    white-space: nowrap;
+  }
+
+  .actions {
+    display: inline;
+    visibility: hidden;
+  }
+
+  &:hover {
+    .actions {
+      visibility: visible;
+    }
+  }
 }
