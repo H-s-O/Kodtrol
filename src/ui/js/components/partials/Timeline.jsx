@@ -42,6 +42,7 @@ class Timeline extends PureComponent {
       editBlockData: null,
       adjustBlockData: null,
       adjustBlockMode: null,
+      copyBlockData: null,
     };
   }
 
@@ -90,6 +91,37 @@ class Timeline extends PureComponent {
         layer: this.findBlockLayer(blockData),
       },
     });
+  }
+
+  onCopyBlock(mode, blockData) {
+    this.setState({
+      copyBlockData: get(blockData, mode),
+    });
+  }
+
+  onPasteBlock(mode, blockData) {
+    const { copyBlockData } = this.state;
+    if (copyBlockData !== null) {
+      const layer = this.findBlockLayer(blockData);
+      const { timelineData } = this.props;
+      const blockInfo = {
+        ...blockData,
+        [mode]: copyBlockData,
+      };
+
+      timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].map((block) => {
+        if (block.id == blockInfo.id) {
+          return blockInfo;
+        }
+        return block;
+      });
+
+      this.triggerSave(timelineData);
+
+      this.setState({
+        copyBlockData: null,
+      });
+    }
   }
 
   onMouseMove(e) {
@@ -220,6 +252,8 @@ class Timeline extends PureComponent {
         onDeleteBlock={this.onDeleteBlock}
         onEditBlock={this.onEditBlock}
         onAdjustBlock={this.onAdjustBlock}
+        onCopyBlock={this.onCopyBlock}
+        onPasteBlock={this.onPasteBlock}
       />
     );
   }

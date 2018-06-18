@@ -18,6 +18,8 @@ const propTypes = {
   onDeleteBlock: PropTypes.func,
   onEditBlock: PropTypes.func,
   onAdjustBlock: PropTypes.func,
+  onCopyBlock: PropTypes.func,
+  onPasteBlock: PropTypes.func,
 };
 
 const defaultProps = {
@@ -29,6 +31,8 @@ const defaultProps = {
   onDeleteBlock: null,
   onEditBlock: null,
   onAdjustBlock: null,
+  onCopyBlock: null,
+  onPasteBlock: null,
 };
 
 class TimelineLayer extends PureComponent {
@@ -61,7 +65,7 @@ class TimelineLayer extends PureComponent {
   }
 
   renderTimelineLayerBlock(block, index) {
-    const { duration, onEditBlock, onDeleteBlock, onAdjustBlock } = this.props;
+    const { duration, onEditBlock, onDeleteBlock, onAdjustBlock, onCopyBlock, onPasteBlock } = this.props;
     return (
       <TimelineBlock
         key={`block-${index}`}
@@ -71,6 +75,8 @@ class TimelineLayer extends PureComponent {
         onEditBlock={onEditBlock}
         onDeleteBlock={onDeleteBlock}
         onAdjustBlock={onAdjustBlock}
+        onCopyBlock={onCopyBlock}
+        onPasteBlock={onPasteBlock}
       />
     );
   }

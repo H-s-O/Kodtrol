@@ -16,6 +16,8 @@ const propTypes = {
   onDeleteBlock: PropTypes.func,
   onEditBlock: PropTypes.func,
   onAdjustBlock: PropTypes.func,
+  onCopyBlock: PropTypes.func,
+  onPasteBlock: PropTypes.func,
 };
 
 const defaultProps = {
@@ -25,6 +27,8 @@ const defaultProps = {
   onEditBlock: null,
   onDeleteBlock: null,
   onAdjustBlock: null,
+  onCopyBlock: null,
+  onPasteBlock: null,
 };
 
 class TimelineBlock extends PureComponent {
@@ -66,6 +70,36 @@ class TimelineBlock extends PureComponent {
     }
   }
 
+  onCopyBlockStartClick() {
+    this.onCopyBlockClick('inTime');
+  }
+
+  onCopyBlockEndClick() {
+    this.onCopyBlockClick('outTime');
+  }
+
+  onCopyBlockClick(mode) {
+    const { onCopyBlock, data } = this.props;
+    if (isFunction(onCopyBlock)) {
+      onCopyBlock(mode, data);
+    }
+  }
+
+  onPasteBlockStartClick() {
+    this.onPasteBlockClick('inTime');
+  }
+
+  onPasteBlockEndClick() {
+    this.onPasteBlockClick('outTime');
+  }
+
+  onPasteBlockClick(mode) {
+    const { onPasteBlock, data } = this.props;
+    if (isFunction(onPasteBlock)) {
+      onPasteBlock(mode, data);
+    }
+  }
+
   onTimelineBlockContextMenu(e) {
     const { Menu, MenuItem } = remote;
 
@@ -77,6 +111,25 @@ class TimelineBlock extends PureComponent {
     menu.append(new MenuItem({
       label: 'Delete block',
       click: this.onDeleteBlockClick,
+    }));
+    menu.append(new MenuItem({
+      type: 'separator',
+    }));
+    menu.append(new MenuItem({
+      label: 'Copy block start time',
+      click: this.onCopyBlockStartClick,
+    }));
+    menu.append(new MenuItem({
+      label: 'Copy block end time',
+      click: this.onCopyBlockEndClick,
+    }));
+    menu.append(new MenuItem({
+      label: 'Paste time as block start time',
+      click: this.onPasteBlockStartClick,
+    }));
+    menu.append(new MenuItem({
+      label: 'Paste time as block end time',
+      click: this.onPasteBlockEndClick,
     }));
 
     e.stopPropagation();
