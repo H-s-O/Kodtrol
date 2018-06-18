@@ -2,7 +2,9 @@
 
 .timeline {
   height: 100%;
-
+  overflow-x: hidden;
+  position: relative;
+  
   .timelineTracker {
     width: 1px;
     height: 100%;
