@@ -15,6 +15,7 @@ const propTypes = {
   layerDuration: PropTypes.number,
   onDeleteBlock: PropTypes.func,
   onEditBlock: PropTypes.func,
+  onAdjustBlock: PropTypes.func,
 };
 
 const defaultProps = {
@@ -23,6 +24,7 @@ const defaultProps = {
   data: null,
   onEditBlock: null,
   onDeleteBlock: null,
+  onAdjustBlock: null,
 };
 
 class TimelineBlock extends PureComponent {
@@ -42,6 +44,25 @@ class TimelineBlock extends PureComponent {
     const { onEditBlock, data } = this.props;
     if (isFunction(onEditBlock)) {
       onEditBlock(data);
+    }
+  }
+
+  onStartAnchorDown(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.onDragAnchorDown('inTime');
+  }
+
+  onEndAnchorDown(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.onDragAnchorDown('outTime');
+  }
+
+  onDragAnchorDown(mode) {
+    const { onAdjustBlock, data } = this.props;
+    if (isFunction(onAdjustBlock)) {
+      onAdjustBlock(mode, data);
     }
   }
 
@@ -83,14 +104,40 @@ class TimelineBlock extends PureComponent {
         }}
         onContextMenu={this.onTimelineBlockContextMenu}
       >
-        <span
-          style={{
-            backgroundColor: color,
-          }}
-          className={styles.timelimeBlockLabel}
+        <div
+          className={classNames({
+            [styles.bottomLayer]: true,
+          })}
         >
-          { name }
-        </span>
+          <div
+            onMouseDown={this.onStartAnchorDown}
+            className={classNames({
+              [styles.dragAnchor]: true,
+              [styles.leftAnchor]: true,
+            })}
+          />
+          <div
+            onMouseDown={this.onEndAnchorDown}
+            className={classNames({
+              [styles.dragAnchor]: true,
+              [styles.rightAnchor]: true,
+            })}
+          />
+        </div>
+        <div
+          className={classNames({
+            [styles.topLayer]: true,
+          })}
+        >
+          <span
+            style={{
+              backgroundColor: color,
+            }}
+            className={styles.timelimeBlockLabel}
+          >
+            { name }
+          </span>
+        </div>
       </div>
     );
   }

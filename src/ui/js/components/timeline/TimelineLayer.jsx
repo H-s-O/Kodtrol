@@ -17,6 +17,7 @@ const propTypes = {
   onDeleteLayer: PropTypes.func,
   onDeleteBlock: PropTypes.func,
   onEditBlock: PropTypes.func,
+  onAdjustBlock: PropTypes.func,
 };
 
 const defaultProps = {
@@ -27,6 +28,7 @@ const defaultProps = {
   onDeleteLayer: null,
   onDeleteBlock: null,
   onEditBlock: null,
+  onAdjustBlock: null,
 };
 
 class TimelineLayer extends PureComponent {
@@ -59,8 +61,7 @@ class TimelineLayer extends PureComponent {
   }
 
   renderTimelineLayerBlock(block, index) {
-    const { duration, onEditBlock, onDeleteBlock } = this.props;
-    console.log('renderTimelineLayerBlock', index, onEditBlock);
+    const { duration, onEditBlock, onDeleteBlock, onAdjustBlock } = this.props;
     return (
       <TimelineBlock
         key={`block-${index}`}
@@ -69,6 +70,7 @@ class TimelineLayer extends PureComponent {
         layerDuration={duration}
         onEditBlock={onEditBlock}
         onDeleteBlock={onDeleteBlock}
+        onAdjustBlock={onAdjustBlock}
       />
     );
   }

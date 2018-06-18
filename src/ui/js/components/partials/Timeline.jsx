@@ -24,23 +24,6 @@ const defaultProps = {
   timelines: [],
   scripts: [],
   timelineData: null,
-  // timelineData: {
-  //   tempo: 120,
-  //   duration: 3000,
-  //   inTime: 0,
-  //   outTime: 3000,
-  //   layers: [
-  //     [
-  //       { name: 'Test script 1', id: '2910312', script: '2r88y9cy2cjg8tb73c', inTime: 0, outTime: 2500, color: 'orange' },
-  //     ],
-  //     [
-  //       { name: 'Test script 2', id: 'kod089sduf0sd', script: '2r88y9cy2cjg8tb73c', inTime: 1000, outTime: 2700, color: 'lightgreen' },
-  //     ],
-  //     [
-  //       { name: 'Test script 3', id: '291huidsjhads', script: '2r88y9cy2cjg8tb73c', inTime: 2500, outTime: 3000, color: 'red' },
-  //     ],
-  //   ],
-  // },
   position: 0,
   zoom: 1,
   onSave: null,
@@ -57,6 +40,8 @@ class Timeline extends PureComponent {
     this.state = {
       showAddBlockModal: false,
       editBlockData: null,
+      adjustBlockData: null,
+      adjustBlockMode: null,
     };
   }
 
@@ -97,6 +82,43 @@ class Timeline extends PureComponent {
     });
   }
 
+  onAdjustBlock(mode, blockData) {
+    this.setState({
+      adjustBlockMode: mode,
+      adjustBlockData: {
+        ...blockData,
+        layer: this.findBlockLayer(blockData),
+      },
+    });
+  }
+
+  onMouseMove(e) {
+    const { adjustBlockData, adjustBlockMode } = this.state;
+    if (adjustBlockData !== null) {
+      const { layer, ...blockInfo } = adjustBlockData;
+      const { timelineData } = this.props;
+      const newPosition = this.getTimelinePositionFromEvent(e);
+
+      blockInfo[adjustBlockMode] = newPosition;
+
+      timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].map((block) => {
+        if (block.id == blockInfo.id) {
+          return blockInfo;
+        }
+        return block;
+      });
+
+      this.triggerSave(timelineData);
+    }
+  }
+
+  onMouseUp(e) {
+    this.setState({
+      adjustBlockData: null,
+      adjustBlockMode: null,
+    });
+  }
+
   onDeleteBlock(blockData) {
     const layer = this.findBlockLayer(blockData);
     const { timelineData } = this.props;
@@ -121,14 +143,10 @@ class Timeline extends PureComponent {
   onTimelineClick(e) {
     e.preventDefault();
 
-    const { onStatusUpdate, timelineData } = this.props;
-    if (isFunction(onStatusUpdate)) {
-      const duration = get(timelineData, 'duration');
-      const { clientX } = e;
-      const { left, right } = this.timelineContainer.getBoundingClientRect();
-      const percent = (clientX - left) / (right - left);
-      const newPosition = duration * percent;
+    const { onStatusUpdate } = this.props;
 
+    if (isFunction(onStatusUpdate)) {
+      const newPosition = this.getTimelinePositionFromEvent(e);
       onStatusUpdate({
         position: newPosition,
       });
@@ -164,6 +182,19 @@ class Timeline extends PureComponent {
     });
   }
 
+  getTimelinePositionFromEvent(e, round = true) {
+    const { timelineData } = this.props;
+    const duration = get(timelineData, 'duration');
+    const { clientX } = e;
+    const { left, right } = this.timelineContainer.getBoundingClientRect();
+    const percent = (clientX - left) / (right - left);
+    let newPosition = duration * percent;
+    if (round) {
+      newPosition = Math.round(newPosition);
+    }
+    return newPosition;
+  }
+
   triggerSave(value) {
     const { onSave } = this.props;
     if (isFunction(onSave)) {
@@ -188,6 +219,7 @@ class Timeline extends PureComponent {
         onDeleteLayer={this.onDeleteLayer}
         onDeleteBlock={this.onDeleteBlock}
         onEditBlock={this.onEditBlock}
+        onAdjustBlock={this.onAdjustBlock}
       />
     );
   }
@@ -279,7 +311,7 @@ class Timeline extends PureComponent {
 
   render() {
     const { timelineData, timelines, scripts } = this.props;
-    const { showAddBlockModal, editBlockData } = this.state;
+    const { showAddBlockModal, editBlockData, adjustBlockData } = this.state;
 
     return (
       <Panel
@@ -305,6 +337,8 @@ class Timeline extends PureComponent {
           ref={ (ref) => this.timelineContainer = ref }
           style={ { position: 'relative', width: '100%', height: '90%', overflowX: 'auto' }}
           onClick={ this.onTimelineClick }
+          onMouseMove={adjustBlockData ? this.onMouseMove : null}
+          onMouseUp={adjustBlockData ? this.onMouseUp : null}
         >
           { this.renderTimeline(timelineData) }
         </div>

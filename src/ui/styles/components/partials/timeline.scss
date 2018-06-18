@@ -48,10 +48,45 @@
         }
       }
 
-      .timelimeBlockLabel {
-        display: inline-block;
-        padding: 3px;
-        white-space: nowrap;
+      .topLayer {
+        position: absolute;
+
+        .timelimeBlockLabel {
+          display: inline-block;
+          padding: 3px;
+          white-space: nowrap;
+        }
+      }
+
+      .bottomLayer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        .dragAnchor {
+          position: absolute;
+          cursor: ew-resize;
+          background: repeating-linear-gradient(
+            45deg,
+            rgba(0, 0, 0, 0.25),
+            rgba(0, 0, 0, 0.25) 5px,
+            rgba(0, 0, 0, 0) 5px,
+            rgba(0, 0, 0, 0) 10px
+          );
+          width: 5px;
+          height: 100%;
+
+          &:hover {
+            background: rgba(0, 0, 0, 0.25);
+          }
+
+          &.leftAnchor {
+            left: 0;
+          }
+          &.rightAnchor {
+            right: 0;
+          }
+        }
       }
     }
   }
