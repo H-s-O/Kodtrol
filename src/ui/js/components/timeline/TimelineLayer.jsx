@@ -6,6 +6,7 @@ import { isFunction } from 'lodash';
 import { remote } from 'electron';
 import percentString from '../../lib/percentString';
 import TimelineBlock from './TimelineBlock';
+import TimelineTrigger from './TimelineTrigger';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
@@ -64,6 +65,16 @@ class TimelineLayer extends PureComponent {
     });
   }
 
+  renderTimelineItem(item, index) {
+    if ('script' in item) {
+      return this.renderTimelineLayerBlock(item, index);
+    } else if ('trigger' in item) {
+      return this.renderTimelineLayerTrigger(item, index);
+    } else if ('curve' in item) {
+      // @TODO
+    }
+  }
+
   renderTimelineLayerBlock(block, index) {
     const { duration, onEditBlock, onDeleteBlock, onAdjustBlock, onCopyBlock, onPasteBlock } = this.props;
     return (
@@ -81,6 +92,18 @@ class TimelineLayer extends PureComponent {
     );
   }
 
+  renderTimelineLayerTrigger(trigger, index) {
+    const { duration } = this.props;
+    return (
+      <TimelineTrigger
+        key={`trigger-${index}`}
+        data={trigger}
+        index={index}
+        layerDuration={duration}
+      />
+    );
+  }
+
   render() {
     const { index, totalLayers, data } = this.props;
     const layersCount = Math.max(4, totalLayers);
@@ -93,7 +116,7 @@ class TimelineLayer extends PureComponent {
         style={{ top, height }}
         onContextMenu={this.onTimelineLayerContextMenu}
       >
-        { data ? data.map(this.renderTimelineLayerBlock) : null }
+        { data ? data.map(this.renderTimelineItem) : null }
       </div>
     );
   }

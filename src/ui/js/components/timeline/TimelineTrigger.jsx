@@ -13,25 +13,15 @@ const propTypes = {
   index: PropTypes.number,
   data: PropTypes.shape({}),
   layerDuration: PropTypes.number,
-  onDeleteBlock: PropTypes.func,
-  onEditBlock: PropTypes.func,
-  onAdjustBlock: PropTypes.func,
-  onCopyBlock: PropTypes.func,
-  onPasteBlock: PropTypes.func,
 };
 
 const defaultProps = {
   index: 0,
   layerDuration: 0,
   data: null,
-  onEditBlock: null,
-  onDeleteBlock: null,
-  onAdjustBlock: null,
-  onCopyBlock: null,
-  onPasteBlock: null,
 };
 
-class TimelineBlock extends PureComponent {
+class TimelineTrigger extends PureComponent {
   constructor(props) {
     super(props);
     autoBind(this);
@@ -100,7 +90,7 @@ class TimelineBlock extends PureComponent {
     }
   }
 
-  onTimelineBlockContextMenu(e) {
+  onTimelineTriggerContextMenu(e) {
     const { Menu, MenuItem } = remote;
 
     const menu = new Menu();
@@ -141,61 +131,34 @@ class TimelineBlock extends PureComponent {
 
   render() {
     const { data, layerDuration } = this.props;
-    const { inTime, outTime, color, name } = data;
+    const { inTime, color, trigger } = data;
     const lightColor = Color(color).isLight();
     return (
       <div
         className={classNames({
-          [styles.timelineBlock]: true,
-          [styles.lightBlock]: lightColor,
+          [styles.timelineTrigger]: true,
+          [styles.lightTrigger]: lightColor,
         })}
         style={{
           left: percentString(inTime / layerDuration),
           backgroundColor: color,
-          width: percentString((outTime - inTime) / layerDuration),
         }}
-        onContextMenu={this.onTimelineBlockContextMenu}
+        onContextMenu={this.onTimelineTriggerContextMenu}
       >
-        <div
-          className={classNames({
-            [styles.bottomLayer]: true,
-          })}
+        <span
+          style={{
+            backgroundColor: color,
+          }}
+          className={styles.timelineTriggerLabel}
         >
-          <div
-            onMouseDown={this.onStartAnchorDown}
-            className={classNames({
-              [styles.dragAnchor]: true,
-              [styles.leftAnchor]: true,
-            })}
-          />
-          <div
-            onMouseDown={this.onEndAnchorDown}
-            className={classNames({
-              [styles.dragAnchor]: true,
-              [styles.rightAnchor]: true,
-            })}
-          />
-        </div>
-        <div
-          className={classNames({
-            [styles.topLayer]: true,
-          })}
-        >
-          <span
-            style={{
-              backgroundColor: color,
-            }}
-            className={styles.timelimeBlockLabel}
-          >
-            { name }
-          </span>
-        </div>
+          { trigger }
+        </span>
       </div>
     );
   }
 }
 
-TimelineBlock.propTypes = propTypes;
-TimelineBlock.defaultProps = defaultProps;
+TimelineTrigger.propTypes = propTypes;
+TimelineTrigger.defaultProps = defaultProps;
 
-export default TimelineBlock;
+export default TimelineTrigger;

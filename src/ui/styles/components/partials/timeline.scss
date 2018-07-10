@@ -4,7 +4,7 @@
   height: 100%;
   overflow-x: hidden;
   position: relative;
-  
+
   .timelineTracker {
     width: 1px;
     height: 100%;
@@ -56,6 +56,7 @@
         .timelimeBlockLabel {
           display: inline-block;
           padding: 3px;
+          font-size: 0.9em;
           white-space: nowrap;
         }
       }
@@ -89,6 +90,32 @@
             right: 0;
           }
         }
+      }
+    }
+
+    .timelineTrigger {
+      position: absolute;
+      color: #FFF;
+      width: 1px;
+      height: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:hover {
+        overflow: visible;
+      }
+
+      &.lightTrigger {
+        .timelineTriggerLabel {
+          color: #000;
+        }
+      }
+
+      .timelineTriggerLabel {
+        display: inline-block;
+        padding: 3px;
+        font-size: 0.9em;
+        white-space: nowrap;
       }
     }
   }

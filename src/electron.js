@@ -200,6 +200,9 @@ const main = async () => {
     //   content: timelineContent,
     // });
 
+    // dont render on select
+    return;
+    
     if (mainRenderer) {
       mainRenderer.destroy();
       mainRenderer = null;
