@@ -1,138 +1,54 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import autoBind from 'react-autobind';
 import classNames from 'classnames'
-import { isFunction } from 'lodash';
 import { remote } from 'electron';
 import Color from 'color';
 import percentString from '../../lib/percentString';
+import TimelineItem from './TimelineItem';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
-const propTypes = {
-  index: PropTypes.number,
-  data: PropTypes.shape({}),
-  layerDuration: PropTypes.number,
-};
-
-const defaultProps = {
-  index: 0,
-  layerDuration: 0,
-  data: null,
-};
-
 class TimelineTrigger extends PureComponent {
-  constructor(props) {
-    super(props);
-    autoBind(this);
-  }
-
-  onDeleteBlockClick() {
-    const { onDeleteBlock, data } = this.props;
-    if (isFunction(onDeleteBlock)) {
-      onDeleteBlock(data);
-    }
-  }
-
-  onEditBlockClick() {
-    const { onEditBlock, data } = this.props;
-    if (isFunction(onEditBlock)) {
-      onEditBlock(data);
-    }
-  }
-
-  onStartAnchorDown(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    this.onDragAnchorDown('inTime');
-  }
-
-  onEndAnchorDown(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    this.onDragAnchorDown('outTime');
-  }
-
-  onDragAnchorDown(mode) {
-    const { onAdjustBlock, data } = this.props;
-    if (isFunction(onAdjustBlock)) {
-      onAdjustBlock(mode, data);
-    }
-  }
-
-  onCopyBlockStartClick() {
-    this.onCopyBlockClick('inTime');
-  }
-
-  onCopyBlockEndClick() {
-    this.onCopyBlockClick('outTime');
-  }
-
-  onCopyBlockClick(mode) {
-    const { onCopyBlock, data } = this.props;
-    if (isFunction(onCopyBlock)) {
-      onCopyBlock(mode, data);
-    }
-  }
-
-  onPasteBlockStartClick() {
-    this.onPasteBlockClick('inTime');
-  }
-
-  onPasteBlockEndClick() {
-    this.onPasteBlockClick('outTime');
-  }
-
-  onPasteBlockClick(mode) {
-    const { onPasteBlock, data } = this.props;
-    if (isFunction(onPasteBlock)) {
-      onPasteBlock(mode, data);
-    }
-  }
-
-  onTimelineTriggerContextMenu(e) {
+  renderTriggerContextMenu = (handlers) => {
+    const {
+      onEditItemClick,
+      onDeleteItemClick,
+      onCopyItemStartClick,
+      onCopyItemEndClick,
+      onPasteItemStartClick,
+      onPasteItemEndClick,
+    } = handlers;
     const { Menu, MenuItem } = remote;
 
     const menu = new Menu();
     menu.append(new MenuItem({
-      label: 'Edit block...',
-      click: this.onEditBlockClick,
+      label: 'Edit trigger...',
+      click: onEditItemClick,
     }));
     menu.append(new MenuItem({
-      label: 'Delete block',
-      click: this.onDeleteBlockClick,
+      label: 'Delete trigger',
+      click: onDeleteItemClick,
     }));
     menu.append(new MenuItem({
       type: 'separator',
     }));
     menu.append(new MenuItem({
-      label: 'Copy block start time',
-      click: this.onCopyBlockStartClick,
+      label: 'Copy trigger time',
+      click: onCopyItemStartClick,
     }));
     menu.append(new MenuItem({
-      label: 'Copy block end time',
-      click: this.onCopyBlockEndClick,
-    }));
-    menu.append(new MenuItem({
-      label: 'Paste time as block start time',
-      click: this.onPasteBlockStartClick,
-    }));
-    menu.append(new MenuItem({
-      label: 'Paste time as block end time',
-      click: this.onPasteBlockEndClick,
+      label: 'Paste time as trigger time',
+      click: onPasteItemStartClick,
     }));
 
-    e.stopPropagation();
-    e.preventDefault();
-    menu.popup({
-      window: remote.getCurrentWindow(),
-    });
+    return menu;
   }
 
-  render() {
+  renderTrigger = (props, handlers) => {
+    const { onContextMenuClick, onStartAnchorDown, onEndAnchorDown} = handlers;
     const { data, layerDuration } = this.props;
     const { inTime, color, trigger } = data;
     const lightColor = Color(color).isLight();
+
     return (
       <div
         className={classNames({
@@ -143,7 +59,7 @@ class TimelineTrigger extends PureComponent {
           left: percentString(inTime / layerDuration),
           backgroundColor: color,
         }}
-        onContextMenu={this.onTimelineTriggerContextMenu}
+        onContextMenu={onContextMenuClick}
       >
         <span
           style={{
@@ -156,9 +72,16 @@ class TimelineTrigger extends PureComponent {
       </div>
     );
   }
-}
 
-TimelineTrigger.propTypes = propTypes;
-TimelineTrigger.defaultProps = defaultProps;
+  render = () => {
+    return (
+      <TimelineItem
+        renderItem={this.renderTrigger}
+        renderContextMenu={this.renderTriggerContextMenu}
+        {...this.props}
+      />
+    );
+  }
+}
 
 export default TimelineTrigger;

@@ -21,6 +21,11 @@ const propTypes = {
   onAdjustBlock: PropTypes.func,
   onCopyBlock: PropTypes.func,
   onPasteBlock: PropTypes.func,
+  onDeleteTrigger: PropTypes.func,
+  onEditTrigger: PropTypes.func,
+  onAdjustTrigger: PropTypes.func,
+  onCopyTrigger: PropTypes.func,
+  onPasteTrigger: PropTypes.func,
 };
 
 const defaultProps = {
@@ -34,6 +39,11 @@ const defaultProps = {
   onAdjustBlock: null,
   onCopyBlock: null,
   onPasteBlock: null,
+  onDeleteTrigger: null,
+  onEditTrigger: null,
+  onAdjustTrigger: null,
+  onCopyTrigger: null,
+  onPasteTrigger: null,
 };
 
 class TimelineLayer extends PureComponent {
@@ -93,13 +103,18 @@ class TimelineLayer extends PureComponent {
   }
 
   renderTimelineLayerTrigger(trigger, index) {
-    const { duration } = this.props;
+    const { duration, onEditTrigger, onDeleteTrigger, onAdjustTrigger, onCopyTrigger, onPasteTrigger } = this.props;
     return (
       <TimelineTrigger
         key={`trigger-${index}`}
         data={trigger}
         index={index}
         layerDuration={duration}
+        onEditTrigger={onEditTrigger}
+        onDeleteTrigger={onDeleteTrigger}
+        onAdjustTrigger={onAdjustTrigger}
+        onCopyTrigger={onCopyTrigger}
+        onPasteTrigger={onPasteTrigger}
       />
     );
   }

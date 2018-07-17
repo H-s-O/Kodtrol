@@ -46,13 +46,13 @@ class Timeline extends PureComponent {
     };
   }
 
-  findBlockLayer(sourceBlockData) {
+  findItemLayer(sourceData) {
     const { timelineData } = this.props;
     for (let layerIndex in timelineData.layers) {
       const layerData = timelineData.layers[layerIndex];
       for (let blockIndex in layerData) {
         const blockData = layerData[blockIndex];
-        if (blockData.id == sourceBlockData.id) {
+        if (blockData.id == sourceData.id) {
           return layerIndex;
         }
       }
@@ -78,7 +78,7 @@ class Timeline extends PureComponent {
       showAddBlockModal: true,
       editBlockData: {
         ...blockData,
-        layer: this.findBlockLayer(blockData),
+        layer: this.findItemLayer(blockData),
       },
     });
   }
@@ -88,7 +88,7 @@ class Timeline extends PureComponent {
       adjustBlockMode: mode,
       adjustBlockData: {
         ...blockData,
-        layer: this.findBlockLayer(blockData),
+        layer: this.findItemLayer(blockData),
       },
     });
   }
@@ -102,7 +102,7 @@ class Timeline extends PureComponent {
   onPasteBlock(mode, blockData) {
     const { copyBlockData } = this.state;
     if (copyBlockData !== null) {
-      const layer = this.findBlockLayer(blockData);
+      const layer = this.findItemLayer(blockData);
       const { timelineData } = this.props;
       const blockInfo = {
         ...blockData,
@@ -152,11 +152,22 @@ class Timeline extends PureComponent {
   }
 
   onDeleteBlock(blockData) {
-    const layer = this.findBlockLayer(blockData);
+    const layer = this.findItemLayer(blockData);
     const { timelineData } = this.props;
 
-    timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].filter((block) => {
-      return block.id != blockData.id;
+    timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].filter((item) => {
+      return item.id != blockData.id;
+    });
+
+    this.triggerSave(timelineData);
+  }
+
+  onDeleteTrigger(triggerData) {
+    const layer = this.findItemLayer(triggerData);
+    const { timelineData } = this.props;
+
+    timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].filter((item) => {
+      return item.id != triggerData.id;
     });
 
     this.triggerSave(timelineData);
@@ -254,6 +265,11 @@ class Timeline extends PureComponent {
         onAdjustBlock={this.onAdjustBlock}
         onCopyBlock={this.onCopyBlock}
         onPasteBlock={this.onPasteBlock}
+        onDeleteTrigger={this.onDeleteTrigger}
+        onEditTrigger={this.onEditTrigger}
+        onAdjustTrigger={this.onAdjustTrigger}
+        onCopyTrigger={this.onCopyTrigger}
+        onPasteTrigger={this.onPasteTrigger}
       />
     );
   }
