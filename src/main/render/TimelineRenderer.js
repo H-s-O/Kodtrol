@@ -33,8 +33,10 @@ export default class TimelineRenderer extends EventEmitter {
     this._clock.setTempo(this._tempo);
     this._clock.on('position', this.triggerClock);
 
-    // Transform layers and blocks data for simpler looping
-    this._blocks = flatten(get(timelineData, 'layers', []));
+    // Transform timeline items data for simpler looping
+    const timelineItems = flatten(get(timelineData, 'layers', []));
+    this._blocks = timelineItems.filter((item) => 'script' in item);
+    this._triggers = timelineItems.filter((item) => 'trigger' in item);
 
     // Create script instances
     this._scriptInstances = this._blocks.reduce((obj, { id, script }) => ({
@@ -45,6 +47,15 @@ export default class TimelineRenderer extends EventEmitter {
         instance: null,
         devices: [],
         data: {},
+      },
+    }), {});
+
+    // Create trigger instances
+    this._triggerInstances = this._triggers.reduce((obj, { id, trigger }) => ({
+      ...obj,
+      [id]: {
+        trigger,
+        started: false,
       },
     }), {});
   }
@@ -119,6 +130,7 @@ export default class TimelineRenderer extends EventEmitter {
     this._position = position;
     this._startTime = Date.now();
     this.resetScriptInstances();
+    this.resetTriggerInstances();
   }
 
   render() {
@@ -128,8 +140,26 @@ export default class TimelineRenderer extends EventEmitter {
       this._currentTime = 0;
     }
 
+    const triggerData = this._triggers
+      .filter((trigger) => (
+        this._currentTime >= trigger.inTime
+        && this._currentTime <= trigger.inTime + 50
+        && !this._triggerInstances[trigger.id].started)
+      )
+      .reduce((renderTriggerData, trigger) => {
+        this._triggerInstances[trigger.id].started = true;
+
+        return {
+          ...renderTriggerData,
+          [trigger.trigger]: true,
+        };
+      }, {});
+
     const renderData = this._blocks
-      .filter((block) => (this._currentTime >= block.inTime && this._currentTime <= block.outTime))
+      .filter((block) => (
+        this._currentTime >= block.inTime
+        && this._currentTime <= block.outTime)
+      )
       .reduce((renderDataObj, block) => {
         // console.log('rendering ', this._currentTime, block.id, block.name);
 
@@ -137,7 +167,7 @@ export default class TimelineRenderer extends EventEmitter {
         if (!this._scriptInstances[block.id].started) {
           try {
             if (typeof this._scriptInstances[block.id].instance.start === 'function') {
-              const data = this._scriptInstances[block.id].instance.start(this._scriptInstances[block.id].devices);
+              const data = this._scriptInstances[block.id].instance.start(this._scriptInstances[block.id].devices, triggerData);
               this._scriptInstances[block.id].data = data || {};
             }
           }  catch (err) {
@@ -156,7 +186,7 @@ export default class TimelineRenderer extends EventEmitter {
         // Script loop
         try {
           if (typeof this._scriptInstances[block.id].instance.loop === 'function') {
-            const data = this._scriptInstances[block.id].instance.loop(this._scriptInstances[block.id].devices, this._scriptInstances[block.id].data, blockInfo);
+            const data = this._scriptInstances[block.id].instance.loop(this._scriptInstances[block.id].devices, this._scriptInstances[block.id].data, blockInfo, triggerData);
             this._scriptInstances[block.id].data = data || this._scriptInstances[block.id].data;
           }
         } catch (err) {
@@ -235,6 +265,7 @@ export default class TimelineRenderer extends EventEmitter {
     this._startTime = Date.now();
     this._position = 0;
     this.resetScriptInstances();
+    this.resetTriggerInstances();
   }
 
   resetScriptInstances() {
@@ -244,6 +275,12 @@ export default class TimelineRenderer extends EventEmitter {
       for (let device in this._scriptInstances[id].devices) {
         this._scriptInstances[id].devices[device].resetChannels();
       }
+    }
+  }
+
+  resetTriggerInstances() {
+    for (let id in this._triggerInstances) {
+      this._triggerInstances[id].started = false;
     }
   }
 
@@ -270,8 +307,12 @@ export default class TimelineRenderer extends EventEmitter {
       // }
       delete this._scriptInstances[id];
     }
+    for (let id in this._triggerInstances) {
+      delete this._triggerInstances[id];
+    }
 
     this._blocks = null;
     this._scriptInstances = null;
+    this._triggerInstances = null;
   }
 }
