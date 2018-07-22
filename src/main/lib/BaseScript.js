@@ -15,15 +15,16 @@ export default {
     let index;
     do {
       index = (Math.floor(Math.random() * arr.length));
-    } while (index === except);
+    } while (index == except);
     return index;
   },
   _randomValue(arr, except = null) {
-    let index;
+    let value;
     do {
-      index = (Math.floor(Math.random() * arr.length));
-    } while (index === except);
-    return arr[index];
+      value = arr[(Math.floor(Math.random() * arr.length))];
+    } while (value == except);
+    console.log(value, except);
+    return value;
   },
   _isBeatDivision(beat, division) {
     return (beat > 0 && beat % division === 0);
