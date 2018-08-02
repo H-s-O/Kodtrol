@@ -23,7 +23,6 @@ export default {
     do {
       value = arr[(Math.floor(Math.random() * arr.length))];
     } while (value == except);
-    console.log(value, except);
     return value;
   },
   _isBeatDivision(beat, division) {
