@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import autoBind from 'react-autobind';
 import classNames from 'classnames'
-import { isFunction } from 'lodash';
 import { remote } from 'electron';
 import percentString from '../../lib/percentString';
 import TimelineBlock from './TimelineBlock';
@@ -16,16 +14,11 @@ const propTypes = {
   duration: PropTypes.number,
   data: PropTypes.arrayOf(PropTypes.shape({})),
   onDeleteLayer: PropTypes.func,
-  onDeleteBlock: PropTypes.func,
-  onEditBlock: PropTypes.func,
-  onAdjustBlock: PropTypes.func,
-  onCopyBlock: PropTypes.func,
-  onPasteBlock: PropTypes.func,
-  onDeleteTrigger: PropTypes.func,
-  onEditTrigger: PropTypes.func,
-  onAdjustTrigger: PropTypes.func,
-  onCopyTrigger: PropTypes.func,
-  onPasteTrigger: PropTypes.func,
+  onDeleteItem: PropTypes.func,
+  onEditItem: PropTypes.func,
+  onAdjustItem: PropTypes.func,
+  onCopyItem: PropTypes.func,
+  onPasteItem: PropTypes.func,
 };
 
 const defaultProps = {
@@ -34,32 +27,20 @@ const defaultProps = {
   duration: 0,
   data: null,
   onDeleteLayer: null,
-  onDeleteBlock: null,
-  onEditBlock: null,
-  onAdjustBlock: null,
-  onCopyBlock: null,
-  onPasteBlock: null,
-  onDeleteTrigger: null,
-  onEditTrigger: null,
-  onAdjustTrigger: null,
-  onCopyTrigger: null,
-  onPasteTrigger: null,
+  onDeleteItem: null,
+  onEditItem: null,
+  onAdjustItem: null,
+  onCopyItem: null,
+  onPasteItem: null,
 };
 
 class TimelineLayer extends PureComponent {
-  constructor(props) {
-    super(props);
-    autoBind(this);
-  }
-
-  onDeleteLayerClick() {
+  onDeleteLayerClick = () => {
     const { onDeleteLayer, index } = this.props;
-    if (isFunction(onDeleteLayer)) {
-      onDeleteLayer(index);
-    }
+    onDeleteLayer(index);
   }
 
-  onTimelineLayerContextMenu(e) {
+  onTimelineLayerContextMenu = (e) => {
     const { Menu, MenuItem } = remote;
 
     const menu = new Menu();
@@ -75,7 +56,7 @@ class TimelineLayer extends PureComponent {
     });
   }
 
-  renderTimelineItem(item, index) {
+  renderTimelineItem = (item, index) => {
     if ('script' in item) {
       return this.renderTimelineLayerBlock(item, index);
     } else if ('trigger' in item) {
@@ -85,41 +66,41 @@ class TimelineLayer extends PureComponent {
     }
   }
 
-  renderTimelineLayerBlock(block, index) {
-    const { duration, onEditBlock, onDeleteBlock, onAdjustBlock, onCopyBlock, onPasteBlock } = this.props;
+  renderTimelineLayerBlock = (block, index) => {
+    const { duration, onEditItem, onDeleteItem, onAdjustItem, onCopyItem, onPasteItem } = this.props;
     return (
       <TimelineBlock
         key={`block-${index}`}
         data={block}
         index={index}
         layerDuration={duration}
-        onEditBlock={onEditBlock}
-        onDeleteBlock={onDeleteBlock}
-        onAdjustBlock={onAdjustBlock}
-        onCopyBlock={onCopyBlock}
-        onPasteBlock={onPasteBlock}
+        onEditItem={onEditItem}
+        onDeleteItem={onDeleteItem}
+        onAdjustItem={onAdjustItem}
+        onCopyItem={onCopyItem}
+        onPasteItem={onPasteItem}
       />
     );
   }
 
-  renderTimelineLayerTrigger(trigger, index) {
-    const { duration, onEditTrigger, onDeleteTrigger, onAdjustTrigger, onCopyTrigger, onPasteTrigger } = this.props;
+  renderTimelineLayerTrigger = (trigger, index) => {
+    const { duration, onEditItem, onDeleteItem, onAdjustItem, onCopyItem, onPasteItem } = this.props;
     return (
       <TimelineTrigger
         key={`trigger-${index}`}
         data={trigger}
         index={index}
         layerDuration={duration}
-        onEditTrigger={onEditTrigger}
-        onDeleteTrigger={onDeleteTrigger}
-        onAdjustTrigger={onAdjustTrigger}
-        onCopyTrigger={onCopyTrigger}
-        onPasteTrigger={onPasteTrigger}
+        onEditItem={onEditItem}
+        onDeleteItem={onDeleteItem}
+        onAdjustItem={onAdjustItem}
+        onCopyItem={onCopyItem}
+        onPasteItem={onPasteItem}
       />
     );
   }
 
-  render() {
+  render = () => {
     const { index, totalLayers, data } = this.props;
     const layersCount = Math.max(4, totalLayers);
     const layerHeight = (1 / layersCount);

@@ -201,8 +201,8 @@ const main = async () => {
     // });
 
     // dont render on select
-    return;
-    
+    // return;
+
     if (mainRenderer) {
       mainRenderer.destroy();
       mainRenderer = null;

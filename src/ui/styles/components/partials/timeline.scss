@@ -54,6 +54,7 @@
         position: absolute;
 
         .timelimeBlockLabel {
+          pointer-events: none;
           display: inline-block;
           padding: 3px;
           font-size: 0.9em;
@@ -100,7 +101,8 @@
       height: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
-
+      cursor: ew-resize;
+      
       &:hover {
         overflow: visible;
       }
@@ -112,6 +114,7 @@
       }
 
       .timelineTriggerLabel {
+        pointer-events: none;
         display: inline-block;
         padding: 3px;
         font-size: 0.9em;

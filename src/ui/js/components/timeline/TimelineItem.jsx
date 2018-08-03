@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { isFunction } from 'lodash';
 import { remote } from 'electron';
-
 const propTypes = {
   index: PropTypes.number,
   data: PropTypes.shape({}),
@@ -27,16 +25,12 @@ const defaultProps = {
 class TimelineItem extends PureComponent {
   onDeleteItemClick = () => {
     const { onDeleteItem, data } = this.props;
-    if (isFunction(onDeleteItem)) {
-      onDeleteItem(data);
-    }
+    onDeleteItem(data);
   }
 
   onEditItemClick = () => {
     const { onEditItem, data } = this.props;
-    if (isFunction(onEditItem)) {
-      onEditItem(data);
-    }
+    onEditItem(data);
   }
 
   onStartAnchorDown = (e) => {
@@ -53,9 +47,7 @@ class TimelineItem extends PureComponent {
 
   onDragAnchorDown = (mode) => {
     const { onAdjustItem, data } = this.props;
-    if (isFunction(onAdjustItem)) {
-      onAdjustItem(mode, data);
-    }
+    onAdjustItem(mode, data);
   }
 
   onCopyItemStartClick = () => {
@@ -68,9 +60,7 @@ class TimelineItem extends PureComponent {
 
   onCopyItemClick = (mode) => {
     const { onCopyItem, data } = this.props;
-    if (isFunction(onCopyItem)) {
-      onCopyItem(mode, data);
-    }
+    onCopyItem(mode, data);
   }
 
   onPasteItemStartClick = () => {
@@ -83,9 +73,7 @@ class TimelineItem extends PureComponent {
 
   onPasteItemClick = (mode) => {
     const { onPasteItem, data } = this.props;
-    if (isFunction(onPasteItem)) {
-      onPasteItem(mode, data);
-    }
+    onPasteItem(mode, data);
   }
 
   onContextMenuClick = (e) => {

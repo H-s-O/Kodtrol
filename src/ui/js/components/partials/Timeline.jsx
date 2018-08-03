@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import autoBind from 'react-autobind';
 import { remote } from 'electron';
 import { get, isFunction } from 'lodash';
 import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
@@ -31,22 +30,17 @@ const defaultProps = {
 };
 
 class Timeline extends PureComponent {
-  constructor(props) {
-    super(props);
-    autoBind(this);
+  timelineContainer = null;
 
-    this.timelineContainer = null;
+  state = {
+    showAddBlockModal: false,
+    editBlockData: null,
+    adjustBlockData: null,
+    adjustBlockMode: null,
+    copyBlockData: null,
+  };
 
-    this.state = {
-      showAddBlockModal: false,
-      editBlockData: null,
-      adjustBlockData: null,
-      adjustBlockMode: null,
-      copyBlockData: null,
-    };
-  }
-
-  findItemLayer(sourceData) {
+  findItemLayer = (sourceData) => {
     const { timelineData } = this.props;
     for (let layerIndex in timelineData.layers) {
       const layerData = timelineData.layers[layerIndex];
@@ -60,20 +54,20 @@ class Timeline extends PureComponent {
     return null;
   }
 
-  onAddLayerClick() {
+  onAddLayerClick = () => {
     const { timelineData } = this.props;
     timelineData.layers.push([]);
     this.triggerSave(timelineData);
   }
 
-  onAddBlockClick() {
+  onAddIteClick = () => {
     this.setState({
       showAddBlockModal: true,
       editBlockData: null,
     });
   }
 
-  onEditBlock(blockData) {
+  onEditItem= (blockData) => {
     this.setState({
       showAddBlockModal: true,
       editBlockData: {
@@ -83,7 +77,7 @@ class Timeline extends PureComponent {
     });
   }
 
-  onAdjustBlock(mode, blockData) {
+  onAdjustItem = (mode, blockData) => {
     this.setState({
       adjustBlockMode: mode,
       adjustBlockData: {
@@ -93,13 +87,13 @@ class Timeline extends PureComponent {
     });
   }
 
-  onCopyBlock(mode, blockData) {
+  onCopyItem = (mode, blockData) => {
     this.setState({
       copyBlockData: get(blockData, mode),
     });
   }
 
-  onPasteBlock(mode, blockData) {
+  onPasteItem = (mode, blockData) => {
     const { copyBlockData } = this.state;
     if (copyBlockData !== null) {
       const layer = this.findItemLayer(blockData);
@@ -124,7 +118,7 @@ class Timeline extends PureComponent {
     }
   }
 
-  onMouseMove(e) {
+  onMouseMove = (e) => {
     const { adjustBlockData, adjustBlockMode } = this.state;
     if (adjustBlockData !== null) {
       const { layer, ...blockInfo } = adjustBlockData;
@@ -144,36 +138,25 @@ class Timeline extends PureComponent {
     }
   }
 
-  onMouseUp(e) {
+  onMouseUp = (e) => {
     this.setState({
       adjustBlockData: null,
       adjustBlockMode: null,
     });
   }
 
-  onDeleteBlock(blockData) {
-    const layer = this.findItemLayer(blockData);
+  onDeleteItem = (itemData) => {
+    const layer = this.findItemLayer(itemData);
     const { timelineData } = this.props;
 
     timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].filter((item) => {
-      return item.id != blockData.id;
+      return item.id != itemData.id;
     });
 
     this.triggerSave(timelineData);
   }
 
-  onDeleteTrigger(triggerData) {
-    const layer = this.findItemLayer(triggerData);
-    const { timelineData } = this.props;
-
-    timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].filter((item) => {
-      return item.id != triggerData.id;
-    });
-
-    this.triggerSave(timelineData);
-  }
-
-  onDeleteLayer(index) {
+  onDeleteLayer = (index) => {
     const { timelineData } = this.props;
 
     timelineData.layers = timelineData.layers.filter((layer, layerIndex) => {
@@ -183,7 +166,7 @@ class Timeline extends PureComponent {
     this.triggerSave(timelineData);
   }
 
-  onTimelineClick(e) {
+  onTimelineClick = (e) => {
     e.preventDefault();
 
     const { onStatusUpdate } = this.props;
@@ -196,7 +179,7 @@ class Timeline extends PureComponent {
     }
   }
 
-  onAddBlockSuccess(blockData) {
+  onAddBlockSuccess = (blockData) => {
     const { layer, ...blockInfo } = blockData;
     const { timelineData } = this.props;
     const { editBlockData } = this.state;
@@ -218,14 +201,14 @@ class Timeline extends PureComponent {
     });
   }
 
-  onAddBlockCancel() {
+  onAddBlockCancel = () => {
     this.setState({
       showAddBlockModal: false,
       editBlockData: null,
     });
   }
 
-  getTimelinePositionFromEvent(e, round = true) {
+  getTimelinePositionFromEvent = (e, round = true) => {
     const { timelineData } = this.props;
     const duration = get(timelineData, 'duration');
     const { clientX } = e;
@@ -238,7 +221,7 @@ class Timeline extends PureComponent {
     return newPosition;
   }
 
-  triggerSave(value) {
+  triggerSave = (value) => {
     const { onSave } = this.props;
     if (isFunction(onSave)) {
       const { id } = value;
@@ -249,7 +232,7 @@ class Timeline extends PureComponent {
     }
   }
 
-  renderTimelineLayer(layer, index, layers) {
+  renderTimelineLayer = (layer, index, layers) => {
     const { timelineData } = this.props;
     const duration = get(timelineData, 'duration');
     return (
@@ -260,21 +243,16 @@ class Timeline extends PureComponent {
         totalLayers={layers.length}
         index={index}
         onDeleteLayer={this.onDeleteLayer}
-        onDeleteBlock={this.onDeleteBlock}
-        onEditBlock={this.onEditBlock}
-        onAdjustBlock={this.onAdjustBlock}
-        onCopyBlock={this.onCopyBlock}
-        onPasteBlock={this.onPasteBlock}
-        onDeleteTrigger={this.onDeleteTrigger}
-        onEditTrigger={this.onEditTrigger}
-        onAdjustTrigger={this.onAdjustTrigger}
-        onCopyTrigger={this.onCopyTrigger}
-        onPasteTrigger={this.onPasteTrigger}
+        onDeleteItem={this.onDeleteItem}
+        onEditItem={this.onEditItem}
+        onAdjustItem={this.onAdjustItem}
+        onCopyItem={this.onCopyItem}
+        onPasteItem={this.onPasteItem}
       />
     );
   }
 
-  renderTimelineTracker() {
+  renderTimelineTracker = () => {
     const { position, timelineData } = this.props;
     const duration = get(timelineData, 'duration');
     const left = percentString(position / duration);
@@ -291,7 +269,7 @@ class Timeline extends PureComponent {
     );
   }
 
-  renderTimeline(data) {
+  renderTimeline = (data) => {
     const { zoom } = this.props;
     const layers = get(data, 'layers', []);
     return (
@@ -305,7 +283,7 @@ class Timeline extends PureComponent {
     );
   }
 
-  renderTimelineControls() {
+  renderTimelineControls = () => {
     return (
       <ButtonGroup>
         <Button
@@ -340,7 +318,7 @@ class Timeline extends PureComponent {
     );
   }
 
-  renderAddItems() {
+  renderAddItems = () => {
     return (
       <DropdownButton
         noCaret
@@ -359,7 +337,7 @@ class Timeline extends PureComponent {
     );
   }
 
-  render() {
+  render = () => {
     const { timelineData, timelines, scripts } = this.props;
     const { showAddBlockModal, editBlockData, adjustBlockData } = this.state;
 

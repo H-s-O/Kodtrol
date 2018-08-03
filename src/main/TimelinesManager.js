@@ -31,6 +31,7 @@ export default class TimelinesManager {
     writeJson(filePath, {
       id,
       layers: [],
+      zoom: 1,
       ...timelineData
     });
     return id;

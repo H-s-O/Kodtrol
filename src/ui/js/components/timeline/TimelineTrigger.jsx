@@ -44,7 +44,7 @@ class TimelineTrigger extends PureComponent {
   }
 
   renderTrigger = (props, handlers) => {
-    const { onContextMenuClick, onStartAnchorDown, onEndAnchorDown} = handlers;
+    const { onContextMenuClick, onStartAnchorDown} = handlers;
     const { data, layerDuration } = this.props;
     const { inTime, color, trigger } = data;
     const lightColor = Color(color).isLight();
@@ -60,6 +60,7 @@ class TimelineTrigger extends PureComponent {
           backgroundColor: color,
         }}
         onContextMenu={onContextMenuClick}
+        onMouseDown={onStartAnchorDown}
       >
         <span
           style={{
@@ -76,9 +77,9 @@ class TimelineTrigger extends PureComponent {
   render = () => {
     return (
       <TimelineItem
+        {...this.props}
         renderItem={this.renderTrigger}
         renderContextMenu={this.renderTriggerContextMenu}
-        {...this.props}
       />
     );
   }
