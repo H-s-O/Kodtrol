@@ -78,6 +78,7 @@ class TimelineTrigger extends PureComponent {
     return (
       <TimelineItem
         {...this.props}
+        typeLabel='trigger'
         renderItem={this.renderTrigger}
         renderContextMenu={this.renderTriggerContextMenu}
       />

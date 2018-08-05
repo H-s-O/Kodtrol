@@ -5,6 +5,7 @@ import { deleteWarning } from '../../lib/messageBoxes';
 
 const propTypes = {
   index: PropTypes.number,
+  typeLabel: PropTypes.string,
   data: PropTypes.shape({}),
   layerDuration: PropTypes.number,
   renderItem: PropTypes.func,
@@ -17,6 +18,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  typeLabel: 'item',
   onEditItem: null,
   onDeleteItem: null,
   onAdjustItem: null,
@@ -26,7 +28,8 @@ const defaultProps = {
 
 class TimelineItem extends PureComponent {
   onDeleteItemClick = () => {
-    deleteWarning('Are you sure you want to delete this timeline item ?', this.onDeleteItemCallback);
+    const { typeLabel } = this.props;
+    deleteWarning(`Are you sure you want to delete this ${typeLabel} ?`, this.onDeleteItemCallback);
   }
   
   onDeleteItemCallback = (result) => {

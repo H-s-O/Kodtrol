@@ -112,6 +112,7 @@ class TimelineBlock extends PureComponent {
     return (
       <TimelineItem
         {...this.props}
+        typeLabel='block'
         renderItem={this.renderBlock}
         renderContextMenu={this.renderBlockContextMenu}
       />
