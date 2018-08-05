@@ -20,6 +20,7 @@ const propTypes = {
   onAdjustItem: PropTypes.func,
   onCopyItem: PropTypes.func,
   onPasteItem: PropTypes.func,
+  onAddItemAt: PropTypes.func,
 };
 
 const defaultProps = {
@@ -33,6 +34,7 @@ const defaultProps = {
   onAdjustItem: null,
   onCopyItem: null,
   onPasteItem: null,
+  onAddItemAt: null,
 };
 
 class TimelineLayer extends PureComponent {
@@ -51,6 +53,19 @@ class TimelineLayer extends PureComponent {
     const { onDeleteLayer, index } = this.props;
     onDeleteLayer(index);
   }
+  
+  onAddBlockHereClick = (e) => {
+    this.doAddItemAt('block', e);
+  }
+  
+  onAddTriggerHereClick = (e) => {
+    this.doAddItemAt('trigger', e);
+  }
+  
+  doAddItemAt = (type, e) => {
+    const { onAddItemAt, index } = this.props;
+    onAddItemAt(type, index, e);
+  }
 
   onTimelineLayerContextMenu = (e) => {
     const { Menu, MenuItem } = remote;
@@ -60,9 +75,21 @@ class TimelineLayer extends PureComponent {
       label: 'Delete layer...',
       click: this.onDeleteLayerClick,
     }));
+    menu.append(new MenuItem({
+      type: 'separator',
+    }));
+    menu.append(new MenuItem({
+      label: 'Add block here...',
+      click: () => this.onAddBlockHereClick(e),
+    }));
+    menu.append(new MenuItem({
+      label: 'Add trigger here...',
+      click: () => this.onAddTriggerHereClick(e),
+    }));
 
     e.stopPropagation();
     e.preventDefault();
+    e.persist(); // needed so that it can be forwarded
     menu.popup({
       window: remote.getCurrentWindow(),
     });

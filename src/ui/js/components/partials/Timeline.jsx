@@ -176,6 +176,26 @@ class Timeline extends PureComponent {
       });
     }
   }
+  
+  onAddItemAt = (type, layer, e) => {
+    const data = {
+      layer,
+      id: uniqid(), // generate new trigger id
+      inTime: this.getTimelinePositionFromEvent(e),
+    };
+    
+    if (type === 'block') {
+      const { timelineData } = this.props;
+      const timelineDuration = get(timelineData, 'duration');
+      data.outTime = Math.min(data.inTime + 3000, timelineDuration);
+    }
+    
+    this.setState({
+      modalType: type,
+      modalValue: data,
+      modalAction: 'add',
+    });
+  }
 
   onMouseMove = (e) => {
     const { adjustBlockData, adjustBlockMode } = this.state;
@@ -273,6 +293,7 @@ class Timeline extends PureComponent {
         onAdjustItem={this.onAdjustItem}
         onCopyItem={this.onCopyItem}
         onPasteItem={this.onPasteItem}
+        onAddItemAt={this.onAddItemAt}
       />
     );
   }
