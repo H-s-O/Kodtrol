@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import autoBind from 'react-autobind';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
-import { isFunction } from 'lodash';
+import uniqid from 'uniqid';
 import Panel from './Panel';
 import TreeView from './TreeView';
-import AddTimeline from '../modals/AddTimeline';
+import TimelineModal from '../modals/TimelineModal';
 
 import styles from '../../../styles/components/partials/timelinesbrowser.scss';
 
@@ -22,48 +21,61 @@ const defaultProps = {
 };
 
 class TimelinesBrowser extends PureComponent {
-  constructor(props) {
-    super(props);
-    autoBind(this);
-
-    this.state = {
-      showAddModal: false,
-    };
-  }
-
-  onTimelineSelect(it) {
+  state = {
+    modalAction: null,
+    modalValue: null,
+  };
+  
+  onTimelineSelect = (it) => {
     const { onTimelineSelect } = this.props;
-    if (isFunction(onTimelineSelect)) {
-      const { id } = it;
-      onTimelineSelect(id);
-    }
+    const { id } = it;
+    onTimelineSelect(id);
   }
 
-  onAddClick() {
+  onAddClick = () => {
     this.setState({
-      showAddModal: true,
+      modalAction: 'add',
+      modalValue: {
+        id: uniqid() // generate new timeline id
+      },
+    });
+  }
+  
+  onEditClick = () => {
+    
+  }
+
+  onModalCancel = () => {
+    this.setState({
+      modalAction: null,
     });
   }
 
-  onAddCancel() {
-    this.setState({
-      showAddModal: false,
-    });
-  }
-
-  onAddSuccess(timelineData) {
+  onModalSuccess = (timelineData) => {
     const { onTimelineCreate } = this.props;
-    if (isFunction(onTimelineCreate)) {
-      onTimelineCreate(timelineData);
-    }
+    onTimelineCreate(timelineData);
+    
     this.setState({
-      showAddModal: false,
+      modalAction: null,
     });
   }
+  
+  renderModal = () => {
+    const { modalAction, modalValue } = this.state;
+    return (
+      <TimelineModal
+        initialValue={modalValue}
+        show={modalAction !== null}
+        title={modalAction === 'add' ? 'Add timeline' : 'Edit timeline'}
+        onCancel={this.onModalCancel}
+        onSuccess={this.onModalSuccess}
+      />
+    );
+  }
 
-  render() {
+  render = () => {
     const { timelines } = this.props;
-    const { showAddModal } = this.state;
+
     return (
       <Panel
         title="Timelines"
@@ -113,11 +125,7 @@ class TimelinesBrowser extends PureComponent {
             </div>
           )}
         />
-        <AddTimeline
-          show={showAddModal}
-          onCancel={this.onAddCancel}
-          onSuccess={this.onAddSuccess}
-        />
+        { timelines && this.renderModal() }
       </Panel>
     );
   }
