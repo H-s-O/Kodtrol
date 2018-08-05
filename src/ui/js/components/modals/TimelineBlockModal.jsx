@@ -3,11 +3,12 @@ import BaseModal from './BaseModal';
 
 class TimelineTriggerModal extends PureComponent {
   render = () => {
-    const { layers, ...props } = this.props;
+    const { scripts, layers, ...props } = this.props;
     return (
       <BaseModal
         {...props}
         relatedData={{
+          scripts,
           layers: layers.map((layer, index) => ({
             id: index,
             label: index + 1,
@@ -15,9 +16,15 @@ class TimelineTriggerModal extends PureComponent {
         }}
         fields={[
           {
-            label: 'Trigger',
-            field: 'trigger',
+            label: 'Name',
+            field: 'name',
             type: 'text',
+          },
+          {
+            label: 'Script',
+            field: 'script',
+            type: 'select',
+            from: 'scripts',
           },
           {
             label: 'Layer',
@@ -26,8 +33,13 @@ class TimelineTriggerModal extends PureComponent {
             from: 'layers',
           },
           {
-            label: 'Time',
+            label: 'In time',
             field: 'inTime',
+            type: 'number',
+          },
+          {
+            label: 'Out time',
+            field: 'outTime',
             type: 'number',
           },
           {

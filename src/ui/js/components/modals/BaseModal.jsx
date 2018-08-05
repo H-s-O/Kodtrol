@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { isFunction, set } from 'lodash';
+import { get} from 'lodash';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, Form, Col, Table } from 'react-bootstrap';
 import { GithubPicker } from 'react-color';
+import isFunction from '../../lib/isFunction';
 
 const propTypes = {
+  show: PropTypes.bool,
   title: PropTypes.string,
   successLabel: PropTypes.string,
   cancelLabel: PropTypes.string,
@@ -16,6 +18,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  show: false,
   title: 'Base modal',
   successLabel: 'Save',
   cancelLabel: 'Cancel',
@@ -29,11 +32,23 @@ class BaseModal extends Component {
   state = {
     value: {},
   };
+  
+  constructor(props) {
+    super(props);
+    
+    const { initialValue } = props;
+    if (initialValue) {
+      this.state = {
+        value: initialValue,
+      }
+    }
+  }
 
   componentWillReceiveProps = (nextProps) => {
     if (nextProps.initialValue != this.props.initialValue) {
-      // this.resetFields();
-      this.setState({...nextProps.initialValue});
+      this.setState({
+        value: nextProps.initialValue,
+      });
     }
   }
 
@@ -51,12 +66,24 @@ class BaseModal extends Component {
   }
 
   onFieldChange = (e) => {
-    const fieldName = 'asd';
+    const fieldName = e.target.id;
     const fieldValue = e.target.value;
     const { value } = this.state;
     this.setState({
-      ...value,
-      [fieldName]: fieldValue,
+      value: {
+        ...value,
+        [fieldName]: fieldValue,
+      },
+    });
+  }
+
+  onColorChange = (fieldName, fieldValue) => {
+    const { value } = this.state;
+    this.setState({
+      value: {
+        ...value,
+        [fieldName]: fieldValue.hex,
+      },
     });
   }
 
@@ -70,18 +97,89 @@ class BaseModal extends Component {
   onSaveClick = () => {
     const { onSuccess } = this.props;
     if (isFunction(onSuccess)) {
-      const { value } = { this.state };
+      const { value } = this.state;
       onSuccess(value);
     }
   }
-
-  renderField = (fieldInfo) => {
-
+  
+  renderFieldGroup = (fieldInfo, index) => {
+    const { label, field } = fieldInfo;
+    
+    return (
+      <FormGroup
+        key={`formgroup-${index}`}
+        controlId={field}
+      >
+        <Col
+          componentClass={ControlLabel}
+          sm={3}
+        >
+          { label }
+        </Col>
+        <Col
+          sm={9}
+        >
+          { this.renderFieldControl(fieldInfo) }
+        </Col>
+      </FormGroup>
+    );
   }
+  
+  renderFieldControl = (fieldInfo) => {
+    const { initialValue } = this.props;
+    const { field, type, from } = fieldInfo;
+    const fieldInitialValue = get(initialValue, field);
+    
+    if (type === 'select') {
+      const { relatedData } = this.props;
+      const fieldRelatedData = get(relatedData, from || field, []);
+      
+      return (
+        <FormControl
+          onChange={this.onFieldChange}
+          componentClass='select'
+          defaultValue={fieldInitialValue}
+        >
+          <option
+            value=""
+            disabled
+          >
+            --
+          </option>
+          { fieldRelatedData.map(({id, label}, index) => (
+            <option
+              key={`option-${index}`}
+              value={id}
+            >
+              { label }
+            </option>
+          )) }
+        </FormControl>
+      );
+    }
+    
+    if (type === 'color') {
+      return (
+        <GithubPicker
+          triangle="hide"
+          width="100%"
+          color={fieldInitialValue}
+          onChangeComplete={(color) => this.onColorChange(field, color)}
+        />
+      );
+    }
+    
+    return (
+      <FormControl
+        type={type}
+        onChange={this.onFieldChange}
+        defaultValue={fieldInitialValue}
+      />
+    );
+  } 
 
   render = () => {
-    const { show, scripts, layers, initialValue } = this.props;
-    const { color, name, inTime, outTime, script, layer } = this.state;
+    const { show, title, fields, successLabel, cancelLabel } = this.props;
 
     return (
       <Modal
@@ -93,165 +191,27 @@ class BaseModal extends Component {
       >
         <Modal.Title
         >
-          { initialValue ? "Edit" : "Add" } block
+          { title }
         </Modal.Title>
       </Modal.Header>
         <Modal.Body>
           <Form
             horizontal
           >
-            <FormGroup
-            >
-              <Col
-                componentClass={ControlLabel}
-                sm={3}
-              >
-                Name
-              </Col>
-              <Col
-                sm={9}
-              >
-                <FormControl
-                  type="text"
-                  value={name}
-                  onChange={this.onNameChange}
-                />
-              </Col>
-            </FormGroup>
-            <FormGroup
-            >
-              <Col
-                componentClass={ControlLabel}
-                sm={3}
-              >
-                Script
-              </Col>
-              <Col
-                sm={9}
-              >
-                <FormControl
-                  componentClass="select"
-                  onChange={this.onScriptChange}
-                  defaultValue={script}
-                >
-                  <option
-                    value=""
-                    disabled
-                  >
-                    --
-                  </option>
-                  {scripts.map((it, index) => (
-                    <option
-                      key={`script-${index}`}
-                      value={it.id}
-                    >
-                      { it.label }
-                    </option>
-                  ))}
-                </FormControl>
-              </Col>
-            </FormGroup>
-            <FormGroup
-            >
-              <Col
-                componentClass={ControlLabel}
-                sm={3}
-              >
-                Layer
-              </Col>
-              <Col
-                sm={9}
-              >
-                <FormControl
-                  componentClass="select"
-                  onChange={this.onLayerChange}
-                  defaultValue={layer}
-                >
-                  <option
-                    value=""
-                    disabled
-                  >
-                    --
-                  </option>
-                  {layers.map((it, index) => (
-                    <option
-                      key={`layer-${index}`}
-                      value={index}
-                    >
-                      { index + 1 }
-                    </option>
-                  ))}
-                </FormControl>
-              </Col>
-            </FormGroup>
-            <FormGroup
-            >
-              <Col
-                componentClass={ControlLabel}
-                sm={3}
-              >
-                In time
-              </Col>
-              <Col
-                sm={9}
-              >
-                <FormControl
-                  type="number"
-                  value={inTime}
-                  onChange={this.onInTimeChange}
-                />
-              </Col>
-            </FormGroup>
-            <FormGroup
-            >
-              <Col
-                componentClass={ControlLabel}
-                sm={3}
-              >
-                Out time
-              </Col>
-              <Col
-                sm={9}
-              >
-                <FormControl
-                  type="number"
-                  value={outTime}
-                  onChange={this.onOutTimeChange}
-                />
-              </Col>
-            </FormGroup>
-            <FormGroup
-            >
-              <Col
-                componentClass={ControlLabel}
-                sm={3}
-              >
-                Color
-              </Col>
-              <Col
-                sm={9}
-              >
-                <GithubPicker
-                  color={color}
-                  triangle="hide"
-                  width="100%"
-                  onChangeComplete={this.onColorChange}
-                />
-              </Col>
-            </FormGroup>
+           { fields.map(this.renderFieldGroup) }
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button
             onClick={this.onCancelClick}
           >
-            Cancel
+            { cancelLabel }
           </Button>
           <Button
             bsStyle="success"
             onClick={this.onSaveClick}
           >
-            { initialValue ? "Edit" : "Add" }
+            { successLabel }
           </Button>
         </Modal.Footer>
       </Modal>

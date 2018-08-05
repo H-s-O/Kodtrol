@@ -1,11 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { remote } from 'electron';
-import { get, isFunction } from 'lodash';
+import { get } from 'lodash';
 import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
+import uniqid from 'uniqid';
 import Panel from './Panel';
 import percentString from '../../lib/percentString';
-import AddTimelineBlock from '../modals/AddTimelineBlock';
+import TimelineTriggerModal from '../modals/TimelineTriggerModal';
+import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineLayer from '../timeline/TimelineLayer';
 
 import styles from '../../../styles/components/partials/timeline.scss';
@@ -33,7 +35,10 @@ class Timeline extends PureComponent {
   timelineContainer = null;
 
   state = {
-    showAddBlockModal: false,
+    modalType: null,
+    modalAction: null,
+    modalValue: null,
+    
     editBlockData: null,
     adjustBlockData: null,
     adjustBlockMode: null,
@@ -44,39 +49,93 @@ class Timeline extends PureComponent {
     const { timelineData } = this.props;
     for (let layerIndex in timelineData.layers) {
       const layerData = timelineData.layers[layerIndex];
-      for (let blockIndex in layerData) {
-        const blockData = layerData[blockIndex];
-        if (blockData.id == sourceData.id) {
+      for (let itemIndex in layerData) {
+        const itemData = layerData[itemIndex];
+        if (itemData.id == sourceData.id) {
           return layerIndex;
         }
       }
     }
-    return null;
+    return null; 
   }
 
   onAddLayerClick = () => {
     const { timelineData } = this.props;
     timelineData.layers.push([]);
-    this.triggerSave(timelineData);
+    this.doSave(timelineData);
   }
-
-  onAddIteClick = () => {
-    this.setState({
-      showAddBlockModal: true,
-      editBlockData: null,
+  
+  onAddBlockClick = () => {
+    this.doAddItem('block', {
+      id: uniqid(), // generate new block id
+    });
+  }
+  
+  onAddTriggerClick = () => {
+    this.doAddItem('trigger', {
+      id: uniqid(), // generate new trigger id
     });
   }
 
-  onEditItem= (blockData) => {
+  doAddItem = (type, baseData) => {
     this.setState({
-      showAddBlockModal: true,
-      editBlockData: {
-        ...blockData,
-        layer: this.findItemLayer(blockData),
+      modalType: type,
+      modalValue: baseData,
+      modalAction: 'add',
+    });
+  }
+
+  onEditItem = (itemData) => {
+    let type = null;
+    if ('script' in itemData) {
+      type = 'block';
+    } else if ('trigger' in itemData) {
+      type = 'trigger';
+    } else if ('curve' in itemData) {
+      type = 'curve';
+    }
+    
+    this.setState({
+      modalType: type,
+      modalValue: {
+        ...itemData,
+        layer: this.findItemLayer(itemData), // add layer id
       },
+      modalAction: 'edit',
     });
   }
 
+  onItemModalSuccess = (itemData) => {
+    const { layer, ...itemInfo } = itemData;
+    const { timelineData } = this.props;
+
+    // Attempt to find item index if existing
+    const itemIndex = timelineData.layers[Number(layer)].findIndex(({id}) => id === itemInfo.id); 
+    
+    // If item does not exists, add it
+    if (itemIndex === -1) {
+      timelineData.layers[Number(layer)].push(itemInfo);
+    } 
+    // Update existing item
+    else {
+      timelineData.layers[Number(layer)][itemIndex] = itemInfo;
+    }
+    
+    // Save timeline
+    this.doSave(timelineData);
+
+    // Hide modal
+    this.setState({
+      modalType: null,
+    });
+  }
+
+  onItemModalCancel = () => {
+    this.setState({
+      modalType: null,
+    });
+  }
+  
   onAdjustItem = (mode, blockData) => {
     this.setState({
       adjustBlockMode: mode,
@@ -110,7 +169,7 @@ class Timeline extends PureComponent {
         return block;
       });
 
-      this.triggerSave(timelineData);
+      this.doSave(timelineData);
 
       this.setState({
         copyBlockData: null,
@@ -134,7 +193,7 @@ class Timeline extends PureComponent {
         return block;
       });
 
-      this.triggerSave(timelineData);
+      this.doSave(timelineData);
     }
   }
 
@@ -153,7 +212,7 @@ class Timeline extends PureComponent {
       return item.id != itemData.id;
     });
 
-    this.triggerSave(timelineData);
+    this.doSave(timelineData);
   }
 
   onDeleteLayer = (index) => {
@@ -163,48 +222,16 @@ class Timeline extends PureComponent {
       return layerIndex != index;
     });
 
-    this.triggerSave(timelineData);
+    this.doSave(timelineData);
   }
 
   onTimelineClick = (e) => {
     e.preventDefault();
 
     const { onStatusUpdate } = this.props;
-
-    if (isFunction(onStatusUpdate)) {
-      const newPosition = this.getTimelinePositionFromEvent(e);
-      onStatusUpdate({
-        position: newPosition,
-      });
-    }
-  }
-
-  onAddBlockSuccess = (blockData) => {
-    const { layer, ...blockInfo } = blockData;
-    const { timelineData } = this.props;
-    const { editBlockData } = this.state;
-
-    if (editBlockData !== null) {
-      timelineData.layers[Number(layer)] = timelineData.layers[Number(layer)].map((block) => {
-        if (block.id == blockInfo.id) {
-          return blockInfo;
-        }
-        return block;
-      });
-    } else {
-      timelineData.layers[Number(layer)].push(blockInfo);
-    }
-    this.triggerSave(timelineData);
-
-    this.setState({
-      showAddBlockModal: false,
-    });
-  }
-
-  onAddBlockCancel = () => {
-    this.setState({
-      showAddBlockModal: false,
-      editBlockData: null,
+    const newPosition = this.getTimelinePositionFromEvent(e);
+    onStatusUpdate({
+      position: newPosition,
     });
   }
 
@@ -221,15 +248,13 @@ class Timeline extends PureComponent {
     return newPosition;
   }
 
-  triggerSave = (value) => {
+  doSave = (value) => {
     const { onSave } = this.props;
-    if (isFunction(onSave)) {
-      const { id } = value;
-      onSave({
-        id,
-        content: value,
-      });
-    }
+    const { id } = value;
+    onSave({
+      id,
+      content: value,
+    });
   }
 
   renderTimelineLayer = (layer, index, layers) => {
@@ -332,14 +357,41 @@ class Timeline extends PureComponent {
         onClick={(e) => e.stopPropagation()}
       >
         <MenuItem onSelect={this.onAddLayerClick}>Add layer</MenuItem>
-        <MenuItem onSelect={this.onAddBlockClick}>Add block</MenuItem>
+        <MenuItem onSelect={this.onAddBlockClick}>Add block...</MenuItem>
+        <MenuItem onSelect={this.onAddTriggerClick}>Add trigger...</MenuItem>
       </DropdownButton>
+    );
+  }
+  
+  renderItemModals = () => {
+    const { timelineData, scripts } = this.props;
+    const { modalType, modalValue, modalAction } = this.state;
+    return (
+      <div>
+        <TimelineBlockModal
+          initialValue={modalValue}
+          show={modalType === 'block'}
+          title={modalAction === 'add' ? 'Add block' : 'Edit block'}
+          onCancel={this.onItemModalCancel}
+          onSuccess={this.onItemModalSuccess}
+          scripts={scripts}
+          layers={get(timelineData, 'layers')}
+        />
+        <TimelineTriggerModal
+          initialValue={modalValue}
+          show={modalType === 'trigger'}
+          title={modalAction === 'add' ? 'Add trigger' : 'Edit trigger'}
+          onCancel={this.onItemModalCancel}
+          onSuccess={this.onItemModalSuccess}
+          layers={get(timelineData, 'layers')}
+        />
+      </div>
     );
   }
 
   render = () => {
-    const { timelineData, timelines, scripts } = this.props;
-    const { showAddBlockModal, editBlockData, adjustBlockData } = this.state;
+    const { timelineData } = this.props;
+    const { adjustBlockData } = this.state;
 
     return (
       <Panel
@@ -370,14 +422,7 @@ class Timeline extends PureComponent {
         >
           { this.renderTimeline(timelineData) }
         </div>
-        <AddTimelineBlock
-          initialValue={editBlockData}
-          show={showAddBlockModal}
-          onCancel={this.onAddBlockCancel}
-          onSuccess={this.onAddBlockSuccess}
-          scripts={scripts}
-          layers={(timelineData || {}).layers}
-        />
+        { timelineData && this.renderItemModals() }
       </Panel>
     );
   }
