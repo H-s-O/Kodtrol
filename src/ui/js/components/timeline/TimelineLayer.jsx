@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames'
 import { remote } from 'electron';
 import percentString from '../../lib/percentString';
+import { deleteWarning } from '../../lib/messageBoxes';
 import TimelineBlock from './TimelineBlock';
 import TimelineTrigger from './TimelineTrigger';
 
@@ -36,6 +37,17 @@ const defaultProps = {
 
 class TimelineLayer extends PureComponent {
   onDeleteLayerClick = () => {
+    const { index } = this.props;
+    deleteWarning(`Are you sure you want to delete layer ${index} ?`, this.onDeleteLayerCallback);
+  }
+  
+  onDeleteLayerCallback = (result) => {
+    if (result) {
+      this.onDeleteLayer();
+    }
+  }
+  
+  onDeleteLayer = () => {
     const { onDeleteLayer, index } = this.props;
     onDeleteLayer(index);
   }
@@ -45,7 +57,7 @@ class TimelineLayer extends PureComponent {
 
     const menu = new Menu();
     menu.append(new MenuItem({
-      label: 'Delete layer',
+      label: 'Delete layer...',
       click: this.onDeleteLayerClick,
     }));
 

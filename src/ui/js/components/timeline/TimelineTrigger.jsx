@@ -25,7 +25,7 @@ class TimelineTrigger extends PureComponent {
       click: onEditItemClick,
     }));
     menu.append(new MenuItem({
-      label: 'Delete trigger',
+      label: 'Delete trigger...',
       click: onDeleteItemClick,
     }));
     menu.append(new MenuItem({

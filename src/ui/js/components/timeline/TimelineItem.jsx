@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { remote } from 'electron';
+import { deleteWarning } from '../../lib/messageBoxes';
+
 const propTypes = {
   index: PropTypes.number,
   data: PropTypes.shape({}),
@@ -24,8 +26,14 @@ const defaultProps = {
 
 class TimelineItem extends PureComponent {
   onDeleteItemClick = () => {
-    const { onDeleteItem, data } = this.props;
-    onDeleteItem(data);
+    deleteWarning('Are you sure you want to delete this timeline item ?', this.onDeleteItemCallback);
+  }
+  
+  onDeleteItemCallback = (result) => {
+    if (result) {
+      const { onDeleteItem, data } = this.props;
+      onDeleteItem(data);
+    }
   }
 
   onEditItemClick = () => {

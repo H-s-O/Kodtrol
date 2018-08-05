@@ -25,7 +25,7 @@ class TimelineBlock extends PureComponent {
       click: onEditItemClick,
     }));
     menu.append(new MenuItem({
-      label: 'Delete block',
+      label: 'Delete block...',
       click: onDeleteItemClick,
     }));
     menu.append(new MenuItem({
