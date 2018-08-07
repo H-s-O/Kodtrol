@@ -76,6 +76,16 @@ class BaseModal extends Component {
       },
     });
   }
+  
+  onCustomFieldChange = (fieldName, fieldValue) => {
+    const { value } = this.state;
+    this.setState({
+      value: {
+        ...value,
+        [fieldName]: fieldValue,
+      },
+    })
+  }
 
   onColorChange = (fieldName, fieldValue) => {
     const { value } = this.state;
@@ -119,19 +129,18 @@ class BaseModal extends Component {
         <Col
           sm={9}
         >
-          { this.renderFieldControl(fieldInfo) }
+          { this.renderFieldContent(fieldInfo) }
         </Col>
       </FormGroup>
     );
   }
   
-  renderFieldControl = (fieldInfo) => {
-    const { initialValue } = this.props;
+  renderFieldContent = (fieldInfo) => {
+    const { initialValue, relatedData } = this.props;
     const { field, type, from } = fieldInfo;
     const fieldInitialValue = get(initialValue, field);
     
     if (type === 'select') {
-      const { relatedData } = this.props;
       const fieldRelatedData = get(relatedData, from || field, []);
       
       return (
@@ -169,11 +178,27 @@ class BaseModal extends Component {
       );
     }
     
+    if (type === 'text' || type === 'number') {
+      return (
+        <FormControl
+          type={type}
+          onChange={this.onFieldChange}
+          defaultValue={fieldInitialValue}
+        />
+      );
+    }
+    
+    // Custom field node
+    const CustomComponent = type;
+    const related = {};
+    if (from !== null) {
+      related[from] = get(relatedData, from);
+    }
     return (
-      <FormControl
-        type={type}
-        onChange={this.onFieldChange}
+      <CustomComponent
+        onChange={(value) => this.onCustomFieldChange(field, value)}
         defaultValue={fieldInitialValue}
+        {...related}
       />
     );
   } 
