@@ -1,8 +1,8 @@
 {
-  "name": "app2",
+  "name": "Manuscript",
   "version": "0.0.1",
   "description": "",
-  "main": "src/electron.js",
+  "main": "src/main/electron.js",
   "scripts": {
     "dev": "webpack-dev-server --config build/webpack.config.js",
     "build": "npx webpack --config build/webpack.config.js -p",
