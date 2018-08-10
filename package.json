@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/electron.js",
   "scripts": {
-    "dev": "webpack-dev-server --open --config build/webpack.config.js",
+    "dev": "webpack-dev-server --config build/webpack.config.js",
     "build": "npx webpack --config build/webpack.config.js -p",
     "start": "npx electron --js-flags=\"--harmony_regexp_lookbehind\" -r babel-register .",
     "package": "npm run build && npx electron-packager dist MyApp"
