@@ -2,9 +2,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
+import { connect } from 'react-redux';
+
 import Panel from './Panel';
 import TreeView from './TreeView';
 import TimelineModal from '../modals/TimelineModal';
+import { editTimeline } from '../../../../common/js/store/actions/timelines';
 
 import styles from '../../../styles/components/partials/timelinesbrowser.scss';
 
@@ -27,9 +30,9 @@ class TimelinesBrowser extends PureComponent {
   };
   
   onTimelineSelect = (it) => {
-    const { onTimelineSelect } = this.props;
+    const { dispatch } = this.props;
     const { id } = it;
-    onTimelineSelect(id);
+    dispatch(editTimeline(id));
   }
 
   onAddClick = () => {
@@ -134,4 +137,4 @@ class TimelinesBrowser extends PureComponent {
 TimelinesBrowser.propTypes = propTypes;
 TimelinesBrowser.defaultProps = defaultProps;
 
-export default TimelinesBrowser;
+export default connect()(TimelinesBrowser);

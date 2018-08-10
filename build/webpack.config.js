@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 
-const APP_DIR = path.join(__dirname, '../src/ui');
+const APP_DIR = path.join(__dirname, '../src');
 const OUTPUT_DIR = path.join(__dirname, '../dist/ui');
 const NODE_MODULES_DIR = path.join(__dirname, '../node_modules');
 
@@ -46,7 +46,7 @@ module.exports = {
       {
         test: /\.scss$/,
         include : APP_DIR,
-        exclude: path.join(APP_DIR, 'styles/main.scss'),
+        exclude: path.join(APP_DIR, 'ui/styles/main.scss'),
         loaders: [
           {
             loader: 'style-loader',

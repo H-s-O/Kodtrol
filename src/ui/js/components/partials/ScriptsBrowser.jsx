@@ -1,11 +1,14 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
+
 import Panel from './Panel';
 import TreeView from './TreeView';
 import ScriptModal from '../modals/ScriptModal';
 import stopEvent from '../../lib/stopEvent';
+import { editScript } from '../../../../common/js/store/actions/scripts';
 
 import styles from '../../../styles/components/partials/scriptsbrowser.scss';
 
@@ -29,9 +32,9 @@ class ScriptsBrowser extends PureComponent {
   };
 
   onScriptSelect = (it) => {
-    const { onScriptSelect } = this.props;
+    const { dispatch } = this.props;
     const { id } = it;
-    onScriptSelect(id);
+    dispatch(editScript(id));
   }
 
   onAddClick = () => {
@@ -132,4 +135,4 @@ class ScriptsBrowser extends PureComponent {
 ScriptsBrowser.propTypes = propTypes;
 ScriptsBrowser.defaultProps = defaultProps;
 
-export default ScriptsBrowser;
+export default connect()(ScriptsBrowser);

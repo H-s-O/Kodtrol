@@ -1,5 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { get, set, uniq } from 'lodash';
+import { createStore, applyMiddleware } from 'redux'
+import { forwardToRenderer, triggerAlias, replayActionMain } from 'electron-redux';
 import path from 'path';
 import url from 'url';
 import DMX from 'dmx';
@@ -12,8 +14,22 @@ import TimelinesManager from './main/TimelinesManager';
 import MainRenderer from './main/MainRenderer';
 import TimelineRenderer from './main/render/TimelineRenderer';
 import TimelineRendererEvent from './main/events/TimelineRendererEvent';
+import appReducer from './common/js/store/reducers/app';
+import { updateScripts } from './common/js/store/actions/scripts';
+import { updateDevices } from './common/js/store/actions/devices';
+import { updateTimelines } from './common/js/store/actions/timelines';
 
 const main = async () => {
+  const store = createStore(
+    appReducer,
+    // initialState, // optional
+    applyMiddleware(
+      // triggerAlias, // optional, see below
+      forwardToRenderer, // IMPORTANT! This goes last
+    ),
+  );
+  replayActionMain(store);
+  
   let dmx = new DMX();
       // dmx.addUniverse('main', 'null', '/dev/tty.usbserial-EN086444');
       dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
@@ -58,14 +74,14 @@ const main = async () => {
         current: id === currentScript,
       }));
       // console.log(scripts);
-      contents.send('updateScripts', scripts);
+      store.dispatch(updateScripts(scripts));
 
       const devices = DevicesManager.listDevices().map(({id, name}) => ({
         id,
         name,
       }));
       // console.log(devices);
-      contents.send('updateDevices', devices);
+      store.dispatch(updateDevices(devices));
 
       const timelines = TimelinesManager.listTimelines().map(({id, name}) => ({
         id,
@@ -73,7 +89,7 @@ const main = async () => {
         current: id === currentTimeline,
       }));
       // console.log(timelines);
-      contents.send('updateTimelines', timelines);
+      store.dispatch(updateTimelines(timelines));
     });
 
     // Emitted when the window is closed.
