@@ -8,7 +8,7 @@ import Panel from './Panel';
 import TreeView from './TreeView';
 import ScriptModal from '../modals/ScriptModal';
 import stopEvent from '../../lib/stopEvent';
-import { editScript } from '../../../../common/js/store/actions/scripts';
+import { createScript, updateScript, editScript } from '../../../../common/js/store/actions/scripts';
 
 import styles from '../../../styles/components/partials/scriptsbrowser.scss';
 
@@ -46,7 +46,7 @@ class ScriptsBrowser extends PureComponent {
     });
   }
   
-  onEditClickScript = () => {
+  onEditScriptClick = () => {
     this.setState({
       modalAction: 'edit',
       modalValue: this.props.value[3], // temp
@@ -60,8 +60,14 @@ class ScriptsBrowser extends PureComponent {
   }
 
   onModalSuccess = (scriptData) => {
-    const { onScriptCreate } = this.props;
-    onScriptCreate(scriptData);
+    const { dispatch } = this.props;
+    const { modalAction } = this.state;
+    
+    if (modalAction === 'add') {
+      dispatch(createScript(scriptData));
+    } else if (modalAction === 'edit') {
+      dispatch(updateScript(scriptData));
+    }
     
     this.setState({
       modalAction: null,
@@ -115,14 +121,14 @@ class ScriptsBrowser extends PureComponent {
             <div
               className="pull-right"
             >
-            <Button
-              bsSize="xsmall"
-              onClick={(e) => {stopEvent(e); this.onEditClickScript()}}
-            >
-              <Glyphicon
-                glyph="cog"
-              />
-            </Button>
+              <Button
+                bsSize="xsmall"
+                onClick={(e) => {stopEvent(e); this.onEditScriptClick()}}
+              >
+                <Glyphicon
+                  glyph="cog"
+                />
+              </Button>
             </div>
           )}
         />

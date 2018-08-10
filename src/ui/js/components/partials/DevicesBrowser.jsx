@@ -1,11 +1,14 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import autoBind from 'react-autobind';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
-import { isFunction } from 'lodash';
+import uniqid from 'uniqid';
+import { connect } from 'react-redux';
+
 import Panel from './Panel';
 import TreeView from './TreeView';
-import AddDevice from '../modals/AddDevice';
+import DeviceModal from '../modals/DeviceModal';
+import stopEvent from '../../lib/stopEvent';
+import { createDevice, updateDevice } from '../../../../common/js/store/actions/devices';
 
 import styles from '../../../styles/components/partials/devicesbrowser.scss';
 
@@ -20,52 +23,63 @@ const defaultProps = {
 };
 
 class DevicesBrowser extends PureComponent {
-  constructor(props) {
-    super(props);
-    autoBind(this);
-
-    this.state = {
-      showAddModal: false,
-    };
-  }
-
-  // onScriptSelect(it) {
-  //   const name = it.label;
-  //   const { onScriptSelect } = this.props;
-  //   if (isFunction(onScriptSelect)) {
-  //     onScriptSelect(name);
-  //   }
-  // }
-
-  onAddClick() {
+  state = {
+    modalAction: null,
+    modalValue: null,
+  };
+  
+  onAddClick = () => {
     this.setState({
-      showAddModal: true,
+      modalAction: 'add',
+      modalValue: {
+        id: uniqid(), // generate new device id
+      }
+    });
+  }
+  
+  onEditDeviceClick = () => {
+    this.setState({
+      modalAction: 'edit',
+      modalValue: {}, // temp
     });
   }
 
-  onAddCancel() {
+  onModalCancel = () => {
     this.setState({
-      showAddModal: false,
+      modalAction: null,
     });
   }
 
-  onAddSuccess(deviceData) {
-    const { onDeviceCreate } = this.props;
-    if (isFunction(onDeviceCreate)) {
-      onDeviceCreate(deviceData);
+  onModalSuccess = (deviceData) => {
+    const { dispatch } = this.props;
+    const { modalAction } = this.state;
+    
+    if (modalAction === 'add') {
+      dispatch(createDevice(deviceData));
+    } else if (modalAction === 'edit') {
+      dispatch(updateDevice(deviceData));
     }
+    
     this.setState({
-      showAddModal: false,
+      modalAction: null,
     });
   }
 
-  onActionsClick(e) {
-    e.stopPropagation();
+  renderModal = () => {
+    const { modalAction, modalValue } = this.state;
+    return (
+      <DeviceModal
+        initialValue={modalValue}
+        show={modalAction !== null}
+        title={modalAction === 'add' ? 'Add device' : 'Edit device'}
+        onCancel={this.onModalCancel}
+        onSuccess={this.onModalSuccess}
+      />
+    );
   }
 
-  render() {
+  render = () => {
     const { value } = this.props;
-    const { showAddModal } = this.state;
     return (
       <Panel
         title="Devices"
@@ -97,30 +111,18 @@ class DevicesBrowser extends PureComponent {
             <div
               className="pull-right"
             >
-              <DropdownButton
-                noCaret
-                title={(
-                  <Glyphicon
-                    glyph="cog"
-                  />
-                )}
-                key="asdas"
+              <Button
                 bsSize="xsmall"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {stopEvent(e); this.onEditDeviceClick()}}
               >
-                <MenuItem eventKey="1">Edit</MenuItem>
-                <MenuItem eventKey="2">Duplicate</MenuItem>
-                <MenuItem divider />
-                <MenuItem eventKey="3" bsStyle="danger">Delete</MenuItem>
-              </DropdownButton>
+                <Glyphicon
+                  glyph="cog"
+                />
+              </Button>
             </div>
           )}
         />
-        <AddDevice
-          show={showAddModal}
-          onCancel={this.onAddCancel}
-          onSuccess={this.onAddSuccess}
-        />
+        { this.renderModal() }
       </Panel>
     );
   }
@@ -129,4 +131,4 @@ class DevicesBrowser extends PureComponent {
 DevicesBrowser.propTypes = propTypes;
 DevicesBrowser.defaultProps = defaultProps;
 
-export default DevicesBrowser;
+export default connect()(DevicesBrowser);

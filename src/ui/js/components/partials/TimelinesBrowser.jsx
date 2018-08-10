@@ -7,7 +7,8 @@ import { connect } from 'react-redux';
 import Panel from './Panel';
 import TreeView from './TreeView';
 import TimelineModal from '../modals/TimelineModal';
-import { editTimeline } from '../../../../common/js/store/actions/timelines';
+import stopEvent from '../../lib/stopEvent';
+import { createTimeline, updateTimeline, editTimeline } from '../../../../common/js/store/actions/timelines';
 
 import styles from '../../../styles/components/partials/timelinesbrowser.scss';
 
@@ -44,8 +45,11 @@ class TimelinesBrowser extends PureComponent {
     });
   }
   
-  onEditClick = () => {
-    
+  onEditTimelineClick = () => {
+    this.setState({
+      modalAction: 'edit',
+      modalValue: {} // temp,
+    });
   }
 
   onModalCancel = () => {
@@ -55,8 +59,14 @@ class TimelinesBrowser extends PureComponent {
   }
 
   onModalSuccess = (timelineData) => {
-    const { onTimelineCreate } = this.props;
-    onTimelineCreate(timelineData);
+    const { dispatch } = this.props;
+    const { modalAction } = this.state;
+    
+    if (modalAction === 'add') {
+      dispatch(createTimeline(timelineData));
+    } else if (modalAction === 'edit') {
+      dispatch(updateTimeline(timelineData));
+    }
     
     this.setState({
       modalAction: null,
@@ -109,22 +119,14 @@ class TimelinesBrowser extends PureComponent {
             <div
               className="pull-right"
             >
-              <DropdownButton
-                noCaret
-                title={(
-                  <Glyphicon
-                    glyph="cog"
-                  />
-                )}
-                key="asdas"
+              <Button
                 bsSize="xsmall"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {stopEvent(e); this.onEditTimelineClick()}}
               >
-                <MenuItem eventKey="1">Edit</MenuItem>
-                <MenuItem eventKey="2">Duplicate</MenuItem>
-                <MenuItem divider />
-                <MenuItem eventKey="3" bsStyle="danger">Delete</MenuItem>
-              </DropdownButton>
+                <Glyphicon
+                  glyph="cog"
+                />
+              </Button>
             </div>
           )}
         />

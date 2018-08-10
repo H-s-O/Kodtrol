@@ -15,6 +15,8 @@ import MainRenderer from './main/MainRenderer';
 import TimelineRenderer from './main/render/TimelineRenderer';
 import TimelineRendererEvent from './main/events/TimelineRendererEvent';
 import appReducer from './common/js/store/reducers/app';
+import initialState from './common/js/store/initialState';
+
 import { updateScripts } from './common/js/store/actions/scripts';
 import { updateDevices } from './common/js/store/actions/devices';
 import { updateTimelines } from './common/js/store/actions/timelines';
@@ -22,7 +24,7 @@ import { updateTimelines } from './common/js/store/actions/timelines';
 const main = async () => {
   const store = createStore(
     appReducer,
-    // initialState, // optional
+    initialState, // optional
     applyMiddleware(
       // triggerAlias, // optional, see below
       forwardToRenderer, // IMPORTANT! This goes last
