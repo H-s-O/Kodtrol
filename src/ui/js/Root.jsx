@@ -3,6 +3,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { forwardToMain, replayActionRenderer, getInitialStateRenderer } from 'electron-redux';
 import { Provider } from 'react-redux'
 import createIpc, { send } from 'redux-electron-ipc';
+import { composeWithDevTools } from 'redux-devtools-extension';
 
 import Main from './Main';
 import appReducer from '../../common/js/store/reducers/app';
@@ -25,7 +26,13 @@ export default class Root extends PureComponent {
     
     const initialState = getInitialStateRenderer();
 
-    this.store = createStore(appReducer, initialState, applyMiddleware(forwardToMain));
+    this.store = createStore(
+      appReducer, 
+      initialState,
+      composeWithDevTools(
+        applyMiddleware(forwardToMain),
+      ),
+    );
     replayActionRenderer(this.store);
   }
   
