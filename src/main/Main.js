@@ -108,10 +108,10 @@ export default class Main {
   }
   
   onMainWindowClosing = (e) => {
-    const canClose = warnBeforeClosingProject(this.mainWindow.browserWindow);
-    if (!canClose) {
-      e.preventDefault();
-    }
+    // const canClose = warnBeforeClosingProject(this.mainWindow.browserWindow);
+    // if (!canClose) {
+    //   e.preventDefault();
+    // }
   }
   
   onMainWindowClosed = () => {

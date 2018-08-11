@@ -1,7 +1,7 @@
-export default (state = [], action) => {
-  switch (action.type) {
+export default (state = [], {type, payload}) => {
+  switch (type) {
     case 'UPDATE_TIMELINES':
-      return action.timelines;
+      return payload.timelines;
       break;
       
     default:

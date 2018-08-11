@@ -1,85 +1,77 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
-import uniqid from 'uniqid';
 import { connect } from 'react-redux';
 
 import Panel from './Panel';
 import TreeView from './TreeView';
-import DeviceModal from '../modals/DeviceModal';
 import stopEvent from '../../lib/stopEvent';
-import { createDevice, updateDevice } from '../../../../common/js/store/actions/devices';
+import { deleteDevice } from '../../../../common/js/store/actions/devices';
+import { updateDeviceModal } from '../../../../common/js/store/actions/modals';
+import { deleteWarning } from '../../lib/messageBoxes';
 
 import styles from '../../../styles/components/partials/devicesbrowser.scss';
 
 const propTypes = {
-  value: PropTypes.arrayOf(PropTypes.shape({})),
-  onDeviceCreate: PropTypes.func,
+  devices: PropTypes.arrayOf(PropTypes.shape({})),
+  doDeleteDevice: PropTypes.func.isRequired,
+  doCreateDeviceModal: PropTypes.func.isRequired,
+  doEditDeviceModal: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
-  value: [],
-  onDeviceCreate: null,
+  devices: [],
 };
 
 class DevicesBrowser extends PureComponent {
-  state = {
-    modalAction: null,
-    modalValue: null,
-  };
-  
   onAddClick = () => {
-    this.setState({
-      modalAction: 'add',
-      modalValue: {
-        id: uniqid(), // generate new device id
+    const { doCreateDeviceModal } = this.props;
+    doCreateDeviceModal();
+  }
+  
+  onEditClick = (id) => {
+    const { doEditDeviceModal, devices } = this.props;
+    const data = devices.find(it => it.id === id);
+    doEditDeviceModal(data);
+  }
+  
+  onDeleteClick = (id) => {
+    deleteWarning(`Are you sure you want to delete this device ?`, (result) => {
+      if (result) {
+        const { doDeleteDevice } = this.props;
+        doDeleteDevice(id);
       }
     });
   }
-  
-  onEditDeviceClick = () => {
-    this.setState({
-      modalAction: 'edit',
-      modalValue: {}, // temp
-    });
-  }
 
-  onModalCancel = () => {
-    this.setState({
-      modalAction: null,
-    });
-  }
-
-  onModalSuccess = (deviceData) => {
-    const { dispatch } = this.props;
-    const { modalAction } = this.state;
-    
-    if (modalAction === 'add') {
-      dispatch(createDevice(deviceData));
-    } else if (modalAction === 'edit') {
-      dispatch(updateDevice(deviceData));
-    }
-    
-    this.setState({
-      modalAction: null,
-    });
-  }
-
-  renderModal = () => {
-    const { modalAction, modalValue } = this.state;
+  renderTreeActions = (it) => {
     return (
-      <DeviceModal
-        initialValue={modalValue}
-        show={modalAction !== null}
-        title={modalAction === 'add' ? 'Add device' : 'Edit device'}
-        onCancel={this.onModalCancel}
-        onSuccess={this.onModalSuccess}
-      />
+      <div
+        className="pull-right"
+      >
+        <Button
+          bsSize="xsmall"
+          onClick={(e) => {stopEvent(e); this.onEditClick(it.id)}}
+        >
+          <Glyphicon
+            glyph="cog"
+          />
+        </Button>
+        <Button
+          bsSize="xsmall"
+          bsStyle="danger"
+          onClick={(e) => {stopEvent(e); this.onDeleteClick(it.id)}}
+        >
+          <Glyphicon
+            glyph="trash"
+          />
+        </Button>
+      </div>
     );
   }
 
   render = () => {
-    const { value } = this.props;
+    const { devices } = this.props;
     return (
       <Panel
         title="Devices"
@@ -105,24 +97,14 @@ class DevicesBrowser extends PureComponent {
             overflowY: 'auto',
             height: '94%',
           }}
-          value={value}
+          value={devices.map(({id, name}) => ({
+            id,
+            label: name,
+            icon: 'modal-window',
+          }))}
           onClickItem={this.onScriptSelect}
-          actions={(
-            <div
-              className="pull-right"
-            >
-              <Button
-                bsSize="xsmall"
-                onClick={(e) => {stopEvent(e); this.onEditDeviceClick()}}
-              >
-                <Glyphicon
-                  glyph="cog"
-                />
-              </Button>
-            </div>
-          )}
+          renderActions={this.renderTreeActions}
         />
-        { this.renderModal() }
       </Panel>
     );
   }
@@ -131,4 +113,17 @@ class DevicesBrowser extends PureComponent {
 DevicesBrowser.propTypes = propTypes;
 DevicesBrowser.defaultProps = defaultProps;
 
-export default connect()(DevicesBrowser);
+const mapStateToProps = ({devices}) => {
+  return {
+    devices,
+  };
+}
+const mapDispatchToProps = (dispatch) => {
+  return {
+    doDeleteDevice: (id) => dispatch(deleteDevice(id)),
+    doCreateDeviceModal: () => dispatch(updateDeviceModal('add', {})),
+    doEditDeviceModal: (data) => dispatch(updateDeviceModal('edit', data)),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DevicesBrowser);

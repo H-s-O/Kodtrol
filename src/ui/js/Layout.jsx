@@ -13,53 +13,52 @@ import DevicesBrowser from './components/partials/DevicesBrowser';
 import TimelinesBrowser from './components/partials/TimelinesBrowser';
 // import Preview from './components/partials/Preview';
 import Timeline from './components/partials/Timeline';
+import ModalsContainer from './components/partials/ModalsContainer';
 
 import styles from '../styles/layout.scss';
 
 export default props => {
   return (
-    <Grid fluid>
-      <Row className={styles.topRow}>
-        <Col md={2} className={styles.fullHeight}>
-          <DevicesBrowser
-            value={props.devices}
-            onDeviceCreate={props.onDeviceCreate}
-          />
-        </Col>
-        <Col md={2} className={styles.fullHeight}>
-          <ScriptsBrowser
-            value={props.scripts}
-            devices={props.devices}
-            onScriptSelect={props.onScriptSelect}
-            onScriptCreate={props.onScriptCreate}
-          />
-        </Col>
-        <Col md={8} className={styles.fullHeight}>
-          <ScriptEditor
-            value={props.currentScript}
-            onSave={props.onEditorSave}
-          />
-        </Col>
-      </Row>
-      <Row className={styles.bottomRow}>
-        <Col md={2} className={styles.fullHeight}>
-          <TimelinesBrowser
-            timelines={props.timelines}
-            onTimelineSelect={props.onTimelineSelect}
-            onTimelineCreate={props.onTimelineCreate}
-          />
-        </Col>
-        <Col md={10} className={styles.fullHeight}>
-          <Timeline
-            position={get(props.timelineInfo, 'position', 0)}
-            timelines={props.timelines}
-            timelineData={props.currentTimeline}
-            onSave={props.onTimelineSave}
-            onStatusUpdate={props.onTimelineStatusUpdate}
-            scripts={props.scripts}
-          />
-        </Col>
-      </Row>
-    </Grid>
+    <div>
+      <ModalsContainer
+      />
+      <Grid fluid>
+        <Row className={styles.topRow}>
+          <Col md={2} className={styles.fullHeight}>
+            <DevicesBrowser
+            />
+          </Col>
+          <Col md={2} className={styles.fullHeight}>
+            <ScriptsBrowser
+            />
+          </Col>
+          <Col md={8} className={styles.fullHeight}>
+            <ScriptEditor
+              value={props.currentScript}
+              onSave={props.onEditorSave}
+            />
+          </Col>
+        </Row>
+        <Row className={styles.bottomRow}>
+          <Col md={2} className={styles.fullHeight}>
+            <TimelinesBrowser
+              timelines={props.timelines}
+              onTimelineSelect={props.onTimelineSelect}
+              onTimelineCreate={props.onTimelineCreate}
+            />
+          </Col>
+          <Col md={10} className={styles.fullHeight}>
+            <Timeline
+              position={get(props.timelineInfo, 'position', 0)}
+              timelines={props.timelines}
+              timelineData={props.currentTimeline}
+              onSave={props.onTimelineSave}
+              onStatusUpdate={props.onTimelineStatusUpdate}
+              scripts={props.scripts}
+            />
+          </Col>
+        </Row>
+      </Grid>
+    </div>
   );
 };

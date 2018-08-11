@@ -1,7 +1,7 @@
-export default (state = null, action) => {
-  switch (action.type) {
+export default (state = null, {type, payload}) => {
+  switch (type) {
     case 'EDIT_TIMELINE':
-      return action.currentTimeline;
+      return payload.currentTimeline;
       break;
       
     default:

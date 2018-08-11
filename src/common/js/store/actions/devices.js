@@ -1,14 +1,24 @@
+import uniqid from 'uniqid';
+
 export const updateDevices = (devices) => ({
   type: 'UPDATE_DEVICES',
-  devices,
+  payload: devices,
 });
 
 export const createDevice = (deviceData) => ({
   type: 'CREATE_DEVICE',
-  deviceData,
+  payload: {
+    ...deviceData,
+    id: uniqid(),
+  }
 });
 
 export const updateDevice = (deviceData) => ({
   type: 'UPDATE_DEVICE',
-  deviceData,
+  payload: deviceData,
+});
+
+export const deleteDevice = (id) => ({
+  type: 'DELETE_DEVICE',
+  payload: id,
 });

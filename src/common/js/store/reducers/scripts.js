@@ -1,7 +1,7 @@
-export default (state = [], action) => {
-  switch (action.type) {
+export default (state = [], {type, payload}) => {
+  switch (type) {
     case 'UPDATE_SCRIPTS':
-      return action.scripts;
+      return payload.scripts;
       break;
       
     default:

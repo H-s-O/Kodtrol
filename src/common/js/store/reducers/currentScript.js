@@ -1,7 +1,7 @@
-export default (state = null, action) => {
-  switch (action.type) {
+export default (state = null, {type, payload}) => {
+  switch (type) {
     case 'EDIT_SCRIPT':
-      return action.currentScript;
+      return payload.currentScript;
       break;
       
     default:

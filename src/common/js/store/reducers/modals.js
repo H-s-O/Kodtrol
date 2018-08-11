@@ -1,11 +1,26 @@
-export default (state = {}, action) => {
-  switch (action.type) {
+const defaultState = {
+  deviceModalAction: null,
+  deviceModalValue: null,
+};
+
+export default (state = defaultState, {type, payload}) => {
+  switch (type) {
     case 'UPDATE_DEVICE_MODAL':
       return {
         ...state,
         ...{
-          scriptModalAction: action.modalAction,
-          scriptModalValue: action.modalValue,
+          deviceModalAction: payload.modalAction,
+          deviceModalValue: payload.modalValue,
+        },
+      };
+      break;
+    
+    case 'UPDATE_SCRIPT_MODAL':
+      return {
+        ...state,
+        ...{
+          scriptModalAction: payload.modalAction,
+          scriptModalValue: payload.modalValue,
         },
       };
       break;

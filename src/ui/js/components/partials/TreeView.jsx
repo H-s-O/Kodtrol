@@ -12,6 +12,7 @@ const propTypes = {
   onClickItem: PropTypes.func,
   actions: PropTypes.node,
   style: PropTypes.shape({}),
+  renderActions: PropTypes.func,
 };
 
 const defaultProps = {
@@ -19,6 +20,7 @@ const defaultProps = {
   onClickItem: null,
   actions: null,
   style: null,
+  renderActions: null,
 };
 
 class TreeView extends PureComponent {
@@ -35,7 +37,7 @@ class TreeView extends PureComponent {
   }
 
   renderItem(it, index) {
-    const { actions } = this.props;
+    const { renderActions } = this.props;
     return (
       <li
         key={index}
@@ -56,11 +58,11 @@ class TreeView extends PureComponent {
       >
         { it.label }
       </span>
-      { actions ? (
+      { renderActions ? (
         <div
           className={styles.actions}
         >
-          { actions }
+          { renderActions(it) }
         </div>
       ) : null }
       </li>
