@@ -15,7 +15,7 @@ export const openProjectDialog = () => {
         extensions: ['manuscrit'],
       },
     ],
-  });
+  })[0];
 };
 
 export const warnBeforeClosingProject = (win) => {

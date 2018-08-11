@@ -3,9 +3,10 @@ import path from 'path';
 import glob from 'glob';
 import uniqid from 'uniqid';
 import { get, set } from 'lodash';
-import { writeJson, readJson, writeFile } from './lib/fileSystem';
-import BaseScript from './lib/BaseScript';
-import safeClassName from './lib/safeClassName';
+
+import { writeJson, readJson, writeFile } from '../lib/fileSystem';
+import BaseScript from '../lib/BaseScript';
+import safeClassName from '../lib/safeClassName';
 
 export default class ScriptsManager {
   static init() {

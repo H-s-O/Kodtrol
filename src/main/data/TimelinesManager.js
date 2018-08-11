@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
 import uniqid from 'uniqid';
-import safeClassName from './lib/safeClassName';
-import { writeJson, readJson } from './lib/fileSystem';
-import Timeline from './models/Timeline';
+
+import safeClassName from '../lib/safeClassName';
+import { writeJson, readJson } from '../lib/fileSystem';
 
 export default class TimelinesManager {
   static init() {

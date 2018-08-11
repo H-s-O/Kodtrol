@@ -12,8 +12,7 @@ export default class MainMenu extends EventEmitter {
         label: app.getName(),
         submenu: [
           {
-            label: 'About...',
-            click: this.onAboutClick,
+            role: 'about',
           },
           {
             type: 'separator',
@@ -38,11 +37,40 @@ export default class MainMenu extends EventEmitter {
             type: 'separator',
           },
           {
+            label: 'Save project',
+            accelerator: 'CommandOrControl+S',
+            click: this.onSaveProjectClick,
+          },
+          {
+            type: 'separator',
+          },
+          {
             role: 'close',
           },
         ],
       },
     ];
+    
+    const isDev = true;
+    if (isDev) {
+      template.push({
+        label: 'Dev',
+        submenu: [
+          {
+            role: 'toggledevtools',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            role: 'reload',
+          },
+          {
+            role: 'forcereload',
+          },
+        ],
+      })
+    }
     
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
@@ -58,5 +86,9 @@ export default class MainMenu extends EventEmitter {
   
   onAboutClick = () => {
     this.emit(MainMenuEvent.ABOUT);
+  }
+  
+  onSaveProjectClick = () => {
+    this.emit(MainMenuEvent.SAVE_PROJECT);
   }
 }

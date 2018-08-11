@@ -2,12 +2,18 @@ import { app } from 'electron';
 import { get, set } from 'lodash';
 
 import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
-import { readAppConfig, writeAppConfig, createProject } from './lib/fileSystem';
+import { readAppConfig, writeAppConfig, createProject, writeJson, readJson } from './lib/fileSystem';
 import MainWindow from './ui/MainWindow';
 import MainMenu from './ui/MainMenu';
 import * as MainWindowEvent from './events/MainWindowEvent';
 import * as MainMenuEvent from './events/MainMenuEvent';
 import Store from './data/Store';
+import ScriptsManager from './data/ScriptsManager';
+import DevicesManager from './data/DevicesManager';
+import TimelinesManager from './data/TimelinesManager';
+import { updateScripts } from '../common/js/store/actions/scripts';
+import { updateDevices } from '../common/js/store/actions/devices';
+import { updateTimelines } from '../common/js/store/actions/timelines';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -18,6 +24,10 @@ export default class Main {
   constructor() {
     app.on('ready', this.onReady);
     app.on('window-all-closed', this.onWindowAllClosed);
+    
+    ScriptsManager.init();
+    DevicesManager.init();
+    TimelinesManager.init();
   }
   
   onWindowAllClosed = () => {
@@ -37,26 +47,50 @@ export default class Main {
     }
     
     this.loadProject(configCurrentProject);
-
-    // ScriptsManager.projectFilePath = currentProjectFilePath;
-    // DevicesManager.projectFilePath = currentProjectFilePath;
-    // TimelinesManager.projectFilePath = currentProjectFilePath;
-
   }
   
-  loadProject = (path) => {
+  loadProject = (path, init = false) => {
     this.currentProjectFilePath = path;
     
     const appConfig = readAppConfig();
     set(appConfig, 'currentProjectFilePath', this.currentProjectFilePath);
     writeAppConfig(appConfig);
     
-    this.createStore();
+    if (init) {
+      this.createStore();
+    } else {
+      const data = readJson(this.currentProjectFilePath);
+      this.createStore(data);
+    }
+    
     this.createMainWindow();
+    
+    // DevicesManager.projectFilePath = this.currentProjectFilePath;
+    // const devices = DevicesManager.listDevices().map(({id, name}) => ({
+    //   id,
+    //   name,
+    // }));
+    // this.store.dispatch(updateDevices(devices));
+    // 
+    // ScriptsManager.projectFilePath = this.currentProjectFilePath;
+    // const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
+    //   id,
+    //   name,
+    //   current: id === 1,
+    // }));
+    // this.store.dispatch(updateScripts(scripts));
+    // 
+    // TimelinesManager.projectFilePath = this.currentProjectFilePath;
+    // const timelines = TimelinesManager.listTimelines().map(({id, name}) => ({
+    //   id,
+    //   name,
+    //   current: id === 1,
+    // }));
+    // this.store.dispatch(updateTimelines(timelines));
   }
   
-  createStore = () => {
-    this.store = new Store();
+  createStore = (initialData = null) => {
+    this.store = new Store(initialData);
   }
   
   destroyStore = () => {
@@ -68,7 +102,7 @@ export default class Main {
   }
   
   createMainWindow = () => {
-    this.mainWindow = new MainWindow(`${app.getName()} -- ${this.currentProjectFilePath}`);
+    this.mainWindow = new MainWindow(`${app.getName()} — ${this.currentProjectFilePath}`);
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
     this.mainWindow.once(MainWindowEvent.CLOSED, this.onMainWindowClosed);
   }
@@ -96,6 +130,7 @@ export default class Main {
     this.mainMenu = new MainMenu();
     this.mainMenu.on(MainMenuEvent.OPEN_PROJECT, this.openProject);
     this.mainMenu.on(MainMenuEvent.CREATE_PROJECT, this.createProject);
+    this.mainMenu.on(MainMenuEvent.SAVE_PROJECT, this.saveCurrentProject);
   }
   
   openProject = () => {
@@ -121,9 +156,15 @@ export default class Main {
       return;
     }
     
-    const finalPath = createProject(projectPath);
+    const finalPath = `${projectPath}.manuscrit`;
     
-    this.loadProject(finalPath);
+    this.loadProject(finalPath, true);
+    this.saveCurrentProject();
+  }
+  
+  saveCurrentProject = () => {
+    const state = this.store.state;
+    writeJson(this.currentProjectFilePath , state);
   }
   
   closeCurrentProject = () => {

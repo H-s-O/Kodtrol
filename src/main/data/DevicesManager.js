@@ -2,9 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
 import uniqid from 'uniqid';
-import BaseScript from './lib/BaseScript';
-import safeClassName from './lib/safeClassName';
-import { writeJson, readJson } from './lib/fileSystem';
+
+import BaseScript from '../lib/BaseScript';
+import safeClassName from '../lib/safeClassName';
+import { writeJson, readJson } from '../lib/fileSystem';
 
 export default class DevicesManager {
   static init() {
