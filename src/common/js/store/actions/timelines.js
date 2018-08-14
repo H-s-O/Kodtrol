@@ -1,34 +1,29 @@
+import uniqid from 'uniqid';
+
 export const updateTimelines = (timelines) => ({
   type: 'UPDATE_TIMELINES',
-  payload: {
-    timelines,
-  },
+  payload: timelines,
 });
 
-export const updateTimelineInfo = (timelineInfo) => ({
-  type: 'UPDATE_TIMELINE_INFO',
-  payload: {
-    timelineInfo,
-  },
+export const selectTimeline = (id) => ({
+  type: 'SELECT_TIMELINE',
+  payload: id,
 });
 
 export const createTimeline = (timelineData) => ({
   type: 'CREATE_TIMELINE',
   payload: {
-    timelineData,
+    ...timelineData,
+    id: uniqid(),
   },
 });
 
 export const updateTimeline = (timelineData) => ({
   type: 'UPDATE_TIMELINE',
-  payload: {
-    timelineData,
-  },
+  payload: timelineData,
 });
 
-export const editTimeline = (timelineData) => ({
-  type: 'EDIT_TIMELINE',
-  payload: {
-    currentTimeline: timelineData,
-  },
+export const deleteTimeline = (id) => ({
+  type: 'DELETE_TIMELINE',
+  payload: id,
 });

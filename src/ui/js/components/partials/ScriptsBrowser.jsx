@@ -100,7 +100,11 @@ class ScriptsBrowser extends PureComponent {
             overflowY: 'auto',
             height: '94%',
           }}
-          value={scripts}
+          value={scripts.map(({id, name}) => ({
+            id,
+            label: name,
+            icon: 'file',
+          }))}
           onClickItem={this.onScriptSelect}
           renderActions={this.renderTreeActions}
         />

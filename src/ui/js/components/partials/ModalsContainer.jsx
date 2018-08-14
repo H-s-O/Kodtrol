@@ -3,51 +3,81 @@ import { connect } from 'react-redux';
 
 import { createDevice, updateDevice} from '../../../../common/js/store/actions/devices';
 import { createScript, updateScript } from '../../../../common/js/store/actions/scripts';
-import { updateDeviceModal, updateScriptModal } from '../../../../common/js/store/actions/modals';
+import { createTimeline, updateTimeline } from '../../../../common/js/store/actions/timelines';
+import { updateDeviceModal, updateScriptModal, updateTimelineModal } from '../../../../common/js/store/actions/modals';
 import DeviceModal from '../modals/DeviceModal';
 import ScriptModal from '../modals/ScriptModal';
+import TimelineModal from '../modals/TimelineModal';
 
 class ModalsContainer extends PureComponent {
   onDeviceModalCancel = () => {
-    this.doCancelModal('Device');
+    const { doCancelDeviceModal } = this.props;
+    doCancelDeviceModal();
   }
 
-  onDeviceModalSuccess = (deviceData) => {
-    this.doModalSuccess('Device', deviceData);
+  onDeviceModalSuccess = (data) => {
+    const {
+      deviceModalAction,
+      doCreateDevice,
+      doUpdateDevice,
+      doCancelDeviceModal,
+    } = this.props;
+    
+    if (deviceModalAction === 'add') {
+      doCreateDevice(data);
+    } else if (deviceModalAction === 'edit') {
+      doUpdateDevice(data);
+    }
+    
+    doCancelDeviceModal();
   }
   
   onScriptModalCancel = () => {
-    this.doCancelModal('Script');
+    const { doCancelScriptModal } = this.props;
+    doCancelScriptModal();
   }
 
-  onScriptModalSuccess = (scriptData) => {
-    this.doModalSuccess('Script', scriptData);
-  }
-  
-  doCancelModal = (type) => {
-    const cancelModal = this.props[`doCancel${type}Modal`];
-    console.log(cancelModal);
-    cancelModal();
-  }
-  
-  doModalSuccess = (type, data) => {
-    const { modals } = this.props;
-    const action = modals[`${type.toLowerCase()}ModalAction`];
+  onScriptModalSuccess = (data) => {
+    const {
+      scriptModalAction,
+      doCreateScript,
+      doUpdateScript,
+      doCancelScriptModal,
+    } = this.props;
     
-    if (action === 'add') {
-      const createType = this.props[`doCreate${type}`];
-      createType(deviceData);
-    } else if (action === 'edit') {
-      const updateType = this.props[`doUpdate${type}`];
-      updateType(deviceData);
+    if (scriptModalAction === 'add') {
+      doCreateScript(data);
+    } else if (scriptModalAction === 'edit') {
+      doUpdateScript(data);
     }
     
-    this.doCancelModal(type);
+    doCancelScriptModal();
+  }
+  
+  onTimelineModalCancel = () => {
+    const { doCancelTimelineModal } = this.props;
+    doCancelTimelineModal();
+  }
+
+  onTimelineModalSuccess = (data) => {
+    const {
+      timelineModalAction,
+      doCreateTimeline,
+      doUpdateTimeline,
+      doCancelTimelineModal,
+    } = this.props;
+    
+    if (timelineModalAction === 'add') {
+      doCreateTimeline(data);
+    } else if (timelineModalAction === 'edit') {
+      doUpdateTimeline(data);
+    }
+    
+    doCancelTimelineModal();
   }
   
   renderDeviceModal = () => {
-    const { modals } = this.props;
-    const { deviceModalAction, deviceModalValue } = modals;
+    const { deviceModalAction, deviceModalValue } = this.props;
     
     return (
       <DeviceModal
@@ -61,8 +91,7 @@ class ModalsContainer extends PureComponent {
   }
   
   renderScriptModal = () => {
-    const { modals, devices } = this.props;
-    const { scriptModalAction, scriptModalValue } = modals;
+    const { scriptModalAction, scriptModalValue, devices } = this.props;
     
     return (
       <ScriptModal
@@ -76,31 +105,63 @@ class ModalsContainer extends PureComponent {
     );
   }
   
+  renderTimelineModal = () => {
+    const { timelineModalAction, timelineModalValue } = this.props;
+    
+    return (
+      <TimelineModal
+        initialValue={timelineModalValue}
+        show={!!timelineModalAction}
+        title={timelineModalAction === 'add' ? 'Add timeline' : 'Edit timeline'}
+        onCancel={this.onTimelineModalCancel}
+        onSuccess={this.onTimelineModalSuccess}
+      />
+    );
+  }
+  
   render = () => {
     return (
       <div>
         { this.renderDeviceModal() }
         { this.renderScriptModal() }
+        { this.renderTimelineModal() }
       </div>
     )
   }
 }
 
 const mapStateToProps = ({modals, devices}) => {
+  const {
+    deviceModalAction,
+    deviceModalValue,
+    scriptModalAction,
+    scriptModalValue,
+    timelineModalAction,
+    timelineModalValue,
+  } = modals;
+
   return {
-    modals,
+    deviceModalAction,
+    deviceModalValue,
+    scriptModalAction,
+    scriptModalValue,
+    timelineModalAction,
+    timelineModalValue,
     devices,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    doCreateDevice: (data) => createDevice(data),
-    doUpdateDevice: (data) => updateDevice(data),
-    doCancelDeviceModal: () => updateDeviceModal(),
-    doCreateScript: (data) => createScript(data),
-    doUpdateScript: (data) => updateScript(data),
-    doCancelScriptModal: () => updateScriptModal(),
+    doCreateDevice: (data) => dispatch(createDevice(data)),
+    doUpdateDevice: (data) => dispatch(updateDevice(data)),
+    doCancelDeviceModal: () => dispatch(updateDeviceModal()),
+    doCreateScript: (data) => dispatch(createScript(data)),
+    doUpdateScript: (data) => dispatch(updateScript(data)),
+    doCancelScriptModal: () => dispatch(updateScriptModal()),
+    doCreateTimeline: (data) => dispatch(createTimeline(data)),
+    doUpdateTimeline: (data) => dispatch(updateTimeline(data)),
+    doCancelTimelineModal: () => dispatch(updateTimelineModal()),
   };
 }
 

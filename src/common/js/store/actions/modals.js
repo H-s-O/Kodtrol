@@ -19,3 +19,14 @@ export const updateScriptModal = (modalAction = null, modalValue = null) => ({
     scope: 'local',
   },
 });
+
+export const updateTimelineModal = (modalAction = null, modalValue = null) => ({
+  type: 'UPDATE_TIMELINE_MODAL',
+  payload: {
+    modalAction,
+    modalValue,
+  },
+  meta: {
+    scope: 'local',
+  },
+});

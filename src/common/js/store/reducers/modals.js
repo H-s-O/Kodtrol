@@ -24,6 +24,16 @@ export default (state = defaultState, {type, payload}) => {
         },
       };
       break;
+    
+    case 'UPDATE_TIMELINE_MODAL':
+      return {
+        ...state,
+        ...{
+          timelineModalAction: payload.modalAction,
+          timelineModalValue: payload.modalValue,
+        },
+      };
+      break;
       
     default:
       return state;
