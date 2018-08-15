@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
 import Panel from './Panel';
@@ -38,6 +38,12 @@ class TimelinesBrowser extends PureComponent {
     doEditTimelineModal(data);
   }
   
+  onDuplicateClick = (id) => {
+    const { doDuplicateTimelineModal, timelines } = this.props;
+    const data = timelines.find(it => it.id === id);
+    doDuplicateTimelineModal(data);
+  }
+  
   onDeleteClick = (id) => {
     deleteWarning(`Are you sure you want to delete this timeline ?`, (result) => {
       if (result) {
@@ -52,14 +58,24 @@ class TimelinesBrowser extends PureComponent {
       <div
         className="pull-right"
       >
-        <Button
-          bsSize="xsmall"
-          onClick={(e) => {stopEvent(e); this.onEditClick(it.id)}}
-        >
-          <Glyphicon
-            glyph="cog"
-          />
-        </Button>
+        <ButtonGroup>
+          <Button
+            bsSize="xsmall"
+            onClick={(e) => {stopEvent(e); this.onDuplicateClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="duplicate"
+            />
+          </Button>
+          <Button
+            bsSize="xsmall"
+            onClick={(e) => {stopEvent(e); this.onEditClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="cog"
+            />
+          </Button>
+        </ButtonGroup>
         <Button
           bsSize="xsmall"
           bsStyle="danger"
@@ -127,6 +143,7 @@ const mapDispatchToProps = (dispatch) => {
     doDeleteTimeline: (id) => dispatch(deleteTimeline(id)),
     doCreateTimelineModal: () => dispatch(updateTimelineModal('add', {})),
     doEditTimelineModal: (data) => dispatch(updateTimelineModal('edit', data)),
+    doDuplicateTimelineModal: (data) => dispatch(updateTimelineModal('duplicate', data)),
   };
 }
 

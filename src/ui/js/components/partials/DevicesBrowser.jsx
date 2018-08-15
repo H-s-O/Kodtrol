@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
 import Panel from './Panel';
@@ -16,6 +16,7 @@ const propTypes = {
   devices: PropTypes.arrayOf(PropTypes.shape({})),
   doDeleteDevice: PropTypes.func.isRequired,
   doCreateDeviceModal: PropTypes.func.isRequired,
+  doDuplicateDeviceModal: PropTypes.func.isRequired,
   doEditDeviceModal: PropTypes.func.isRequired,
 };
 
@@ -35,6 +36,12 @@ class DevicesBrowser extends PureComponent {
     doEditDeviceModal(data);
   }
   
+  onDuplicateClick = (id) => {
+    const { doDuplicateDeviceModal, devices } = this.props;
+    const data = devices.find(it => it.id === id);
+    doDuplicateDeviceModal(data);
+  }
+  
   onDeleteClick = (id) => {
     deleteWarning(`Are you sure you want to delete this device ?`, (result) => {
       if (result) {
@@ -49,14 +56,24 @@ class DevicesBrowser extends PureComponent {
       <div
         className="pull-right"
       >
-        <Button
-          bsSize="xsmall"
-          onClick={(e) => {stopEvent(e); this.onEditClick(it.id)}}
-        >
-          <Glyphicon
-            glyph="cog"
-          />
-        </Button>
+        <ButtonGroup>
+          <Button
+            bsSize="xsmall"
+            onClick={(e) => {stopEvent(e); this.onDuplicateClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="duplicate"
+            />
+          </Button>
+          <Button
+            bsSize="xsmall"
+            onClick={(e) => {stopEvent(e); this.onEditClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="cog"
+            />
+          </Button>
+        </ButtonGroup>
         <Button
           bsSize="xsmall"
           bsStyle="danger"
@@ -123,6 +140,7 @@ const mapDispatchToProps = (dispatch) => {
     doDeleteDevice: (id) => dispatch(deleteDevice(id)),
     doCreateDeviceModal: () => dispatch(updateDeviceModal('add', {})),
     doEditDeviceModal: (data) => dispatch(updateDeviceModal('edit', data)),
+    doDuplicateDeviceModal: (data) => dispatch(updateDeviceModal('duplicate', data)),
   };
 }
 

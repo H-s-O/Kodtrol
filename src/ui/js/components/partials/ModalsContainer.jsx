@@ -23,7 +23,7 @@ class ModalsContainer extends PureComponent {
       doCancelDeviceModal,
     } = this.props;
     
-    if (deviceModalAction === 'add') {
+    if (deviceModalAction === 'add' || deviceModalAction === 'duplicate') {
       doCreateDevice(data);
     } else if (deviceModalAction === 'edit') {
       doUpdateDevice(data);
@@ -45,7 +45,7 @@ class ModalsContainer extends PureComponent {
       doCancelScriptModal,
     } = this.props;
     
-    if (scriptModalAction === 'add') {
+    if (scriptModalAction === 'add' || scriptModalAction === 'duplicate') {
       doCreateScript(data);
     } else if (scriptModalAction === 'edit') {
       doUpdateScript(data);
@@ -67,7 +67,7 @@ class ModalsContainer extends PureComponent {
       doCancelTimelineModal,
     } = this.props;
     
-    if (timelineModalAction === 'add') {
+    if (timelineModalAction === 'add' || timelineModalAction === 'duplicate') {
       doCreateTimeline(data);
     } else if (timelineModalAction === 'edit') {
       doUpdateTimeline(data);
@@ -78,12 +78,18 @@ class ModalsContainer extends PureComponent {
   
   renderDeviceModal = () => {
     const { deviceModalAction, deviceModalValue } = this.props;
+    const title = {
+      add: 'Add device',
+      edit: 'Edit device',
+      duplicate: 'Duplicate device',
+      null: null,
+    }[deviceModalAction];
     
     return (
       <DeviceModal
         initialValue={deviceModalValue}
         show={!!deviceModalAction}
-        title={deviceModalAction === 'add' ? 'Add device' : 'Edit device'}
+        title={title}
         onCancel={this.onDeviceModalCancel}
         onSuccess={this.onDeviceModalSuccess}
       />
@@ -92,12 +98,18 @@ class ModalsContainer extends PureComponent {
   
   renderScriptModal = () => {
     const { scriptModalAction, scriptModalValue, devices } = this.props;
+    const title = {
+      add: 'Add script',
+      edit: 'Edit script',
+      duplicate: 'Duplicate script',
+      null: null,
+    }[scriptModalAction];
     
     return (
       <ScriptModal
         initialValue={scriptModalValue}
         show={!!scriptModalAction}
-        title={scriptModalAction === 'add' ? 'Add script' : 'Edit script'}
+        title={title}
         onCancel={this.onScriptModalCancel}
         onSuccess={this.onScriptModalSuccess}
         devices={devices}
@@ -107,12 +119,18 @@ class ModalsContainer extends PureComponent {
   
   renderTimelineModal = () => {
     const { timelineModalAction, timelineModalValue } = this.props;
+    const title = {
+      add: 'Add timeline',
+      edit: 'Edit timeline',
+      duplicate: 'Duplicate timeline',
+      null: null,
+    }[timelineModalAction];
     
     return (
       <TimelineModal
         initialValue={timelineModalValue}
         show={!!timelineModalAction}
-        title={timelineModalAction === 'add' ? 'Add timeline' : 'Edit timeline'}
+        title={title}
         onCancel={this.onTimelineModalCancel}
         onSuccess={this.onTimelineModalSuccess}
       />

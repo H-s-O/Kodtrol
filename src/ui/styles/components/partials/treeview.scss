@@ -11,6 +11,10 @@
     display: inline;
     visibility: hidden;
   }
+  
+  .btn-group {
+    margin-right: 5px;
+  }
 
   &:hover {
     .actions {

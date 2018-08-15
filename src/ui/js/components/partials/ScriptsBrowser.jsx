@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 
 import Panel from './Panel';
 import TreeView from './TreeView';
@@ -39,6 +39,12 @@ class ScriptsBrowser extends PureComponent {
     doEditScriptModal(data);
   }
   
+  onDuplicateClick = (id) => {
+    const { doDuplicateScriptModal, scripts } = this.props;
+    const data = scripts.find(it => it.id === id);
+    doDuplicateScriptModal(data);
+  }
+  
   onDeleteClick = (id) => {
     deleteWarning(`Are you sure you want to delete this script ?`, (result) => {
       if (result) {
@@ -53,14 +59,24 @@ class ScriptsBrowser extends PureComponent {
       <div
         className="pull-right"
       >
-        <Button
-          bsSize="xsmall"
-          onClick={(e) => {stopEvent(e); this.onEditClick(it.id)}}
-        >
-          <Glyphicon
-            glyph="cog"
-          />
-        </Button>
+        <ButtonGroup>
+          <Button
+            bsSize="xsmall"
+            onClick={(e) => {stopEvent(e); this.onDuplicateClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="duplicate"
+            />
+          </Button>
+          <Button
+            bsSize="xsmall"
+            onClick={(e) => {stopEvent(e); this.onEditClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="cog"
+            />
+          </Button>
+        </ButtonGroup>
         <Button
           bsSize="xsmall"
           bsStyle="danger"
@@ -126,6 +142,7 @@ const mapDispatchToProps = (dispatch) => {
     doDeleteScript: (id) => dispatch(deleteScript(id)),
     doCreateScriptModal: () => dispatch(updateScriptModal('add', {})),
     doEditScriptModal: (data) => dispatch(updateScriptModal('edit', data)),
+    doDuplicateScriptModal: (data) => dispatch(updateScriptModal('duplicate', data)),
   };
 }
 
