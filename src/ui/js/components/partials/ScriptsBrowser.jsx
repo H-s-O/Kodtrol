@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import { Button, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 
 import Panel from './Panel';
 import TreeView from './TreeView';
 import stopEvent from '../../lib/stopEvent';
-import { deleteScript } from '../../../../common/js/store/actions/scripts';
+import { deleteScript, selectScript } from '../../../../common/js/store/actions/scripts';
 import { updateScriptModal } from '../../../../common/js/store/actions/modals';
 import { deleteWarning } from '../../lib/messageBoxes';
 
@@ -17,6 +18,8 @@ const propTypes = {
   doDeleteScript: PropTypes.func.isRequired,
   doCreateScriptModal: PropTypes.func.isRequired,
   doEditScriptModal: PropTypes.func.isRequired,
+  doDuplicateScriptModal: PropTypes.func.isRequired,
+  doSelectScript: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -25,7 +28,10 @@ const defaultProps = {
 
 class ScriptsBrowser extends PureComponent {
   onScriptSelect = (it) => {
-    // @TODO
+    const { id } = it;
+    const { doSelectScript, scripts } = this.props;
+    const data = scripts.find(it => it.id === id);
+    doSelectScript(data);
   }
   
   onAddClick = () => {
@@ -91,7 +97,7 @@ class ScriptsBrowser extends PureComponent {
   }
   
   render = () => {
-    const { scripts } = this.props;
+    const { scripts, currentScript } = this.props;
     return (
       <Panel
         title="Scripts"
@@ -120,6 +126,7 @@ class ScriptsBrowser extends PureComponent {
             id,
             label: name,
             icon: 'file',
+            active: id === get(currentScript, 'id'),
           }))}
           onClickItem={this.onScriptSelect}
           renderActions={this.renderTreeActions}
@@ -132,9 +139,10 @@ class ScriptsBrowser extends PureComponent {
 ScriptsBrowser.propTypes = propTypes;
 ScriptsBrowser.defaultProps = defaultProps;
 
-const mapStateToProps = ({scripts}) => {
+const mapStateToProps = ({scripts, currentScript}) => {
   return {
     scripts,
+    currentScript,
   };
 }
 const mapDispatchToProps = (dispatch) => {
@@ -143,6 +151,7 @@ const mapDispatchToProps = (dispatch) => {
     doCreateScriptModal: () => dispatch(updateScriptModal('add', {})),
     doEditScriptModal: (data) => dispatch(updateScriptModal('edit', data)),
     doDuplicateScriptModal: (data) => dispatch(updateScriptModal('duplicate', data)),
+    doSelectScript: (data) => dispatch(selectScript(data)),
   };
 }
 

@@ -34,17 +34,12 @@ export default props => {
           </Col>
           <Col md={8} className={styles.fullHeight}>
             <ScriptEditor
-              value={props.currentScript}
-              onSave={props.onEditorSave}
             />
           </Col>
         </Row>
         <Row className={styles.bottomRow}>
           <Col md={2} className={styles.fullHeight}>
             <TimelinesBrowser
-              timelines={props.timelines}
-              onTimelineSelect={props.onTimelineSelect}
-              onTimelineCreate={props.onTimelineCreate}
             />
           </Col>
           <Col md={10} className={styles.fullHeight}>

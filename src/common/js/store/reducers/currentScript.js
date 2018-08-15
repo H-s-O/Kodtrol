@@ -1,7 +1,7 @@
 export default (state = null, {type, payload}) => {
   switch (type) {
-    case 'EDIT_SCRIPT':
-      return payload.currentScript;
+    case 'SELECT_SCRIPT':
+      return payload;
       break;
       
     default:

@@ -5,16 +5,17 @@ export const updateTimelines = (timelines) => ({
   payload: timelines,
 });
 
-export const selectTimeline = (id) => ({
+export const selectTimeline = (timelineData) => ({
   type: 'SELECT_TIMELINE',
-  payload: id,
+  payload: timelineData,
 });
 
 export const createTimeline = (timelineData) => ({
   type: 'CREATE_TIMELINE',
   payload: {
-    ...timelineData,
     zoom: 1.0,
+    layers: [],
+    ...timelineData,
     id: uniqid(),
   },
 });

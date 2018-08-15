@@ -1,45 +1,45 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import brace from 'brace';
-import autoBind from 'react-autobind';
-import { isFunction, get } from 'lodash';
+import { get } from 'lodash';
+import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 
 import Panel from './Panel';
+import { saveScript } from '../../../../common/js/store/actions/scripts';
 
 import styles from '../../../styles/components/partials/scripteditor.scss';
 
 import 'brace/mode/javascript';
 import 'brace/theme/tomorrow_night_eighties';
 
-export default class ScriptEditor extends PureComponent {
-  constructor(props) {
-    super(props);
-    autoBind(this);
+const propTypes = {
+  value: PropTypes.shape({}),
+  doSaveScript: PropTypes.func.isRequired,
+}
 
-    this.editorValue = null;
-  }
+const defaultProps = {
+  value: null,
+};
 
-  // shouldComponentUpdate() {
-  //   return false;
-  // }
-
-  onEditorChange(value, evt) {
+class ScriptEditor extends PureComponent {
+  editorValue = null;
+  
+  onEditorChange = (value, evt) => {
     this.editorValue = value;
   }
 
-  onSaveClick(evt) {
-    const { onSave, value } = this.props;
-    if (isFunction(onSave)) {
-      const { id } = value;
-      onSave({
-        id,
-        content: this.editorValue
-      });
-    }
+  onSaveClick = (evt) => {
+    const { doSaveScript, value } = this.props;
+    const data = {
+      ...value,
+      content: this.editorValue,
+    };
+    doSaveScript(data);
   }
 
-  render() {
+  render = () => {
     const { value, onSave } = this.props;
     const content = get(value, 'content', undefined);
 
@@ -78,3 +78,19 @@ export default class ScriptEditor extends PureComponent {
     );
   }
 };
+
+ScriptEditor.propTypes = propTypes;
+ScriptEditor.defaultProps = defaultProps;
+
+const mapStateToProps = ({currentScript}) => {
+  return {
+    value: currentScript,
+  };
+}
+const mapDispatchToProps = (dispatch) => {
+  return {
+    doSaveScript: (data) => dispatch(saveScript(data)),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ScriptEditor);

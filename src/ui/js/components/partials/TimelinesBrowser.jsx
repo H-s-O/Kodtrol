@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Button, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 
 import Panel from './Panel';
 import TreeView from './TreeView';
@@ -14,6 +15,11 @@ import styles from '../../../styles/components/partials/timelinesbrowser.scss';
 
 const propTypes = {
   timelines: PropTypes.arrayOf(PropTypes.shape({})),
+  doSelectTimeline: PropTypes.func.isRequired,
+  doDeleteTimeline: PropTypes.func.isRequired,
+  doCreateTimelineModal: PropTypes.func.isRequired,
+  doEditTimelineModal: PropTypes.func.isRequired,
+  doDuplicateTimelineModal: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -22,9 +28,10 @@ const defaultProps = {
 
 class TimelinesBrowser extends PureComponent {
   onTimelineSelect = (it) => {
-    const { doSelectTimeline } = this.props;
     const { id } = it;
-    doSelectTimeline(id);
+    const { doSelectTimeline, timelines } = this.props;
+    const data = timelines.find(it => it.id === id);
+    doSelectTimeline(data);
   }
 
   onAddClick = () => {
@@ -90,7 +97,7 @@ class TimelinesBrowser extends PureComponent {
   }
 
   render = () => {
-    const { timelines } = this.props;
+    const { timelines, currentTimeline } = this.props;
 
     return (
       <Panel
@@ -120,6 +127,7 @@ class TimelinesBrowser extends PureComponent {
             id,
             label: name,
             icon: 'file',
+            active: id === get(currentTimeline, 'id'),
           }))}
           onClickItem={this.onTimelineSelect}
           renderActions={this.renderTreeActions}
@@ -132,9 +140,10 @@ class TimelinesBrowser extends PureComponent {
 TimelinesBrowser.propTypes = propTypes;
 TimelinesBrowser.defaultProps = defaultProps;
 
-const mapStateToProps = ({devices}) => {
+const mapStateToProps = ({timelines, currentTimeline}) => {
   return {
-    devices,
+    timelines,
+    currentTimeline,
   };
 }
 const mapDispatchToProps = (dispatch) => {
