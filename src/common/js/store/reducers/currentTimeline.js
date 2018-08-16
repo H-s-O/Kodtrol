@@ -4,6 +4,10 @@ export default (state = null, {type, payload}) => {
       return payload;
       break;
       
+    case 'UPDATE_CURRENT_TIMELINE':
+      return payload;
+      break;
+      
     default:
       return state;
       break;

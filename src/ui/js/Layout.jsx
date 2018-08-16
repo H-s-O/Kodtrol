@@ -12,7 +12,7 @@ import ScriptsBrowser from './components/partials/ScriptsBrowser';
 import DevicesBrowser from './components/partials/DevicesBrowser';
 import TimelinesBrowser from './components/partials/TimelinesBrowser';
 // import Preview from './components/partials/Preview';
-import Timeline from './components/partials/Timeline';
+import TimelineEditor from './components/partials/TimelineEditor';
 import ModalsContainer from './components/partials/ModalsContainer';
 
 import styles from '../styles/layout.scss';
@@ -43,13 +43,7 @@ export default props => {
             />
           </Col>
           <Col md={10} className={styles.fullHeight}>
-            <Timeline
-              position={get(props.timelineInfo, 'position', 0)}
-              timelines={props.timelines}
-              timelineData={props.currentTimeline}
-              onSave={props.onTimelineSave}
-              onStatusUpdate={props.onTimelineStatusUpdate}
-              scripts={props.scripts}
+            <TimelineEditor
             />
           </Col>
         </Row>

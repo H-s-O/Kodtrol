@@ -1,37 +1,37 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { remote } from 'electron';
 import { get } from 'lodash';
 import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
+import { connect } from 'react-redux';
+
 import Panel from './Panel';
 import percentString from '../../lib/percentString';
+import stopEvent from '../../lib/stopEvent';
 import TimelineTriggerModal from '../modals/TimelineTriggerModal';
 import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineLayer from '../timeline/TimelineLayer';
+import { updateCurrentTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
+import { updateTimelineInfo } from '../../../../common/js/store/actions/timelineInfo';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
 const propTypes = {
-  timelines: PropTypes.arrayOf(PropTypes.shape({})),
-  scripts: PropTypes.arrayOf(PropTypes.shape({})),
   timelineData: PropTypes.shape({}),
-  zoom: PropTypes.number,
-  onSave: PropTypes.func,
-  onStatusUpdate: PropTypes.func,
+  timelineInfo: PropTypes.shape({}),
+  scripts: PropTypes.arrayOf(PropTypes.shape({})),
+  doUpdateCurrentTimeline: PropTypes.func.isRequired,
+  doUpdateTimelineInfo: PropTypes.func.isRequired,
+  doSaveTimeline: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
-  timelines: [],
-  scripts: [],
   timelineData: null,
-  position: 0,
-  zoom: 1,
-  onSave: null,
-  onStatusUpdate: null,
+  timelineInfo: null,
+  scripts: [],
 };
 
-class Timeline extends PureComponent {
+class TimelineEditor extends PureComponent {
   timelineContainer = null;
 
   state = {
@@ -57,6 +57,11 @@ class Timeline extends PureComponent {
       }
     }
     return null; 
+  }
+  
+  onSaveClick = () => {
+    const { timelineData, doSaveTimeline } = this.props;
+    doSaveTimeline(timelineData);
   }
 
   onAddLayerClick = () => {
@@ -134,6 +139,15 @@ class Timeline extends PureComponent {
     this.setState({
       modalType: null,
     });
+  }
+  
+  onZoomLevelClick = (level) => {
+    const { timelineData, doUpdateCurrentTimeline } = this.props;
+    const data = {
+      ...timelineData,
+      zoom: level,
+    };
+    doUpdateCurrentTimeline(data);
   }
   
   onAdjustItem = (mode, blockData) => {
@@ -268,13 +282,10 @@ class Timeline extends PureComponent {
     return newPosition;
   }
 
-  doSave = (value) => {
-    const { onSave } = this.props;
-    const { id } = value;
-    onSave({
-      id,
-      content: value,
-    });
+  doSave = (timelineData) => {
+    // temp!
+    const { doUpdateCurrentTimeline } = this.props;
+    doUpdateCurrentTimeline(timelineData);
   }
 
   renderTimelineLayer = (layer, index, layers) => {
@@ -302,6 +313,7 @@ class Timeline extends PureComponent {
     const { position, timelineData } = this.props;
     const duration = get(timelineData, 'duration');
     const left = percentString(position / duration);
+    
     return (
       <div
         className={styles.timelineTracker}
@@ -316,12 +328,15 @@ class Timeline extends PureComponent {
   }
 
   renderTimeline = (data) => {
-    const { zoom } = this.props;
+    const { zoom } = data;
     const layers = get(data, 'layers', []);
+    
     return (
       <div
         className={styles.timeline}
-        style={{ width: percentString(zoom) }}
+        style={{
+          width: percentString(zoom),
+        }}
       >
       { layers.length ? layers.map(this.renderTimelineLayer) : null }
       { layers.length ? this.renderTimelineTracker() : null }
@@ -329,6 +344,17 @@ class Timeline extends PureComponent {
     );
   }
 
+  renderSave = () => {
+    return (
+      <Button
+        bsSize="xsmall"
+        onClick={this.onSaveClick}
+      >
+        Save
+      </Button>
+    );
+  }
+  
   renderTimelineControls = () => {
     return (
       <ButtonGroup>
@@ -367,19 +393,62 @@ class Timeline extends PureComponent {
   renderAddItems = () => {
     return (
       <DropdownButton
-        noCaret
+        id="timeline-items-menu"
         title={(
           <Glyphicon
             glyph="plus"
           />
         )}
-        key="asdas"
         bsSize="xsmall"
-        onClick={(e) => e.stopPropagation()}
+        onClick={stopEvent}
       >
-        <MenuItem onSelect={this.onAddLayerClick}>Add layer</MenuItem>
-        <MenuItem onSelect={this.onAddBlockClick}>Add block...</MenuItem>
-        <MenuItem onSelect={this.onAddTriggerClick}>Add trigger...</MenuItem>
+        <MenuItem
+          onSelect={this.onAddLayerClick}
+        >
+          Add layer
+        </MenuItem>
+        <MenuItem
+          divider
+        />
+        <MenuItem
+          onSelect={this.onAddBlockClick}
+        >
+          Add block...
+        </MenuItem>
+        <MenuItem
+          onSelect={this.onAddTriggerClick}
+        >
+          Add trigger...
+        </MenuItem>
+      </DropdownButton>
+    );
+  }
+  
+  renderZoomControl = () => {
+    const levels = [1, 1.5, 3, 6, 8, 10];
+    const { timelineData } = this.props;
+    const { zoom } = timelineData;
+    
+    return (
+      <DropdownButton
+        id="timeline-zoom-menu"
+        title={(
+          <Glyphicon
+            glyph="search"
+          />
+        )}
+        bsSize="xsmall"
+        onClick={stopEvent}
+      >
+        { levels.map((level) => (
+          <MenuItem
+            key={`zoom-level-${level}`}
+            onSelect={() => this.onZoomLevelClick(level)}
+            active={level == zoom}
+          >
+            { percentString(level, true) }
+          </MenuItem>
+        )) }
       </DropdownButton>
     );
   }
@@ -421,15 +490,10 @@ class Timeline extends PureComponent {
         headingContent={
           timelineData && (
             <ButtonToolbar>
+              { this.renderSave() }
               { this.renderTimelineControls() }
               { this.renderAddItems() }
-              <Button
-                bsSize="xsmall"
-              >
-                <Glyphicon
-                  glyph="search"
-                />
-              </Button>
+              { this.renderZoomControl() }
             </ButtonToolbar>
           )
         }
@@ -441,15 +505,29 @@ class Timeline extends PureComponent {
           onMouseMove={adjustBlockData ? this.onMouseMove : null}
           onMouseUp={adjustBlockData ? this.onMouseUp : null}
         >
-          { this.renderTimeline(timelineData) }
+          { timelineData ? this.renderTimeline(timelineData) : null }
         </div>
-        { timelineData && this.renderItemModals() }
+        { timelineData ? this.renderItemModals() : null }
       </Panel>
     );
   }
 }
 
-Timeline.propTypes = propTypes;
-Timeline.defaultProps = defaultProps;
+TimelineEditor.propTypes = propTypes;
+TimelineEditor.defaultProps = defaultProps;
 
-export default Timeline;
+const mapStateToProps = ({currentTimeline, scripts}) => {
+  return {
+    timelineData: currentTimeline,
+    scripts,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    doUpdateCurrentTimeline: (data) => dispatch(updateCurrentTimeline(data)),
+    doUpdateTimelineInfo: (data) => dispatch(updateTimelineInfo(data)),
+    doSaveTimeline: (data) => dispatch(saveTimeline(data)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TimelineEditor);

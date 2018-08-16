@@ -29,3 +29,13 @@ export const deleteTimeline = (id) => ({
   type: 'DELETE_TIMELINE',
   payload: id,
 });
+
+export const saveTimeline = (timelineData) => ({
+  type: 'SAVE_TIMELINE',
+  payload: timelineData,
+});
+
+export const updateCurrentTimeline = (timelineData) => ({
+  type: 'UPDATE_CURRENT_TIMELINE',
+  payload: timelineData,
+});
