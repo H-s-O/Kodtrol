@@ -10,81 +10,73 @@ const propTypes = {
   layerDuration: PropTypes.number,
   renderItem: PropTypes.func,
   renderContextMenu: PropTypes.func,
-  onDeleteItem: PropTypes.func,
-  onEditItem: PropTypes.func,
-  onAdjustItem: PropTypes.func,
-  onCopyItem: PropTypes.func,
-  onPasteItem: PropTypes.func,
+  onDeleteItem: PropTypes.func.isRequired,
+  onEditItem: PropTypes.func.isRequired,
+  onAdjustItem: PropTypes.func.isRequired,
+  onCopyItem: PropTypes.func.isRequired,
+  onPasteItem: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   typeLabel: 'item',
-  onEditItem: null,
-  onDeleteItem: null,
-  onAdjustItem: null,
-  onCopyItem: null,
-  onPasteItem: null,
 };
 
 class TimelineItem extends PureComponent {
   onDeleteItemClick = () => {
-    const { typeLabel } = this.props;
-    deleteWarning(`Are you sure you want to delete this ${typeLabel} ?`, this.onDeleteItemCallback);
+    const { typeLabel, onDeleteItem, index } = this.props;
+    deleteWarning(`Are you sure you want to delete this ${typeLabel} ?`, (result) => {
+      if (result) {
+        onDeleteItem(index);
+      }
+    });
   }
   
-  onDeleteItemCallback = (result) => {
-    if (result) {
-      const { onDeleteItem, data } = this.props;
-      onDeleteItem(data);
-    }
-  }
-
   onEditItemClick = () => {
-    const { onEditItem, data } = this.props;
-    onEditItem(data);
+    const { onEditItem, index } = this.props;
+    onEditItem(index);
   }
 
   onStartAnchorDown = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    this.onDragAnchorDown('inTime');
+    this.doDragAnchorDown('inTime');
   }
 
   onEndAnchorDown = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    this.onDragAnchorDown('outTime');
+    this.doDragAnchorDown('outTime');
   }
 
-  onDragAnchorDown = (mode) => {
-    const { onAdjustItem, data } = this.props;
-    onAdjustItem(mode, data);
+  doDragAnchorDown = (mode) => {
+    const { onAdjustItem, index } = this.props;
+    onAdjustItem(index, mode);
   }
 
   onCopyItemStartClick = () => {
-    this.onCopyItemClick('inTime');
+    this.doCopyItemClick('inTime');
   }
 
   onCopyItemEndClick = () => {
-    this.onCopyItemClick('outTime');
+    this.doCopyItemClick('outTime');
   }
 
-  onCopyItemClick = (mode) => {
-    const { onCopyItem, data } = this.props;
-    onCopyItem(mode, data);
+  doCopyItemClick = (mode) => {
+    const { onCopyItem, index } = this.props;
+    onCopyItem(index, mode);
   }
 
   onPasteItemStartClick = () => {
-    this.onPasteItemClick('inTime');
+    this.doPasteItemClick('inTime');
   }
 
   onPasteItemEndClick = () => {
-    this.onPasteItemClick('outTime');
+    this.doPasteItemClick('outTime');
   }
 
-  onPasteItemClick = (mode) => {
-    const { onPasteItem, data } = this.props;
-    onPasteItem(mode, data);
+  doPasteItemClick = (mode) => {
+    const { onPasteItem, index } = this.props;
+    onPasteItem(index, mode);
   }
 
   onContextMenuClick = (e) => {

@@ -40,16 +40,14 @@ const defaultProps = {
 class TimelineLayer extends PureComponent {
   onDeleteLayerClick = () => {
     const { index } = this.props;
-    deleteWarning(`Are you sure you want to delete layer ${index} ?`, this.onDeleteLayerCallback);
+    deleteWarning(`Are you sure you want to delete layer ${index + 1} ?`, (result) => {
+      if (result) {
+        this.doDeleteLayer();
+      }
+    });
   }
   
-  onDeleteLayerCallback = (result) => {
-    if (result) {
-      this.onDeleteLayer();
-    }
-  }
-  
-  onDeleteLayer = () => {
+  doDeleteLayer = () => {
     const { onDeleteLayer, index } = this.props;
     onDeleteLayer(index);
   }
@@ -64,9 +62,34 @@ class TimelineLayer extends PureComponent {
   
   doAddItemAt = (type, e) => {
     const { onAddItemAt, index } = this.props;
-    onAddItemAt(type, index, e);
+    onAddItemAt(index, type, e);
   }
-
+  
+  doEditItem = (itemIndex) => {
+    const { onEditItem, index } = this.props;
+    onEditItem(index, itemIndex);
+  }
+  
+  doDeleteItem = (itemIndex) => {
+    const { onDeleteItem, index } = this.props;
+    onDeleteItem(index, itemIndex);
+  }
+  
+  doAdjustItem = (itemIndex, mode) => {
+    const { onAdjustItem, index } = this.props;
+    onAdjustItem(index, itemIndex, mode);
+  }
+  
+  doCopyItem = (itemIndex, mode) => {
+    const { onCopyItem, index } = this.props;
+    onCopyItem(index, itemIndex, mode);
+  }
+  
+  doPasteItem = (itemIndex, mode) => {
+    const { onPasteItem, index } = this.props;
+    onPasteItem(index, itemIndex, mode);
+  }
+  
   onTimelineLayerContextMenu = (e) => {
     const { Menu, MenuItem } = remote;
 
@@ -106,35 +129,35 @@ class TimelineLayer extends PureComponent {
   }
 
   renderTimelineLayerBlock = (block, index) => {
-    const { duration, onEditItem, onDeleteItem, onAdjustItem, onCopyItem, onPasteItem } = this.props;
+    const { duration } = this.props;
     return (
       <TimelineBlock
         key={`block-${index}`}
         data={block}
         index={index}
         layerDuration={duration}
-        onEditItem={onEditItem}
-        onDeleteItem={onDeleteItem}
-        onAdjustItem={onAdjustItem}
-        onCopyItem={onCopyItem}
-        onPasteItem={onPasteItem}
+        onEditItem={this.doEditItem}
+        onDeleteItem={this.doDeleteItem}
+        onAdjustItem={this.doAdjustItem}
+        onCopyItem={this.doCopyItem}
+        onPasteItem={this.doPasteItem}
       />
     );
   }
 
   renderTimelineLayerTrigger = (trigger, index) => {
-    const { duration, onEditItem, onDeleteItem, onAdjustItem, onCopyItem, onPasteItem } = this.props;
+    const { duration } = this.props;
     return (
       <TimelineTrigger
         key={`trigger-${index}`}
         data={trigger}
         index={index}
         layerDuration={duration}
-        onEditItem={onEditItem}
-        onDeleteItem={onDeleteItem}
-        onAdjustItem={onAdjustItem}
-        onCopyItem={onCopyItem}
-        onPasteItem={onPasteItem}
+        onEditItem={this.doEditItem}
+        onDeleteItem={this.doDeleteItem}
+        onAdjustItem={this.doAdjustItem}
+        onCopyItem={this.doCopyItem}
+        onPasteItem={this.doPasteItem}
       />
     );
   }
@@ -145,6 +168,7 @@ class TimelineLayer extends PureComponent {
     const layerHeight = (1 / layersCount);
     const top = percentString(1 - ((index + 1) * layerHeight));
     const height = percentString(layerHeight * 0.9);
+    
     return (
       <div
         className={styles.timelineLayer}

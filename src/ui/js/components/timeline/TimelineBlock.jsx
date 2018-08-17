@@ -65,8 +65,8 @@ class TimelineBlock extends PureComponent {
         })}
         style={{
           left: percentString(inTime / layerDuration),
-          backgroundColor: color,
           width: percentString((outTime - inTime) / layerDuration),
+          backgroundColor: color,
         }}
         onContextMenu={onContextMenuClick}
       >
