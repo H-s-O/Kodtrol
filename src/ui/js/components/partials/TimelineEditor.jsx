@@ -272,10 +272,11 @@ class TimelineEditor extends PureComponent {
   getTimelinePositionFromEvent = (e, round = true) => {
     const { timelineData } = this.props;
     const duration = get(timelineData, 'duration');
+    const zoom = get(timelineData, 'zoom');
     const { clientX } = e;
     const { left, right } = this.timelineContainer.getBoundingClientRect();
     const percent = (clientX - left) / (right - left);
-    let newPosition = duration * percent;
+    let newPosition = (duration * percent) / zoom;
     if (round) {
       newPosition = Math.round(newPosition);
     }
