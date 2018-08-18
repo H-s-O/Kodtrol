@@ -285,9 +285,10 @@ class TimelineEditor extends PureComponent {
     const duration = get(timelineData, 'duration');
     const zoom = get(timelineData, 'zoom');
     const { clientX } = e;
-    const { left, right } = this.timelineContainer.getBoundingClientRect();
-    const percent = (clientX - left) / (right - left);
-    let newPosition = (duration * percent) / zoom;
+    const { left } = this.timelineContainer.getBoundingClientRect();
+    const { scrollLeft, scrollWidth } = this.timelineContainer;
+    const percent = (clientX - left + scrollLeft) / scrollWidth;
+    let newPosition = (duration * percent);
     if (round) {
       newPosition = Math.round(newPosition);
     }
