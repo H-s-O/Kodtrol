@@ -12,6 +12,7 @@ import styles from '../../../styles/components/partials/timeline.scss';
 class TimelineAudioTrack extends PureComponent {
   trackWaveform = null;
   trackWaveformData = null;
+  trackWaveformWidth = 0;
   
   constructor(props) {
     super(props);
@@ -26,6 +27,15 @@ class TimelineAudioTrack extends PureComponent {
   
   waveformLoaded = () => {
     this.trackWaveformData = this.trackWaveform.getPath();
+    
+    // Parse the last "moveto" command of the waveform path to
+    // find the waveform width
+    const lastM = this.trackWaveformData.lastIndexOf('M');
+    const mComma = this.trackWaveformData.indexOf(',', lastM);
+    const width = Number(this.trackWaveformData.slice(lastM + 1, mComma)) + 1; // include the last line
+    this.trackWaveformWidth = width;
+    
+    // Force re-render to display waveform
     this.forceUpdate();
   }
   
@@ -56,14 +66,12 @@ class TimelineAudioTrack extends PureComponent {
         className={classNames({
           [styles.waveform]: true,
         })}
+        viewBox={`0 -1 ${this.trackWaveformWidth} 2`}
         preserveAspectRatio="none"
       >
         <path
           d={this.trackWaveformData}
-          width="100%"
-          stroke="red"
           strokeWidth="1"
-          transform="translate(0, 25) scale(1, 20)"
         />
       </svg>
     );
