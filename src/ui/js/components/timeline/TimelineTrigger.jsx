@@ -28,6 +28,8 @@ class TimelineTrigger extends PureComponent {
       <TimelineItem
         {...this.props}
         typeLabel='trigger'
+        canCopyEndTime={false}
+        canPasteEndTime={false}
       >
         <div
           className={classNames({

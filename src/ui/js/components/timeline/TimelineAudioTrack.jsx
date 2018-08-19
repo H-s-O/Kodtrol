@@ -18,9 +18,9 @@ class TimelineAudioTrack extends PureComponent {
     super(props);
     
     const { data } = props;
-    const { name } = data;
+    const { file } = data;
     this.trackWaveform = new AudioSVGWaveform({
-      url: `http://localhost:5555/${name}`,
+      url: `http://localhost:5555/${file}`,
     });
     this.trackWaveform.loadFromUrl().then(this.waveformLoaded);
   }
@@ -86,6 +86,8 @@ class TimelineAudioTrack extends PureComponent {
       <TimelineItem
         {...this.props}
         typeLabel='audio track'
+        canPasteStartTime={false}
+        canPasteEndTime={false}
       >
         <div
           className={classNames({

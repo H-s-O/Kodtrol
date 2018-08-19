@@ -15,10 +15,18 @@ const propTypes = {
   onAdjustItem: PropTypes.func.isRequired,
   onCopyItem: PropTypes.func.isRequired,
   onPasteItem: PropTypes.func.isRequired,
+  canCopyStartTime: PropTypes.bool,
+  canCopyEndTime: PropTypes.bool,
+  canPasteStartTime: PropTypes.bool,
+  canPasteEndTime: PropTypes.bool,
 };
 
 const defaultProps = {
   typeLabel: 'item',
+  canCopyStartTime: true,
+  canCopyEndTime: true,
+  canPasteStartTime: true,
+  canPasteEndTime: true,
 };
 
 class TimelineItem extends PureComponent {
@@ -71,36 +79,51 @@ class TimelineItem extends PureComponent {
     e.stopPropagation();
     e.preventDefault();
 
+    const {
+      typeLabel,
+      canCopyStartTime,
+      canCopyEndTime,
+      canPasteStartTime,
+      canPasteEndTime,
+    } = this.props;
     const { Menu, MenuItem } = remote;
 
     const menu = new Menu();
     menu.append(new MenuItem({
-      label: 'Edit block...',
-      click: onEditItemClick,
+      label: `Edit ${typeLabel}...`,
+      click: this.onEditItemClick,
     }));
     menu.append(new MenuItem({
-      label: 'Delete block...',
-      click: onDeleteItemClick,
+      label: `Delete ${typeLabel}...`,
+      click: this.onDeleteItemClick,
     }));
     menu.append(new MenuItem({
       type: 'separator',
     }));
-    menu.append(new MenuItem({
-      label: 'Copy block start time',
-      click: onCopyItemStartClick,
-    }));
-    menu.append(new MenuItem({
-      label: 'Copy block end time',
-      click: onCopyItemEndClick,
-    }));
-    menu.append(new MenuItem({
-      label: 'Paste time as block start time',
-      click: onPasteItemStartClick,
-    }));
-    menu.append(new MenuItem({
-      label: 'Paste time as block end time',
-      click: onPasteItemEndClick,
-    }));
+    if (canCopyStartTime) {
+      menu.append(new MenuItem({
+        label: `Copy ${typeLabel} start time`,
+        click: this.onCopyItemStartClick,
+      }));
+    }
+    if (canCopyEndTime) {
+      menu.append(new MenuItem({
+        label: `Copy ${typeLabel} end time`,
+        click: this.onCopyItemEndClick,
+      }));
+    }
+    if (canPasteStartTime) {
+      menu.append(new MenuItem({
+        label: `Paste time as ${typeLabel} start time`,
+        click: this.onPasteItemStartClick,
+      }));
+    }
+    if (canPasteEndTime) {
+      menu.append(new MenuItem({
+        label: `Paste time as ${typeLabel} end time`,
+        click: this.onPasteItemEndClick,
+      }));
+    }
 
     menu.popup({
       window: remote.getCurrentWindow(),
@@ -108,8 +131,11 @@ class TimelineItem extends PureComponent {
   }
 
   render = () => {
-    const { children: Children } = this.props;
-    return Children;
+    const { children } = this.props;
+    // @see https://stackoverflow.com/a/35102287
+    return React.cloneElement(children, {
+      onContextMenu: this.onContextMenuClick,
+    });
   }
 }
 

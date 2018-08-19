@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { get, set, unset } from 'lodash';
 import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
@@ -11,6 +11,7 @@ import percentString from '../../lib/percentString';
 import stopEvent from '../../lib/stopEvent';
 import TimelineTriggerModal from '../modals/TimelineTriggerModal';
 import TimelineBlockModal from '../modals/TimelineBlockModal';
+import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
 import TimelineLayer from '../timeline/TimelineLayer';
 import { updateCurrentTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo } from '../../../../common/js/store/actions/timelineInfo';
@@ -116,6 +117,7 @@ class TimelineEditor extends PureComponent {
                 inTime: 0,
                 outTime: 274000,
                 volume: 1,
+                color: "#000",
               },
             ],
           ],
@@ -136,6 +138,8 @@ class TimelineEditor extends PureComponent {
       type = 'trigger';
     } else if ('curve' in itemData) {
       type = 'curve';
+    } else if ('file' in itemData) {
+      type = 'audioTrack';
     }
     
     this.setState({
@@ -509,7 +513,7 @@ class TimelineEditor extends PureComponent {
     const layers = get(timelineData, 'layers');
     
     return (
-      <div>
+      <Fragment>
         <TimelineBlockModal
           initialValue={modalValue}
           show={modalType === 'block'}
@@ -527,7 +531,15 @@ class TimelineEditor extends PureComponent {
           onSuccess={this.onItemModalSuccess}
           layers={layers}
         />
-      </div>
+        <TimelineAudioTrackModal
+          initialValue={modalValue}
+          show={modalType === 'audioTrack'}
+          title={modalAction === 'add' ? 'Add audio track' : 'Edit audio track'}
+          onCancel={this.onItemModalCancel}
+          onSuccess={this.onItemModalSuccess}
+          layers={layers}
+        />
+      </Fragment>
     );
   }
 
