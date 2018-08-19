@@ -36,18 +36,6 @@ class TimelineItem extends PureComponent {
     onEditItem(index);
   }
 
-  onStartAnchorDown = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('inTime');
-  }
-
-  onEndAnchorDown = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('outTime');
-  }
-
   doDragAnchorDown = (mode) => {
     const { onAdjustItem, index } = this.props;
     onAdjustItem(index, mode);
@@ -83,30 +71,45 @@ class TimelineItem extends PureComponent {
     e.stopPropagation();
     e.preventDefault();
 
-    const { renderContextMenu } = this.props;
-    const handlers = {
-      onEditItemClick: this.onEditItemClick,
-      onDeleteItemClick: this.onDeleteItemClick,
-      onCopyItemStartClick: this.onCopyItemStartClick,
-      onCopyItemEndClick: this.onCopyItemEndClick,
-      onPasteItemStartClick: this.onPasteItemStartClick,
-      onPasteItemEndClick: this.onPasteItemEndClick,
-    };
+    const { Menu, MenuItem } = remote;
 
-    const menu = renderContextMenu(handlers);
+    const menu = new Menu();
+    menu.append(new MenuItem({
+      label: 'Edit block...',
+      click: onEditItemClick,
+    }));
+    menu.append(new MenuItem({
+      label: 'Delete block...',
+      click: onDeleteItemClick,
+    }));
+    menu.append(new MenuItem({
+      type: 'separator',
+    }));
+    menu.append(new MenuItem({
+      label: 'Copy block start time',
+      click: onCopyItemStartClick,
+    }));
+    menu.append(new MenuItem({
+      label: 'Copy block end time',
+      click: onCopyItemEndClick,
+    }));
+    menu.append(new MenuItem({
+      label: 'Paste time as block start time',
+      click: onPasteItemStartClick,
+    }));
+    menu.append(new MenuItem({
+      label: 'Paste time as block end time',
+      click: onPasteItemEndClick,
+    }));
+
     menu.popup({
       window: remote.getCurrentWindow(),
     });
   }
 
   render = () => {
-    const { renderItem } = this.props;
-    const handlers = {
-      onContextMenuClick: this.onContextMenuClick,
-      onStartAnchorDown: this.onStartAnchorDown,
-      onEndAnchorDown: this.onEndAnchorDown,
-    };
-    return renderItem(this.props, handlers);
+    const { children: Children } = this.props;
+    return Children;
   }
 }
 

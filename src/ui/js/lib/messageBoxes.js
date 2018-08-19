@@ -1,8 +1,8 @@
 import { remote } from 'electron';
 
+const { dialog } = remote;
+
 export function deleteWarning(message, callback) {
-  const { dialog } = remote;
-  
   dialog.showMessageBox(remote.getCurrentWindow(), {
     type: 'warning',
     buttons: [
@@ -13,3 +13,15 @@ export function deleteWarning(message, callback) {
     message,
   }, (response) => callback(response === 0));
 };
+
+export function importAudioFile(callback) {
+  return dialog.showOpenDialog({
+    title: 'Import audio file',
+    filters: [
+      {
+        name: 'Audio files',
+        extensions: ['mp3', 'wav'],
+      },
+    ],
+  }, (files) => callback(files[0]));
+}

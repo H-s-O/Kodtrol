@@ -6,6 +6,7 @@ import percentString from '../../lib/percentString';
 import { deleteWarning } from '../../lib/messageBoxes';
 import TimelineBlock from './TimelineBlock';
 import TimelineTrigger from './TimelineTrigger';
+import TimelineAudioTrack from './TimelineAudioTrack';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
@@ -125,6 +126,8 @@ class TimelineLayer extends PureComponent {
       return this.renderTimelineLayerTrigger(item, index);
     } else if ('curve' in item) {
       // @TODO
+    } else if ('file' in item) {
+      return this.renderTimelineLayerAudioTrack(item, index);
     }
   }
 
@@ -151,6 +154,23 @@ class TimelineLayer extends PureComponent {
       <TimelineTrigger
         key={`trigger-${index}`}
         data={trigger}
+        index={index}
+        layerDuration={duration}
+        onEditItem={this.doEditItem}
+        onDeleteItem={this.doDeleteItem}
+        onAdjustItem={this.doAdjustItem}
+        onCopyItem={this.doCopyItem}
+        onPasteItem={this.doPasteItem}
+      />
+    );
+  }
+
+  renderTimelineLayerAudioTrack = (audioTrack, index) => {
+    const { duration } = this.props;
+    return (
+      <TimelineAudioTrack
+        key={`audio-${index}`}
+        data={audioTrack}
         index={index}
         layerDuration={duration}
         onEditItem={this.doEditItem}

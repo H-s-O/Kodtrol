@@ -93,6 +93,84 @@
         }
       }
     }
+    
+    .timelineAudioTrack {
+      position: absolute;
+      color: #FFF;
+      height: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:hover {
+        // opacity: 0.8;
+        // overflow: visible;
+      }
+
+      &.lightBlock {
+        .timelineAudioTrackLabel {
+          color: #000;
+        }
+        
+        .waveform > path {
+          stroke-color: #FFF;
+        }
+      }
+
+      .topLayer {
+        position: absolute;
+
+        .timelineAudioTrackLabel {
+          pointer-events: none;
+          display: inline-block;
+          padding: 3px;
+          font-size: 0.9em;
+          white-space: nowrap;
+        }
+      }
+      
+      .middleLayer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        
+        .waveform {
+          position: relative;
+          width: 100%;
+          height: 100%;
+        }
+      }
+
+      .bottomLayer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        .dragAnchor {
+          position: absolute;
+          cursor: ew-resize;
+          background: repeating-linear-gradient(
+            45deg,
+            rgba(0, 0, 0, 0.25),
+            rgba(0, 0, 0, 0.25) 5px,
+            rgba(0, 0, 0, 0) 5px,
+            rgba(0, 0, 0, 0) 10px
+          );
+          width: 5px;
+          height: 100%;
+
+          &:hover {
+            background: rgba(0, 0, 0, 0.25);
+          }
+
+          &.leftAnchor {
+            left: 0;
+          }
+          &.rightAnchor {
+            right: 0;
+          }
+        }
+      }
+    }
 
     .timelineTrigger {
       position: absolute;

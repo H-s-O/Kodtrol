@@ -2,12 +2,33 @@ import React, { PureComponent } from 'react';
 import classNames from 'classnames'
 import { remote } from 'electron';
 import Color from 'color';
+import AudioSVGWaveform from 'audio-waveform-svg-path';
+
 import percentString from '../../lib/percentString';
 import TimelineItem from './TimelineItem';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
-class TimelineBlock extends PureComponent {
+class TimelineAudioTrack extends PureComponent {
+  trackWaveform = null;
+  trackWaveformData = null;
+  
+  constructor(props) {
+    super(props);
+    
+    const { data } = props;
+    const { name } = data;
+    this.trackWaveform = new AudioSVGWaveform({
+      url: `http://localhost:5555/${name}`,
+    });
+    this.trackWaveform.loadFromUrl().then(this.waveformLoaded);
+  }
+  
+  waveformLoaded = () => {
+    this.trackWaveformData = this.trackWaveform.getPath();
+    this.forceUpdate();
+  }
+  
   onStartAnchorDown = (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -25,19 +46,42 @@ class TimelineBlock extends PureComponent {
     onAdjustItem(index, mode);
   }
   
+  renderWaveform = () => {
+    if (!this.trackWaveformData) {
+      return null;
+    }
+    
+    return (
+      <svg
+        className={classNames({
+          [styles.waveform]: true,
+        })}
+        preserveAspectRatio="none"
+      >
+        <path
+          d={this.trackWaveformData}
+          width="100%"
+          stroke="red"
+          strokeWidth="1"
+          transform="translate(0, 25) scale(1, 20)"
+        />
+      </svg>
+    );
+  }
+
   render = () => {
     const { data, layerDuration } = this.props;
-    const { inTime, outTime, color, name } = data;
+    const { inTime, outTime, name, color } = data;
     const lightColor = Color(color).isLight();
     
     return (
       <TimelineItem
         {...this.props}
-        typeLabel='block'
+        typeLabel='audio track'
       >
         <div
           className={classNames({
-            [styles.timelineBlock]: true,
+            [styles.timelineAudioTrack]: true,
             [styles.lightBlock]: lightColor,
           })}
           style={{
@@ -68,6 +112,13 @@ class TimelineBlock extends PureComponent {
           </div>
           <div
             className={classNames({
+              [styles.middleLayer]: true,
+            })}
+          >
+            { this.renderWaveform() }
+          </div>
+          <div
+            className={classNames({
               [styles.topLayer]: true,
             })}
           >
@@ -75,7 +126,7 @@ class TimelineBlock extends PureComponent {
               style={{
                 backgroundColor: color,
               }}
-              className={styles.timelimeBlockLabel}
+              className={styles.timelineAudioTrackLabel}
             >
               { name }
             </span>
@@ -86,4 +137,4 @@ class TimelineBlock extends PureComponent {
   }
 }
 
-export default TimelineBlock;
+export default TimelineAudioTrack;

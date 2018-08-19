@@ -4,6 +4,7 @@ import { get, set, unset } from 'lodash';
 import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
 import { connect } from 'react-redux';
+import path from 'path';
 
 import Panel from './Panel';
 import percentString from '../../lib/percentString';
@@ -13,6 +14,7 @@ import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineLayer from '../timeline/TimelineLayer';
 import { updateCurrentTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo } from '../../../../common/js/store/actions/timelineInfo';
+import { importAudioFile } from '../../lib/messageBoxes';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
@@ -95,6 +97,31 @@ class TimelineEditor extends PureComponent {
       modalType: type,
       modalValue: baseData,
       modalAction: 'add',
+    });
+  }
+  
+  onAddAudioTrack = () => {
+    importAudioFile((file) => {
+      if (file) {
+        const { timelineData } = this.props;
+        const newData = {
+          ...timelineData,
+          layers: [
+            ...timelineData.layers,
+            [
+              {
+                id: uniqid(),
+                name: path.basename(file),
+                file,
+                inTime: 0,
+                outTime: 274000,
+                volume: 1,
+              },
+            ],
+          ],
+        };
+        this.doSave(newData);
+      }
     });
   }
 
@@ -182,7 +209,9 @@ class TimelineEditor extends PureComponent {
     this.setState({
       adjustItemMode: mode,
       adjustItemPath: this.getPath(layerIndex, itemIndex),
-      timelineDataTemp: timelineData,
+      timelineDataTemp: {
+        ...timelineData
+      },
     });
   }
 
@@ -432,6 +461,14 @@ class TimelineEditor extends PureComponent {
           onSelect={this.onAddTriggerClick}
         >
           Add trigger...
+        </MenuItem>
+        <MenuItem
+          divider
+        />
+        <MenuItem
+          onSelect={this.onAddAudioTrack}
+        >
+          Add audio track
         </MenuItem>
       </DropdownButton>
     );

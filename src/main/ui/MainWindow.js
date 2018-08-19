@@ -12,11 +12,11 @@ export default class MainWindow extends EventEmitter {
     super();
     
     this.win = new BrowserWindow({
+      title,
       width: 1600,
       height: 900,
       backgroundColor: '#333',
       show: false,
-      title,
     });
     this.win.on('close', this.onClose);
     this.win.once('closed', this.onClosed);
