@@ -92,7 +92,7 @@ class TimelineAudioTrack extends PureComponent {
         <div
           className={classNames({
             [styles.timelineAudioTrack]: true,
-            [styles.lightBlock]: lightColor,
+            [styles.lightAudioTrack]: lightColor,
           })}
           style={{
             left: percentString(inTime / layerDuration),

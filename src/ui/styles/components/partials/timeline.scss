@@ -106,14 +106,14 @@
         // overflow: visible;
       }
 
-      &.lightBlock {
+      &.lightAudioTrack {
         .timelineAudioTrackLabel {
           color: #000;
         }
         
         .waveform {
           path {
-            stroke: #000;
+            stroke: #000 !important;
           }
         }
       }
