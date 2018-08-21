@@ -1,10 +1,7 @@
-import fs from 'fs';
 import path from 'path';
-import glob from 'glob';
-import uniqid from 'uniqid';
-import { get, set } from 'lodash';
+import { app } from 'electron';
 
-import { writeJson, readJson, writeFile } from '../lib/fileSystem';
+import { writeFile, ensureDir } from '../lib/fileSystem';
 import BaseScript from '../lib/BaseScript';
 import safeClassName from '../lib/safeClassName';
 
@@ -28,6 +25,9 @@ export default class ScriptsManager {
         };
       }, {});
     this.macrosRegexp = new RegExp(`(?<!.)?(${Object.keys(this.macros).join('|')})`, 'g');
+    
+    // Make sure the destination dir for compiled scripts exists
+    ensureDir(ScriptsManager.getCompiledScriptsDir());
   }
 
   static set projectFilePath(path) {
@@ -42,52 +42,27 @@ export default class ScriptsManager {
     return this._scripts;
   }
 
-  static loadScript(scriptId) {
-    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptId}.json`);
-    const scriptData = readJson(filePath);
-    const scriptContent = get(scriptData, 'content', '');
-    return scriptContent;
-  }
-
-  static loadScriptData(scriptId) {
-    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptId}.json`);
-    const scriptData = readJson(filePath);
-    return scriptData;
-  }
-
   static loadCompiledScript(scriptId) {
     const scriptPath = ScriptsManager.getCompiledScriptPath(scriptId);
     const scriptClass = require(scriptPath);
     return scriptClass;
   }
-
-  static createScript(scriptData) {
-    const id = uniqid();
-    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${id}.json`);
-    writeJson(filePath, {
-      id,
-      ...scriptData,
-    });
-    return id;
+  
+  static compileScripts(scripts) {
+    return scripts.map((script) => ScriptsManager.compileScript(script));
   }
-
-  static saveScript(scriptId, scriptValue) {
-    const filePath = path.join(ScriptsManager.projectFilePath, `scripts/${scriptId}.json`);
-    const scriptData = readJson(filePath);
-    set(scriptData, 'content', scriptValue);
-    writeJson(filePath, scriptData);
-
-    const className = safeClassName(`Script_${scriptId}`);
-    const compiledClass = ScriptsManager.compileClass(className, scriptValue);
-    const compiledFilePath = ScriptsManager.getCompiledScriptPath(scriptId);
+  
+  static compileScript(script) {
+    const { id, content } = script;
+    const className = safeClassName(`Script_${id}`);
+    const compiledClass = ScriptsManager.compileClass(className, content);
+    const compiledFilePath = ScriptsManager.getCompiledScriptPath(id);
+    
     writeFile(compiledFilePath, compiledClass);
 
-    ScriptsManager.invalidateCompiledScript(scriptId);
-
-    return {
-      scriptData,
-      compiledScript: compiledFilePath,
-    };
+    ScriptsManager.invalidateCompiledScript(id);
+    
+    return compiledFilePath;
   }
 
   static invalidateCompiledScript(scriptId) {
@@ -110,21 +85,12 @@ export default class ScriptsManager {
     const finalBody = `${helpersContent}\nmodule.exports = class ${className} {\n${convertedMacros}\n}`;
     return finalBody;
   }
-
-  static listScripts() {
-    const pathPattern = path.join(ScriptsManager.projectFilePath, 'scripts/**/*.json');
-    const foundScripts = glob.sync(pathPattern).map((script) => {
-      const scriptData = readJson(script);
-      const { id, name } = scriptData;
-      return {
-        id,
-        name,
-      }
-    });
-    return foundScripts;
+  
+  static getCompiledScriptsDir() {
+    return path.join(app.getPath('userData'), 'scripts_compiled');
   }
 
   static getCompiledScriptPath(scriptId) {
-    return path.join(ScriptsManager.projectFilePath, `scripts_compiled/${scriptId}.js`);
+    return path.join(ScriptsManager.getCompiledScriptsDir(), `/${scriptId}.js`);
   }
 }

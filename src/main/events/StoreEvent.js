@@ -1,0 +1,1 @@
+export const SCRIPTS_CHANGED = 'scripts_changed';

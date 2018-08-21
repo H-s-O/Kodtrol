@@ -7,10 +7,9 @@ import MainWindow from './ui/MainWindow';
 import MainMenu from './ui/MainMenu';
 import * as MainWindowEvent from './events/MainWindowEvent';
 import * as MainMenuEvent from './events/MainMenuEvent';
+import * as StoreEvent from './events/StoreEvent';
 import Store from './data/Store';
 import ScriptsManager from './data/ScriptsManager';
-import DevicesManager from './data/DevicesManager';
-import TimelinesManager from './data/TimelinesManager';
 import { updateScripts } from '../common/js/store/actions/scripts';
 import { updateDevices } from '../common/js/store/actions/devices';
 import { updateTimelines } from '../common/js/store/actions/timelines';
@@ -26,8 +25,6 @@ export default class Main {
     app.on('window-all-closed', this.onWindowAllClosed);
     
     ScriptsManager.init();
-    DevicesManager.init();
-    TimelinesManager.init();
   }
   
   onWindowAllClosed = () => {
@@ -64,33 +61,11 @@ export default class Main {
     }
     
     this.createMainWindow();
-    
-    // DevicesManager.projectFilePath = this.currentProjectFilePath;
-    // const devices = DevicesManager.listDevices().map(({id, name}) => ({
-    //   id,
-    //   name,
-    // }));
-    // this.store.dispatch(updateDevices(devices));
-    // 
-    // ScriptsManager.projectFilePath = this.currentProjectFilePath;
-    // const scripts = ScriptsManager.listScripts().map(({id, name}) => ({
-    //   id,
-    //   name,
-    //   current: id === 1,
-    // }));
-    // this.store.dispatch(updateScripts(scripts));
-    // 
-    // TimelinesManager.projectFilePath = this.currentProjectFilePath;
-    // const timelines = TimelinesManager.listTimelines().map(({id, name}) => ({
-    //   id,
-    //   name,
-    //   current: id === 1,
-    // }));
-    // this.store.dispatch(updateTimelines(timelines));
   }
   
   createStore = (initialData = null) => {
     this.store = new Store(initialData);
+    this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
   }
   
   destroyStore = () => {
@@ -99,6 +74,12 @@ export default class Main {
       this.store.destroy();
       this.store = null;
     }
+  }
+  
+  onScriptsChanged = () => {
+    const scripts = this.store.state.scripts;
+    const result = ScriptsManager.compileScripts(scripts);
+    console.log(result);
   }
   
   createMainWindow = () => {
