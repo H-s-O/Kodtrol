@@ -51,9 +51,7 @@ export default class Store extends EventEmitter {
   }
   
   destroy = () => {
-    this.scriptsObserver(); // unsubscribe
     this.scriptsObserver = null;
-    
     this.store = null;
   }
 }
