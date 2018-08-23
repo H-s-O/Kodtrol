@@ -8,32 +8,42 @@ import MainMenu from './ui/MainMenu';
 import * as MainWindowEvent from './events/MainWindowEvent';
 import * as MainMenuEvent from './events/MainMenuEvent';
 import * as StoreEvent from './events/StoreEvent';
+import * as RendererEvent from './events/RendererEvent';
 import Store from './data/Store';
 import ScriptsManager from './data/ScriptsManager';
 import { updateScripts } from '../common/js/store/actions/scripts';
 import { updateDevices } from '../common/js/store/actions/devices';
 import { updateTimelines } from '../common/js/store/actions/timelines';
+import Renderer from './process/Renderer';
 
 export default class Main {
   currentProjectFilePath = null;
   mainWindow = null;
   mainMenu = null
   store = null;
+  renderer = null;
   
   constructor() {
     app.on('ready', this.onReady);
     app.on('window-all-closed', this.onWindowAllClosed);
+    app.on('will-quit', this.onWillQuit);
     
     ScriptsManager.init();
   }
   
   onWindowAllClosed = () => {
-    // do nothing, keep the app alive
+    // Do nothing, keep the app alive
   }
   
   onReady = () => {
     this.createMainMenu();
     this.run();
+  }
+  
+  onWillQuit = () => {
+    // Better safe than sorry; destroy the renderer
+    // on quit if it somehow survived
+    this.destroyRenderer();
   }
   
   run = () => {
@@ -60,6 +70,7 @@ export default class Main {
       this.createStore(data);
     }
     
+    this.createRenderer();
     this.createMainWindow();
   }
   
@@ -107,6 +118,23 @@ export default class Main {
     }
   }
   
+  createRenderer = () => {
+    this.renderer = new Renderer();
+    this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onTimelineInfoUpdate);
+  }
+  
+  onTimelineInfoUpdate = (info) => {
+    // input back into store
+  }
+  
+  destroyRenderer = () => {
+    if (this.renderer) {
+      this.renderer.removeAllListeners();
+      this.renderer.destroy();
+      this.renderer = null;
+    }
+  }
+  
   createMainMenu = () => {
     this.mainMenu = new MainMenu();
     this.mainMenu.on(MainMenuEvent.OPEN_PROJECT, this.openProject);
@@ -151,6 +179,7 @@ export default class Main {
   closeCurrentProject = () => {
     this.destroyMainWindow();
     this.destroyStore();
+    this.destroyRenderer();
     
     // const appConfig = readAppConfig();
     // set(appConfig, 'currentProjectFilePath', null);
