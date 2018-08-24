@@ -2,7 +2,7 @@
   "name": "Manuscript",
   "version": "0.0.1",
   "description": "Timeline and code-based show control software",
-  "main": "src/electron.js",
+  "main": "src/main/process.js",
   "scripts": {
     "dev": "webpack-dev-server --config build/webpack.config.js",
     "build": "npx webpack --config build/webpack.config.js -p",
