@@ -27,10 +27,12 @@ export default class MainMenu extends EventEmitter {
         submenu: [
           {
             label: 'Create project...',
+            accelerator: 'CommandOrControl+N',
             click: this.onCreateProjectClick,
           },
           {
             label: 'Open project...',
+            accelerator: 'CommandOrControl+O',
             click: this.onOpenProjectClick,
           },
           {
