@@ -10,6 +10,9 @@ export default class Renderer {
     dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
     
     this.outputs.dmx = dmx;
+    
+    // temp keepalive
+    setInterval(() => {}, 1000);
   }
   
   onExit = () => {

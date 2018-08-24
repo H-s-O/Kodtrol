@@ -10,8 +10,20 @@ export default class Renderer extends EventEmitter {
   constructor() {
     super();
 
-    const execPath = `${process.execPath} -r babel-register ${path.join(__dirname, '/../../')}`; // temp for dev
-    this.childProcess = fork(path.join(__dirname, '../../renderer/renderer'));
+    const modulePath = path.join(__dirname, '../../renderer/index.js');
+    const babelRegister = path.join(__dirname, '../../..');
+
+    // wtf: modulePath is completely ignored
+    this.childProcess = fork(modulePath, {
+      env: {
+        MANUSCRIT_RENDERER: 1,
+      },
+      execArgv: [
+        '-r',
+        'babel-register',
+        babelRegister,
+      ],
+    });
   }
   
   send = (data) => {
