@@ -8,6 +8,8 @@ export default class MainWindow extends EventEmitter {
   win = null;
   contents = null;
   
+  static __devToolsAdded = false;
+  
   constructor(title) {
     super();
     
@@ -24,8 +26,11 @@ export default class MainWindow extends EventEmitter {
     
     const isDev = true;
     if (isDev) {
-      BrowserWindow.addDevToolsExtension(path.join(__dirname, '../../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/3.2.1_0'));
-      BrowserWindow.addDevToolsExtension(path.join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.15.3_0'));
+      if (!BrowserWindow.__devToolsAdded) {
+        BrowserWindow.addDevToolsExtension(path.join(__dirname, '../../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/3.2.1_0'));
+        BrowserWindow.addDevToolsExtension(path.join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.15.3_0'));
+        BrowserWindow.__devToolsAdded = true;
+      }
       this.win.loadURL('http://localhost:8080/');
     } else {
       // @TODO load built page
