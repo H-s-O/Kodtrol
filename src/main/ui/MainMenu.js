@@ -51,6 +51,20 @@ export default class MainMenu extends EventEmitter {
           },
         ],
       },
+      {
+        label: 'Edit',
+        submenu: [
+          {
+            role: 'copy',
+          },
+          {
+            role: 'cut',
+          },
+          {
+            role: 'paste',
+          },
+        ],
+      },
     ];
     
     const isDev = true;
