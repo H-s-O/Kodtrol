@@ -4,12 +4,17 @@
 
   .itemLabel {
     margin-left: 5px;
+    margin-right: 5px;
     white-space: nowrap;
   }
 
   .actions {
     display: inline;
     visibility: hidden;
+  }
+  
+  .tags {
+    display: inline;
   }
   
   .btn-group {

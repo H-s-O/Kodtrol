@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import autoBind from 'react-autobind';
 import classNames from 'classnames'
-import { isFunction } from 'lodash';
 import { ListGroup, ListGroupItem, Glyphicon } from 'react-bootstrap';
+
+import isFunction from '../../lib/isFunction';
 
 import styles from '../../../styles/components/partials/treeview.scss';
 
@@ -13,6 +13,7 @@ const propTypes = {
   actions: PropTypes.node,
   style: PropTypes.shape({}),
   renderActions: PropTypes.func,
+  renderTags: PropTypes.func,
 };
 
 const defaultProps = {
@@ -21,23 +22,19 @@ const defaultProps = {
   actions: null,
   style: null,
   renderActions: null,
+  renderTags: null,
 };
 
 class TreeView extends PureComponent {
-  constructor(props) {
-    super(props);
-    autoBind(this);
-  }
-
-  onClickItem(it) {
+  onClickItem = (it) => {
     const { onClickItem } = this.props;
     if (isFunction(onClickItem)) {
       onClickItem(it);
     }
   }
 
-  renderItem(it, index) {
-    const { renderActions } = this.props;
+  renderItem = (it, index) => {
+    const { renderActions, renderTags } = this.props;
     return (
       <li
         key={index}
@@ -58,6 +55,13 @@ class TreeView extends PureComponent {
       >
         { it.label }
       </span>
+      { renderTags ? (
+        <div
+          className={styles.tags}
+        >
+          { renderTags(it) }
+        </div>
+      ) : null }
       { renderActions ? (
         <div
           className={styles.actions}
@@ -69,7 +73,7 @@ class TreeView extends PureComponent {
     );
   }
 
-  render() {
+  render = () => {
     const { value, style } = this.props;
     return (
       <ListGroup

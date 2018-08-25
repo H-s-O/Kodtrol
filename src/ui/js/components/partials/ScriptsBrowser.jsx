@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { Button, ButtonToolbar, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, Label, ButtonToolbar, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 
 import Panel from './Panel';
 import TreeView from './TreeView';
@@ -116,6 +116,25 @@ class ScriptsBrowser extends PureComponent {
     );
   }
   
+  renderTreeTags = (it) => {
+    const { previewScript } = this.props;
+    
+    if (it.id !== previewScript) {
+      return null;
+    }
+    
+    return (
+      <Label
+        bsSize="xsmall"
+        bsStyle="success"
+      >
+        <Glyphicon
+          glyph="eye-open"
+        />
+      </Label>
+    )
+  }
+  
   render = () => {
     const { scripts, currentScript, previewScript } = this.props;
     return (
@@ -129,7 +148,7 @@ class ScriptsBrowser extends PureComponent {
             <Button
               bsSize="xsmall"
               disabled={previewScript === null}
-              onClick={this.onStopPreviewClick}
+              onClick={previewScript !== null ? this.onStopPreviewClick : null}
             >
               Stop preview
             </Button>
@@ -157,6 +176,7 @@ class ScriptsBrowser extends PureComponent {
           }))}
           onClickItem={this.onScriptSelect}
           renderActions={this.renderTreeActions}
+          renderTags={this.renderTreeTags}
         />
       </Panel>
     );
