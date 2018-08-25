@@ -18,7 +18,7 @@ export default function(props) {
         },
         {
           label: 'Preview tempo',
-          field: 'tempo',
+          field: 'previewTempo',
           type: 'number',
         },
         {

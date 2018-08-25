@@ -2,12 +2,12 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { Button, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, ButtonToolbar, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 
 import Panel from './Panel';
 import TreeView from './TreeView';
 import stopEvent from '../../lib/stopEvent';
-import { deleteScript, selectScript } from '../../../../common/js/store/actions/scripts';
+import { deleteScript, selectScript, previewScript, stopPreviewScript } from '../../../../common/js/store/actions/scripts';
 import { updateScriptModal } from '../../../../common/js/store/actions/modals';
 import { deleteWarning } from '../../lib/messageBoxes';
 
@@ -20,6 +20,8 @@ const propTypes = {
   doEditScriptModal: PropTypes.func.isRequired,
   doDuplicateScriptModal: PropTypes.func.isRequired,
   doSelectScript: PropTypes.func.isRequired,
+  doPreviewScript: PropTypes.func.isRequired,
+  doStopPreviewScript: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -51,6 +53,16 @@ class ScriptsBrowser extends PureComponent {
     doDuplicateScriptModal(data);
   }
   
+  onPreviewClick = (id) => {
+    const { doPreviewScript } = this.props;
+    doPreviewScript(id);
+  }
+  
+  onStopPreviewClick = () => {
+    const { doStopPreviewScript } = this.props;
+    doStopPreviewScript();
+  }
+  
   onDeleteClick = (id) => {
     deleteWarning(`Are you sure you want to delete this script ?`, (result) => {
       if (result) {
@@ -66,6 +78,14 @@ class ScriptsBrowser extends PureComponent {
         className="pull-right"
       >
         <ButtonGroup>
+          <Button
+            bsSize="xsmall"
+            onClick={(e) => {stopEvent(e); this.onPreviewClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="eye-open"
+            />
+          </Button>
           <Button
             bsSize="xsmall"
             onClick={(e) => {stopEvent(e); this.onDuplicateClick(it.id)}}
@@ -97,15 +117,22 @@ class ScriptsBrowser extends PureComponent {
   }
   
   render = () => {
-    const { scripts, currentScript } = this.props;
+    const { scripts, currentScript, previewScript } = this.props;
     return (
       <Panel
         title="Scripts"
         className={styles.fullHeight}
         headingContent={
-          <div
+          <ButtonToolbar
             className="pull-right"
           >
+            <Button
+              bsSize="xsmall"
+              disabled={previewScript === null}
+              onClick={this.onStopPreviewClick}
+            >
+              Stop preview
+            </Button>
             <Button
               bsSize="xsmall"
               onClick={this.onAddClick}
@@ -114,7 +141,7 @@ class ScriptsBrowser extends PureComponent {
                 glyph="plus"
               />
             </Button>
-          </div>
+          </ButtonToolbar>
         }
       >
         <TreeView
@@ -139,10 +166,11 @@ class ScriptsBrowser extends PureComponent {
 ScriptsBrowser.propTypes = propTypes;
 ScriptsBrowser.defaultProps = defaultProps;
 
-const mapStateToProps = ({scripts, currentScript}) => {
+const mapStateToProps = ({scripts, currentScript, previewScript}) => {
   return {
     scripts,
     currentScript,
+    previewScript,
   };
 }
 const mapDispatchToProps = (dispatch) => {
@@ -152,6 +180,8 @@ const mapDispatchToProps = (dispatch) => {
     doEditScriptModal: (data) => dispatch(updateScriptModal('edit', data)),
     doDuplicateScriptModal: (data) => dispatch(updateScriptModal('duplicate', data)),
     doSelectScript: (data) => dispatch(selectScript(data)),
+    doPreviewScript: (id) => dispatch(previewScript(id)),
+    doStopPreviewScript: () => dispatch(stopPreviewScript()),
   };
 }
 

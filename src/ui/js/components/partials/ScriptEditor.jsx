@@ -4,7 +4,7 @@ import AceEditor from 'react-ace';
 import brace from 'brace';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { Button, ButtonGroup, ButtonToolbar } from 'react-bootstrap';
 
 import Panel from './Panel';
 import { saveScript, previewScript } from '../../../../common/js/store/actions/scripts';
@@ -62,7 +62,7 @@ class ScriptEditor extends PureComponent {
         title="Script editor"
         className={styles.fullHeight}
         headingContent={ value && (
-          <ButtonGroup>
+          <ButtonToolbar>
             <Button
               bsSize="xsmall"
               onClick={this.onSaveClick}
@@ -75,7 +75,7 @@ class ScriptEditor extends PureComponent {
             >
               Save and preview
             </Button>
-          </ButtonGroup>
+          </ButtonToolbar>
         )}
       >
         <AceEditor

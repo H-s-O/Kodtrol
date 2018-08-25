@@ -9,7 +9,7 @@ export default class Renderer {
   currentRenderer = null;
   ticker = null;
   state = null;
-  baseData = null;
+  dmxBaseData = null;
   
   constructor() {
     const dmx = new DMX();
@@ -49,12 +49,12 @@ export default class Renderer {
   }
   
   update = () => {
-    console.log('Renderer.update()');
     this.destroyRendererRelated();
     
     const { previewScript, scripts, devices } = this.state;
+    console.log('Renderer.update()', previewScript);
     
-    this.baseData = this.computeBaseDmxData(devices);
+    this.dmxBaseData = this.computeBaseDmxData(devices);
     
     if (previewScript) {
       const script = scripts.find(({id}) => id === previewScript);
@@ -68,24 +68,30 @@ export default class Renderer {
       
       return;
     }
+    
+    this.updateDmx();
   }
   
   tickerFrame = () => {
     const renderData = this.currentRenderer.render();
     // console.log('frame', Date.now());
     
-    const allData = {
-      ...this.baseData,
-      ...renderData.dmx,
-    };
-    
-    const dmx = this.outputs.dmx;
-    dmx.update('main', allData);
+    this.updateDmx(renderData.dmx);
   }
   
   tickerBeat = (beat) => {
     this.currentRenderer.beat(beat);
     // console.log('beat', beat);
+  }
+  
+  updateDmx = (data = null) => {
+    const allData = {
+      ...this.dmxBaseData,
+      ...data,
+    };
+
+    const dmx = this.outputs.dmx;
+    dmx.update('main', allData);
   }
   
   computeBaseDmxData = (allDevices) => {

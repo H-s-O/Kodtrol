@@ -14,6 +14,7 @@ export const createScript = (scriptData) => ({
   type: 'CREATE_SCRIPT',
   payload: {
     content: '',
+    previewTempo: 120,
     ...scriptData,
     id: uniqid(),
   }
@@ -37,4 +38,9 @@ export const saveScript = (scriptData) => ({
 export const previewScript = (id) => ({
   type: 'PREVIEW_SCRIPT',
   payload: id,
+});
+
+export const stopPreviewScript = () => ({
+  type: 'PREVIEW_SCRIPT',
+  payload: null,
 });
