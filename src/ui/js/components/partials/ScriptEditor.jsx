@@ -4,11 +4,10 @@ import AceEditor from 'react-ace';
 import brace from 'brace';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
+import { Button, ButtonGroup } from 'react-bootstrap';
 
 import Panel from './Panel';
-import { saveScript } from '../../../../common/js/store/actions/scripts';
-
+import { saveScript, previewScript } from '../../../../common/js/store/actions/scripts';
 import styles from '../../../styles/components/partials/scripteditor.scss';
 
 import 'brace/mode/javascript';
@@ -30,7 +29,19 @@ class ScriptEditor extends PureComponent {
     this.editorValue = value;
   }
 
-  onSaveClick = (evt) => {
+  onSaveClick = () => {
+    this.saveScript();
+  }
+  
+  onSaveAndPreviewClick = () => {
+    this.saveScript();
+    
+    const { doPreviewScript, value } = this.props;
+    const { id } = value;
+    doPreviewScript(id);
+  }
+  
+  saveScript = () => {
     const { doSaveScript, value } = this.props;
     const data = {
       ...value,
@@ -51,12 +62,20 @@ class ScriptEditor extends PureComponent {
         title="Script editor"
         className={styles.fullHeight}
         headingContent={ value && (
-          <Button
-            bsSize="xsmall"
-            onClick={this.onSaveClick}
-          >
-            Save
-          </Button>
+          <ButtonGroup>
+            <Button
+              bsSize="xsmall"
+              onClick={this.onSaveClick}
+            >
+              Save
+            </Button>
+            <Button
+              bsSize="xsmall"
+              onClick={this.onSaveAndPreviewClick}
+            >
+              Save and preview
+            </Button>
+          </ButtonGroup>
         )}
       >
         <AceEditor
@@ -90,6 +109,7 @@ const mapStateToProps = ({currentScript}) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     doSaveScript: (data) => dispatch(saveScript(data)),
+    doPreviewScript: (id) => dispatch(previewScript(id)),
   };
 }
 

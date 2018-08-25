@@ -33,3 +33,8 @@ export const saveScript = (scriptData) => ({
   type: 'SAVE_SCRIPT',
   payload: scriptData,
 });
+
+export const previewScript = (id) => ({
+  type: 'PREVIEW_SCRIPT',
+  payload: id,
+});

@@ -3,12 +3,11 @@ import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { forwardToRenderer, triggerAlias, replayActionMain } from 'electron-redux';
 import { observer, observe } from 'redux-observers'
 
-import { SCRIPTS_CHANGED } from '../events/StoreEvent';
+import * as StoreEvent from '../events/StoreEvent';
 import appReducers from '../../common/js/store/reducers/index';
 
 export default class Store extends EventEmitter {
   store = null;
-  scriptsObserver = null;
   
   constructor(initialState = null) {
     super();
@@ -21,13 +20,21 @@ export default class Store extends EventEmitter {
       ),
     );
     
-    this.scriptsObserver = observer(
+    const scriptsObserver = observer(
       (state) => state.scripts.map((script) => script.content),
       this.onScriptsChange
     );
+    const previewScriptObserver = observer(
+      (state) => state.previewScript,
+      this.onPreviewScript,
+      {
+        equals: () => false,
+      }
+    );
     
     observe(this.store, [
-      this.scriptsObserver,
+      scriptsObserver,
+      previewScriptObserver,
     ]);
     replayActionMain(this.store);
   }
@@ -41,7 +48,11 @@ export default class Store extends EventEmitter {
   }
   
   onScriptsChange = (dispatch, current, previous) => {
-    this.emit(SCRIPTS_CHANGED);
+    this.emit(StoreEvent.SCRIPTS_CHANGED);
+  }
+  
+  onPreviewScript = (dispatch, current, previous) => {
+    this.emit(StoreEvent.PREVIEW_SCRIPT, current);
   }
   
   dispatch = (action) => {

@@ -1,0 +1,43 @@
+export default class Ticker {
+  frameCallback = null;
+  beatCallback = null;
+  bpm = null;
+  interval = null;
+  count = -1;
+  framerateDelay = null;
+  lastTime = null;
+  
+  constructor(frameCallback, beatCallback, bpm) {
+    this.frameCallback = frameCallback;
+    this.beatCallback = beatCallback;
+    this.bpm = bpm;
+    
+    this.framerateDelay = (1 / 40) * 1000;
+    this.lastTime = Date.now();
+    
+    // @source https://stackoverflow.com/a/9675073
+    const ms_per_beat = (1000 * 60) / this.bpm;
+    const interval_24th = ms_per_beat / 24;
+    this.interval = setInterval(this.tick, interval_24th);
+  }
+  
+  tick = () => {
+    this.count++;
+    this.beatCallback(this.count);
+    
+    const time = Date.now();
+    if ((time - this.lastTime) >= this.framerateDelay) {
+      this.frameCallback();
+      this.lastTime = time;
+    }
+  }
+  
+  destroy = () => {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+    this.frameCallback = null;
+    this.beatCallback = null;
+  }
+}

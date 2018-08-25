@@ -77,6 +77,7 @@ export default class Main {
   createStore = (initialData = null) => {
     this.store = new Store(initialData);
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
+    this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
   }
   
   destroyStore = () => {
@@ -90,7 +91,10 @@ export default class Main {
   onScriptsChanged = () => {
     const scripts = this.store.state.scripts;
     const result = ScriptsManager.compileScripts(scripts);
-    console.log(result);
+  }
+  
+  onPreviewScript = (scriptId) => {
+    this.renderer.send(this.store.state);
   }
   
   createMainWindow = () => {

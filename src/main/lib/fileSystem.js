@@ -12,6 +12,14 @@ export const getAppConfigPath = () => {
   return configPath;
 }
 
+export const getCompiledScriptsDir = () => {
+  return path.join(app.getPath('userData'), 'scripts_compiled');
+}
+
+export const getCompiledScriptPath = (scriptId) => {
+  return path.join(getCompiledScriptsDir(), `/${scriptId}.js`);
+}
+
 export const ensureFile = (path) => {
   return ensureFileSync(path);
 };
@@ -43,16 +51,3 @@ export const writeAppConfig = (data) => {
   writeJson(configPath, data);
 }
 
-export const createProject = (projectPath) => {
-  const projectDir = path.join(`${projectPath}.manuscrit`);
-  ensureDir(projectDir);
-  const scriptsDir = path.join(projectDir, 'scripts');
-  ensureDir(scriptsDir);
-  const compiledScriptsDir = path.join(projectDir, 'scripts_compiled');
-  ensureDir(compiledScriptsDir);
-  const devicesDir = path.join(projectDir, 'devices');
-  ensureDir(devicesDir);
-  const timelinesDir = path.join(projectDir, 'timelines');
-  ensureDir(timelinesDir);
-  return projectDir;
-};
