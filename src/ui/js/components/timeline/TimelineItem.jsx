@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { remote } from 'electron';
+
 import { deleteWarning } from '../../lib/messageBoxes';
 
 const propTypes = {

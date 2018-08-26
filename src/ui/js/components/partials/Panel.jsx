@@ -4,7 +4,9 @@ import { Panel } from 'react-bootstrap';
 import styles from '../../../styles/components/partials/panel.scss';
 
 export default props => (
-  <Panel className={props.className}>
+  <Panel
+    className={props.className}
+  >
     { props.title && (
       <Panel.Heading
         className="clearfix"

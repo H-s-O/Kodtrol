@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import classNames from 'classnames'
 import { remote } from 'electron';
 import Color from 'color';
+
 import percentString from '../../lib/percentString';
 import TimelineItem from './TimelineItem';
 

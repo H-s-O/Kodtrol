@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames'
 import { remote } from 'electron';
+
 import percentString from '../../lib/percentString';
 import { deleteWarning } from '../../lib/messageBoxes';
 import TimelineBlock from './TimelineBlock';
