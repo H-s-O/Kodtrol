@@ -74,6 +74,10 @@ export default class Device {
     }
     this._channels[channel] = value;
   }
+  
+  setChannelFromVar = (channel, varName) => {
+    return this.setChannel(channel, this.getVar(varName));
+  }
 
   updateChannel = (channel, func) => {
     return this.setChannel(channel, func(this.getChannel(channel)));
