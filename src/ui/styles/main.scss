@@ -1,23 +1,9 @@
-$icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
-$grid-gutter-width: 10px;
+@import './utils.scss';
 
-@import "~bootswatch/slate/variables";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap";
-@import "~bootswatch/slate/bootswatch";
-@import "~css-electron-reset/index.css";
-
-:global button, button:hover {
-  cursor: default !important;
+.topRow {
+  height: 50vh;
 }
 
-:global html::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-:global html::-webkit-scrollbar-thumb {
-  background: #888;
-}
-
-:global #root {
-  padding: 10px 5px;
-  height: 100vh;
+.bottomRow {
+  height: 50vh;
 }

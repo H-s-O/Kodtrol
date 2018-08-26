@@ -152,7 +152,9 @@ class ScriptsBrowser extends PureComponent {
               disabled={previewScript === null}
               onClick={previewScript !== null ? this.onStopPreviewClick : null}
             >
-              Stop preview
+              <Glyphicon
+                glyph="eye-close"
+              />
             </Button>
             <Button
               bsSize="xsmall"

@@ -29,7 +29,7 @@ module.exports = {
         loader : 'babel-loader'
       },
       {
-        test: /main\.scss$/,
+        test: /root\.scss$/,
         include : APP_DIR,
         loaders: [
           {
@@ -46,7 +46,7 @@ module.exports = {
       {
         test: /\.scss$/,
         include : APP_DIR,
-        exclude: path.join(APP_DIR, 'ui/styles/main.scss'),
+        exclude: path.join(APP_DIR, 'ui/styles/root.scss'),
         loaders: [
           {
             loader: 'style-loader',

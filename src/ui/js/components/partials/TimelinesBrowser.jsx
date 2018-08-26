@@ -153,7 +153,9 @@ class TimelinesBrowser extends PureComponent {
               disabled={runTimeline === null}
               onClick={runTimeline !== null ? this.onStopPreviewClick : null}
             >
-              Stop preview
+              <Glyphicon
+                glyph="eye-close"
+              />
             </Button>
             <Button
               bsSize="xsmall"

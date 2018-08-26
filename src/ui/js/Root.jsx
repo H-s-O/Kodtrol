@@ -7,6 +7,8 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import Main from './Main';
 import appReducers from '../../common/js/store/reducers/index';
 
+import styles from '../styles/root.scss';
+
 export default class Root extends PureComponent {
   store = null;
   
