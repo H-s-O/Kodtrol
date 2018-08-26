@@ -5,6 +5,7 @@ import ScriptRenderer from './ScriptRenderer';
 import TimelineRenderer from './TimelineRenderer';
 import Ticker from './lib/Ticker';
 import MidiInput from './inputs/MidiInput';
+import OscInput from './inputs/OscInput';
 
 export default class Renderer {
   outputs = {};
@@ -18,12 +19,13 @@ export default class Renderer {
   constructor() {
     const dmx = new DMX();
     dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
-    
     this.outputs.dmx = dmx;
     
     const midiInput = new MidiInput(this.onMidiInput);
-    
     this.inputs.midi = midiInput;
+    
+    const oscInput = new OscInput(this.onOscInput);
+    this.inputs.osc = oscInput;
     
     process.on('exit', this.onExit);
     process.on('message', this.onMessage);
@@ -121,6 +123,12 @@ export default class Renderer {
   onMidiInput = (data) => {
     if (this.currentRenderer) {
       this.currentRenderer.input('midi', data);
+    }
+  }
+  
+  onOscInput = (data) => {
+    if (this.currentRenderer) {
+      this.currentRenderer.input('osc', data);
     }
   }
   
