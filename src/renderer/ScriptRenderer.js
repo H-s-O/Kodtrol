@@ -94,6 +94,20 @@ export default class ScriptRenderer {
       console.error(err);
     }
   }
+  
+  input = (type, inputData) => {
+    // Script beat
+    try {
+      if (typeof this.scriptInstance.input === 'function') {
+        const data = this.scriptInstance.input(this.devicesInstances, type, inputData, this.scriptData);
+        if (data) {
+          this.scriptData = data;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   destroy = () => {
     this.script = null;

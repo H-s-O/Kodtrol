@@ -4,9 +4,11 @@ import { getCompiledScriptPath } from './lib/fileSystem';
 import ScriptRenderer from './ScriptRenderer';
 import TimelineRenderer from './TimelineRenderer';
 import Ticker from './lib/Ticker';
+import MidiInput from './inputs/MidiInput';
 
 export default class Renderer {
   outputs = {};
+  inputs = {};
   currentRenderer = null;
   ticker = null;
   state = null;
@@ -19,7 +21,10 @@ export default class Renderer {
     
     this.outputs.dmx = dmx;
     
-    // temp keepalive
+    const midiInput = new MidiInput(this.onMidiInput);
+    
+    this.inputs.midi = midiInput;
+    
     process.on('exit', this.onExit);
     process.on('message', this.onMessage);
   }
@@ -30,8 +35,12 @@ export default class Renderer {
   }
   
   destroy = () => {
+    Object.values(this.inputs).forEach((input) => input.destroy());
+    
+    this.inputs = null;
     this.outputs = null;
     this.state = null;
+    this.dmxBaseData = null;
   }
   
   destroyRendererRelated = () => {
@@ -107,6 +116,12 @@ export default class Renderer {
   
   tickerBeat = (beat, time) => {
     this.currentRenderer.beat(beat, time);
+  }
+  
+  onMidiInput = (data) => {
+    if (this.currentRenderer) {
+      this.currentRenderer.input('midi', data);
+    }
   }
   
   updateDmx = (data = null) => {

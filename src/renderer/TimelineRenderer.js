@@ -144,6 +144,10 @@ export default class TimelineRenderer {
         block.instance.beat(beat, currentTime);
       });
   }
+  
+  input = (type, data) => {
+    // @TODO
+  }
 
   restartTimeline = () => {
     this.offsetTime = 0;

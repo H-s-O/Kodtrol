@@ -54,6 +54,7 @@ export default class ScriptsManager {
   
   static compileScript(script) {
     const { id, content } = script;
+    console.log('ScriptsManager.compileScript', id);
     const className = safeClassName(`Script_${id}`);
     const compiledClass = ScriptsManager.compileClass(className, content);
     const compiledFilePath = ScriptsManager.getCompiledScriptPath(id);
@@ -72,7 +73,7 @@ export default class ScriptsManager {
 
   static compileClass(className, classBody) {
     const helpersList = [];
-    const convertedFunctions = classBody.replace(/function (loop|start|end|beat)/g, '$1');
+    const convertedFunctions = classBody.replace(/function (loop|start|end|beat|input)/g, '$1');
     const convertedMacros = convertedFunctions.replace(this.macrosRegexp, (fullMatch, macro) => {
       if (helpersList.indexOf(macro) === -1) {
         helpersList.push(macro);
