@@ -25,7 +25,15 @@ export default class ScriptRenderer {
     this.scriptData = {};
     this.started = false;
     
-    this.devicesInstances.forEach((device) => device.reset());
+    this.resetDevices();
+  }
+  
+  resetDevices = (resetVars = true) => {
+    this.devicesInstances.forEach((device) => device.reset(resetVars));
+  }
+  
+  setAccumulatedChannels = (data) => {
+    // @TODO
   }
 
   render = (time, blockInfo = {}, triggerData = {}) => {
@@ -45,6 +53,8 @@ export default class ScriptRenderer {
       }
       this.started = true;
     }
+    
+    this.resetDevices(false);
     
     // Script loop
     try {

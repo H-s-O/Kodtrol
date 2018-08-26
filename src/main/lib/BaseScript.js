@@ -53,6 +53,10 @@ export default {
     device.setVar(followVarName, value);
     return value;
   },
+  _smoothValue(device, varName) {
+    const followVarName = `${varName}__follow`;
+    return device.getVar(followVarName);
+  },
   // eases
   _backInOut: eases.backInOut,
   _bounceOut: eases.bounceOut,
