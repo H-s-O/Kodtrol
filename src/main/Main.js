@@ -14,6 +14,7 @@ import ScriptsManager from './data/ScriptsManager';
 import { updateScripts } from '../common/js/store/actions/scripts';
 import { updateDevices } from '../common/js/store/actions/devices';
 import { updateTimelines } from '../common/js/store/actions/timelines';
+import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
 import Renderer from './process/Renderer';
 
 export default class Main {
@@ -78,6 +79,7 @@ export default class Main {
     this.store = new Store(initialData);
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
+    this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
   }
   
   destroyStore = () => {
@@ -90,10 +92,14 @@ export default class Main {
   
   onScriptsChanged = () => {
     const scripts = this.store.state.scripts;
-    const result = ScriptsManager.compileScripts(scripts);
+    ScriptsManager.compileScripts(scripts);
   }
   
-  onPreviewScript = (scriptId) => {
+  onPreviewScript = () => {
+    this.renderer.send(this.store.state);
+  }
+  
+  onRunTimeline = () => {
     this.renderer.send(this.store.state);
   }
   
@@ -128,7 +134,7 @@ export default class Main {
   }
   
   onTimelineInfoUpdate = (info) => {
-    // input back into store
+    this.store.dispatch(updateTimelineInfo(info));
   }
   
   destroyRenderer = () => {

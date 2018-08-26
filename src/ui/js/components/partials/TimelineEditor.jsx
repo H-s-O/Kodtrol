@@ -356,8 +356,10 @@ class TimelineEditor extends PureComponent {
   }
 
   renderTimelineTracker = () => {
-    const { position, timelineData } = this.props;
-    const duration = get(timelineData, 'duration');
+    const { timelineInfo, timelineData } = this.props;
+    const { position } = timelineInfo;
+    const { duration } = timelineData;
+    
     const left = percentString(position / duration);
     
     return (
@@ -581,10 +583,11 @@ class TimelineEditor extends PureComponent {
 TimelineEditor.propTypes = propTypes;
 TimelineEditor.defaultProps = defaultProps;
 
-const mapStateToProps = ({currentTimeline, scripts}) => {
+const mapStateToProps = ({currentTimeline, scripts, timelineInfo}) => {
   return {
     timelineData: currentTimeline,
     scripts,
+    timelineInfo,
   };
 };
 const mapDispatchToProps = (dispatch) => {

@@ -9,6 +9,7 @@ export default class TimelineRenderer {
   inTime = null;
   outTime = null;
   offsetTime = 0;
+  currentTime = 0;
   blocks = null;
   triggers = null;
   curves = null;
@@ -65,7 +66,9 @@ export default class TimelineRenderer {
   }
 
   render = (time) => {
-    const currentTime = time + this.offsetTime;
+    this.currentTime = time + this.offsetTime; 
+    
+    const currentTime = this.currentTime;
     if (currentTime > this.outTime) {
       // this.restartTimeline();
       // currentTime = 0;

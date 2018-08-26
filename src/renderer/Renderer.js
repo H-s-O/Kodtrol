@@ -87,10 +87,22 @@ export default class Renderer {
     this.updateDmx();
   }
   
+  send = (data) => {
+    process.send(data);
+  }
+  
   tickerFrame = (time) => {
     const renderData = this.currentRenderer.render(time);
     
     this.updateDmx(renderData.dmx);
+    
+    if (this.currentRendererIsTimeline) {
+      this.send({
+        timelineInfo: {
+          position: this.currentRenderer.currentTime,
+        },
+      });
+    }
   }
   
   tickerBeat = (beat, time) => {

@@ -4,7 +4,7 @@ import { forwardToRenderer, triggerAlias, replayActionMain } from 'electron-redu
 import { observer, observe } from 'redux-observers'
 
 import * as StoreEvent from '../events/StoreEvent';
-import appReducers from '../../common/js/store/reducers/index';
+import * as appReducers from '../../common/js/store/reducers/index';
 
 export default class Store extends EventEmitter {
   store = null;
@@ -21,20 +21,36 @@ export default class Store extends EventEmitter {
     );
     
     const scriptsObserver = observer(
-      (state) => state.scripts.map((script) => script.content),
+      (state) => {
+        return state.scripts;
+      },
       this.onScriptsChange
     );
     const previewScriptObserver = observer(
-      (state) => state.previewScript,
-      this.onPreviewScript,
-      {
-        equals: () => false,
-      }
+      (state) => {
+        const { previewScript, scripts } = state;
+        return {
+          previewScript,
+          scripts,
+        };
+      },
+      this.onPreviewScript
+    );
+    const runTimelineObserver = observer(
+      (state) => {
+        const { runTimeline, timelines } = state;
+        return {
+          runTimeline,
+          timelines,
+        };
+      },
+      this.onRunTimeline,
     );
     
     observe(this.store, [
       scriptsObserver,
       previewScriptObserver,
+      runTimelineObserver,
     ]);
     replayActionMain(this.store);
   }
@@ -52,7 +68,11 @@ export default class Store extends EventEmitter {
   }
   
   onPreviewScript = (dispatch, current, previous) => {
-    this.emit(StoreEvent.PREVIEW_SCRIPT, current);
+    this.emit(StoreEvent.PREVIEW_SCRIPT);
+  }
+  
+  onRunTimeline = (dispatch, current, previous) => {
+    this.emit(StoreEvent.RUN_TIMELINE);
   }
   
   dispatch = (action) => {

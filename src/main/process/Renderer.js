@@ -22,6 +22,13 @@ export default class Renderer extends EventEmitter {
         'babel-register',
       ],
     });
+    this.childProcess.on('message', this.onMessage);
+  }
+  
+  onMessage = (message) => {
+    if ('timelineInfo' in message) {
+      this.emit(RendererEvent.TIMELINE_INFO_UPDATE, message.timelineInfo);
+    }
   }
   
   send = (data) => {

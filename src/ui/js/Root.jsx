@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import { composeWithDevTools } from 'redux-devtools-extension';
 
 import Main from './Main';
-import appReducers from '../../common/js/store/reducers/index';
+import * as appReducers from '../../common/js/store/reducers/index';
 
 import styles from '../styles/root.scss';
 
