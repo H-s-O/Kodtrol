@@ -73,6 +73,7 @@ export default class Device {
       channel = this._channelAliases[channel];
     }
     this._channels[channel] = value;
+    return value;
   }
   
   setChannelFromVar = (channel, varName) => {

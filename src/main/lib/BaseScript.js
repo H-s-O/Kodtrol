@@ -12,6 +12,9 @@ export default {
     return (min + (Math.random() * (max - min)));
   },
   _randomIndex(arr, except = null) {
+    if (!arr || arr.length === 0) {
+      return null;
+    }
     let index;
     do {
       index = (Math.floor(Math.random() * arr.length));
@@ -19,6 +22,9 @@ export default {
     return index;
   },
   _randomValue(arr, except = null) {
+    if (!arr || arr.length === 0) {
+      return null;
+    }
     let value;
     do {
       value = arr[(Math.floor(Math.random() * arr.length))];
