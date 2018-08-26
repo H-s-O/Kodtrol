@@ -43,7 +43,7 @@ export default class Device {
     return this._channels;
   }
 
-  resetChannels = () => {
+  reset = () => {
     this._channels = {};
   }
 

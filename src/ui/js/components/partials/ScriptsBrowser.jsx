@@ -15,6 +15,7 @@ import styles from '../../../styles/components/partials/scriptsbrowser.scss';
 
 const propTypes = {
   scripts: PropTypes.arrayOf(PropTypes.shape({})),
+  previewScript: PropTypes.string,
   doDeleteScript: PropTypes.func.isRequired,
   doCreateScriptModal: PropTypes.func.isRequired,
   doEditScriptModal: PropTypes.func.isRequired,
@@ -26,6 +27,7 @@ const propTypes = {
 
 const defaultProps = {
   scripts: [],
+  previewScript: null,
 };
 
 class ScriptsBrowser extends PureComponent {

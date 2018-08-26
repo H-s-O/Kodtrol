@@ -4,20 +4,17 @@ import { getCompiledScriptPath } from './lib/fileSystem';
 import Device from './Device';
 
 export default class ScriptRenderer {
-  outputs = null;
   scriptInstance = null;
   devicesInstances = null;
   started = false;
-  outputData = {};
   scriptData = {};
   
-  constructor(outputs, sourceScript, sourceDevices) {
-    this.outputs = outputs;
+  constructor(sourceScript, sourceDevices) {
+    const { id, devices } = sourceScript;
     
-    const { id, devices, previewTempo } = sourceScript;
     const scriptPath = getCompiledScriptPath(id);
-
     this.scriptInstance = new (require(scriptPath))();
+    
     this.devicesInstances = devices.map(({id: deviceId}) => {
       const deviceData = sourceDevices.find(({id: sourceDeviceId}) => sourceDeviceId === deviceId);
       return new Device(deviceData);
@@ -26,11 +23,12 @@ export default class ScriptRenderer {
   
   reset = () => {
     this.scriptData = {};
-    this.outputData = {};
     this.started = false;
+    
+    this.devicesInstances.forEach((device) => device.reset());
   }
 
-  render = (blockInfo = {}, triggerData = {}) => {
+  render = (time, blockInfo = {}, triggerData = {}) => {
     const script = this.scriptInstance;
 
     // Script start
@@ -73,7 +71,7 @@ export default class ScriptRenderer {
     }
   }
   
-  beat = (beat) => {
+  beat = (beat, time) => {
     // Script beat
     try {
       if (typeof this.scriptInstance.beat === 'function') {
@@ -88,7 +86,6 @@ export default class ScriptRenderer {
   }
 
   destroy = () => {
-    this.outputs = null;
     this.script = null;
     this.devices = null;
   }

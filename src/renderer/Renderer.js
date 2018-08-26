@@ -2,6 +2,7 @@ import DMX from 'dmx';
 
 import { getCompiledScriptPath } from './lib/fileSystem';
 import ScriptRenderer from './ScriptRenderer';
+import TimelineRenderer from './TimelineRenderer';
 import Ticker from './lib/Ticker';
 
 export default class Renderer {
@@ -10,6 +11,7 @@ export default class Renderer {
   ticker = null;
   state = null;
   dmxBaseData = null;
+  currentRendererIsTimeline = false;
   
   constructor() {
     const dmx = new DMX();
@@ -41,6 +43,7 @@ export default class Renderer {
       this.currentRenderer.destroy();
       this.currentRenderer = null;
     }
+    this.currentRendererIsTimeline = false;
   }
   
   onMessage = (message) => {
@@ -51,8 +54,8 @@ export default class Renderer {
   update = () => {
     this.destroyRendererRelated();
     
-    const { previewScript, scripts, devices } = this.state;
-    console.log('Renderer.update()', previewScript);
+    const { previewScript, runTimeline, scripts, devices, timelines } = this.state;
+    console.log('Renderer.update()', previewScript, runTimeline);
     
     this.dmxBaseData = this.computeBaseDmxData(devices);
     
@@ -63,8 +66,20 @@ export default class Renderer {
       // temp
       delete require.cache[getCompiledScriptPath(previewScript)];
       
-      this.currentRenderer = new ScriptRenderer(this.outputs, script, devices);
+      this.currentRenderer = new ScriptRenderer(script, devices);
       this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, previewTempo || 120);
+      
+      return;
+    }
+    
+    if (runTimeline) {
+      this.currentRendererIsTimeline = true;
+      
+      const timeline = timelines.find(({id}) => id === runTimeline);
+      const { tempo } = timeline;
+      
+      this.currentRenderer = new TimelineRenderer(timeline, scripts, devices);
+      this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo);
       
       return;
     }
@@ -72,16 +87,14 @@ export default class Renderer {
     this.updateDmx();
   }
   
-  tickerFrame = () => {
-    const renderData = this.currentRenderer.render();
-    // console.log('frame', Date.now());
+  tickerFrame = (time) => {
+    const renderData = this.currentRenderer.render(time);
     
     this.updateDmx(renderData.dmx);
   }
   
-  tickerBeat = (beat) => {
-    this.currentRenderer.beat(beat);
-    // console.log('beat', beat);
+  tickerBeat = (beat, time) => {
+    this.currentRenderer.beat(beat, time);
   }
   
   updateDmx = (data = null) => {
@@ -106,4 +119,3 @@ export default class Renderer {
     }), {});
   }
 }
-

@@ -6,6 +6,7 @@ import timelineInfo from './timelineInfo';
 import timelines from './timelines';
 import modals from './modals';
 import previewScript from './previewScript';
+import runTimeline from './runTimeline';
 
 export default {
   devices,
@@ -16,4 +17,5 @@ export default {
   currentTimeline,
   modals,
   previewScript,
+  runTimeline,
 };

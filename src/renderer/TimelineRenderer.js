@@ -1,153 +1,85 @@
-import EventEmitter from 'events';
-import MidiClock from 'midi-clock';
-import autoBind from 'auto-bind-inheritance';
-import { get, flatten, uniq, pick } from 'lodash';
-import Device from '../Device';
-import TimelineRendererEvent from '../events/TimelineRendererEvent';
+import { flatten, uniq, pick } from 'lodash';
 
-export default class TimelineRenderer extends EventEmitter {
-  constructor(timelineData, outputs) {
-    super();
-    try { // @TODO fix warning
-      autoBind(this);
-    } catch (err) {}
+import ScriptRenderer from './ScriptRenderer';
+import TriggerRenderer from './TriggerRenderer';
+import CurveRenderer from './CurveRenderer';
 
-    this._outputs = outputs;
-    this._tempo = get(timelineData, 'tempo');
-    this._duration = get(timelineData, 'duration');
-    this._inTime = get(timelineData, 'inTime');
-    this._outTime = get(timelineData, 'outTime');
-
-    this._currentTime = 0;
-    this._startTime = 0;
-    this._position = 0;
-    this._interval = null;
-    this._playing = false;
-    this._fps = 40;
-    this._devices = null;
-    this._scripts = null;
-    this._baseData = null;
-    this._dmx = null;
-
-    this._clock = MidiClock();
-    this._clock.setTempo(this._tempo);
-    this._clock.on('position', this.triggerClock);
-
-    // Transform timeline items data for simpler looping
-    const timelineItems = flatten(get(timelineData, 'layers', []));
-    this._blocks = timelineItems.filter((item) => 'script' in item);
-    this._triggers = timelineItems.filter((item) => 'trigger' in item);
-
-    // Create script instances
-    this._scriptInstances = this._blocks.reduce((obj, { id, script }) => ({
-      ...obj,
-      [id]: {
-        script,
-        started: false,
-        instance: null,
-        devices: [],
-        data: {},
-      },
-    }), {});
-
-    // Create trigger instances
-    this._triggerInstances = this._triggers.reduce((obj, { id, trigger }) => ({
-      ...obj,
-      [id]: {
-        trigger,
-        started: false,
-      },
-    }), {});
+export default class TimelineRenderer {
+  duration = null;
+  inTime = null;
+  outTime = null;
+  offsetTime = 0;
+  blocks = null;
+  triggers = null;
+  curves = null;
+  
+  constructor(sourceTimeline, sourceScripts, sourceDevices) {
+    const { inTime, outTime, duration } = sourceTimeline;
+    
+    this.inTime = inTime;
+    this.outTime = outTime;
+    this.duration = duration;
+    
+    // Extract timeline items
+    const timelineItems = flatten(sourceTimeline.layers);
+    const sourceScriptsById = sourceScripts.reduce((obj, script) => {
+      return {
+        ...obj,
+        [script.id]: script,
+      };
+    }, {});
+    
+    this.blocks = timelineItems
+      .filter((item) => 'script' in item)
+      .map((block) => {
+        return {
+          ...block,
+          instance: new ScriptRenderer(sourceScriptsById[block.script], sourceDevices),
+        };
+      });
+    
+    this.triggers = timelineItems
+      .filter((item) => 'trigger' in item)
+      .map((trigger) => {
+        return {
+          ...trigger,
+          instance: new TriggerRenderer(),
+        };
+      });
+      
+    this.curves = timelineItems
+      .filter((item) => 'curve' in item)
+      .map((curve) => {
+        return {
+          ...curve,
+          instance: new CurveRenderer(),
+        };
+      });
   }
 
-  init() {
-    for (let id in this._scriptInstances) {
-      const scriptId = this._scriptInstances[id].script;
-      this._scriptInstances[id].instance = new this._scripts[scriptId].scriptClass;
-      this._scriptInstances[id].devices = Object.values(pick(this._devices, this._scripts[scriptId].scriptData.devices.map(({id}) => id)))
-        .map((device) => new Device(
-          device.name,
-          device.groups,
-          Number(device.startChannel),
-          device.channels.length,
-          device.channels
-            // .filter(({alias}) => alias !== null) // @TODO fix
-            .reduce((obj, channel, index) => ({
-              ...obj,
-              [channel.alias]: index + 1,
-            }), {})
-          // device.channels
-          //   .reduce((obj, channel, index) => ({
-          //     ...obj,
-          //     [index]: Number(channel.defaultValue),
-          //   }), {}),
-        ));
+  setPosition = (position) => {
+    this.offsetTime = position;
+    this.resetBlocks();
+    this.resetTriggers();
+    this.resetCurves();
+  }
+
+  render = (time) => {
+    const currentTime = time + this.offsetTime;
+    if (currentTime > this.outTime) {
+      // this.restartTimeline();
+      // currentTime = 0;
+      return {};
     }
 
-    this._baseData = this.computeBaseData(this._devices);
-  }
-
-  get playing() {
-    return this._playing;
-  }
-
-  get scriptIds() {
-    return uniq(Object.values(this._scriptInstances).map(({ script }) => script));
-  }
-
-  updateDevices(devices) {
-    this._devices = devices;
-  }
-
-  updateScripts(scripts) {
-    this._scripts = scripts;
-  }
-
-  start() {
-    if (this._playing) return;
-
-    this._startTime = Date.now();
-    this._position = 0;
-
-    this.render();
-
-    this._interval = setInterval(this.render, (1 / this._fps) * 1000);
-    this._clock.start();
-
-    this._playing = true;
-  }
-
-  stop() {
-    if (!this._playing) return;
-
-    clearInterval(this._interval);
-    this._clock.stop();
-
-    this._playing = false;
-  }
-
-  setPosition(position) {
-    this._position = position;
-    this._startTime = Date.now();
-    this.resetScriptInstances();
-    this.resetTriggerInstances();
-  }
-
-  render() {
-    this._currentTime = (Date.now() - this._startTime) + this._position;
-    if (this._currentTime > this._outTime) {
-      this.restartTimeline();
-      this._currentTime = 0;
-    }
-
-    const triggerData = this._triggers
+    const triggerData = this.triggers
       .filter((trigger) => (
-        this._currentTime >= trigger.inTime
-        && this._currentTime <= trigger.inTime + 50
-        && !this._triggerInstances[trigger.id].started)
+        currentTime >= trigger.inTime
+        && currentTime <= trigger.inTime + 50
+        && !trigger.instance.triggered)
       )
       .reduce((renderTriggerData, trigger) => {
-        this._triggerInstances[trigger.id].started = true;
+        trigger.instance.render();
 
         return {
           ...renderTriggerData,
@@ -155,164 +87,85 @@ export default class TimelineRenderer extends EventEmitter {
         };
       }, {});
 
-    const renderData = this._blocks
-      .filter((block) => (
-        this._currentTime >= block.inTime
-        && this._currentTime <= block.outTime)
+    const curveData = this.curves
+      .filter((curve) => (
+        currentTime >= curve.inTime
+        && currentTime <= curve.inTime + 50
+        && !curve.instance.started)
       )
-      .reduce((renderDataObj, block) => {
-        // console.log('rendering ', this._currentTime, block.id, block.name);
-
-        // Script start
-        if (!this._scriptInstances[block.id].started) {
-          try {
-            if (typeof this._scriptInstances[block.id].instance.start === 'function') {
-              const data = this._scriptInstances[block.id].instance.start(this._scriptInstances[block.id].devices, triggerData);
-              this._scriptInstances[block.id].data = data || {};
-            }
-          }  catch (err) {
-             console.error(err);
-          }
-          this._scriptInstances[block.id].started = true;
-        }
-
-        const blockInfo = {
-          inTime: block.inTime,
-          outTime: block.outTime,
-          currentTime: this._currentTime,
-          blockPercent: ((this._currentTime - block.inTime) / (block.outTime - block.inTime)),
-        }
-
-        // Script loop
-        try {
-          if (typeof this._scriptInstances[block.id].instance.loop === 'function') {
-            const data = this._scriptInstances[block.id].instance.loop(this._scriptInstances[block.id].devices, this._scriptInstances[block.id].data, blockInfo, triggerData);
-            this._scriptInstances[block.id].data = data || this._scriptInstances[block.id].data;
-          }
-        } catch (err) {
-          console.error(err);
-        }
-
-        const renderOutput = {
-          ...renderDataObj,
-          ...this._scriptInstances[block.id].devices.reduce((obj, device) => ({
-            ...obj,
-            ...Object.entries(device.data).reduce((data, [channel, value]) => ({
-              ...data,
-              [Number(channel) + device.startingChannel]: value,
-            }), {}),
-          }), {}),
-        };
-
-        // this._scriptInstances[block.id].devices.forEach((device) => {
-        //   device.resetChannels();
-        // });
-
-        return renderOutput;
-      }, {});
-
-    const allData = {
-      ...this._baseData,
-      ...renderData,
-    };
-
-    // console.log(this._baseData);
-    // console.log(renderData);
-    // console.log(allData);
-    this._outputs.main.update('main', allData);
-
-    this.emit(TimelineRendererEvent.UPDATE_POSITION, this._currentTime);
-  }
-
-  triggerClock(time) {
-    const renderData = this._blocks
-      .filter((block) => (this._currentTime >= block.inTime && this._currentTime <= block.outTime))
-      .reduce((renderDataObj, block) => {
-        // Script beat
-        try {
-          if (typeof this._scriptInstances[block.id].instance.beat === 'function') {
-            const data = this._scriptInstances[block.id].instance.beat(this._scriptInstances[block.id].devices, time, this._scriptInstances[block.id].data);
-            this._scriptInstances[block.id].data = data || this._scriptInstances[block.id].data;
-          }
-        } catch (err) {
-          console.error(err);
-        }
+      .reduce((renderCurveData, curve) => {
+        const data = curve.instance.render();
 
         return {
-          ...renderDataObj,
-          ...this._scriptInstances[block.id].devices.reduce((obj, device) => ({
-            ...obj,
-            ...Object.entries(device.data).reduce((data, [channel, value]) => ({
-              ...data,
-              [Number(channel) + device.startingChannel]: value,
-            }), {}),
-          }), {}),
+          ...renderCurveData,
+          [curve.trigger]: true,
         };
       }, {});
 
-    const allData = {
-      ...this._baseData,
-      ...renderData,
-    };
+    const renderData = this.blocks
+      .filter((block) => (
+        currentTime >= block.inTime
+        && currentTime <= block.outTime)
+      )
+      .reduce((renderDataObj, block) => {
+        const { inTime, outTime } = block;
+        const blockInfo = {
+          inTime,
+          outTime,
+          currentTime,
+          blockPercent: ((currentTime - inTime) / (outTime - inTime)),
+        };
+        
+        const data = block.instance.render(currentTime, blockInfo, triggerData);
+        
+        return {
+          dmx: {
+            ...renderDataObj.dmx,
+            ...data.dmx,
+          },
+        };
+      }, {});
 
-    // console.log(this._baseData);
-    // console.log(renderData);
-    // console.log(allData);
-    this._outputs.main.update('main', allData);
+    return renderData;
   }
 
-  restartTimeline() {
-    this._startTime = Date.now();
-    this._position = 0;
-    this.resetScriptInstances();
-    this.resetTriggerInstances();
+  beat = (beat, time) => {
+    const currentTime = time + this.offsetTime;
+    
+    this.blocks
+      .filter((block) => (
+        currentTime >= block.inTime
+        && currentTime <= block.outTime)
+      )
+      .forEach((block) => {
+        block.instance.beat(beat, currentTime);
+      });
   }
 
-  resetScriptInstances() {
-    for (let id in this._scriptInstances) {
-      this._scriptInstances[id].started = false;
-      this._scriptInstances[id].data = {};
-      for (let device in this._scriptInstances[id].devices) {
-        this._scriptInstances[id].devices[device].resetChannels();
-      }
-    }
+  restartTimeline = () => {
+    this.offsetTime = 0;
+    this.resetBlocks();
+    this.resetTriggers();
+    this.resetCurves();
   }
 
-  resetTriggerInstances() {
-    for (let id in this._triggerInstances) {
-      this._triggerInstances[id].started = false;
-    }
+  resetBlocks = () => {
+    this.blocks.forEach((block) => block.instance.reset());
   }
 
-  computeBaseData(allDevices) {
-    return {
-      ...Object.values(allDevices).reduce((obj, device) => ({
-        ...obj,
-        ...device.channels.reduce((obj2, channel, index) => {
-          return {
-            ...obj2,
-            [Number(device.startChannel) + index]: channel.defaultValue,
-          };
-        }, {}),
-      }), {}),
-    };
+  resetTriggers = () => {
+    this.triggers.forEach((trigger) => trigger.instance.reset());
   }
 
-  destroy() {
-    this.stop();
+  resetCurves = () => {
+    this.curves.forEach((curve) => curve.instance.reset());
+  }
 
-    for (let id in this._scriptInstances) {
-      // if ('instance' in this._scriptInstances[id]) {
-      //   this._scriptInstances[id].instance.destroy();
-      // }
-      delete this._scriptInstances[id];
-    }
-    for (let id in this._triggerInstances) {
-      delete this._triggerInstances[id];
-    }
+  destroy = () => {
+    this.blocks.forEach((block) => block.instance.destroy());
 
-    this._blocks = null;
-    this._scriptInstances = null;
-    this._triggerInstances = null;
+    this.blocks = null;
+    this.triggers = null;
+    this.curves = null;
   }
 }

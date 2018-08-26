@@ -1,13 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, Label, ButtonGroup, ButtonToolbar, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
 import Panel from './Panel';
 import TreeView from './TreeView';
 import stopEvent from '../../lib/stopEvent';
-import { deleteTimeline, selectTimeline } from '../../../../common/js/store/actions/timelines';
+import { deleteTimeline, selectTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineModal } from '../../../../common/js/store/actions/modals';
 import { deleteWarning } from '../../lib/messageBoxes';
 
@@ -15,15 +15,19 @@ import styles from '../../../styles/components/partials/timelinesbrowser.scss';
 
 const propTypes = {
   timelines: PropTypes.arrayOf(PropTypes.shape({})),
+  runTimeline: PropTypes.string,
   doSelectTimeline: PropTypes.func.isRequired,
   doDeleteTimeline: PropTypes.func.isRequired,
   doCreateTimelineModal: PropTypes.func.isRequired,
   doEditTimelineModal: PropTypes.func.isRequired,
   doDuplicateTimelineModal: PropTypes.func.isRequired,
+  doRunTimeline: PropTypes.func.isRequired,
+  doStopRunTimeline: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   timelines: [],
+  runTimeline: null,
 };
 
 class TimelinesBrowser extends PureComponent {
@@ -51,6 +55,16 @@ class TimelinesBrowser extends PureComponent {
     doDuplicateTimelineModal(data);
   }
   
+  onPreviewClick = (id) => {
+    const { doRunTimeline } = this.props;
+    doRunTimeline(id);
+  }
+  
+  onStopPreviewClick = () => {
+    const { doStopRunTimeline } = this.props;
+    doStopRunTimeline();
+  }
+  
   onDeleteClick = (id) => {
     deleteWarning(`Are you sure you want to delete this timeline ?`, (result) => {
       if (result) {
@@ -59,13 +73,40 @@ class TimelinesBrowser extends PureComponent {
       }
     });
   }
-
+  
+  renderTreeTags = (it) => {
+    const { runTimeline } = this.props;
+    
+    if (it.id !== runTimeline) {
+      return null;
+    }
+    
+    return (
+      <Label
+        bsSize="xsmall"
+        bsStyle="success"
+      >
+        <Glyphicon
+          glyph="eye-open"
+        />
+      </Label>
+    )
+  }
+  
   renderTreeActions = (it) => {
     return (
       <div
         className="pull-right"
       >
         <ButtonGroup>
+          <Button
+            bsSize="xsmall"
+            onClick={(e) => {stopEvent(e); this.onPreviewClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="eye-open"
+            />
+          </Button>
           <Button
             bsSize="xsmall"
             onClick={(e) => {stopEvent(e); this.onDuplicateClick(it.id)}}
@@ -97,16 +138,23 @@ class TimelinesBrowser extends PureComponent {
   }
 
   render = () => {
-    const { timelines, currentTimeline } = this.props;
+    const { timelines, currentTimeline, runTimeline } = this.props;
 
     return (
       <Panel
         title="Timelines"
         className={styles.fullHeight}
         headingContent={
-          <div
+          <ButtonToolbar
             className="pull-right"
           >
+            <Button
+              bsSize="xsmall"
+              disabled={runTimeline === null}
+              onClick={runTimeline !== null ? this.onStopPreviewClick : null}
+            >
+              Stop preview
+            </Button>
             <Button
               bsSize="xsmall"
               onClick={this.onAddClick}
@@ -115,7 +163,7 @@ class TimelinesBrowser extends PureComponent {
                 glyph="plus"
               />
             </Button>
-          </div>
+          </ButtonToolbar>
         }
       >
         <TreeView
@@ -131,6 +179,7 @@ class TimelinesBrowser extends PureComponent {
           }))}
           onClickItem={this.onTimelineSelect}
           renderActions={this.renderTreeActions}
+          renderTags={this.renderTreeTags}
         />
       </Panel>
     );
@@ -140,10 +189,11 @@ class TimelinesBrowser extends PureComponent {
 TimelinesBrowser.propTypes = propTypes;
 TimelinesBrowser.defaultProps = defaultProps;
 
-const mapStateToProps = ({timelines, currentTimeline}) => {
+const mapStateToProps = ({timelines, currentTimeline, runTimeline}) => {
   return {
     timelines,
     currentTimeline,
+    runTimeline,
   };
 }
 const mapDispatchToProps = (dispatch) => {
@@ -153,6 +203,8 @@ const mapDispatchToProps = (dispatch) => {
     doCreateTimelineModal: () => dispatch(updateTimelineModal('add', {})),
     doEditTimelineModal: (data) => dispatch(updateTimelineModal('edit', data)),
     doDuplicateTimelineModal: (data) => dispatch(updateTimelineModal('duplicate', data)),
+    doRunTimeline: (id) => dispatch(runTimeline(id)),
+    doStopRunTimeline: () => dispatch(stopTimeline()),
   };
 }
 

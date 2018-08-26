@@ -39,3 +39,13 @@ export const updateCurrentTimeline = (timelineData) => ({
   type: 'UPDATE_CURRENT_TIMELINE',
   payload: timelineData,
 });
+
+export const runTimeline = (id) => ({
+  type: 'RUN_TIMELINE',
+  payload: id,
+});
+
+export const stopTimeline = () => ({
+  type: 'RUN_TIMELINE',
+  payload: null,
+});
