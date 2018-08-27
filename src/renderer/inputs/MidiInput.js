@@ -10,8 +10,10 @@ export default class MidiInput {
     
     this.input = new midi.input();
     this.input.on('message', this.onMessage);
-    console.log('MidiInput', this.input.getPortCount());
-    this.input.openPort(0);
+    if (this.input.getPortCount()) {
+      console.log('MIDI');
+      this.input.openPort(0);
+    } 
   }
   
   onMessage = (deltaTime, message) => {
