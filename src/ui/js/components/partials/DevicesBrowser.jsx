@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, Label, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
 import Panel from './Panel';
@@ -86,6 +86,22 @@ class DevicesBrowser extends PureComponent {
       </div>
     );
   }
+  
+  renderTreeTags = (it) => {
+    const { groups } = it;
+
+    if (!groups) { 
+      return null;
+    }
+    
+    return (
+      <Label
+        bsSize="xsmall"
+      >
+        { groups }
+      </Label>
+    )
+  }
 
   render = () => {
     const { devices } = this.props;
@@ -114,13 +130,15 @@ class DevicesBrowser extends PureComponent {
             overflowY: 'auto',
             height: '94%',
           }}
-          value={devices.map(({id, name}) => ({
+          value={devices.map(({id, name, groups}) => ({
             id,
             label: name,
             icon: 'modal-window',
+            groups,
           }))}
           onClickItem={this.onScriptSelect}
           renderActions={this.renderTreeActions}
+          renderTags={this.renderTreeTags}
         />
       </Panel>
     );
