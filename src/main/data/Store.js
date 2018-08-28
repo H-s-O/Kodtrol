@@ -5,6 +5,7 @@ import { observer, observe } from 'redux-observers'
 
 import * as StoreEvent from '../events/StoreEvent';
 import * as appReducers from '../../common/js/store/reducers/index';
+import resetRunningItems from '../../common/js/store/middlewares/resetRunningItems';
 
 export default class Store extends EventEmitter {
   store = null;
@@ -16,7 +17,8 @@ export default class Store extends EventEmitter {
       combineReducers(appReducers),
       initialState,
       applyMiddleware(
-        forwardToRenderer,
+        resetRunningItems,
+        forwardToRenderer, // IMPORTANT! This goes last
       ),
     );
     

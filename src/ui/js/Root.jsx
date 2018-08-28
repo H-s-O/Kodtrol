@@ -6,6 +6,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 
 import Main from './Main';
 import * as appReducers from '../../common/js/store/reducers/index';
+import resetRunningItems from '../../common/js/store/middlewares/resetRunningItems';
 
 import styles from '../styles/root.scss';
 
@@ -21,7 +22,10 @@ export default class Root extends PureComponent {
       combineReducers(appReducers), 
       initialState,
       composeWithDevTools(
-        applyMiddleware(forwardToMain),
+        applyMiddleware(
+          forwardToMain, // IMPORTANT! This goes first
+          resetRunningItems,
+        ),
       ),
     );
     replayActionRenderer(this.store);
