@@ -1,5 +1,7 @@
 import { app } from 'electron';
-import { get, set } from 'lodash';
+import { get, set, flatten } from 'lodash';
+import express from 'express';
+import cors from 'cors';
 
 import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
 import { readAppConfig, writeAppConfig, createProject, writeJson, readJson } from './lib/fileSystem';
@@ -23,6 +25,7 @@ export default class Main {
   mainMenu = null
   store = null;
   renderer = null;
+  expressApp = null;
   
   constructor() {
     app.on('ready', this.onReady);
@@ -37,6 +40,7 @@ export default class Main {
   }
   
   onReady = () => {
+    this.createWebServer();
     this.createMainMenu();
     this.run();
   }
@@ -196,5 +200,38 @@ export default class Main {
     // writeAppConfig(appConfig);
     
     this.currentProjectFilePath = null;
+  }
+  
+  createWebServer = () => {
+    this.expressApp = express();
+    this.expressApp.use(cors());
+    // this.express.get('/timelines/:timelineId/blocks/:blockId/file', this.serveTimelineAudioTrack);
+    this.expressApp.get('/current-timeline/blocks/:blockId/file', this.serveTimelineAudioTrack);
+    
+    const port = 5555;
+    this.expressApp.listen(port, () => {
+      console.log(`Web server started on port ${port}`);
+    });
+  }
+  
+  serveTimelineAudioTrack = (req, res, next) => {
+    if (!this.store) {
+      return next();
+    }
+    // const timelines = this.store.state.timelines;
+    // const timeline = timelines.find(({id}) => id === req.params.timelineId);
+    const timeline = this.store.state.currentTimeline;
+    if (!timeline) {
+      return res.status(404);
+    }
+    const block = flatten(timeline.layers).find(({id}) => id === req.params.blockId);
+    if (!block) {
+      return res.status(404);
+    }
+    const file = block.file;
+    if (!file) {
+      return res.status(404);
+    }
+    res.sendFile(file);
   }
 }
