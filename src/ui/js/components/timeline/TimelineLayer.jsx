@@ -97,6 +97,17 @@ class TimelineLayer extends PureComponent {
 
     const menu = new Menu();
     menu.append(new MenuItem({
+      label: 'Add layer above',
+      click: this.onAddLayerAboveClick,
+    }));
+    menu.append(new MenuItem({
+      label: 'Add layer below',
+      click: this.onAddLayerBelowClick,
+    }));
+    menu.append(new MenuItem({
+      type: 'separator',
+    }));
+    menu.append(new MenuItem({
       label: 'Delete layer...',
       click: this.onDeleteLayerClick,
     }));
@@ -114,7 +125,7 @@ class TimelineLayer extends PureComponent {
 
     e.stopPropagation();
     e.preventDefault();
-    e.persist(); // needed so that it can be forwarded
+    e.persist(); // needed so that it can be forwarded for "add here"
     menu.popup({
       window: remote.getCurrentWindow(),
     });

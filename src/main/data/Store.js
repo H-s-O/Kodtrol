@@ -48,11 +48,18 @@ export default class Store extends EventEmitter {
       },
       this.onRunTimeline,
     );
+    const timelineInfoUserObserver = observer(
+      (state) => {
+        return state.timelineInfoUser;
+      },
+      this.onTimelineInfoUserChange
+    );
     
     observe(this.store, [
       scriptsObserver,
       previewScriptObserver,
       runTimelineObserver,
+      timelineInfoUserObserver,
     ]);
     replayActionMain(this.store);
   }
@@ -75,6 +82,10 @@ export default class Store extends EventEmitter {
   
   onRunTimeline = (dispatch, current, previous) => {
     this.emit(StoreEvent.RUN_TIMELINE);
+  }
+  
+  onTimelineInfoUserChange = (dispatch, current, previous) => {
+    this.emit(StoreEvent.TIMELINE_INFO_USER_CHANGED);
   }
   
   dispatch = (action) => {

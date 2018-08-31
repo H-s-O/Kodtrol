@@ -16,7 +16,7 @@ import ScriptsManager from './data/ScriptsManager';
 import { updateScripts } from '../common/js/store/actions/scripts';
 import { updateDevices } from '../common/js/store/actions/devices';
 import { updateTimelines } from '../common/js/store/actions/timelines';
-import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
+import { updateTimelineInfo, updateTimelineInfoUser } from '../common/js/store/actions/timelineInfo';
 import Renderer from './process/Renderer';
 
 export default class Main {
@@ -84,6 +84,7 @@ export default class Main {
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
+    this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
   }
   
   destroyStore = () => {
@@ -100,11 +101,24 @@ export default class Main {
   }
   
   onPreviewScript = () => {
-    this.renderer.send(this.store.state);
+    this.renderer.send({
+      updateRenderer: this.store.state,
+    });
   }
   
   onRunTimeline = () => {
-    this.renderer.send(this.store.state);
+    this.renderer.send({
+      updateRenderer: this.store.state,
+    });
+  }
+  
+  onTimelineInfoUserChanged = () => {
+    const { timelineInfoUser } = this.store.state;
+    if (timelineInfoUser !== null) {
+      this.renderer.send({
+        updateTimelineInfo: timelineInfoUser,
+      });
+    }
   }
   
   createMainWindow = () => {
@@ -134,11 +148,18 @@ export default class Main {
   
   createRenderer = () => {
     this.renderer = new Renderer();
-    this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onTimelineInfoUpdate);
+    this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
+    this.renderer.on(RendererEvent.TIMELINE_INFO_USER_UPDATE, this.onRendererTimelineInfoUserUpdate);
   }
   
-  onTimelineInfoUpdate = (info) => {
+  onRendererTimelineInfoUpdate = (info) => {
     this.store.dispatch(updateTimelineInfo(info));
+  }
+  
+  onRendererTimelineInfoUserUpdate = (info) => {
+    if (info === true) {
+      this.store.dispatch(updateTimelineInfoUser(null));
+    }
   }
   
   destroyRenderer = () => {

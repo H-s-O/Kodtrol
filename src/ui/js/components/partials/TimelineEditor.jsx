@@ -14,7 +14,7 @@ import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
 import TimelineLayer from '../timeline/TimelineLayer';
 import { updateCurrentTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
-import { updateTimelineInfo } from '../../../../common/js/store/actions/timelineInfo';
+import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
 import { importAudioFile } from '../../lib/messageBoxes';
 
 import styles from '../../../styles/components/partials/timeline.scss';
@@ -25,6 +25,7 @@ const propTypes = {
   scripts: PropTypes.arrayOf(PropTypes.shape({})),
   doUpdateCurrentTimeline: PropTypes.func.isRequired,
   doUpdateTimelineInfo: PropTypes.func.isRequired,
+  doUpdateTimelineInfoUser: PropTypes.func.isRequired,
   doSaveTimeline: PropTypes.func.isRequired,
 };
 
@@ -306,9 +307,9 @@ class TimelineEditor extends PureComponent {
   onTimelineClick = (e) => {
     stopEvent(e);
 
-    const { doUpdateTimelineInfo } = this.props;
+    const { doUpdateTimelineInfoUser } = this.props;
     const newPosition = this.getTimelinePositionFromEvent(e);
-    doUpdateTimelineInfo({
+    doUpdateTimelineInfoUser({
       position: newPosition,
     });
   }
@@ -594,6 +595,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     doUpdateCurrentTimeline: (data) => dispatch(updateCurrentTimeline(data)),
     doUpdateTimelineInfo: (data) => dispatch(updateTimelineInfo(data)),
+    doUpdateTimelineInfoUser: (data) => dispatch(updateTimelineInfoUser(data)),
     doSaveTimeline: (data) => dispatch(saveTimeline(data)),
   };
 };

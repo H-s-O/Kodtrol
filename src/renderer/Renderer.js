@@ -58,15 +58,22 @@ export default class Renderer {
   }
   
   onMessage = (message) => {
-    this.state = message;
-    this.update();
+    if ('updateRenderer' in message) {
+      this.state = message.updateRenderer;
+      this.updateRenderer();
+    } else if ('updateTimelineInfo' in message) {
+      this.updateTimelineInfo(message.updateTimelineInfo);
+      this.send({
+        'updateTimelineInfo': true,
+      });
+    }
   }
   
-  update = () => {
+  updateRenderer = () => {
     this.destroyRendererRelated();
     
     const { previewScript, runTimeline, scripts, devices, timelines } = this.state;
-    console.log('Renderer.update()', previewScript, runTimeline);
+    console.log('Renderer.updateRenderer()', previewScript, runTimeline);
     
     this.dmxBaseData = this.computeBaseDmxData(devices);
     
@@ -98,6 +105,14 @@ export default class Renderer {
     this.updateDmx();
   }
   
+  updateTimelineInfo = (data) => {
+    if (this.currentRenderer && this.currentRendererIsTimeline) {
+      if ('position' in data) {
+        this.currentRenderer.setPosition(data.position);
+      }
+    }
+  }
+  
   send = (data) => {
     process.send(data);
   }
@@ -117,7 +132,9 @@ export default class Renderer {
   }
   
   tickerBeat = (beat, time) => {
-    this.currentRenderer.beat(beat, time);
+    if (this.currentRenderer) {
+      this.currentRenderer.beat(beat, time);
+    }
   }
   
   onMidiInput = (data) => {

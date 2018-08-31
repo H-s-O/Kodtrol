@@ -3,7 +3,7 @@ export const updateTimelineInfo = (timelineInfo) => ({
   payload: timelineInfo,
 });
 
-export const updateTimelinePosition = (position) => ({
-  type: 'UPDATE_TIMELINE_POSITION',
-  payload: position,
+export const updateTimelineInfoUser = (timelineInfo) => ({
+  type: 'UPDATE_TIMELINE_INFO_USER',
+  payload: timelineInfo,
 });

@@ -28,6 +28,8 @@ export default class Renderer extends EventEmitter {
   onMessage = (message) => {
     if ('timelineInfo' in message) {
       this.emit(RendererEvent.TIMELINE_INFO_UPDATE, message.timelineInfo);
+    } else if ('timelineInfoUser' in message) {
+      this.emit(RendererEvent.TIMELINE_INFO_USER_UPDATE, message.timelineInfoUser);
     }
   }
   

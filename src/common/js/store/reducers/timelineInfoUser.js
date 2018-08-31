@@ -1,6 +1,6 @@
 export default (state = {}, {type, payload}) => {
   switch (type) {
-    case 'UPDATE_TIMELINE_INFO':
+    case 'UPDATE_TIMELINE_INFO_USER':
       return payload;
       break;
       
