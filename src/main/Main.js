@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import { get, set, flatten } from 'lodash';
+import { get, set, flatten, pick } from 'lodash';
 import express from 'express';
 import cors from 'cors';
 
@@ -208,7 +208,11 @@ export default class Main {
   
   saveCurrentProject = () => {
     const state = this.store.state;
-    writeJson(this.currentProjectFilePath , state);
+    writeJson(this.currentProjectFilePath, pick(state, [
+      'devices',
+      'scripts',
+      'timelines',
+    ]));
   }
   
   closeCurrentProject = () => {
