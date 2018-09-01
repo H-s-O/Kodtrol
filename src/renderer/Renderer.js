@@ -106,6 +106,8 @@ export default class Renderer {
   }
   
   updateTimelineInfo = (data) => {
+    console.log('Renderer.updateTimelineInfo', data);
+    
     if (this.currentRenderer && this.currentRendererIsTimeline) {
       if ('position' in data) {
         this.currentRenderer.setPosition(data.position);
@@ -117,8 +119,8 @@ export default class Renderer {
     process.send(data);
   }
   
-  tickerFrame = (time) => {
-    const renderData = this.currentRenderer.render(time);
+  tickerFrame = (delta) => {
+    const renderData = this.currentRenderer.render(delta);
     
     this.updateDmx(renderData.dmx);
     
@@ -131,9 +133,9 @@ export default class Renderer {
     }
   }
   
-  tickerBeat = (beat, time) => {
+  tickerBeat = (beat, delta) => {
     if (this.currentRenderer) {
-      this.currentRenderer.beat(beat, time);
+      this.currentRenderer.beat(beat, delta);
     }
   }
   

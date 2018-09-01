@@ -24,12 +24,12 @@ export default class Ticker {
   
   tick = () => {
     const time = Date.now();
-    const diff = time - this.startTime;
+    const diff = time - this.lastTime;
     
     this.count++;
     this.beatCallback(this.count, diff);
     
-    if ((time - this.lastTime) >= this.framerateDelay) {
+    if (diff >= this.framerateDelay) {
       this.frameCallback(diff);
       this.lastTime = time;
     }

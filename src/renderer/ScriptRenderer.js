@@ -36,7 +36,7 @@ export default class ScriptRenderer {
     // @TODO
   }
 
-  render = (time, blockInfo = {}, triggerData = {}) => {
+  render = (delta, blockInfo = {}, triggerData = {}) => {
     const script = this.scriptInstance;
 
     // Script start
@@ -81,7 +81,7 @@ export default class ScriptRenderer {
     }
   }
   
-  beat = (beat, time) => {
+  beat = (beat, delta) => {
     // Script beat
     try {
       if (typeof this.scriptInstance.beat === 'function') {

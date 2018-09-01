@@ -8,7 +8,6 @@ export default class TimelineRenderer {
   duration = null;
   inTime = null;
   outTime = null;
-  offsetTime = 0;
   currentTime = 0;
   blocks = null;
   triggers = null;
@@ -59,14 +58,14 @@ export default class TimelineRenderer {
   }
 
   setPosition = (position) => {
-    this.offsetTime = position;
+    this.currentTime = position;
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
   }
-
-  render = (time) => {
-    this.currentTime = time + this.offsetTime; 
+  
+  render = (delta) => {
+    this.currentTime += delta;
     
     const currentTime = this.currentTime;
     if (currentTime > this.outTime) {
@@ -132,8 +131,8 @@ export default class TimelineRenderer {
     return renderData;
   }
 
-  beat = (beat, time) => {
-    const currentTime = time + this.offsetTime;
+  beat = (beat, delta) => {
+    const currentTime = this.currentTime + delta;
     
     this.blocks
       .filter((block) => (
@@ -150,7 +149,7 @@ export default class TimelineRenderer {
   }
 
   restartTimeline = () => {
-    this.offsetTime = 0;
+    this.positionTime = 0;
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
