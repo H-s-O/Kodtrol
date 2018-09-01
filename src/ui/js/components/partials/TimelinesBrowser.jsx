@@ -151,6 +151,7 @@ class TimelinesBrowser extends PureComponent {
             <Button
               bsSize="xsmall"
               disabled={runTimeline === null}
+              bsStyle={runTimeline !== null ? 'danger' : 'default' }
               onClick={runTimeline !== null ? this.onStopPreviewClick : null}
             >
               <Glyphicon

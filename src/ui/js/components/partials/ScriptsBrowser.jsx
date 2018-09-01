@@ -150,6 +150,7 @@ class ScriptsBrowser extends PureComponent {
             <Button
               bsSize="xsmall"
               disabled={previewScript === null}
+              bsStyle={previewScript !== null ? 'danger' : 'default' }
               onClick={previewScript !== null ? this.onStopPreviewClick : null}
             >
               <Glyphicon
