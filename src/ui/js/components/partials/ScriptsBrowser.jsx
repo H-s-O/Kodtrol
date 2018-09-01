@@ -168,10 +168,7 @@ class ScriptsBrowser extends PureComponent {
         }
       >
         <TreeView
-          style={{
-            overflowY: 'auto',
-            height: '94%',
-          }}
+          className={styles.wrapper}
           value={scripts.map(({id, name}) => ({
             id,
             label: name,

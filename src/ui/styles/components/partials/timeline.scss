@@ -1,5 +1,12 @@
 @import '../../utils.scss';
 
+.wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
 .timeline {
   height: 100%;
   overflow-x: hidden;

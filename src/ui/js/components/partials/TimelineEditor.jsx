@@ -568,7 +568,7 @@ class TimelineEditor extends PureComponent {
       >
         <div
           ref={ (ref) => this.timelineContainer = ref }
-          style={ { position: 'relative', width: '100%', height: '90%', overflowX: 'auto' }}
+          className={styles.wrapper}
           onClick={ this.onTimelineClick }
           onMouseMove={adjustItemPath ? this.onMouseMove : null}
           onMouseUp={adjustItemPath ? this.onMouseUp : null}

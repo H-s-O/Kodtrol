@@ -78,21 +78,23 @@ class ScriptEditor extends PureComponent {
           </ButtonToolbar>
         )}
       >
-        <AceEditor
-          value={content}
-          onChange={this.onEditorChange}
-          fontSize={12}
-          tabSize={2}
-          showPrintMargin={false}
-          width="100%"
-          height="92%"
-          mode="javascript"
-          theme="tomorrow_night_eighties"
-          name="UNIQUE_ID_OF_DIV"
-          editorProps={{
-            $blockScrolling: Infinity
-          }}
-        />
+        { value ? (
+          <AceEditor
+            value={content}
+            onChange={this.onEditorChange}
+            fontSize={12}
+            tabSize={2}
+            showPrintMargin={false}
+            width="100%"
+            height="94%"
+            mode="javascript"
+            theme="tomorrow_night_eighties"
+            name="UNIQUE_ID_OF_DIV"
+            editorProps={{
+              $blockScrolling: Infinity
+            }}
+          />
+        ) : null }
       </Panel>
     );
   }

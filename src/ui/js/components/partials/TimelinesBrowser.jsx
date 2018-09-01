@@ -169,14 +169,11 @@ class TimelinesBrowser extends PureComponent {
         }
       >
         <TreeView
-          style={{
-            overflowY: 'auto',
-            height: '94%',
-          }}
+          className={styles.wrapper}
           value={timelines.map(({id, name}) => ({
             id,
             label: name,
-            icon: 'file',
+            icon: 'film',
             active: id === get(currentTimeline, 'id'),
           }))}
           onClickItem={this.onTimelineSelect}

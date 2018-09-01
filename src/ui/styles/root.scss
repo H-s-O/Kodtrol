@@ -1,5 +1,5 @@
 $icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
-$grid-gutter-width: 10px;
+$grid-gutter-width: 5px;
 
 @import "~bootswatch/slate/variables";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap";
@@ -10,14 +10,15 @@ $grid-gutter-width: 10px;
   cursor: default !important;
 }
 
-:global html::-webkit-scrollbar-track {
-  background: #f1f1f1;
+:global ::-webkit-scrollbar {
+  background: #333;
+  width: 10px;
 }
-:global html::-webkit-scrollbar-thumb {
+:global ::-webkit-scrollbar-thumb {
   background: #888;
 }
 
 :global #root {
-  padding: 10px 5px;
   height: 100vh;
+  overflow: hidden;
 }

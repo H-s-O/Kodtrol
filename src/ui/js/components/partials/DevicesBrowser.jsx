@@ -125,11 +125,7 @@ class DevicesBrowser extends PureComponent {
         }
       >
         <TreeView
-          style={{
-            overflowX: 'visible',
-            overflowY: 'auto',
-            height: '94%',
-          }}
+          className={styles.wrapper}
           value={devices.map(({id, name, groups}) => ({
             id,
             label: name,

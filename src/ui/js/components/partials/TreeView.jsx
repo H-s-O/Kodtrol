@@ -74,10 +74,11 @@ class TreeView extends PureComponent {
   }
 
   render = () => {
-    const { value, style } = this.props;
+    const { value, className, style } = this.props;
     return (
       <ListGroup
         componentClass="ul"
+        className={className}
         style={style}
       >
         { value.map(this.renderItem) }
