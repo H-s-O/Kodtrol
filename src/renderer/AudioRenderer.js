@@ -1,32 +1,34 @@
 import fs from 'fs';
-import wav from 'wav';
+import wav from 'node-wav';
+import { AudioContext } from 'web-audio-api';
 
 export default class AudioRenderer {
   started = false;
-  fileStream = null;
-  wavReader = null;
+  context = null;
+  bufferNode = null;
   
   constructor(sourceFile) {
-    this.fileStream = fs.createReadStream(sourceFile);
-    this.wavReader = new wav.Reader();
+    const buffer = fs.readFileSync(sourceFile);
     
-    // The "format" event gets emitted at the end of the WAVE header
-    // this.wavReader.on('format', (format) => {
-    //   // The WAVE header is stripped from the output of the reader
-    //   this.wavReader.pipe(new Speaker(format));
-    // });
-    this.fileStream.pipe(this.wavReader);
+    this.context = new AudioContext();
+    this.context.decodeAudioData(buffer, (audioBuffer) => {
+      this.bufferNode = this.context.createBufferSource();
+      this.bufferNode.buffer = audioBuffer;
+      this.bufferNode.loop = false;
+    })
+    // this.wavData = wav.decode(buffer);
   }
   
   reset = () => {
     this.started = false;
   }
   
-  render = (delta, blockInfo = {}) => {
+  render = (delta, blockInfo) => {
     this.started = true;
     
     // @TODO
     
-    return this.wavReader;
+    // return this.wavData.channelData[0];
+    return this.bufferNode;
   }
 }
