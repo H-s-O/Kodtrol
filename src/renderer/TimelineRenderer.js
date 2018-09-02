@@ -3,6 +3,7 @@ import { flatten, uniq, pick } from 'lodash';
 import ScriptRenderer from './ScriptRenderer';
 import TriggerRenderer from './TriggerRenderer';
 import CurveRenderer from './CurveRenderer';
+import AudioRenderer from './AudioRenderer';
 
 export default class TimelineRenderer {
   duration = null;
@@ -37,6 +38,15 @@ export default class TimelineRenderer {
           instance: new ScriptRenderer(sourceScriptsById[block.script], sourceDevices),
         };
       });
+      
+    this.audios = timelineItems
+      .filter((item) => 'file' in item)
+      .map((audio) => {
+        return {
+          ...audio,
+          instance: new AudioRenderer(audio.file),
+        };
+      });
     
     this.triggers = timelineItems
       .filter((item) => 'trigger' in item)
@@ -62,6 +72,7 @@ export default class TimelineRenderer {
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
+    // this.resetAudios()
   }
   
   render = (delta) => {
@@ -127,7 +138,31 @@ export default class TimelineRenderer {
           },
         };
       }, {});
-
+    
+    const audiosData = this.audios
+      .filter((audio) => (
+        currentTime >= audio.inTime
+        && currentTime <= audio.outTime)
+      )
+      .reduce((renderDataObj, audio) => {
+        const { id, inTime, outTime } = audio;
+        const audioInfo = {
+          inTime,
+          outTime,
+          currentTime,
+          audioPercent: ((currentTime - inTime) / (outTime - inTime)),
+        };
+        
+        const data = audio.instance.render(currentTime, audioInfo);
+        
+        return {
+          audio: {
+            ...renderDataObj,
+            [id]: data,
+          },
+        };
+      }, {});
+      
     return {
       ...blocksData,
       ...audiosData,

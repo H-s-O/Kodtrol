@@ -5,6 +5,7 @@ import Ticker from './lib/Ticker';
 import MidiInput from './inputs/MidiInput';
 import OscInput from './inputs/OscInput';
 import DmxOutput from './outputs/DmxOutput';
+import AudioOutput from './outputs/AudioOutput';
 
 export default class Renderer {
   outputs = {};
@@ -18,6 +19,9 @@ export default class Renderer {
   constructor() {
     const dmxOutput = new DmxOutput();
     this.outputs.dmx = dmxOutput;
+    
+    const audioOutput = new AudioOutput();
+    this.outputs.audio = audioOutput;
     
     const midiInput = new MidiInput(this.onMidiInput);
     this.inputs.midi = midiInput;
@@ -120,8 +124,9 @@ export default class Renderer {
   
   tickerFrame = (delta) => {
     const renderData = this.currentRenderer.render(delta);
-    
+
     this.updateDmx(renderData.dmx);
+    this.updateAudio(renderData.audio);
     
     if (this.currentRendererIsTimeline) {
       this.send({
@@ -158,6 +163,11 @@ export default class Renderer {
 
     const dmx = this.outputs.dmx;
     dmx.send(allData);
+  }
+  
+  updateAudio = (data = null) => {
+    const audio = this.outputs.audio;
+    audio.send(data);
   }
   
   computeBaseDmxData = (allDevices) => {
