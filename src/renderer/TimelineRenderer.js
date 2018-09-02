@@ -104,7 +104,7 @@ export default class TimelineRenderer {
         };
       }, {});
 
-    const renderData = this.blocks
+    const blocksData = this.blocks
       .filter((block) => (
         currentTime >= block.inTime
         && currentTime <= block.outTime)
@@ -128,7 +128,10 @@ export default class TimelineRenderer {
         };
       }, {});
 
-    return renderData;
+    return {
+      ...blocksData,
+      ...audiosData,
+    };
   }
 
   beat = (beat, delta) => {

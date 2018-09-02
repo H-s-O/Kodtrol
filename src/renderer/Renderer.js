@@ -1,11 +1,10 @@
-import DMX from 'dmx';
-
 import { getCompiledScriptPath } from './lib/fileSystem';
 import ScriptRenderer from './ScriptRenderer';
 import TimelineRenderer from './TimelineRenderer';
 import Ticker from './lib/Ticker';
 import MidiInput from './inputs/MidiInput';
 import OscInput from './inputs/OscInput';
+import DmxOutput from './outputs/DmxOutput';
 
 export default class Renderer {
   outputs = {};
@@ -17,9 +16,8 @@ export default class Renderer {
   currentRendererIsTimeline = false;
   
   constructor() {
-    const dmx = new DMX();
-    dmx.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
-    this.outputs.dmx = dmx;
+    const dmxOutput = new DmxOutput();
+    this.outputs.dmx = dmxOutput;
     
     const midiInput = new MidiInput(this.onMidiInput);
     this.inputs.midi = midiInput;
@@ -38,6 +36,7 @@ export default class Renderer {
   
   destroy = () => {
     Object.values(this.inputs).forEach((input) => input.destroy());
+    Object.values(this.outputs).forEach((output) => output.destroy());
     
     this.inputs = null;
     this.outputs = null;
@@ -158,7 +157,7 @@ export default class Renderer {
     };
 
     const dmx = this.outputs.dmx;
-    dmx.update('main', allData);
+    dmx.send(allData);
   }
   
   computeBaseDmxData = (allDevices) => {
