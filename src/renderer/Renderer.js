@@ -106,6 +106,7 @@ export default class Renderer {
     }
     
     this.updateDmx();
+    this.updateAudio();
   }
   
   updateTimelineInfo = (data) => {

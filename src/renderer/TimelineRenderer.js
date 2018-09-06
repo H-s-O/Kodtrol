@@ -72,7 +72,7 @@ export default class TimelineRenderer {
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
-    // this.resetAudios()
+    this.resetAudios()
   }
   
   render = (delta) => {
@@ -157,8 +157,8 @@ export default class TimelineRenderer {
         
         return {
           audio: {
-            ...renderDataObj,
-            [id]: data,
+            ...renderDataObj.audio,
+            ...data.audio,
           },
         };
       }, {});
@@ -203,6 +203,10 @@ export default class TimelineRenderer {
 
   resetCurves = () => {
     this.curves.forEach((curve) => curve.instance.reset());
+  }
+
+  resetAudios = () => {
+    this.audios.forEach((audio) => audio.instance.reset());
   }
 
   destroy = () => {

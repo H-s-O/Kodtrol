@@ -5,29 +5,42 @@ export default class AudioOutput {
   activeStreams = {};
   
   constructor() {
-    this.output = new Speaker();
+    this.output = new Speaker({
+      // samplesPerFrame: 64,
+    });
   }
   
   send = (data) => {
     if (this.output) {
-      // @TODO many streams could be present, but for now, just output the first one
-      let first = true;
-      Object.entries(data).forEach(([id, stream]) => {
-        if (id in this.activeStreams) {
-          return;
+      // Remove defunct streams
+      for (let id in this.activeStreams) {
+        if (!data || !(id in data)) {
+          this.activeStreams[id].unpipe(this.output);
+          delete this.activeStreams[id];
         }
-        
-        if (!first) return;
-        stream.pipe(this.output);
-        this.activeStreams[id] = true;
-        first = false;
-      });
+      }
+      
+      let hasActiveStream = false;
+      
+      if (data) {
+        Object.entries(data).forEach(([id, stream]) => {
+          if (!(id in this.activeStreams)) {
+            hasActiveStream = true;
+            stream.pipe(this.output);
+            this.activeStreams[id] = stream;
+          }
+        });
+      }
+      
+      if (!hasActiveStream) {
+        // this.output.close();
+      }
     }
   }
   
   destroy = () => {
     if (this.output) {
-      this.output.close();
+      this.output.destroy();
     }
     this.output = null;
   }
