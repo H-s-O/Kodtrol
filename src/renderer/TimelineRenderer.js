@@ -44,7 +44,7 @@ export default class TimelineRenderer {
       .map((audio) => {
         return {
           ...audio,
-          instance: new AudioRenderer(audio.file),
+          instance: new AudioRenderer(audio),
         };
       });
     

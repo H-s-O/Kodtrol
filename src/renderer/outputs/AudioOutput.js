@@ -12,15 +12,17 @@ export default class AudioOutput {
   
   send = (data) => {
     if (this.output) {
+      let hasActiveStream = null;
+      
       // Remove defunct streams
       for (let id in this.activeStreams) {
         if (!data || !(id in data)) {
+          hasActiveStream = false;
           this.activeStreams[id].unpipe(this.output);
           delete this.activeStreams[id];
         }
       }
       
-      let hasActiveStream = false;
       
       if (data) {
         Object.entries(data).forEach(([id, stream]) => {
@@ -32,7 +34,7 @@ export default class AudioOutput {
         });
       }
       
-      if (!hasActiveStream) {
+      if (hasActiveStream === false) {
         // this.output.close();
       }
     }

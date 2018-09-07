@@ -2,24 +2,20 @@ import fs from 'fs';
 import wav from 'wav';
 import uniqid from 'uniqid';
 
+import { getConvertedAudioPath } from './lib/fileSystem';
+
 export default class AudioRenderer {
   started = false;
   sourceFile = null;
+  convertedFile = null;
   fileStream = null;
-  wavReader = null;
   streamId = null;
   
-  constructor(sourceFile) {
-    this.sourceFile = sourceFile;
-    // this.fileStream = fs.createReadStream(sourceFile);
-    // this.wavReader = new wav.Reader();
+  constructor(sourceAudio) {
+    const { id, file } = sourceAudio;
     
-    // The "format" event gets emitted at the end of the WAVE header
-    // this.wavReader.on('format', (format) => {
-    //   // The WAVE header is stripped from the output of the reader
-    //   this.wavReader.pipe(new Speaker(format));
-    // });
-    // this.fileStream.pipe(this.wavReader);
+    this.sourceFile = file;
+    this.convertedFile = getConvertedAudioPath(id);
   }
   
   reset = () => {
@@ -43,7 +39,7 @@ export default class AudioRenderer {
       if (bytePos < 0) {
         bytePos = 0;
       }
-      this.fileStream = fs.createReadStream(this.sourceFile, {
+      this.fileStream = fs.createReadStream(this.convertedFile, {
         start: bytePos,
       });
     }
