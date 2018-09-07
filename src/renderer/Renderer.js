@@ -5,6 +5,7 @@ import Ticker from './lib/Ticker';
 import MidiInput from './inputs/MidiInput';
 import OscInput from './inputs/OscInput';
 import DmxOutput from './outputs/DmxOutput';
+import ArtnetOutput from './outputs/ArtnetOutput';
 import AudioOutput from './outputs/AudioOutput';
 
 export default class Renderer {
@@ -19,6 +20,9 @@ export default class Renderer {
   constructor() {
     const dmxOutput = new DmxOutput();
     this.outputs.dmx = dmxOutput;
+    
+    const artnetOutput = new ArtnetOutput();
+    this.outputs.artnet = artnetOutput;
     
     const audioOutput = new AudioOutput();
     this.outputs.audio = audioOutput;
@@ -162,7 +166,8 @@ export default class Renderer {
       ...data,
     };
 
-    const dmx = this.outputs.dmx;
+    // const dmx = this.outputs.dmx;
+    const dmx = this.outputs.artnet;
     dmx.send(allData);
   }
   
