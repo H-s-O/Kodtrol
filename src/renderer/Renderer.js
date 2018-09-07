@@ -86,6 +86,11 @@ export default class Renderer {
     
     if (previewScript) {
       const script = scripts.find(({id}) => id === previewScript);
+      // Guard in case script was deleted
+      if (!script) {
+        return;
+      }
+      
       const { previewTempo } = script;
       
       // temp
@@ -101,6 +106,11 @@ export default class Renderer {
       this.currentRendererIsTimeline = true;
       
       const timeline = timelines.find(({id}) => id === runTimeline);
+      // Guard in case timeline was deleted
+      if (!timeline) {
+        return;
+      }
+      
       const { tempo } = timeline;
       
       this.currentRenderer = new TimelineRenderer(timeline, scripts, devices);
