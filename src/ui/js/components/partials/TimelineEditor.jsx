@@ -37,7 +37,8 @@ const defaultProps = {
 
 class TimelineEditor extends PureComponent {
   timelineContainer = null;
-
+  timelineCursorTracker = null;
+  
   state = {
     modalType: null,
     modalAction: null,
@@ -264,6 +265,9 @@ class TimelineEditor extends PureComponent {
   }
 
   onMouseMove = (e) => {
+    const cursorPos = this.getTimelineScreenXFromEvent(e);
+    this.timelineCursorTracker.style = `left:${cursorPos}px`;
+    
     const { adjustItemPath, adjustItemMode } = this.state;
     if (adjustItemPath !== null) {
       const { timelineData } = this.props;
@@ -328,6 +332,14 @@ class TimelineEditor extends PureComponent {
     }
     return newPosition;
   }
+  
+  getTimelineScreenXFromEvent = (e) => {
+    const { clientX } = e;
+    const { left } = this.timelineContainer.getBoundingClientRect();
+    const { scrollLeft } = this.timelineContainer;
+    const pos = (clientX - left + scrollLeft);
+    return pos;
+  }
 
   doSave = (timelineData) => {
     // temp!
@@ -375,6 +387,16 @@ class TimelineEditor extends PureComponent {
       </div>
     );
   }
+  
+  renderTimelineCursorTracker = () => {
+    return (
+      <div
+        ref={(ref) => this.timelineCursorTracker = ref}
+        className={styles.timelineCursorTracker}
+      >
+      </div>
+    )
+  }
 
   renderTimeline = (data) => {
     const { zoom } = data;
@@ -388,6 +410,7 @@ class TimelineEditor extends PureComponent {
         }}
       >
       { layers.length ? layers.map(this.renderTimelineLayer) : null }
+      { this.renderTimelineCursorTracker() }
       { layers.length ? this.renderTimelineTracker() : null }
       </div>
     );
@@ -570,7 +593,7 @@ class TimelineEditor extends PureComponent {
           ref={ (ref) => this.timelineContainer = ref }
           className={styles.wrapper}
           onClick={ this.onTimelineClick }
-          onMouseMove={adjustItemPath ? this.onMouseMove : null}
+          onMouseMove={this.onMouseMove}
           onMouseUp={adjustItemPath ? this.onMouseUp : null}
         >
           { workingTimelineData ? this.renderTimeline(workingTimelineData) : null }
