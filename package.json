@@ -36,6 +36,7 @@
     "midi-clock": "0.0.1",
     "midimessage": "^1.0.5",
     "moscow": "^0.1.0",
+    "pcm-volume": "^1.0.0",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-ace": "^5.9.0",
@@ -50,8 +51,7 @@
     "redux": "^3.7.2",
     "redux-observers": "^2.0.2",
     "speaker": "^0.4.1",
-    "uniqid": "^4.1.1",
-    "wav": "^1.0.2"
+    "uniqid": "^4.1.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

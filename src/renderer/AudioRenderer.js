@@ -1,6 +1,6 @@
 import fs from 'fs';
-import wav from 'wav';
 import uniqid from 'uniqid';
+import Volume from 'pcm-volume';
 
 import { getConvertedAudioPath } from './lib/fileSystem';
 
@@ -8,13 +8,16 @@ export default class AudioRenderer {
   started = false;
   sourceFile = null;
   convertedFile = null;
+  volume = 1;
   fileStream = null;
+  volumeStream = null;
   streamId = null;
   
   constructor(sourceAudio) {
-    const { id, file } = sourceAudio;
+    const { id, file, volume } = sourceAudio;
     
     this.sourceFile = file;
+    this.volume = Number(volume);
     this.convertedFile = getConvertedAudioPath(id);
   }
   
@@ -23,6 +26,11 @@ export default class AudioRenderer {
     if (this.fileStream) {
       this.fileStream.destroy();
     }
+    if (this.volumeStream) {
+      this.volumeStream.destroy();
+    }
+    this.fileStream = null;
+    this.volumeStream = null;
   }
   
   render = (delta, blockInfo) => {
@@ -42,6 +50,8 @@ export default class AudioRenderer {
       this.fileStream = fs.createReadStream(this.convertedFile, {
         start: bytePos,
       });
+      this.volumeStream = new Volume(this.volume);
+      this.fileStream.pipe(this.volumeStream);
     }
     
     this.started = true;
@@ -50,7 +60,7 @@ export default class AudioRenderer {
     // @TODO
     return {
       audio: {
-        [this.streamId]: this.fileStream,
+        [this.streamId]: this.volumeStream,
       },
     };
   }
