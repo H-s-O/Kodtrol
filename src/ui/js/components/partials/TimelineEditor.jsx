@@ -265,8 +265,11 @@ class TimelineEditor extends PureComponent {
   }
 
   onMouseMove = (e) => {
-    const cursorPos = this.getTimelineScreenXFromEvent(e);
-    this.timelineCursorTracker.style = `left:${cursorPos}px`;
+    const { timelineData } = this.props;
+    if (timelineData) {
+      const cursorPos = this.getTimelineScreenXFromEvent(e);
+      this.timelineCursorTracker.style = `left:${cursorPos}px`;
+    }
     
     const { adjustItemPath, adjustItemMode } = this.state;
     if (adjustItemPath !== null) {
