@@ -1,7 +1,7 @@
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { get, set, unset } from 'lodash';
-import { Button, Glyphicon, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, Glyphicon, SplitButton, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
 import { connect } from 'react-redux';
 import path from 'path';
@@ -13,7 +13,7 @@ import TimelineTriggerModal from '../modals/TimelineTriggerModal';
 import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
 import TimelineLayer from '../timeline/TimelineLayer';
-import { updateCurrentTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
+import { updateCurrentTimeline, saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
 import { importAudioFile } from '../../lib/messageBoxes';
 
@@ -27,6 +27,8 @@ const propTypes = {
   doUpdateTimelineInfo: PropTypes.func.isRequired,
   doUpdateTimelineInfoUser: PropTypes.func.isRequired,
   doSaveTimeline: PropTypes.func.isRequired,
+  doRunTimeline: PropTypes.func.isRequired,
+  doStopRunTimeline: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -50,6 +52,8 @@ class TimelineEditor extends PureComponent {
     copyItemData: null,
     
     timelineDataTemp: null,
+    
+    recording: false,
   };
 
   findItemLayer = (sourceData) => {
@@ -69,6 +73,69 @@ class TimelineEditor extends PureComponent {
   onSaveClick = () => {
     const { timelineData, doSaveTimeline } = this.props;
     doSaveTimeline(timelineData);
+  }
+  
+  onRecordClick = () => {
+    const { recording } = this.state;
+    if (!recording) {
+      this.startRecording();
+    } else {
+      this.stopRecording();
+    }
+  }
+  
+  startRecording = () => {
+    const { timelineData, doRunTimeline } = this.props;
+    const { id } = timelineData;
+    
+    this.setState({
+      timelineDataTemp: {
+        ...timelineData,
+      },
+      recording: true,
+    });
+    
+    doRunTimeline(id);
+    
+    window.onkeydown = this.onKeyDown;
+  }
+  
+  stopRecording = () => {
+    const { doStopRunTimeline } = this.props;
+    const { timelineDataTemp } = this.state;
+    
+    this.doSave(timelineDataTemp);
+    
+    this.setState({
+      timelineDataTemp: null,
+      recording: false,
+    });
+    
+    doStopRunTimeline();
+    
+    window.onkeydown = null;
+  }
+  
+  onKeyDown = (e) => {
+    const { recording, timelineDataTemp } = this.state;
+    
+    if (recording) {
+      const { timelineInfo } = this.props;
+      const { position } = timelineInfo;
+      
+      if (e.key === 't') {
+        timelineDataTemp.layers[timelineDataTemp.layers.length - 1].push({
+          id: uniqid(),
+          inTime: position,
+          trigger: 'test',
+          color: '#FFFFFF',
+        });
+        this.setState({
+          timelineDataTemp,
+        });
+        this.forceUpdate();
+      }
+    }
   }
 
   onAddLayerClick = () => {
@@ -507,6 +574,35 @@ class TimelineEditor extends PureComponent {
     );
   }
   
+  renderRecordItems = () => {
+    const { recording } = this.state;
+    
+    return (
+      <SplitButton
+        id="timeline-record-menu"
+        title={(
+          <Glyphicon
+            glyph="record"
+          />
+        )}
+        bsSize="xsmall"
+        bsStyle={recording ? 'danger' : 'default'}
+        onClick={this.onRecordClick}
+      >
+        <MenuItem
+          onSelect={this.onAddBlockClick}
+        >
+          Set triggers...
+        </MenuItem>
+        <MenuItem
+          onSelect={this.onAddTriggerClick}
+        >
+          Set blocks...
+        </MenuItem>
+      </SplitButton>
+    );
+  }
+  
   renderZoomControl = () => {
     const levels = [1, 1.5, 3, 6, 8, 10];
     const { timelineData } = this.props;
@@ -586,6 +682,7 @@ class TimelineEditor extends PureComponent {
             <ButtonToolbar>
               { this.renderSave() }
               { this.renderTimelineControls() }
+              { this.renderRecordItems() }
               { this.renderAddItems() }
               { this.renderZoomControl() }
             </ButtonToolbar>
@@ -623,6 +720,8 @@ const mapDispatchToProps = (dispatch) => {
     doUpdateTimelineInfo: (data) => dispatch(updateTimelineInfo(data)),
     doUpdateTimelineInfoUser: (data) => dispatch(updateTimelineInfoUser(data)),
     doSaveTimeline: (data) => dispatch(saveTimeline(data)),
+    doRunTimeline: (id) => dispatch(runTimeline(id)),
+    doStopRunTimeline: () => dispatch(stopTimeline()),
   };
 };
 
