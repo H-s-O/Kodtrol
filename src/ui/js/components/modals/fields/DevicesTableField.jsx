@@ -91,12 +91,12 @@ class DeviceTableField extends PureComponent {
                   >
                     --
                   </option>
-                  {devices.map(({id, label}, index) => (
+                  {devices.map(({id, name}, index) => (
                     <option
                       key={`device-${index}`}
                       value={id}
                     >
-                      { label }
+                      { name }
                     </option>
                   ))}
                 </FormControl>
