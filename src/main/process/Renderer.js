@@ -15,6 +15,7 @@ export default class Renderer extends EventEmitter {
 
     this.childProcess = fork(modulePath, {
       env: {
+        ...process.env,
         MANUSCRIPT_SCRIPTS_DIR: getCompiledScriptsDir(),
         MANUSCRIPT_AUDIOS_DIR: getConvertedAudiosDir(),
       },
