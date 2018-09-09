@@ -2,6 +2,12 @@ const eases = require('eases');
 
 export default {
   // "Macros"
+  _isEven(value) {
+    return value % 2 === 0;
+  },
+  _isOdd(value) {
+    return value % 2 !== 0;
+  },
   _clamp(value, min, max) {
     return (value < min ? min : value > max ? max : value);
   },
