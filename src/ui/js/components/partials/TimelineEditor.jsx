@@ -10,7 +10,9 @@ import Panel from './Panel';
 import percentString from '../../lib/percentString';
 import stopEvent from '../../lib/stopEvent';
 import TimelineTriggerModal from '../modals/TimelineTriggerModal';
+import RecordTriggerModal from '../modals/RecordTriggerModal';
 import TimelineBlockModal from '../modals/TimelineBlockModal';
+import RecordBlockModal from '../modals/RecordBlockModal';
 import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
 import TimelineLayer from '../timeline/TimelineLayer';
 import { updateCurrentTimeline, saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
@@ -54,6 +56,7 @@ class TimelineEditor extends PureComponent {
     timelineDataTemp: null,
     
     recording: false,
+    recordingData: null,
   };
 
   findItemLayer = (sourceData) => {
@@ -117,18 +120,18 @@ class TimelineEditor extends PureComponent {
   }
   
   onKeyDown = (e) => {
-    const { recording, timelineDataTemp } = this.state;
+    const { recording, timelineDataTemp, recordingData } = this.state;
     
     if (recording) {
       const { timelineInfo } = this.props;
       const { position } = timelineInfo;
+      const { layer, ...itemData } = recordingData;
       
       if (e.key === 't') {
-        timelineDataTemp.layers[timelineDataTemp.layers.length - 1].push({
-          id: uniqid(),
+        timelineDataTemp.layers[layer].push({
+          ...itemData,
           inTime: position,
-          trigger: 'test',
-          color: '#FFFFFF',
+          id: uniqid(),
         });
         this.setState({
           timelineDataTemp,
@@ -247,8 +250,45 @@ class TimelineEditor extends PureComponent {
       modalValue: null,
     });
   }
-
+  
   onItemModalCancel = () => {
+    // Hide modal
+    this.setState({
+      modalType: null,
+      modalAction: null,
+      modalValue: null,
+    });
+  }
+  
+  onSetRecordTriggerClick = () => {
+    this.doSetRecord('trigger');
+  }
+  
+  onSetRecordBlockClick = () => {
+    this.doSetRecord('block');
+  }
+  
+  doSetRecord = (type) => {
+    this.setState({
+      modalType: type,
+      modalAction: 'record',
+    });
+  }
+  
+  onRecordModalSuccess = (recordData) => {
+    this.setState({
+      recordingData: recordData,
+    });
+    
+    // Hide modal
+    this.setState({
+      modalType: null,
+      modalAction: null,
+      modalValue: null,
+    });
+  }
+
+  onRecordModalCancel = () => {
     // Hide modal
     this.setState({
       modalType: null,
@@ -575,7 +615,7 @@ class TimelineEditor extends PureComponent {
   }
   
   renderRecordItems = () => {
-    const { recording } = this.state;
+    const { recording, recordingData } = this.state;
     
     return (
       <SplitButton
@@ -590,14 +630,14 @@ class TimelineEditor extends PureComponent {
         onClick={this.onRecordClick}
       >
         <MenuItem
-          onSelect={this.onAddBlockClick}
+          onSelect={this.onSetRecordTriggerClick}
         >
-          Set triggers...
+          Set recorded triggers...
         </MenuItem>
         <MenuItem
-          onSelect={this.onAddTriggerClick}
+          onSelect={this.onSetRecordBlockClick}
         >
-          Set blocks...
+          Set recorded blocks...
         </MenuItem>
       </SplitButton>
     );
@@ -641,19 +681,36 @@ class TimelineEditor extends PureComponent {
       <Fragment>
         <TimelineBlockModal
           initialValue={modalValue}
-          show={modalType === 'block'}
+          show={modalType === 'block' && modalAction !== 'record'}
           title={modalAction === 'add' ? 'Add block' : 'Edit block'}
           onCancel={this.onItemModalCancel}
           onSuccess={this.onItemModalSuccess}
           scripts={scripts}
           layers={layers}
         />
+        <RecordBlockModal
+          initialValue={{}}
+          show={modalType === 'block' && modalAction === 'record'}
+          title="Set recorded blocks"
+          onCancel={this.onRecordModalCancel}
+          onSuccess={this.onRecordModalSuccess}
+          scripts={scripts}
+          layers={layers}
+        />
         <TimelineTriggerModal
           initialValue={modalValue}
-          show={modalType === 'trigger'}
+          show={modalType === 'trigger' && modalAction !== 'record'}
           title={modalAction === 'add' ? 'Add trigger' : 'Edit trigger'}
           onCancel={this.onItemModalCancel}
           onSuccess={this.onItemModalSuccess}
+          layers={layers}
+        />
+        <RecordTriggerModal
+          initialValue={{}}
+          show={modalType === 'trigger' && modalAction === 'record'}
+          title="Set recorded triggers"
+          onCancel={this.onRecordModalCancel}
+          onSuccess={this.onRecordModalSuccess}
           layers={layers}
         />
         <TimelineAudioTrackModal
