@@ -2,6 +2,7 @@ export default class Device {
   _id = null;
   _name = null;
   _type = null;
+  _groups = null;
   _startingChannel = null;
   _channelAliases = null;
   _defaultValues = null;
@@ -9,11 +10,12 @@ export default class Device {
   _channels = {};
   
   constructor(sourceDevice) {
-    const { id, name, type, channels, startChannel } = sourceDevice;
-    
+    const { id, name, type, groups, channels, startChannel } = sourceDevice;
+
     this._id = id;
     this._name = name;
     this._type = type;
+    this._groups = groups;
     this._startingChannel = Number(startChannel);
     this._channelAliases = channels.reduce((obj, {alias}, index) => {
       if (alias) {
@@ -52,6 +54,10 @@ export default class Device {
 
   is = (type) => {
     return this._type === type;
+  }
+  
+  hasGroup = (group) => {
+    return this._groups === group;
   }
   
   getChannelDefault = (channel) => {

@@ -19,7 +19,7 @@ export default function(props) {
         },
         {
           label: 'Group(s)',
-          field: 'group',
+          field: 'groups',
           type: 'text',
         },
         {
