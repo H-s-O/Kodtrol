@@ -1,13 +1,19 @@
 import Speaker from 'speaker';
+import libao from 'libao';
 
 export default class AudioOutput {
   output = null;
   activeStreams = {};
   
   constructor() {
-    this.output = new Speaker({
-      // samplesPerFrame: 64,
+    this.output = new libao({
+      channels: 2,          // 2 channels
+      bitDepth: 16,         // 16-bit samples
+      sampleRate: 44100,    // 44,100 Hz sample rate
     });
+    // this.output = new Speaker({
+      // samplesPerFrame: 64,
+    // });
   }
   
   send = (data) => {
