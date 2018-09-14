@@ -4,8 +4,8 @@
   "description": "Timeline and code-based show control software",
   "main": "src/main/process.js",
   "scripts": {
-    "dev": "webpack-dev-server --config build/webpack.config.js",
-    "build": "npx webpack --config build/webpack.config.js -p",
+    "dev": "webpack-dev-server --progress --config build/webpack.config.js",
+    "build": "npx webpack --progress --config build/webpack.config.js -p",
     "start": "npx electron --js-flags=\"--harmony_regexp_lookbehind\" -r babel-register .",
     "package": "npm run build && npx electron-packager dist MyApp"
   },
@@ -31,6 +31,7 @@
     "express": "^4.16.3",
     "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
+    "howler": "^2.0.15",
     "libao": "0.0.4",
     "lodash": "^4.17.5",
     "midi": "^0.9.5",

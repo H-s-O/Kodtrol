@@ -11,11 +11,10 @@ export default class Renderer extends EventEmitter {
   constructor() {
     super();
 
-    const modulePath = path.join(__dirname, '../../renderer/process.js');
+    const processPath = path.join(__dirname, '../../renderer/process.js');
 
-    this.childProcess = fork(modulePath, {
+    this.childProcess = fork(processPath, {
       env: {
-        ...process.env,
         MANUSCRIPT_SCRIPTS_DIR: getCompiledScriptsDir(),
         MANUSCRIPT_AUDIOS_DIR: getConvertedAudiosDir(),
       },

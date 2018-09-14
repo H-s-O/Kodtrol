@@ -12,13 +12,17 @@ export default class AudioRenderer {
   fileStream = null;
   volumeStream = null;
   streamId = null;
+  duration = 0;
+  id = null;
   
   constructor(sourceAudio) {
-    const { id, file, volume } = sourceAudio;
+    const { id, file, volume, inTime, outTime } = sourceAudio;
     
+    this.id = id;
     this.sourceFile = file;
     this.volume = Number(volume);
     this.convertedFile = getConvertedAudioPath(id);
+    this.duration = outTime - inTime;
   }
   
   reset = () => {
@@ -34,33 +38,38 @@ export default class AudioRenderer {
   }
   
   render = (delta, blockInfo) => {
+    const { audioPercent } = blockInfo;
     if (!this.started) {
       this.streamId = uniqid();
-      const { audioPercent } = blockInfo;
-      let bytePos = (audioPercent * (48378992 - 1)) >> 0;
-      const remainder = bytePos % 2;
-      if (remainder !== 0) {
-        bytePos -= remainder;
-      }
-      bytePos -= (2 * 44100 * 2); // speaker module delay; 2 channels, sample rate, 2 bytes (16bit)
-      // bytePos -= 2000000;
-      if (bytePos < 0) {
-        bytePos = 0;
-      }
-      this.fileStream = fs.createReadStream(this.convertedFile, {
-        start: bytePos,
-      });
-      this.volumeStream = new Volume(this.volume);
-      this.fileStream.pipe(this.volumeStream);
+    //   let bytePos = (audioPercent * (48378992 - 1)) >> 0;
+    //   const remainder = bytePos % 2;
+    //   if (remainder !== 0) {
+    //     bytePos -= remainder;
+    //   }
+    //   bytePos -= (2 * 44100 * 2); // speaker module delay; 2 channels, sample rate, 2 bytes (16bit)
+    //   // bytePos -= 2000000;
+    //   if (bytePos < 0) {
+    //     bytePos = 0;
+    //   }
+    //   this.fileStream = fs.createReadStream(this.convertedFile, {
+    //     start: bytePos,
+    //   });
+    //   this.volumeStream = new Volume(this.volume);
+    //   this.fileStream.pipe(this.volumeStream);
     }
     
     this.started = true;
     
+    const position = audioPercent * this.duration;
     
     // @TODO
     return {
       audio: {
-        [this.streamId]: this.volumeStream,
+        [this.streamId]: {
+          // this.volumeStream,
+          id: this.id,
+          position,
+        }
       },
     };
   }

@@ -31,7 +31,7 @@ export default class MainWindow extends EventEmitter {
         BrowserWindow.addDevToolsExtension(path.join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.15.3_0'));
         BrowserWindow.__devToolsAdded = true;
       }
-      this.win.loadURL('http://localhost:8080/');
+      this.win.loadURL('http://localhost:8080/ui/index.html');
     } else {
       // @TODO load built page
     }

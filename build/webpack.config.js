@@ -3,15 +3,16 @@ const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 
 const APP_DIR = path.join(__dirname, '../src');
-const OUTPUT_DIR = path.join(__dirname, '../dist/ui');
+const OUTPUT_DIR = path.join(__dirname, '../dist');
 const NODE_MODULES_DIR = path.join(__dirname, '../node_modules');
 
 module.exports = {
   entry: {
     ui: path.join(__dirname, '../src/ui/index.js'),
+    audio: path.join(__dirname, '../src/renderer/process/audio/index.js'),
   },
   output: {
-    filename: 'index.js',
+    filename: '[name]/index.js',
     path: OUTPUT_DIR,
   },
   devtool: 'source-map',
