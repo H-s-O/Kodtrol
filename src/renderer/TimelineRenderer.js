@@ -87,10 +87,10 @@ export default class TimelineRenderer {
 
     const triggerData = this.triggers
       .filter((trigger) => (
-        currentTime >= trigger.inTime
-        && currentTime <= trigger.inTime + 50
-        && !trigger.instance.triggered)
-      )
+        currentTime >= trigger.inTime - 25
+        && currentTime <= trigger.inTime + 25
+        && !trigger.instance.triggered
+      ))
       .reduce((renderTriggerData, trigger) => {
         trigger.instance.render();
 
@@ -102,10 +102,10 @@ export default class TimelineRenderer {
 
     const curveData = this.curves
       .filter((curve) => (
-        currentTime >= curve.inTime
-        && currentTime <= curve.inTime + 50
-        && !curve.instance.started)
-      )
+        currentTime >= curve.inTime - 25
+        && currentTime <= curve.inTime + 25
+        && !curve.instance.started
+      ))
       .reduce((renderCurveData, curve) => {
         const data = curve.instance.render();
 
@@ -118,8 +118,8 @@ export default class TimelineRenderer {
     const blocksData = this.blocks
       .filter((block) => (
         currentTime >= block.inTime
-        && currentTime <= block.outTime)
-      )
+        && currentTime <= block.outTime
+      ))
       .reduce((renderDataObj, block) => {
         const { inTime, outTime } = block;
         const blockInfo = {
@@ -142,8 +142,8 @@ export default class TimelineRenderer {
     const audiosData = this.audios
       .filter((audio) => (
         currentTime >= audio.inTime
-        && currentTime <= audio.outTime)
-      )
+        && currentTime <= audio.outTime
+      ))
       .reduce((renderDataObj, audio) => {
         const { id, inTime, outTime } = audio;
         const audioInfo = {
@@ -175,8 +175,8 @@ export default class TimelineRenderer {
     this.blocks
       .filter((block) => (
         currentTime >= block.inTime
-        && currentTime <= block.outTime)
-      )
+        && currentTime <= block.outTime
+      ))
       .forEach((block) => {
         block.instance.beat(beat, currentTime);
       });
