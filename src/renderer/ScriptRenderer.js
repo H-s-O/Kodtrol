@@ -7,6 +7,7 @@ export default class ScriptRenderer {
   scriptInstance = null;
   devicesInstances = null;
   started = false;
+  localBeat = 0;
   scriptData = {};
   
   constructor(sourceScript, sourceDevices) {
@@ -24,6 +25,7 @@ export default class ScriptRenderer {
   reset = () => {
     this.scriptData = {};
     this.started = false;
+    this.localBeat = 0;
     
     this.resetDevices();
   }
@@ -82,10 +84,16 @@ export default class ScriptRenderer {
   }
   
   beat = (beat, delta) => {
+    this.localBeat++;
+    
     // Script beat
     try {
       if (typeof this.scriptInstance.beat === 'function') {
-        const data = this.scriptInstance.beat(this.devicesInstances, beat, this.scriptData);
+        const beatObject = {
+          localBeat: this.localBeat,
+          globalBeat: beat,
+        };
+        const data = this.scriptInstance.beat(this.devicesInstances, beatObject, this.scriptData);
         if (data) {
           this.scriptData = data;
         }
