@@ -87,8 +87,8 @@ export default class TimelineRenderer {
 
     const triggerData = this.triggers
       .filter((trigger) => (
-        currentTime >= trigger.inTime - 25
-        && currentTime <= trigger.inTime + 25
+        currentTime >= trigger.inTime
+        && currentTime <= trigger.inTime + 30
         && !trigger.instance.triggered
       ))
       .reduce((renderTriggerData, trigger) => {
@@ -102,8 +102,8 @@ export default class TimelineRenderer {
 
     const curveData = this.curves
       .filter((curve) => (
-        currentTime >= curve.inTime - 25
-        && currentTime <= curve.inTime + 25
+        currentTime >= curve.inTime
+        && currentTime <= curve.inTime + 30
         && !curve.instance.started
       ))
       .reduce((renderCurveData, curve) => {
