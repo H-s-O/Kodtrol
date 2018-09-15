@@ -7,6 +7,7 @@ export default class ScriptRenderer {
   scriptInstance = null;
   devicesInstances = null;
   started = false;
+  setup = false;
   localBeat = 0;
   scriptData = {};
   
@@ -25,6 +26,7 @@ export default class ScriptRenderer {
   reset = () => {
     this.scriptData = {};
     this.started = false;
+    this.setup = false;
     this.localBeat = 0;
     
     this.resetDevices();
@@ -40,12 +42,11 @@ export default class ScriptRenderer {
 
   render = (delta, blockInfo = {}, triggerData = {}) => {
     const script = this.scriptInstance;
-
-    // Script start
-    if (!this.started) {
+    
+    if (!this.setup && !('blockPercent' in blockInfo) || blockInfo.blockPercent < 0) {
       try {
-        if (typeof script.start === 'function') {
-          const data = script.start(this.devicesInstances, triggerData);
+        if (typeof script.setup === 'function') {
+          const data = script.setup(this.devicesInstances);
           if (data) {
             this.scriptData = data;
           }
@@ -53,36 +54,63 @@ export default class ScriptRenderer {
       } catch (err) {
         console.error(err);
       }
-      this.started = true;
-    }
-    
-    this.resetDevices(false);
-    
-    // Script loop
-    try {
-      if (typeof script.loop === 'function') {
-        const data = script.loop(this.devicesInstances, this.scriptData, blockInfo, triggerData);
-        if (data) {
-          this.scriptData = data;
+      this.setup = true;
+      
+      return {
+        dmx: {
+          ...this.devicesInstances.reduce((obj, device) => ({
+            ...obj,
+            ...Object.entries(device.data).reduce((data, [channel, value]) => ({
+              ...data,
+              [Number(channel) + device.startingChannel]: value,
+            }), {}),
+          }), {}),
         }
       }
-    } catch (err) {
-      console.error(err);
-    }
-    
-    return {
-      dmx: {
-        ...this.devicesInstances.reduce((obj, device) => ({
-          ...obj,
-          ...Object.entries(device.data).reduce((data, [channel, value]) => ({
-            ...data,
-            [Number(channel) + device.startingChannel]: value,
+    } else {
+      // Script start
+      if (!this.started) {
+        try {
+          if (typeof script.start === 'function') {
+            const data = script.start(this.devicesInstances, triggerData);
+            if (data) {
+              this.scriptData = data;
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+        this.started = true;
+      }
+      
+      this.resetDevices(false);
+      
+      // Script loop
+      try {
+        if (typeof script.loop === 'function') {
+          const data = script.loop(this.devicesInstances, this.scriptData, blockInfo, triggerData);
+          if (data) {
+            this.scriptData = data;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      
+      return {
+        dmx: {
+          ...this.devicesInstances.reduce((obj, device) => ({
+            ...obj,
+            ...Object.entries(device.data).reduce((data, [channel, value]) => ({
+              ...data,
+              [Number(channel) + device.startingChannel]: value,
+            }), {}),
           }), {}),
-        }), {}),
+        }
       }
     }
   }
-  
+
   beat = (beat, delta) => {
     this.localBeat++;
     

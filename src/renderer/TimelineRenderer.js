@@ -117,7 +117,7 @@ export default class TimelineRenderer {
 
     const blocksData = this.blocks
       .filter((block) => (
-        currentTime >= block.inTime
+        currentTime >= block.inTime - 500 // @TODO config script setup delay
         && currentTime <= block.outTime
       ))
       .reduce((renderDataObj, block) => {
