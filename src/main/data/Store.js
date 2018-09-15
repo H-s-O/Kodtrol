@@ -6,6 +6,7 @@ import { observer, observe } from 'redux-observers'
 import * as StoreEvent from '../events/StoreEvent';
 import * as appReducers from '../../common/js/store/reducers/index';
 import resetRunningItems from '../../common/js/store/middlewares/resetRunningItems';
+import saveableContentCallback from '../../common/js/store/middlewares/saveableContentCallback';
 
 export default class Store extends EventEmitter {
   store = null;
@@ -17,7 +18,8 @@ export default class Store extends EventEmitter {
       combineReducers(appReducers),
       initialState,
       applyMiddleware(
-        resetRunningItems,
+        resetRunningItems(),
+        saveableContentCallback(this.onSaveableContent),
         forwardToRenderer, // IMPORTANT! This goes last
       ),
     );
@@ -70,6 +72,10 @@ export default class Store extends EventEmitter {
     }
     
     return null;
+  }
+  
+  onSaveableContent = (action) => {
+    this.emit(StoreEvent.CONTENT_SAVED);
   }
   
   onScriptsChange = (dispatch, current, previous) => {

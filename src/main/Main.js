@@ -85,6 +85,7 @@ export default class Main {
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
     this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
+    this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
   }
   
   destroyStore = () => {
@@ -98,6 +99,11 @@ export default class Main {
   onScriptsChanged = () => {
     const scripts = this.store.state.scripts;
     ScriptsManager.compileScripts(scripts);
+  }
+  
+  onContentSaved = () => {
+    console.log('onContentSaved');
+    this.saveCurrentProject();
   }
   
   onPreviewScript = () => {

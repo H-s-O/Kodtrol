@@ -24,7 +24,7 @@ export default class Root extends PureComponent {
       composeWithDevTools(
         applyMiddleware(
           forwardToMain, // IMPORTANT! This goes first
-          resetRunningItems,
+          resetRunningItems(),
         ),
       ),
     );
