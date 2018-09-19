@@ -538,6 +538,13 @@ class TimelineEditor extends PureComponent {
   }
   
   renderTimelineControls = () => {
+    const { timelineInfo } = this.props;
+    if (!timelineInfo) {
+      return null;
+    }
+    
+    const { playing, position } = timelineInfo;
+    
     return (
       <ButtonGroup>
         <Button
@@ -547,27 +554,23 @@ class TimelineEditor extends PureComponent {
             glyph="step-backward"
           />
         </Button>
-        <Button
-          bsSize="xsmall"
-        >
-          <Glyphicon
-            glyph="play"
-          />
-        </Button>
-        <Button
-          bsSize="xsmall"
-        >
-          <Glyphicon
-            glyph="stop"
-          />
-        </Button>
-        <Button
-          bsSize="xsmall"
-        >
-          <Glyphicon
-            glyph="step-forward"
-          />
-        </Button>
+        { !playing ? (
+          <Button
+            bsSize="xsmall"
+          >
+            <Glyphicon
+              glyph="play"
+            />
+          </Button>
+        ) : (
+          <Button
+            bsSize="xsmall"
+          >
+            <Glyphicon
+              glyph="pause"
+            />
+          </Button>
+        )}
       </ButtonGroup>
     );
   }
@@ -634,11 +637,11 @@ class TimelineEditor extends PureComponent {
         >
           Set recorded triggers...
         </MenuItem>
-        <MenuItem
+        { /*<MenuItem
           onSelect={this.onSetRecordBlockClick}
         >
           Set recorded blocks...
-        </MenuItem>
+        </MenuItem> */}
       </SplitButton>
     );
   }

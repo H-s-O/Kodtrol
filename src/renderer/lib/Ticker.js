@@ -14,12 +14,30 @@ export default class Ticker {
     this.bpm = bpm;
     
     this.framerateDelay = (1 / 40) * 1000;
-    this.lastTime = this.startTime = Date.now();
     
-    // @source https://stackoverflow.com/a/9675073
-    const ms_per_beat = (1000 * 60) / this.bpm;
-    const interval_24th = ms_per_beat / 24.0;
-    this.interval = setInterval(this.tick, interval_24th);
+  }
+  
+  start = () => {
+    if (!this.running) {
+      this.lastTime = this.startTime = Date.now();
+      
+      // @source https://stackoverflow.com/a/9675073
+      const ms_per_beat = (1000 * 60) / this.bpm;
+      const interval_24th = ms_per_beat / 24.0;
+      
+      this.interval = setInterval(this.tick, interval_24th);
+    }
+  }
+  
+  stop = () => {
+    if (this.running) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+  
+  get running() {
+    return this.interval !== null;
   }
   
   tick = () => {

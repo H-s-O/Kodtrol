@@ -98,6 +98,7 @@ export default class Renderer {
       
       this.currentRenderer = new ScriptRenderer(script, devices);
       this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, previewTempo || 120);
+      this.ticker.start();
       
       return;
     }
@@ -116,6 +117,8 @@ export default class Renderer {
       this.currentRenderer = new TimelineRenderer(timeline, scripts, devices);
       this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo);
       
+      this.updateTimelinePlaybackStatus();
+      
       return;
     }
     
@@ -130,6 +133,15 @@ export default class Renderer {
       if ('position' in data) {
         this.currentRenderer.setPosition(data.position);
       }
+    }
+  }
+  
+  updateTimelinePlaybackStatus = () => {
+    const { playing, position } = this.state.timelineInfo;
+    if (playing && !this.ticker.running) {
+      this.ticker.start();
+    } else if (!playing && this.ticker.running) {
+      this.ticker.stop();
     }
   }
   

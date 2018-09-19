@@ -43,7 +43,10 @@ export default class ScriptRenderer {
   render = (delta, blockInfo = {}, triggerData = {}) => {
     const script = this.scriptInstance;
     
+    this.resetDevices(false);
+    
     if (!this.setup && !('blockPercent' in blockInfo) || blockInfo.blockPercent < 0) {
+      // Script setup
       try {
         if (typeof script.setup === 'function') {
           const data = script.setup(this.devicesInstances);
@@ -82,8 +85,6 @@ export default class ScriptRenderer {
         }
         this.started = true;
       }
-      
-      this.resetDevices(false);
       
       // Script loop
       try {
