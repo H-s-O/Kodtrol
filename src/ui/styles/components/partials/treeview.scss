@@ -10,7 +10,11 @@
 
   .actions {
     display: inline;
+    position: absolute;
     visibility: hidden;
+    right: 15px;
+    padding-left: 15px;
+    background: linear-gradient(to right, rgba(50,56,62,0) 0%, rgba(50,56,62,1) 10%);
   }
   
   .tags {

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
@@ -76,8 +76,7 @@ class ScriptsBrowser extends PureComponent {
   
   renderTreeActions = (it) => {
     return (
-      <div
-        className="pull-right"
+      <Fragment
       >
         <ButtonGroup>
           <Button
@@ -114,7 +113,7 @@ class ScriptsBrowser extends PureComponent {
             glyph="trash"
           />
         </Button>
-      </div>
+      </Fragment>
     );
   }
   

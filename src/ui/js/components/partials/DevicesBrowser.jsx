@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Label, ButtonGroup, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
@@ -53,8 +53,7 @@ class DevicesBrowser extends PureComponent {
 
   renderTreeActions = (it) => {
     return (
-      <div
-        className="pull-right"
+      <Fragment
       >
         <ButtonGroup>
           <Button
@@ -83,7 +82,7 @@ class DevicesBrowser extends PureComponent {
             glyph="trash"
           />
         </Button>
-      </div>
+      </Fragment>
     );
   }
   
