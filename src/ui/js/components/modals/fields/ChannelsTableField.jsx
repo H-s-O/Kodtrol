@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { set } from 'lodash';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, Form, Col, Table } from 'react-bootstrap';
 
-class DeviceTableField extends PureComponent {
+class ChannelsTableField extends PureComponent {
   state = {
     value: [],
   };
@@ -18,31 +18,33 @@ class DeviceTableField extends PureComponent {
     }
   }
   
-  onDeviceChange = (e, index) => {
-    const { value } = this.state;
-    const fieldValue = e.target.value;
-    const newValue = set(value, `[${index}].id`, fieldValue);
-    
-    this.doChange(newValue);
-  }
-  
-  onAddDeviceClick = () => {
+  onAddChannelClick = () => {
     const { value } = this.state;
     const newValue = [
       ...(value || []),
       {
-        id: null,
+        defaultValue: null,
+        alias: null,
       },
     ];
     
     this.doChange(newValue);
   }
   
-  onDeleteDeviceClick = (index) => {
+  onDeleteChannelClick = (index) => {
     const { value } = this.state;
     value.splice(index, 1);
 
     this.doChange(value);
+  }
+  
+  onChannelChange = (e, index, field) => {
+    const { value } = this.state;
+    
+    const fieldValue = e.target.value;
+    const newValue = set(value, `[${index}].${field}`, fieldValue);
+    
+    this.doChange(newValue);
   }
   
   doChange = (value) => {
@@ -55,7 +57,6 @@ class DeviceTableField extends PureComponent {
   }
   
   render = () => {
-    const { devices } = this.props;
     const { value } = this.state;
     
     return (
@@ -66,46 +67,40 @@ class DeviceTableField extends PureComponent {
         <thead>
           <tr>
             <th>#</th>
-            <th>Device</th>
+            <th>Default value</th>
+            <th>Alias</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          {value.map(({ id }, index) => (
+          {value.map(({ defaultValue, alias }, index) => (
             <tr
-              key={`item-${index}`}
+              key={`channel-${index}`}
             >
               <td>
                 {index + 1}
               </td>
               <td>
                 <FormControl
-                  componentClass="select"
+                  type="number"
                   bsSize="small"
-                  onChange={(e) => this.onDeviceChange(e, index)}
-                  defaultValue={id}
-                >
-                  <option
-                    value=""
-                    disabled
-                  >
-                    --
-                  </option>
-                  {devices.map(({id, name}, index) => (
-                    <option
-                      key={`device-${index}`}
-                      value={id}
-                    >
-                      { name }
-                    </option>
-                  ))}
-                </FormControl>
+                  value={defaultValue || ""}
+                  onChange={(e) => this.onChannelChange(e, index, 'defaultValue')}
+                />
+              </td>
+              <td>
+                <FormControl
+                  type="text"
+                  bsSize="small"
+                  value={alias || ""}
+                  onChange={(e) => this.onChannelChange(e, index, 'alias')}
+                />
               </td>
               <td>
                 <Button
                   bsSize="xsmall"
                   bsStyle="danger"
-                  onClick={(e) => this.onDeleteDeviceClick(index)}
+                  onClick={(e) => this.onDeleteChannelClick(index)}
                 >
                   <Glyphicon
                     glyph="trash"
@@ -116,11 +111,11 @@ class DeviceTableField extends PureComponent {
           ))}
           <tr>
             <td
-              colSpan="3"
+              colSpan="4"
             >
               <Button
                 bsSize="xsmall"
-                onClick={this.onAddDeviceClick}
+                onClick={this.onAddChannelClick}
               >
                 <Glyphicon
                   glyph="plus"
@@ -134,4 +129,4 @@ class DeviceTableField extends PureComponent {
   }
 }
 
-export default DeviceTableField;
+export default ChannelsTableField;

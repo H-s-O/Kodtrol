@@ -1,5 +1,6 @@
 import React from 'react';
 import BaseModal from './BaseModal';
+import ChannelsTableField from './fields/ChannelsTableField';
 
 export default function(props) {
   return (
@@ -27,6 +28,17 @@ export default function(props) {
           field: 'type',
           type: 'select',
           from: 'deviceTypes',
+        },
+        {
+          label: 'Starting channel',
+          field: 'startChannel',
+          type: 'number',
+        },
+        {
+          label: 'Channels',
+          field: 'channels',
+          type: ChannelsTableField,
+          from: 'channels',
         },
       ]}
     />
