@@ -63,6 +63,9 @@ export default class MainMenu extends EventEmitter {
           {
             role: 'paste',
           },
+          {
+            role: 'selectall',
+          },
         ],
       },
     ];
