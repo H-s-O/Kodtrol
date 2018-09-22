@@ -87,7 +87,6 @@ class DeviceTableField extends PureComponent {
                 >
                   <option
                     value=""
-                    disabled
                   >
                     --
                   </option>

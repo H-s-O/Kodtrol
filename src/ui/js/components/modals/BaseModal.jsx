@@ -151,7 +151,6 @@ class BaseModal extends Component {
         >
           <option
             value=""
-            disabled
           >
             --
           </option>
