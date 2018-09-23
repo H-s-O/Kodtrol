@@ -23,6 +23,7 @@ const propTypes = {
   onCopyItem: PropTypes.func,
   onPasteItem: PropTypes.func,
   onAddItemAt: PropTypes.func,
+  onAddLayer: PropTypes.func,
 };
 
 const defaultProps = {
@@ -37,6 +38,7 @@ const defaultProps = {
   onCopyItem: null,
   onPasteItem: null,
   onAddItemAt: null,
+  onAddLayer: null,
 };
 
 class TimelineLayer extends PureComponent {
@@ -90,6 +92,16 @@ class TimelineLayer extends PureComponent {
   doPasteItem = (itemIndex, mode) => {
     const { onPasteItem, index } = this.props;
     onPasteItem(index, itemIndex, mode);
+  }
+  
+  onAddLayerAboveClick = () => {
+    const { onAddLayer, index } = this.props;
+    onAddLayer(index + 1);
+  }
+  
+  onAddLayerBelowClick = () => {
+    const { onAddLayer, index } = this.props;
+    onAddLayer(index);
   }
   
   onTimelineLayerContextMenu = (e) => {

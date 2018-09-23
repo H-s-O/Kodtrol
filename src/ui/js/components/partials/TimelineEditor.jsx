@@ -59,20 +59,6 @@ class TimelineEditor extends PureComponent {
     recordingData: null,
   };
 
-  findItemLayer = (sourceData) => {
-    const { timelineData } = this.props;
-    for (let layerIndex in timelineData.layers) {
-      const layerData = timelineData.layers[layerIndex];
-      for (let itemIndex in layerData) {
-        const itemData = layerData[itemIndex];
-        if (itemData.id == sourceData.id) {
-          return layerIndex;
-        }
-      }
-    }
-    return null; 
-  }
-  
   onSaveClick = () => {
     const { timelineData, doSaveTimeline } = this.props;
     doSaveTimeline(timelineData);
@@ -140,17 +126,32 @@ class TimelineEditor extends PureComponent {
       }
     }
   }
-
-  onAddLayerClick = () => {
+  
+  onAddLayerAtTopClick = () => {
     const { timelineData } = this.props;
-    const newData = {
+    const { layers } = timelineData;
+    this.onAddLayer(layers.length);
+  }
+  
+  onAddLayerAtBottomClick = () => {
+    this.onAddLayer(0);
+  }
+
+  onAddLayer = (index) => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    
+    let newLayers = [...layers];
+    if (index >= layers.length) {
+      newLayers.push([]);
+    } else {
+      newLayers.splice(index, 0, []);
+    }
+    
+    this.doSave({
       ...timelineData,
-      layers: [
-        ...timelineData.layers,
-        [],
-      ],
-    };
-    this.doSave(newData);
+      layers: newLayers,
+    });
   }
   
   onAddBlockClick = () => {
@@ -509,6 +510,7 @@ class TimelineEditor extends PureComponent {
         onCopyItem={this.onCopyItem}
         onPasteItem={this.onPasteItem}
         onAddItemAt={this.onAddItemAt}
+        onAddLayer={this.onAddLayer}
       />
     );
   }
@@ -614,6 +616,9 @@ class TimelineEditor extends PureComponent {
   }
 
   renderAddItems = () => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    
     return (
       <DropdownButton
         id="timeline-items-menu"
@@ -625,11 +630,26 @@ class TimelineEditor extends PureComponent {
         bsSize="xsmall"
         onClick={stopEvent}
       >
-        <MenuItem
-          onSelect={this.onAddLayerClick}
-        >
-          Add layer
-        </MenuItem>
+        { !layers.length ? (
+          <MenuItem
+            onSelect={this.onAddLayerAtTopClick}
+            >
+            Add layer
+          </MenuItem>
+        ) : (
+          <Fragment>
+            <MenuItem
+              onSelect={this.onAddLayerAtTopClick}
+            >
+              Add layer at top
+            </MenuItem>
+            <MenuItem
+              onSelect={this.onAddLayerAtBottomClick}
+            >
+              Add layer at bottom
+            </MenuItem>
+          </Fragment>
+        )}
         <MenuItem
           divider
         />
