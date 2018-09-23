@@ -1,4 +1,4 @@
-export default (state = {}, {type, payload}) => {
+export default (state = null, {type, payload}) => {
   switch (type) {
     case 'UPDATE_TIMELINE_INFO_USER':
       return payload;

@@ -421,11 +421,14 @@ class TimelineEditor extends PureComponent {
   onTimelineClick = (e) => {
     stopEvent(e);
 
-    const { doUpdateTimelineInfoUser } = this.props;
+    const { timelineInfo } = this.props;
     const newPosition = this.getTimelinePositionFromEvent(e);
-    doUpdateTimelineInfoUser({
+    const newInfo = {
+      ...timelineInfo,
       position: newPosition,
-    });
+    };
+    
+    this.doUpdateInfo(newInfo);
   }
 
   getTimelinePositionFromEvent = (e, round = true) => {
@@ -455,6 +458,38 @@ class TimelineEditor extends PureComponent {
     // temp!
     const { doUpdateCurrentTimeline } = this.props;
     doUpdateCurrentTimeline(timelineData);
+  }
+  
+  onTimelineRewindClick = () => {
+    const { timelineInfo } = this.props;
+    const newInfo = {
+      ...timelineInfo,
+      position: 0,
+    };
+    this.doUpdateInfo(newInfo);
+  }
+  
+  onTimelinePlayClick = () => {
+    const { timelineInfo } = this.props;
+    const newInfo = {
+      ...timelineInfo,
+      playing: true,
+    };
+    this.doUpdateInfo(newInfo);
+  }
+  
+  onTimelinePauseClick = () => {
+    const { timelineInfo } = this.props;
+    const newInfo = {
+      ...timelineInfo,
+      playing: false,
+    };
+    this.doUpdateInfo(newInfo);
+  }
+  
+  doUpdateInfo = (timelineInfo) => {
+    const { doUpdateTimelineInfoUser } = this.props;
+    doUpdateTimelineInfoUser(timelineInfo);
   }
 
   renderTimelineLayer = (layer, index, layers) => {
@@ -549,6 +584,7 @@ class TimelineEditor extends PureComponent {
       <ButtonGroup>
         <Button
           bsSize="xsmall"
+          onClick={this.onTimelineRewindClick}
         >
           <Glyphicon
             glyph="step-backward"
@@ -557,6 +593,7 @@ class TimelineEditor extends PureComponent {
         { !playing ? (
           <Button
             bsSize="xsmall"
+            onClick={this.onTimelinePlayClick}
           >
             <Glyphicon
               glyph="play"
@@ -565,6 +602,7 @@ class TimelineEditor extends PureComponent {
         ) : (
           <Button
             bsSize="xsmall"
+            onClick={this.onTimelinePauseClick}
           >
             <Glyphicon
               glyph="pause"

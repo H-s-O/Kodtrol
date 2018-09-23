@@ -107,22 +107,26 @@ export default class Main {
   }
   
   onPreviewScript = () => {
-    this.renderer.send({
-      updateRenderer: this.store.state,
-    });
+    if (this.renderer) {
+      this.renderer.send({
+        updateRenderer: this.store.state,
+      });
+    }
   }
   
   onRunTimeline = () => {
-    this.renderer.send({
-      updateRenderer: this.store.state,
-    });
+    if (this.renderer) {
+      this.renderer.send({
+        updateRenderer: this.store.state,
+      });
+    }
   }
   
   onTimelineInfoUserChanged = () => {
     const { timelineInfoUser } = this.store.state;
-    if (timelineInfoUser !== null) {
+    if (this.renderer && timelineInfoUser !== null) {
       this.renderer.send({
-        updateTimelineInfo: timelineInfoUser,
+        timelineInfo: timelineInfoUser,
       });
     }
   }
@@ -155,17 +159,10 @@ export default class Main {
   createRenderer = () => {
     this.renderer = new Renderer();
     this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
-    this.renderer.on(RendererEvent.TIMELINE_INFO_USER_UPDATE, this.onRendererTimelineInfoUserUpdate);
   }
   
   onRendererTimelineInfoUpdate = (info) => {
     this.store.dispatch(updateTimelineInfo(info));
-  }
-  
-  onRendererTimelineInfoUserUpdate = (info) => {
-    if (info === true) {
-      this.store.dispatch(updateTimelineInfoUser(null));
-    }
   }
   
   destroyRenderer = () => {

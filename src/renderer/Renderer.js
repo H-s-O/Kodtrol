@@ -16,6 +16,7 @@ export default class Renderer {
   state = null;
   dmxBaseData = null;
   currentRendererIsTimeline = false;
+  playing = false;
   
   constructor() {
     const dmxOutput = new DmxOutput();
@@ -66,19 +67,22 @@ export default class Renderer {
   
   onMessage = (message) => {
     if ('updateRenderer' in message) {
-      this.state = message.updateRenderer;
-      this.updateRenderer();
-    } else if ('updateTimelineInfo' in message) {
-      this.updateTimelineInfo(message.updateTimelineInfo);
+      const { updateRenderer } = message;
+      this.updateRenderer(updateRenderer);
+    } else if ('timelineInfo' in message) {
+      const { timelineInfo } = message;
+      this.updateTimelineInfo(message.timelineInfo);
       this.send({
-        'updateTimelineInfo': true,
+        'timelineInfo': message.timelineInfo,
       });
     }
   }
   
-  updateRenderer = () => {
+  updateRenderer = (data) => {
     this.destroyRendererRelated();
     
+    this.state = data;
+
     const { previewScript, runTimeline, scripts, devices, timelines } = this.state;
     console.log('Renderer.updateRenderer()', previewScript, runTimeline);
     
@@ -130,17 +134,21 @@ export default class Renderer {
     console.log('Renderer.updateTimelineInfo', data);
     
     if (this.currentRenderer && this.currentRendererIsTimeline) {
+      if ('playing' in data) {
+        this.updateTimelinePlaybackStatus(data.playing);
+      }
       if ('position' in data) {
         this.currentRenderer.setPosition(data.position);
       }
     }
   }
   
-  updateTimelinePlaybackStatus = () => {
-    const { playing, position } = this.state.timelineInfo;
+  updateTimelinePlaybackStatus = (playing) => {
     if (playing && !this.ticker.running) {
+      this.playing = true;
       this.ticker.start();
     } else if (!playing && this.ticker.running) {
+      this.playing = false;
       this.ticker.stop();
     }
   }
@@ -159,6 +167,7 @@ export default class Renderer {
       this.send({
         timelineInfo: {
           position: this.currentRenderer.currentTime,
+          playing: this.playing,
         },
       });
     }
