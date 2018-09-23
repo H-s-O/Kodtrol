@@ -14,15 +14,25 @@ class TimelineAudioTrack extends PureComponent {
   trackWaveformData = null;
   trackWaveformWidth = 0;
   
-  constructor(props) {
-    super(props);
-    
-    const { data } = props;
+  componentDidMount = () => {
+    const { data } = this.props;
     const { id } = data;
     this.trackWaveform = new AudioSVGWaveform({
       url: `http://localhost:5555/current-timeline/blocks/${id}/file`,
     });
     this.trackWaveform.loadFromUrl().then(this.waveformLoaded);
+  }
+  
+  componentWillUnmount = () => {
+    if (this.trackWaveform) {
+      if (this.trackWaveform.context) {
+        // Homemade destroy
+        this.trackWaveform.context.close();
+      }
+    }
+    
+    this.trackWaveformData = null;
+    this.trackWaveform = null;
   }
   
   waveformLoaded = () => {
