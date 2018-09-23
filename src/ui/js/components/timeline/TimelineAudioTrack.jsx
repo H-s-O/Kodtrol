@@ -79,7 +79,7 @@ class TimelineAudioTrack extends PureComponent {
 
   render = () => {
     const { data, layerDuration } = this.props;
-    const { inTime, outTime, name, color } = data;
+    const { inTime, outTime, name, color, volume } = data;
     const lightColor = Color(color).isLight();
     
     return (
@@ -139,6 +139,7 @@ class TimelineAudioTrack extends PureComponent {
               className={styles.timelineAudioTrackLabel}
             >
               { name }
+              { volume > 0 ? '' : ' [muted]' } 
             </span>
           </div>
         </div>
