@@ -19,7 +19,7 @@ ipcRenderer.on('data', (e, data) => {
   
   if (dataObj) {
     for (let streamId in dataObj) {
-      const { id, position } = dataObj[streamId];
+      const { id, position, volume } = dataObj[streamId];
       if (!(streamId in instances)) {
         // console.log('create', id, position);
         
@@ -28,6 +28,7 @@ ipcRenderer.on('data', (e, data) => {
           html5: true,
         });
         instance.play();
+        instance.volume(volume);
         instance.seek(position / 1000);
         
         instances[streamId] = instance;

@@ -61,6 +61,7 @@ export default class AudioRenderer {
     this.started = true;
     
     const position = audioPercent * this.duration;
+    const volume = this.volume;
     
     // @TODO
     return {
@@ -69,7 +70,8 @@ export default class AudioRenderer {
           // this.volumeStream,
           id: this.id,
           position,
-        }
+          volume,
+        },
       },
     };
   }
