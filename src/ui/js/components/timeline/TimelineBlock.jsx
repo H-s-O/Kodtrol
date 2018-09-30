@@ -10,12 +10,14 @@ import styles from '../../../styles/components/partials/timeline.scss';
 
 class TimelineBlock extends PureComponent {
   onStartAnchorDown = (e) => {
+    console.log('block anchor start down');
     e.stopPropagation();
     e.preventDefault();
     this.doDragAnchorDown('inTime');
   }
 
   onEndAnchorDown = (e) => {
+    console.log('block anchor end down');
     e.stopPropagation();
     e.preventDefault();
     this.doDragAnchorDown('outTime');

@@ -40,7 +40,7 @@ export default class ScriptRenderer {
     // @TODO
   }
 
-  render = (delta, blockInfo = {}, triggerData = {}) => {
+  render = (delta, blockInfo = {}, triggerData = {}, curveData = {}) => {
     const script = this.scriptInstance;
     
     this.resetDevices(false);
@@ -75,7 +75,7 @@ export default class ScriptRenderer {
       if (!this.started) {
         try {
           if (typeof script.start === 'function') {
-            const data = script.start(this.devicesInstances, triggerData);
+            const data = script.start(this.devicesInstances, triggerData, curveData);
             if (data) {
               this.scriptData = data;
             }
@@ -89,7 +89,7 @@ export default class ScriptRenderer {
       // Script loop
       try {
         if (typeof script.loop === 'function') {
-          const data = script.loop(this.devicesInstances, this.scriptData, blockInfo, triggerData);
+          const data = script.loop(this.devicesInstances, this.scriptData, blockInfo, triggerData, curveData);
           if (data) {
             this.scriptData = data;
           }

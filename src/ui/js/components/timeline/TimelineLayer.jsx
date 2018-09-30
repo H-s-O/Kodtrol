@@ -7,6 +7,7 @@ import percentString from '../../lib/percentString';
 import { deleteWarning } from '../../lib/messageBoxes';
 import TimelineBlock from './TimelineBlock';
 import TimelineTrigger from './TimelineTrigger';
+import TimelineCurve from './TimelineCurve';
 import TimelineAudioTrack from './TimelineAudioTrack';
 
 import styles from '../../../styles/components/partials/timeline.scss';
@@ -62,6 +63,10 @@ class TimelineLayer extends PureComponent {
   
   onAddTriggerHereClick = (e) => {
     this.doAddItemAt('trigger', e);
+  }
+  
+  onAddCurveHereClick = (e) => {
+    this.doAddItemAt('curve', e);
   }
   
   doAddItemAt = (type, e) => {
@@ -134,6 +139,10 @@ class TimelineLayer extends PureComponent {
       label: 'Add trigger here...',
       click: () => this.onAddTriggerHereClick(e),
     }));
+    menu.append(new MenuItem({
+      label: 'Add curve here...',
+      click: () => this.onAddCurveHereClick(e),
+    }));
 
     e.stopPropagation();
     e.preventDefault();
@@ -149,7 +158,7 @@ class TimelineLayer extends PureComponent {
     } else if ('trigger' in item) {
       return this.renderTimelineLayerTrigger(item, index);
     } else if ('curve' in item) {
-      // @TODO
+      return this.renderTimelineLayerCurve(item, index);
     } else if ('file' in item) {
       return this.renderTimelineLayerAudioTrack(item, index);
     }
@@ -178,6 +187,23 @@ class TimelineLayer extends PureComponent {
       <TimelineTrigger
         key={`trigger-${index}`}
         data={trigger}
+        index={index}
+        layerDuration={duration}
+        onEditItem={this.doEditItem}
+        onDeleteItem={this.doDeleteItem}
+        onAdjustItem={this.doAdjustItem}
+        onCopyItem={this.doCopyItem}
+        onPasteItem={this.doPasteItem}
+      />
+    );
+  }
+
+  renderTimelineLayerCurve = (curve, index) => {
+    const { duration } = this.props;
+    return (
+      <TimelineCurve
+        key={`curve-${index}`}
+        data={curve}
         index={index}
         layerDuration={duration}
         onEditItem={this.doEditItem}

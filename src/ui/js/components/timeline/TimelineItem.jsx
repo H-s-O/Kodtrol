@@ -77,6 +77,7 @@ class TimelineItem extends PureComponent {
   }
 
   onContextMenuClick = (e) => {
+    console.log('on context menu click capture');
     e.stopPropagation();
     e.preventDefault();
 

@@ -12,6 +12,7 @@ import stopEvent from '../../lib/stopEvent';
 import TimelineTriggerModal from '../modals/TimelineTriggerModal';
 import RecordTriggerModal from '../modals/RecordTriggerModal';
 import TimelineBlockModal from '../modals/TimelineBlockModal';
+import TimelineCurveModal from '../modals/TimelineCurveModal';
 import RecordBlockModal from '../modals/RecordBlockModal';
 import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
 import TimelineLayer from '../timeline/TimelineLayer';
@@ -163,6 +164,13 @@ class TimelineEditor extends PureComponent {
   onAddTriggerClick = () => {
     this.doAddItem('trigger', {
       id: uniqid(), // generate new trigger id
+    });
+  }
+  
+  onAddCurveClick = () => {
+    this.doAddItem('curve', {
+      id: uniqid(), // generate new curve id
+      curve: [],
     });
   }
 
@@ -327,6 +335,8 @@ class TimelineEditor extends PureComponent {
         ...timelineData
       },
     });
+    
+    window.onmouseup = this.onMouseUp;
   }
 
   onCopyItem = (layerIndex, itemIndex, mode) => {
@@ -359,10 +369,14 @@ class TimelineEditor extends PureComponent {
       inTime: this.getTimelinePositionFromEvent(e),
     };
     
-    if (type === 'block') {
+    if (type === 'block' || type === 'curve') {
       const { timelineData } = this.props;
       const timelineDuration = get(timelineData, 'duration');
-      data.outTime = Math.min(data.inTime + 3000, timelineDuration);
+      data.outTime = Math.min(data.inTime + 10000, timelineDuration);
+    }
+    
+    if (type === 'curve') {
+      data.curve = [];
     }
     
     this.setState({
@@ -394,6 +408,10 @@ class TimelineEditor extends PureComponent {
   }
 
   onMouseUp = (e) => {
+    console.log('timeline on mouse up');
+    
+    window.onmouseup = null;
+    
     const { timelineDataTemp } = this.state;
     
     this.doSave(timelineDataTemp);
@@ -664,6 +682,11 @@ class TimelineEditor extends PureComponent {
           Add trigger...
         </MenuItem>
         <MenuItem
+          onSelect={this.onAddCurveClick}
+        >
+          Add curve...
+        </MenuItem>
+        <MenuItem
           divider
         />
         <MenuItem
@@ -782,6 +805,14 @@ class TimelineEditor extends PureComponent {
           onSuccess={this.onItemModalSuccess}
           layers={layers}
         />
+        <TimelineCurveModal
+          initialValue={modalValue}
+          show={modalType === 'curve'}
+          title={modalAction === 'add' ? 'Add curve' : 'Edit curve'}
+          onCancel={this.onItemModalCancel}
+          onSuccess={this.onItemModalSuccess}
+          layers={layers}
+        />
       </Fragment>
     );
   }
@@ -812,7 +843,6 @@ class TimelineEditor extends PureComponent {
           className={styles.wrapper}
           onClick={ this.onTimelineClick }
           onMouseMove={this.onMouseMove}
-          onMouseUp={adjustItemPath ? this.onMouseUp : null}
         >
           { workingTimelineData ? this.renderTimeline(workingTimelineData) : null }
         </div>

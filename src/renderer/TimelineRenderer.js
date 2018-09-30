@@ -62,7 +62,7 @@ export default class TimelineRenderer {
       .map((curve) => {
         return {
           ...curve,
-          instance: new CurveRenderer(),
+          instance: new CurveRenderer(curve),
         };
       });
   }
@@ -103,15 +103,22 @@ export default class TimelineRenderer {
     const curveData = this.curves
       .filter((curve) => (
         currentTime >= curve.inTime
-        && currentTime <= curve.inTime + 30
-        && !curve.instance.started
+        && currentTime <= curve.outTime
       ))
       .reduce((renderCurveData, curve) => {
-        const data = curve.instance.render();
+        const { inTime, outTime } = curve;
+        const curveInfo = {
+          inTime,
+          outTime,
+          currentTime,
+          curvePercent: ((currentTime - inTime) / (outTime - inTime)),
+        };
+        
+        const data = curve.instance.render(currentTime, curveInfo);
 
         return {
           ...renderCurveData,
-          [curve.trigger]: true,
+          [curve.name]: data,
         };
       }, {});
 
@@ -129,7 +136,7 @@ export default class TimelineRenderer {
           blockPercent: ((currentTime - inTime) / (outTime - inTime)),
         };
         
-        const data = block.instance.render(currentTime, blockInfo, triggerData);
+        const data = block.instance.render(currentTime, blockInfo, triggerData, curveData);
         
         return {
           dmx: {
@@ -211,6 +218,7 @@ export default class TimelineRenderer {
 
   destroy = () => {
     this.blocks.forEach((block) => block.instance.destroy());
+    this.curves.forEach((curve) => curve.instance.destroy());
 
     this.blocks = null;
     this.triggers = null;

@@ -10,7 +10,7 @@ import styles from '../../../styles/components/partials/timeline.scss';
 
 class TimelineTrigger extends PureComponent {
   onStartAnchorDown = (e) => {
-    e.stopPropagation();
+    console.log('trigger anchor start down');
     e.preventDefault();
     this.doDragAnchorDown('inTime');
   }
