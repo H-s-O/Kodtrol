@@ -126,6 +126,20 @@
         .timelineCurveLabel {
           color: #000;
         }
+        
+        .curveGraph {
+          polyline {
+            stroke: #000 !important;
+          }
+        }
+        
+        .curvePoint {
+          background-color: #000 !important;
+          
+          &:hover {
+            outline-color: #000 !important;
+          }
+        }
       }
 
       .topLayer {
@@ -146,6 +160,7 @@
         height: 100%;
         
         .curveGraph {
+          pointer-events: none;
           position: relative;
           width: 100%;
           height: 100%;

@@ -2,14 +2,17 @@ import React, { PureComponent } from 'react';
 import classNames from 'classnames'
 import { remote } from 'electron';
 import Color from 'color';
+import uniqid from 'uniqid';
 
 import percentString from '../../lib/percentString';
+import stopEvent from '../../lib/stopEvent';
 import parseCurve from '../../../../common/js/lib/parseCurve';
 import TimelineItem from './TimelineItem';
 
 import styles from '../../../styles/components/partials/timeline.scss';
 
 class TimelineCurve extends PureComponent {
+  container = null;
   state = {
     curveTemp: null,
     // curveTemp: [
@@ -21,15 +24,17 @@ class TimelineCurve extends PureComponent {
     // ],
   };
   
-  // constructor(props) {
-  //   const { data } = props;
-  //   const { curve } = data;
-  //   if (curve) {
-  //     this.state = {
-  //       curve,
-  //     };
-  //   }
-  // }
+  constructor(props) {
+    super(props);
+    
+    const { data } = props;
+    const { curve } = data;
+    if (curve) {
+      this.state = {
+        curveTemp: curve,
+      };
+    }
+  }
   
   onStartAnchorDown = (e) => {
     console.log('block curve start down');
@@ -48,6 +53,51 @@ class TimelineCurve extends PureComponent {
   doDragAnchorDown = (mode) => {
     const { onAdjustItem, index } = this.props;
     onAdjustItem(index, mode);
+  }
+  
+  onPointClick = (e, pointId) => {
+    stopEvent(e);
+    
+    const { curveTemp } = this.state;
+    const newCurve = curveTemp.filter(({id}) => id !== pointId);
+    
+    this.doUpdate(newCurve);
+  }
+  
+  getContainerCoordsFromEvent = (e) => {
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = this.container.getBoundingClientRect();
+    const x = (clientX - left) / width;
+    const y = 1 - ((clientY - top) / height);
+    return {
+      x,
+      y,
+    };
+  }
+  
+  onContainerClick = (e) => {
+    stopEvent(e);
+    
+    const coords = this.getContainerCoordsFromEvent(e);
+    // console.log(coords);
+    
+    const newPoint = {
+      ...coords,
+      id: uniqid(),
+    };
+    const { curveTemp } = this.state;
+    const newCurve = [
+      ...curveTemp,
+      newPoint,
+    ];
+    
+    this.doUpdate(newCurve);
+  }
+  
+  doUpdate = (curve) => {
+    this.setState({
+      curveTemp: curve,
+    });
   }
   
   renderCurve = (curve) => {
@@ -85,7 +135,11 @@ class TimelineCurve extends PureComponent {
       return null;
     }
       
-    return curve.map(({x,y}, index) => {
+    return curve.map(({x,y,id,extra}, index) => {
+      if (extra) {
+        return null;
+      }
+      
       return (
         <div
           className={styles.curvePoint}
@@ -94,6 +148,7 @@ class TimelineCurve extends PureComponent {
             left: percentString(x),
             top: percentString(1 - y),
           }}
+          onClick={(e) => this.onPointClick(e, id)}
         >
         </div>
       );
@@ -113,6 +168,7 @@ class TimelineCurve extends PureComponent {
         typeLabel='curve'
       >
         <div
+          ref={(ref) => this.container = ref}
           className={classNames({
             [styles.timelineCurve]: true,
             [styles.lightCurve]: lightColor,
@@ -122,6 +178,7 @@ class TimelineCurve extends PureComponent {
             width: percentString((outTime - inTime) / layerDuration),
             backgroundColor: color,
           }}
+          onClick={this.onContainerClick}
         >
           <div
             className={classNames({
