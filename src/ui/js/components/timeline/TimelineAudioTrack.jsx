@@ -7,7 +7,7 @@ import AudioSVGWaveform from 'audio-waveform-svg-path';
 import percentString from '../../lib/percentString';
 import TimelineItem from './TimelineItem';
 
-import styles from '../../../styles/components/partials/timeline.scss';
+import styles from '../../../styles/components/timeline/timelineaudiotrack.scss';
 
 class TimelineAudioTrack extends PureComponent {
   trackWaveform = null;

@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import { get, set, flatten, pick } from 'lodash';
+import { get, set, pick } from 'lodash';
 import express from 'express';
 import cors from 'cors';
 
@@ -252,7 +252,7 @@ export default class Main {
     if (!timeline) {
       return res.status(404);
     }
-    const block = flatten(timeline.layers).find(({id}) => id === req.params.blockId);
+    const block = timeline.items.find(({id}) => id === req.params.blockId);
     if (!block) {
       return res.status(404);
     }

@@ -6,21 +6,22 @@ import uniqid from 'uniqid';
 import { connect } from 'react-redux';
 import path from 'path';
 
-import Panel from './Panel';
-import percentString from '../../lib/percentString';
+import Panel from '../partials/Panel';
 import stopEvent from '../../lib/stopEvent';
+import percentString from '../../lib/percentString';
 import TimelineTriggerModal from '../modals/TimelineTriggerModal';
 import RecordTriggerModal from '../modals/RecordTriggerModal';
 import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineCurveModal from '../modals/TimelineCurveModal';
 import RecordBlockModal from '../modals/RecordBlockModal';
 import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
-import TimelineLayer from '../timeline/TimelineLayer';
 import { updateCurrentTimeline, saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
 import { importAudioFile } from '../../lib/messageBoxes';
+import TimelineEditorContext from './TimelineEditorContext';
+import TimelineWrapper from './TimelineWrapper';
 
-import styles from '../../../styles/components/partials/timeline.scss';
+import styles from '../../../styles/components/timeline/timelineeditor.scss';
 
 const propTypes = {
   timelineData: PropTypes.shape({}),
@@ -41,9 +42,6 @@ const defaultProps = {
 };
 
 class TimelineEditor extends PureComponent {
-  timelineContainer = null;
-  timelineCursorTracker = null;
-  
   state = {
     modalType: null,
     modalAction: null,
@@ -207,7 +205,21 @@ class TimelineEditor extends PureComponent {
       }
     });
   }
+  
+  onDeleteItem = (layerIndex, itemIndex) => {
+    const { timelineData } = this.props;
+    unset(timelineData, this.getPath(layerIndex, itemIndex)); // derp
 
+    this.doSave(timelineData);
+  }
+
+  onDeleteLayer = (layerIndex) => {
+    const { timelineData } = this.props;
+    unset(timelineData, this.getPath(layerIndex)); // derp
+
+    this.doSave(timelineData);
+  }
+  
   onEditItem = (layerIndex, itemIndex) => {
     const { timelineData } = this.props;
     const itemData = get(timelineData, this.getPath(layerIndex, itemIndex));
@@ -232,7 +244,7 @@ class TimelineEditor extends PureComponent {
       modalAction: 'edit',
     });
   }
-
+  
   onItemModalSuccess = (itemData) => {
     const { layer, ...itemInfo } = itemData;
     const { timelineData } = this.props;
@@ -386,26 +398,6 @@ class TimelineEditor extends PureComponent {
     });
   }
 
-  onMouseMove = (e) => {
-    const { timelineData } = this.props;
-    if (timelineData) {
-      const cursorPos = this.getTimelineScreenXFromEvent(e);
-      this.timelineCursorTracker.style = `left:${cursorPos}px`;
-    }
-    
-    const { adjustItemPath, adjustItemMode } = this.state;
-    if (adjustItemPath !== null) {
-      const { timelineData } = this.props;
-      const newValue = this.getTimelinePositionFromEvent(e);
-      
-      const newData = set(timelineData, `${adjustItemPath}.${adjustItemMode}`, newValue);
-
-      this.setState({
-        timelineDataTemp: newData,
-      });
-      this.forceUpdate(); // needed for live refresh of timeline
-    }
-  }
 
   onMouseUp = (e) => {
     console.log('timeline on mouse up');
@@ -423,19 +415,7 @@ class TimelineEditor extends PureComponent {
     });
   }
 
-  onDeleteItem = (layerIndex, itemIndex) => {
-    const { timelineData } = this.props;
-    unset(timelineData, this.getPath(layerIndex, itemIndex)); // derp
-
-    this.doSave(timelineData);
-  }
-
-  onDeleteLayer = (layerIndex) => {
-    const { timelineData } = this.props;
-    unset(timelineData, this.getPath(layerIndex)); // derp
-
-    this.doSave(timelineData);
-  }
+  
 
   onTimelineClick = (e) => {
     stopEvent(e);
@@ -450,28 +430,7 @@ class TimelineEditor extends PureComponent {
     this.doUpdateInfo(newInfo);
   }
 
-  getTimelinePositionFromEvent = (e, round = true) => {
-    const { timelineData } = this.props;
-    const duration = get(timelineData, 'duration');
-    const zoom = get(timelineData, 'zoom');
-    const { clientX } = e;
-    const { left } = this.timelineContainer.getBoundingClientRect();
-    const { scrollLeft, scrollWidth } = this.timelineContainer;
-    const percent = (clientX - left + scrollLeft) / scrollWidth;
-    let newPosition = (duration * percent);
-    if (round) {
-      newPosition = Math.round(newPosition);
-    }
-    return newPosition;
-  }
-  
-  getTimelineScreenXFromEvent = (e) => {
-    const { clientX } = e;
-    const { left } = this.timelineContainer.getBoundingClientRect();
-    const { scrollLeft } = this.timelineContainer;
-    const pos = (clientX - left + scrollLeft);
-    return pos;
-  }
+
 
   doSave = (timelineData) => {
     // temp!
@@ -511,73 +470,18 @@ class TimelineEditor extends PureComponent {
     doUpdateTimelineInfoUser(timelineInfo);
   }
 
-  renderTimelineLayer = (layer, index, layers) => {
-    const { timelineData } = this.props;
-    const duration = get(timelineData, 'duration');
-    return (
-      <TimelineLayer
-        key={`layer-${index}`}
-        duration={duration}
-        data={layer}
-        totalLayers={layers.length}
-        index={index}
-        onDeleteLayer={this.onDeleteLayer}
-        onDeleteItem={this.onDeleteItem}
-        onEditItem={this.onEditItem}
-        onAdjustItem={this.onAdjustItem}
-        onCopyItem={this.onCopyItem}
-        onPasteItem={this.onPasteItem}
-        onAddItemAt={this.onAddItemAt}
-        onAddLayer={this.onAddLayer}
-      />
-    );
-  }
-
-  renderTimelineTracker = () => {
-    const { timelineInfo, timelineData } = this.props;
-    const { position } = timelineInfo;
-    const { duration } = timelineData;
-    
-    const left = percentString(position / duration);
-    
-    return (
-      <div
-        className={styles.timelineTracker}
-        style={{ left }}
-      >
-        <div
-          className={styles.arrow}
-        >
-        </div>
-      </div>
-    );
-  }
   
-  renderTimelineCursorTracker = () => {
+  renderTimeline = (timelineData) => {
+    const { Provider } = TimelineEditorContext;
     return (
-      <div
-        ref={(ref) => this.timelineCursorTracker = ref}
-        className={styles.timelineCursorTracker}
+      <Provider
+        value={this.editorCallbacks}
       >
-      </div>
-    )
-  }
-
-  renderTimeline = (data) => {
-    const { zoom } = data;
-    const layers = get(data, 'layers', []);
-    
-    return (
-      <div
-        className={styles.timeline}
-        style={{
-          width: percentString(zoom),
-        }}
-      >
-      { layers.length ? layers.map(this.renderTimelineLayer) : null }
-      { this.renderTimelineCursorTracker() }
-      { layers.length ? this.renderTimelineTracker() : null }
-      </div>
+        <TimelineDisplay
+          onItemsUpdate={()=>{}}
+          {...timelineData}
+        />
+      </Provider>
     );
   }
 
@@ -635,7 +539,7 @@ class TimelineEditor extends PureComponent {
 
   renderAddItems = () => {
     const { timelineData } = this.props;
-    const { layers } = timelineData;
+    const { items } = timelineData;
     
     return (
       <DropdownButton
@@ -648,7 +552,7 @@ class TimelineEditor extends PureComponent {
         bsSize="xsmall"
         onClick={stopEvent}
       >
-        { !layers.length ? (
+        { !items.length ? (
           <MenuItem
             onSelect={this.onAddLayerAtTopClick}
             >
@@ -756,10 +660,20 @@ class TimelineEditor extends PureComponent {
     );
   }
   
+  renderTimelineWrapper = () => {
+    const { timelineData, timelineInfo } = this.props;
+    return (
+      <TimelineWrapper
+        timelineData={timelineData}
+        timelineInfo={timelineInfo}
+      />
+    );
+  }
+  
   renderItemModals = () => {
     const { timelineData, scripts } = this.props;
     const { modalType, modalValue, modalAction } = this.state;
-    const layers = get(timelineData, 'layers');
+    const { layers } = timelineData;
     
     return (
       <Fragment>
@@ -838,14 +752,7 @@ class TimelineEditor extends PureComponent {
           )
         }
       >
-        <div
-          ref={ (ref) => this.timelineContainer = ref }
-          className={styles.wrapper}
-          onClick={ this.onTimelineClick }
-          onMouseMove={this.onMouseMove}
-        >
-          { workingTimelineData ? this.renderTimeline(workingTimelineData) : null }
-        </div>
+        { workingTimelineData ? this.renderTimelineWrapper() : null }
         { workingTimelineData ? this.renderItemModals() : null }
       </Panel>
     );

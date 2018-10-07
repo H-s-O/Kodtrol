@@ -5,7 +5,7 @@ import ScriptEditor from './components/partials/ScriptEditor';
 import ScriptsBrowser from './components/partials/ScriptsBrowser';
 import DevicesBrowser from './components/partials/DevicesBrowser';
 import TimelinesBrowser from './components/partials/TimelinesBrowser';
-import TimelineEditor from './components/partials/TimelineEditor';
+import TimelineEditor from './components/timeline/TimelineEditor';
 import ModalsContainer from './components/partials/ModalsContainer';
 
 import styles from '../styles/main.scss';

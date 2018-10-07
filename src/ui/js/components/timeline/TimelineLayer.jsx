@@ -10,7 +10,7 @@ import TimelineTrigger from './TimelineTrigger';
 import TimelineCurve from './TimelineCurve';
 import TimelineAudioTrack from './TimelineAudioTrack';
 
-import styles from '../../../styles/components/partials/timeline.scss';
+import styles from '../../../styles/components/timeline/timelinelayer.scss';
 
 const propTypes = {
   index: PropTypes.number,

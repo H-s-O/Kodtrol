@@ -6,7 +6,7 @@ import Color from 'color';
 import percentString from '../../lib/percentString';
 import TimelineItem from './TimelineItem';
 
-import styles from '../../../styles/components/partials/timeline.scss';
+import styles from '../../../styles/components/timeline/timelineblock.scss';
 
 class TimelineBlock extends PureComponent {
   onStartAnchorDown = (e) => {

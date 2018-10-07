@@ -1,0 +1,9 @@
+.timelineLayer {
+  position: absolute;
+  width: 100%;
+  background-color: #222;
+
+  &:hover {
+    background-color: #111;
+  }
+}

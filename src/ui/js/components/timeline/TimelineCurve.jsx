@@ -9,7 +9,7 @@ import stopEvent from '../../lib/stopEvent';
 import parseCurve from '../../../../common/js/lib/parseCurve';
 import TimelineItem from './TimelineItem';
 
-import styles from '../../../styles/components/partials/timeline.scss';
+import styles from '../../../styles/components/timeline/timelinecurve.scss';
 
 class TimelineCurve extends PureComponent {
   container = null;

@@ -6,7 +6,7 @@ import Color from 'color';
 import percentString from '../../lib/percentString';
 import TimelineItem from './TimelineItem';
 
-import styles from '../../../styles/components/partials/timeline.scss';
+import styles from '../../../styles/components/timeline/timelinetrigger.scss';
 
 class TimelineTrigger extends PureComponent {
   onStartAnchorDown = (e) => {

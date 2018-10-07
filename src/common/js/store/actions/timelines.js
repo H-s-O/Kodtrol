@@ -14,6 +14,7 @@ export const createTimeline = (timelineData) => ({
   type: 'CREATE_TIMELINE',
   payload: {
     zoom: 1.0,
+    items: [],
     layers: [],
     ...timelineData,
     id: uniqid(),
