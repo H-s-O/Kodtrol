@@ -2,13 +2,11 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import TimelineLayer from '../timeline/TimelineLayer';
-import parseTimeline from '../../../../common/js/lib/parseTimeline';
 import percentString from '../../lib/percentString';
 
 import styles from '../../../styles/components/timeline/timelinedisplay.scss';
 
 const propTypes = {
-  onItemsUpdate: PropTypes.func.isRequired,
   items: PropTypes.arrayOf(PropTypes.shape({})),
   layers: PropTypes.arrayOf(PropTypes.shape({})),
   zoom: PropTypes.number,
@@ -26,29 +24,31 @@ class TimelineDisplay extends PureComponent {
   renderTimelineLayer = (layer, index, layers) => {
     const { items, duration } = this.props;
     const { id } = layer;
+    
     const layerItems = items.filter(({layer}) => layer === id);
+    const layersCount = Math.max(4, layers.length);
+    const layerHeight = (1 / layersCount);
+    const top = percentString(1 - ((index + 1) * layerHeight));
+    const height = percentString(layerHeight * 0.9);
+    const style = {
+      top,
+      height,
+    };
     
     return (
       <TimelineLayer
         key={`layer-${index}`}
         duration={duration}
-        data={layerItems}
-        totalLayers={layers.length}
-        index={index}
-        onDeleteLayer={this.onDeleteLayer}
-        onDeleteItem={this.onDeleteItem}
-        onEditItem={this.onEditItem}
-        onAdjustItem={this.onAdjustItem}
-        onCopyItem={this.onCopyItem}
-        onPasteItem={this.onPasteItem}
-        onAddItemAt={this.onAddItemAt}
-        onAddLayer={this.onAddLayer}
+        data={layer}
+        items={layerItems}
+        style={style}
       />
     );
   }
   
   render = () => {
-    const { items, zoom, layers } = this.props;
+    const { zoom, layers } = this.props;
+    const sortedLayers = layers.sort((a, b) => a.order - b.order);
     
     return (
       <div
@@ -57,7 +57,7 @@ class TimelineDisplay extends PureComponent {
           width: percentString(zoom),
         }}
       >
-      { layers.length ? layers.map(this.renderTimelineLayer) : null }
+      { sortedLayers && sortedLayers.length ? sortedLayers.map(this.renderTimelineLayer) : null }
       </div>
     );
   }

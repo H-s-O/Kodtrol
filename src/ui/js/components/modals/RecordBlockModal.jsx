@@ -11,9 +11,9 @@ export default function(props) {
           id,
           label: name,
         })),
-        layers: layers.map((layer, index) => ({
-          id: index,
-          label: index + 1,
+        layers: layers.map(({id, order}) => ({
+          id,
+          label: order + 1,
         })),
       }}
       fields={[

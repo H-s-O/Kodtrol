@@ -45,6 +45,7 @@
     "react-autobind": "^1.0.6",
     "react-bootstrap": "^0.32.1",
     "react-color": "^2.14.1",
+    "react-connect-context": "^1.1.0",
     "react-dom": "^16.5.2",
     "react-draw": "^0.6.1",
     "react-redux": "^5.0.7",

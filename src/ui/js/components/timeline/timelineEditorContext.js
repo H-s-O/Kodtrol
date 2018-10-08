@@ -1,9 +1,6 @@
-import React, { createElement } from 'react';
+import React from 'react';
 
 const ctx = React.createContext({});
 
-export default ctx;
-
-export const connectTimeline = (WrapperComponent) => {
-  return 
-}
+export const Provider = ctx.Provider;
+export const Consumer = ctx.Consumer;

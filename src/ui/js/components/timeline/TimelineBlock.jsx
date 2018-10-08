@@ -5,6 +5,7 @@ import Color from 'color';
 
 import percentString from '../../lib/percentString';
 import TimelineItem from './TimelineItem';
+import timelineConnect from './timelineConnect';
 
 import styles from '../../../styles/components/timeline/timelineblock.scss';
 
@@ -89,4 +90,4 @@ class TimelineBlock extends PureComponent {
   }
 }
 
-export default TimelineBlock;
+export default timelineConnect(TimelineBlock);

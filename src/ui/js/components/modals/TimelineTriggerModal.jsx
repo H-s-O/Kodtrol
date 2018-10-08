@@ -7,9 +7,9 @@ export default function(props) {
     <BaseModal
       {...otherProps}
       relatedData={{
-        layers: layers.map((layer, index) => ({
-          id: index,
-          label: index + 1,
+        layers: layers.map(({id, order}) => ({
+          id,
+          label: order + 1,
         })),
       }}
       fields={[

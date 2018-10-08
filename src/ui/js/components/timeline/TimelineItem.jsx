@@ -41,8 +41,9 @@ class TimelineItem extends PureComponent {
   }
   
   onEditItemClick = () => {
-    const { onEditItem, index } = this.props;
-    onEditItem(index);
+    const { timelineEditItem, data } = this.props;
+    const { id } = data;
+    timelineEditItem(id);
   }
 
   doDragAnchorDown = (mode) => {

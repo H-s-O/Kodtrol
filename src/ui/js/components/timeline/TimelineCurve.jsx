@@ -8,6 +8,7 @@ import percentString from '../../lib/percentString';
 import stopEvent from '../../lib/stopEvent';
 import parseCurve from '../../../../common/js/lib/parseCurve';
 import TimelineItem from './TimelineItem';
+import timelineConnect from './timelineConnect';
 
 import styles from '../../../styles/components/timeline/timelinecurve.scss';
 
@@ -97,6 +98,12 @@ class TimelineCurve extends PureComponent {
   doUpdate = (curve) => {
     this.setState({
       curveTemp: curve,
+    });
+    
+    const { timelineUpdateItem, data } = this.props;
+    const { id } = data;
+    timelineUpdateItem(id, {
+      curve,
     });
   }
   
@@ -228,4 +235,4 @@ class TimelineCurve extends PureComponent {
   }
 }
 
-export default TimelineCurve;
+export default timelineConnect(TimelineCurve);

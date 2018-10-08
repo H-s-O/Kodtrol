@@ -78,21 +78,6 @@ class TimelineWrapper extends PureComponent {
     );
   }
   
-  getTimelinePositionFromEvent = (e, round = true) => {
-    const { timelineData } = this.props;
-    const duration = get(timelineData, 'duration');
-    const zoom = get(timelineData, 'zoom');
-    const { clientX } = e;
-    const { left } = this.timelineContainer.getBoundingClientRect();
-    const { scrollLeft, scrollWidth } = this.timelineContainer;
-    const percent = (clientX - left + scrollLeft) / scrollWidth;
-    let newPosition = (duration * percent);
-    if (round) {
-      newPosition = Math.round(newPosition);
-    }
-    return newPosition;
-  }
-  
   getTimelineScreenXFromEvent = (e) => {
     const { clientX } = e;
     const { left } = this.timelineContainer.getBoundingClientRect();
@@ -112,7 +97,6 @@ class TimelineWrapper extends PureComponent {
         onMouseMove={this.onContainerMouseMove}
       >
         <TimelineDisplay
-          onItemsUpdate={()=>{}}
           {...timelineData}
         />
         { this.renderTimelineCursorTracker() }

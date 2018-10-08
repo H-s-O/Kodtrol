@@ -18,7 +18,7 @@ import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
 import { updateCurrentTimeline, saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
 import { importAudioFile } from '../../lib/messageBoxes';
-import TimelineEditorContext from './TimelineEditorContext';
+import { Provider } from './timelineEditorContext';
 import TimelineWrapper from './TimelineWrapper';
 
 import styles from '../../../styles/components/timeline/timelineeditor.scss';
@@ -42,6 +42,7 @@ const defaultProps = {
 };
 
 class TimelineEditor extends PureComponent {
+  editorCallbacks = null;
   state = {
     modalType: null,
     modalAction: null,
@@ -57,6 +58,195 @@ class TimelineEditor extends PureComponent {
     recording: false,
     recordingData: null,
   };
+  
+  constructor(props) {
+    super(props);
+    
+    this.editorCallbacks = {
+      timelineAddItemAt: this.onAddItemAt,
+      timelineEditItem: this.onEditItem,
+      timelineUpdateItem: this.onUpdateItem,
+      timelineAddLayer: this.onAddLayer,
+      timelineDeleteLayer: this.onDeleteLayer,
+      timelineGetPositionFromEvent: this.getTimelinePositionFromEvent,
+    };
+  }
+  
+  getItem = (itemId) => {
+    const { timelineData } = this.props;
+    const { items } = timelineData;
+    return items.find(({id}) => id === itemId);
+  }
+  
+  getLayer = (layerId) => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    return layers.find(({id}) => id === layerId);
+  }
+  
+  onUpdateItem = (itemId, data) => {
+    const { timelineData } = this.props;
+    const { items } = timelineData;
+    const itemData = this.getItem(itemId);
+    
+    const newItemData = {
+      ...itemData,
+      ...data,
+    };
+    const newItems = items.map((item) => {
+      if (item.id === itemId) {
+        return newItemData;
+      }
+      return item;
+    });
+    const newTimelineData = {
+      ...timelineData,
+      items: newItems,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  onEditItem = (itemId) => {
+    const itemData = this.getItem(itemId);
+    
+    let type;
+    if ('script' in itemData) {
+      type = 'block';
+    } else if ('trigger' in itemData) {
+      type = 'trigger';
+    } else if ('curve' in itemData) {
+      type = 'curve';
+    } else if ('file' in itemData) {
+      type = 'audioTrack';
+    }
+    
+    this.setState({
+      modalType: type,
+      modalValue: {
+        ...itemData,
+      },
+      modalAction: 'edit',
+    });
+  }
+  
+  onItemModalSuccess = (itemData) => {
+    const { timelineData } = this.props;
+    const { items } = timelineData;
+    
+    // Attempt to find item index if existing
+    const itemIndex = items.findIndex(({id}) => id === itemData.id); 
+    
+    let newItems;
+    // If item does not exists, add it
+    if (itemIndex === -1) {
+      newItems = [
+        ...items,
+        itemData,
+      ];
+    } 
+    // Update existing item
+    else {
+      newItems = items.map((item) => {
+        if (item.id === itemData.id) {
+          return itemData;
+        }
+        return item;
+      });
+    }
+    
+    const newTimelineData = {
+      ...timelineData,
+      items: newItems,
+    };
+    
+    // Save timeline
+    this.doSave(newTimelineData);
+
+    // Hide modal
+    this.setState({
+      modalType: null,
+      modalAction: null,
+      modalValue: null,
+    });
+  }
+  
+  onItemModalCancel = () => {
+    // Hide modal
+    this.setState({
+      modalType: null,
+      modalAction: null,
+      modalValue: null,
+    });
+  }
+  
+  onAddLayerAtTopClick = () => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    this.onAddLayer(layers.length);
+  }
+  
+  onAddLayerAtBottomClick = () => {
+    this.onAddLayer(0);
+  }
+
+  onAddLayer = (index) => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    
+    const newLayer = {
+      id: uniqid(),
+      order: index,
+    };
+    
+    let newLayers = [...layers];
+    if (index >= layers.length) {
+      newLayers.push(newLayer);
+    } else {
+      newLayers.splice(index, 0, newLayer);
+    }
+    
+    const newTimelineData = {
+      ...timelineData,
+      layers: newLayers,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  onDeleteLayer = (layerId) => {
+    const { timelineData } = this.props;
+    const { layers, items } = timelineData;
+
+    const newLayers = layers.filter(({id}) => id !== layerId);
+    const newItems = items.filter(({layer}) => layer !== layerId);
+    const newTimelineData = {
+      ...timelineData,
+      layers: newLayers,
+      items: newItems,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  
+  
+  
+  getTimelinePositionFromEvent = (e, round = true) => {
+    const { timelineData } = this.props;
+    const duration = get(timelineData, 'duration', 0);
+    const zoom = get(timelineData, 'zoom', 1);
+    const { clientX } = e;
+    const { left } = this.timelineContainer.getBoundingClientRect();
+    const { scrollLeft, scrollWidth } = this.timelineContainer;
+    const percent = (clientX - left + scrollLeft) / scrollWidth;
+    let newPosition = (duration * percent);
+    if (round) {
+      newPosition = Math.round(newPosition);
+    }
+    return newPosition;
+  }
+  
 
   onSaveClick = () => {
     const { timelineData, doSaveTimeline } = this.props;
@@ -126,32 +316,7 @@ class TimelineEditor extends PureComponent {
     }
   }
   
-  onAddLayerAtTopClick = () => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
-    this.onAddLayer(layers.length);
-  }
   
-  onAddLayerAtBottomClick = () => {
-    this.onAddLayer(0);
-  }
-
-  onAddLayer = (index) => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
-    
-    let newLayers = [...layers];
-    if (index >= layers.length) {
-      newLayers.push([]);
-    } else {
-      newLayers.splice(index, 0, []);
-    }
-    
-    this.doSave({
-      ...timelineData,
-      layers: newLayers,
-    });
-  }
   
   onAddBlockClick = () => {
     this.doAddItem('block', {
@@ -213,73 +378,9 @@ class TimelineEditor extends PureComponent {
     this.doSave(timelineData);
   }
 
-  onDeleteLayer = (layerIndex) => {
-    const { timelineData } = this.props;
-    unset(timelineData, this.getPath(layerIndex)); // derp
-
-    this.doSave(timelineData);
-  }
   
-  onEditItem = (layerIndex, itemIndex) => {
-    const { timelineData } = this.props;
-    const itemData = get(timelineData, this.getPath(layerIndex, itemIndex));
-    
-    let type = null;
-    if ('script' in itemData) {
-      type = 'block';
-    } else if ('trigger' in itemData) {
-      type = 'trigger';
-    } else if ('curve' in itemData) {
-      type = 'curve';
-    } else if ('file' in itemData) {
-      type = 'audioTrack';
-    }
-    
-    this.setState({
-      modalType: type,
-      modalValue: {
-        ...itemData,
-        layer: layerIndex, // add layer id
-      },
-      modalAction: 'edit',
-    });
-  }
   
-  onItemModalSuccess = (itemData) => {
-    const { layer, ...itemInfo } = itemData;
-    const { timelineData } = this.props;
-
-    // Attempt to find item index if existing
-    const itemIndex = timelineData.layers[Number(layer)].findIndex(({id}) => id === itemInfo.id); 
-    
-    // If item does not exists, add it
-    if (itemIndex === -1) {
-      timelineData.layers[Number(layer)].push(itemInfo);
-    } 
-    // Update existing item
-    else {
-      timelineData.layers[Number(layer)][itemIndex] = itemInfo;
-    }
-    
-    // Save timeline
-    this.doSave(timelineData);
-
-    // Hide modal
-    this.setState({
-      modalType: null,
-      modalAction: null,
-      modalValue: null,
-    });
-  }
   
-  onItemModalCancel = () => {
-    // Hide modal
-    this.setState({
-      modalType: null,
-      modalAction: null,
-      modalValue: null,
-    });
-  }
   
   onSetRecordTriggerClick = () => {
     this.doSetRecord('trigger');
@@ -374,9 +475,9 @@ class TimelineEditor extends PureComponent {
     }
   }
   
-  onAddItemAt = (layerIndex, type, e) => {
+  onAddItemAt = (layerId, type, e) => {
     const data = {
-      layer: layerIndex,
+      layer: layerId,
       id: uniqid(), // generate new item id
       inTime: this.getTimelinePositionFromEvent(e),
     };
@@ -433,7 +534,6 @@ class TimelineEditor extends PureComponent {
 
 
   doSave = (timelineData) => {
-    // temp!
     const { doUpdateCurrentTimeline } = this.props;
     doUpdateCurrentTimeline(timelineData);
   }
@@ -471,20 +571,6 @@ class TimelineEditor extends PureComponent {
   }
 
   
-  renderTimeline = (timelineData) => {
-    const { Provider } = TimelineEditorContext;
-    return (
-      <Provider
-        value={this.editorCallbacks}
-      >
-        <TimelineDisplay
-          onItemsUpdate={()=>{}}
-          {...timelineData}
-        />
-      </Provider>
-    );
-  }
-
   renderSave = () => {
     return (
       <Button
@@ -663,10 +749,14 @@ class TimelineEditor extends PureComponent {
   renderTimelineWrapper = () => {
     const { timelineData, timelineInfo } = this.props;
     return (
-      <TimelineWrapper
-        timelineData={timelineData}
-        timelineInfo={timelineInfo}
-      />
+      <Provider
+        value={this.editorCallbacks}
+      >
+        <TimelineWrapper
+          timelineData={timelineData}
+          timelineInfo={timelineInfo}
+        />
+      </Provider>
     );
   }
   

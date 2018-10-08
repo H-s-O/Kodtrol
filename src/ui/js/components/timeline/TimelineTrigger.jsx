@@ -5,12 +5,13 @@ import Color from 'color';
 
 import percentString from '../../lib/percentString';
 import TimelineItem from './TimelineItem';
+import timelineConnect from './timelineConnect';
 
 import styles from '../../../styles/components/timeline/timelinetrigger.scss';
 
 class TimelineTrigger extends PureComponent {
   onStartAnchorDown = (e) => {
-    console.log('trigger anchor start down');
+    console.log('trigger anchor start down', e.type);
     e.preventDefault();
     this.doDragAnchorDown('inTime');
   }
@@ -57,4 +58,4 @@ class TimelineTrigger extends PureComponent {
   }
 }
 
-export default TimelineTrigger;
+export default timelineConnect(TimelineTrigger);
