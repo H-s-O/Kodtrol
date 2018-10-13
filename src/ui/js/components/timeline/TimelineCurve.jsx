@@ -1,6 +1,5 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import classNames from 'classnames'
-import { remote } from 'electron';
 import Color from 'color';
 import uniqid from 'uniqid';
 
@@ -68,6 +67,7 @@ class TimelineCurve extends PureComponent {
   getContainerCoordsFromEvent = (e) => {
     const { clientX, clientY } = e;
     const { left, top, width, height } = this.container.getBoundingClientRect();
+    
     const x = (clientX - left) / width;
     const y = 1 - ((clientY - top) / height);
     return {
@@ -107,6 +107,15 @@ class TimelineCurve extends PureComponent {
     });
   }
   
+  renderCurveItems = (curve) => {
+    return (
+      <Fragment>
+        { this.renderCurve(curve) }
+        { this.renderPoints(curve) }
+      </Fragment>
+    )
+  }
+  
   renderCurve = (curve) => {
     if (!curve.length) {
       return null;
@@ -114,10 +123,11 @@ class TimelineCurve extends PureComponent {
     
     const bgPath = curve
       .map(({x,y}) => {
-        return `${x},${1 - y}`;
+        return `${x},${(1 - y)}`;
       })
       .join(' ');
     
+    // vectorEffect="non-scaling-stroke" saves lives
     return (
       <svg
         className={styles.curveGraph}
@@ -126,7 +136,8 @@ class TimelineCurve extends PureComponent {
       >
         <polyline
           points={bgPath}
-          strokeWidth="0.02"
+          vectorEffect="non-scaling-stroke"
+          strokeWidth="1"
           strokeLinecap="butt"
           strokeLinejoin="miter"
           strokeMiterlimit="0"
@@ -162,6 +173,10 @@ class TimelineCurve extends PureComponent {
     })
   }
   
+  setContainerRef = (ref) => {
+    this.container = ref;
+  }
+  
   render = () => {
     const { data, layerDuration } = this.props;
     const { inTime, outTime, color, name, curve } = data;
@@ -175,7 +190,7 @@ class TimelineCurve extends PureComponent {
         typeLabel='curve'
       >
         <div
-          ref={(ref) => this.container = ref}
+          ref={this.setContainerRef}
           className={classNames({
             [styles.timelineCurve]: true,
             [styles.lightCurve]: lightColor,
@@ -212,8 +227,7 @@ class TimelineCurve extends PureComponent {
               [styles.middleLayer]: true,
             })}
           >
-            { this.renderCurve(curveData) }
-            { this.renderPoints(curveData) }
+            { this.renderCurveItems(curveData) }
           </div>
           <div
             className={classNames({

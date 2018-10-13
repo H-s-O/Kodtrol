@@ -64,13 +64,15 @@ class TimelineLayer extends PureComponent {
   }
   
   onAddLayerAboveClick = () => {
-    const { timelineAddLayer, index } = this.props;
-    timelineAddLayer(index + 1);
+    const { timelineAddLayer, data } = this.props;
+    const { order } = data;
+    timelineAddLayer(order + 1);
   }
   
   onAddLayerBelowClick = () => {
-    const { timelineAddLayer, index } = this.props;
-    timelineAddLayer(index);
+    const { timelineAddLayer, data } = this.props;
+    const { order } = data;
+    timelineAddLayer(order);
   }
   
   onTimelineLayerContextMenu = (e) => {
@@ -117,57 +119,27 @@ class TimelineLayer extends PureComponent {
   }
 
   renderTimelineItem = (item, index) => {
+    let ComponentClass = null;
     if ('script' in item) {
-      return this.renderTimelineLayerBlock(item, index);
+      ComponentClass = TimelineBlock;
     } else if ('trigger' in item) {
-      return this.renderTimelineLayerTrigger(item, index);
+      ComponentClass = TimelineTrigger;
     } else if ('curve' in item) {
-      return this.renderTimelineLayerCurve(item, index);
+      ComponentClass = TimelineCurve;
     } else if ('file' in item) {
-      return this.renderTimelineLayerAudioTrack(item, index);
+      ComponentClass = TimelineAudioTrack;
     }
-    return null;
-  }
-
-  renderTimelineLayerBlock = (block, index) => {
+    
+    if (ComponentClass == null) {
+      return null;
+    }
+    
     const { duration } = this.props;
+    
     return (
-      <TimelineBlock
-        key={`block-${index}`}
-        data={block}
-        layerDuration={duration}
-      />
-    );
-  }
-
-  renderTimelineLayerTrigger = (trigger, index) => {
-    const { duration } = this.props;
-    return (
-      <TimelineTrigger
-        key={`trigger-${index}`}
-        data={trigger}
-        layerDuration={duration}
-      />
-    );
-  }
-
-  renderTimelineLayerCurve = (curve, index) => {
-    const { duration } = this.props;
-    return (
-      <TimelineCurve
-        key={`curve-${index}`}
-        data={curve}
-        layerDuration={duration}
-      />
-    );
-  }
-
-  renderTimelineLayerAudioTrack = (audioTrack, index) => {
-    const { duration } = this.props;
-    return (
-      <TimelineAudioTrack
-        key={`audio-${index}`}
-        data={audioTrack}
+      <ComponentClass
+        key={`item-${index}`}
+        data={item}
         layerDuration={duration}
       />
     );

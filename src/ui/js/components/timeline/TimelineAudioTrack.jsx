@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import classNames from 'classnames'
-import { remote } from 'electron';
 import Color from 'color';
 import AudioSVGWaveform from 'audio-waveform-svg-path';
 

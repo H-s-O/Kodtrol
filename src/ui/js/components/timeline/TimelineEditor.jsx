@@ -43,6 +43,7 @@ const defaultProps = {
 
 class TimelineEditor extends PureComponent {
   editorCallbacks = null;
+  timelineWrapper = null;
   state = {
     modalType: null,
     modalAction: null,
@@ -68,7 +69,7 @@ class TimelineEditor extends PureComponent {
       timelineUpdateItem: this.onUpdateItem,
       timelineAddLayer: this.onAddLayer,
       timelineDeleteLayer: this.onDeleteLayer,
-      timelineGetPositionFromEvent: this.getTimelinePositionFromEvent,
+      timelineUpdatePosition: this.onTimelineUpdatePosition,
     };
   }
   
@@ -193,7 +194,7 @@ class TimelineEditor extends PureComponent {
   onAddLayer = (index) => {
     const { timelineData } = this.props;
     const { layers } = timelineData;
-    
+    console.log(index);
     const newLayer = {
       id: uniqid(),
       order: index,
@@ -229,23 +230,22 @@ class TimelineEditor extends PureComponent {
     this.doSave(newTimelineData);
   }
   
-  
-  
-  
   getTimelinePositionFromEvent = (e, round = true) => {
+    const percent = this.timelineWrapper.getTimelinePercentFromEvent(e);
+    
     const { timelineData } = this.props;
-    const duration = get(timelineData, 'duration', 0);
-    const zoom = get(timelineData, 'zoom', 1);
-    const { clientX } = e;
-    const { left } = this.timelineContainer.getBoundingClientRect();
-    const { scrollLeft, scrollWidth } = this.timelineContainer;
-    const percent = (clientX - left + scrollLeft) / scrollWidth;
-    let newPosition = (duration * percent);
+    const { duration } = timelineData;
+    
+    let position = duration * percent;
     if (round) {
-      newPosition = Math.round(newPosition);
+      position = Math.round(position);
     }
-    return newPosition;
+    return position;
   }
+  
+  
+  
+  
   
 
   onSaveClick = () => {
@@ -518,10 +518,18 @@ class TimelineEditor extends PureComponent {
 
   
 
-  onTimelineClick = (e) => {
-    stopEvent(e);
 
+
+  doSave = (timelineData) => {
+    const { doUpdateCurrentTimeline } = this.props;
+    doUpdateCurrentTimeline(timelineData);
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////
+  
+  onTimelineUpdatePosition = (e) => {
     const { timelineInfo } = this.props;
+    
     const newPosition = this.getTimelinePositionFromEvent(e);
     const newInfo = {
       ...timelineInfo,
@@ -529,13 +537,6 @@ class TimelineEditor extends PureComponent {
     };
     
     this.doUpdateInfo(newInfo);
-  }
-
-
-
-  doSave = (timelineData) => {
-    const { doUpdateCurrentTimeline } = this.props;
-    doUpdateCurrentTimeline(timelineData);
   }
   
   onTimelineRewindClick = () => {
@@ -570,6 +571,7 @@ class TimelineEditor extends PureComponent {
     doUpdateTimelineInfoUser(timelineInfo);
   }
 
+  ////////////////////////////////////////////////////////////////////////////
   
   renderSave = () => {
     return (
@@ -726,9 +728,14 @@ class TimelineEditor extends PureComponent {
       <DropdownButton
         id="timeline-zoom-menu"
         title={(
-          <Glyphicon
-            glyph="search"
-          />
+          <Fragment>
+            <Glyphicon
+              glyph="search"
+            />
+            <Glyphicon
+              glyph="resize-horizontal"
+            />
+          </Fragment>
         )}
         bsSize="xsmall"
         onClick={stopEvent}
@@ -746,14 +753,20 @@ class TimelineEditor extends PureComponent {
     );
   }
   
-  renderTimelineWrapper = () => {
-    const { timelineData, timelineInfo } = this.props;
+  setTimelineWrapperRef = (ref) => {
+    this.timelineWrapper = ref;
+  }
+  
+  renderTimelineWrapper = (workingTimelineData) => {
+    const { timelineInfo } = this.props;
+    
     return (
       <Provider
         value={this.editorCallbacks}
       >
         <TimelineWrapper
-          timelineData={timelineData}
+          wrapperRef={this.setTimelineWrapperRef}
+          timelineData={workingTimelineData}
           timelineInfo={timelineInfo}
         />
       </Provider>
@@ -842,7 +855,7 @@ class TimelineEditor extends PureComponent {
           )
         }
       >
-        { workingTimelineData ? this.renderTimelineWrapper() : null }
+        { workingTimelineData ? this.renderTimelineWrapper(workingTimelineData) : null }
         { workingTimelineData ? this.renderItemModals() : null }
       </Panel>
     );

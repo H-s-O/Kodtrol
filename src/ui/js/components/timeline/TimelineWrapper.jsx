@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
-import { get } from 'lodash';
 
 import stopEvent from '../../lib/stopEvent';
+import percentString from '../../lib/percentString';
 import TimelineDisplay from './TimelineDisplay';
+import timelineConnect from './timelineConnect';
 
 import styles from '../../../styles/components/timeline/timelinewrapper.scss';
 
@@ -10,18 +11,38 @@ class TimelineWrapper extends PureComponent {
   timelineContainer = null;
   timelineCursorTracker = null;
   
-  onContainerClick = (e) => {
-    return;
-    stopEvent(e);
-
-    const { timelineInfo } = this.props;
-    const newPosition = this.getTimelinePositionFromEvent(e);
-    const newInfo = {
-      ...timelineInfo,
-      position: newPosition,
-    };
+  constructor(props) {
+    super(props);
     
-    this.doUpdateInfo(newInfo);
+    // Homemade ref callback that bypasses the timelineConnect() wrapper
+    const { wrapperRef } = props;
+    wrapperRef(this);
+  }
+  
+  getTimelineScreenXFromEvent = (e) => {
+    const { clientX } = e;
+    const { left } = this.timelineContainer.getBoundingClientRect();
+    const { scrollLeft } = this.timelineContainer;
+    
+    const pos = (clientX - left + scrollLeft);
+    return pos;
+  }
+  
+  getTimelinePercentFromEvent = (e) => {
+    const { timelineData } = this.props;
+    const { zoom } = timelineData;
+    
+    const { clientX } = e;
+    const { left } = this.timelineContainer.getBoundingClientRect();
+    const { scrollLeft, scrollWidth } = this.timelineContainer;
+    
+    const percent = (clientX - left + scrollLeft) / scrollWidth;
+    return percent;
+  }
+  
+  onContainerClick = (e) => {
+    const { timelineUpdatePosition } = this.props;
+    timelineUpdatePosition(e);
   }
   
   onContainerMouseMove = (e) => {
@@ -42,14 +63,18 @@ class TimelineWrapper extends PureComponent {
       this.setState({
         timelineDataTemp: newData,
       });
-      this.forceUpdate(); // needed for live refresh of timeline
+      this.forceUpdate(); // needed for live refresh of timeline, temp
     }
+  }
+  
+  setTimelineCursorTrackerRef = (ref) => {
+    this.timelineCursorTracker = ref;
   }
   
   renderTimelineCursorTracker = () => {
     return (
       <div
-        ref={(ref) => this.timelineCursorTracker = ref}
+        ref={this.setTimelineCursorTrackerRef}
         className={styles.timelineCursorTracker}
       >
       </div>
@@ -59,9 +84,9 @@ class TimelineWrapper extends PureComponent {
   renderTimelineTracker = () => {
     const { timelineInfo, timelineData } = this.props;
     const { position } = timelineInfo;
-    const { duration } = timelineData;
+    const { duration, zoom } = timelineData;
     
-    const left = percentString(position / duration);
+    const left = percentString((position / duration) * zoom);
     
     return (
       <div
@@ -78,12 +103,8 @@ class TimelineWrapper extends PureComponent {
     );
   }
   
-  getTimelineScreenXFromEvent = (e) => {
-    const { clientX } = e;
-    const { left } = this.timelineContainer.getBoundingClientRect();
-    const { scrollLeft } = this.timelineContainer;
-    const pos = (clientX - left + scrollLeft);
-    return pos;
+  setTimelineContainerRef = (ref) => {
+    this.timelineContainer = ref;
   }
   
   render = () => {
@@ -91,7 +112,7 @@ class TimelineWrapper extends PureComponent {
     
     return (
       <div
-        ref={(ref) => this.timelineContainer = ref}
+        ref={this.setTimelineContainerRef}
         className={styles.wrapper}
         onClick={this.onContainerClick}
         onMouseMove={this.onContainerMouseMove}
@@ -100,9 +121,10 @@ class TimelineWrapper extends PureComponent {
           {...timelineData}
         />
         { this.renderTimelineCursorTracker() }
+        { this.renderTimelineTracker() }
       </div>
     );
   }
 }
 
-export default TimelineWrapper;
+export default timelineConnect(TimelineWrapper);
