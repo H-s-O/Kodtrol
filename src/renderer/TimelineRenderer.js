@@ -15,20 +15,30 @@ export default class TimelineRenderer {
   curves = null;
   
   constructor(sourceTimeline, sourceScripts, sourceDevices) {
-    const { inTime, outTime, duration } = sourceTimeline;
+    const { inTime, outTime, duration, layers, items } = sourceTimeline;
     
     this.inTime = inTime;
     this.outTime = outTime;
     this.duration = duration;
     
-    // Extract timeline items
-    const timelineItems = flatten(sourceTimeline.layers);
+    // "Prepare" data
     const sourceScriptsById = sourceScripts.reduce((obj, script) => {
       return {
         ...obj,
         [script.id]: script,
       };
     }, {});
+    const layersById = layers.reduce((obj, layer) => {
+      return {
+        ...obj,
+        [layer.id]: layer,
+      }
+    }, {});
+    
+    // Extract timeline items
+    const timelineItems = items.sort((a, b) => {
+      return layersById[a.layer].order - layersById[b.layer].order;
+    });
     
     this.blocks = timelineItems
       .filter((item) => 'script' in item)
