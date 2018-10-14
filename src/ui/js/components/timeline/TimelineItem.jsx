@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { remote } from 'electron';
 
 import { deleteWarning } from '../../lib/messageBoxes';
+import timelineConnect from './timelineConnect';
 
 const propTypes = {
   index: PropTypes.number,
@@ -10,12 +11,6 @@ const propTypes = {
   data: PropTypes.shape({}),
   layerDuration: PropTypes.number,
   renderItem: PropTypes.func,
-  renderContextMenu: PropTypes.func,
-  onDeleteItem: PropTypes.func.isRequired,
-  onEditItem: PropTypes.func.isRequired,
-  onAdjustItem: PropTypes.func.isRequired,
-  onCopyItem: PropTypes.func.isRequired,
-  onPasteItem: PropTypes.func.isRequired,
   canCopyStartTime: PropTypes.bool,
   canCopyEndTime: PropTypes.bool,
   canPasteStartTime: PropTypes.bool,
@@ -32,12 +27,18 @@ const defaultProps = {
 
 class TimelineItem extends PureComponent {
   onDeleteItemClick = () => {
-    const { typeLabel, onDeleteItem, index } = this.props;
+    const { typeLabel } = this.props;
     deleteWarning(`Are you sure you want to delete this ${typeLabel} ?`, (result) => {
       if (result) {
-        onDeleteItem(index);
+        this.doDeleteItem();
       }
     });
+  }
+  
+  doDeleteItem = () => {
+    const { timelineDeleteItem, data } = this.props;
+    const { id } = data;
+    timelineDeleteItem(id);
   }
   
   onEditItemClick = () => {
@@ -47,8 +48,9 @@ class TimelineItem extends PureComponent {
   }
 
   doDragAnchorDown = (mode) => {
-    const { onAdjustItem, index } = this.props;
-    onAdjustItem(index, mode);
+    const { timelineAdjustItem, data } = this.props;
+    const { id } = data;
+    timelineAdjustItem(id, mode);
   }
 
   onCopyItemStartClick = () => {
@@ -60,8 +62,9 @@ class TimelineItem extends PureComponent {
   }
 
   doCopyItemClick = (mode) => {
-    const { onCopyItem, index } = this.props;
-    onCopyItem(index, mode);
+    const { timelineCopyItem, data } = this.props;
+    const { id } = data;
+    timelineCopyItem(id, mode);
   }
 
   onPasteItemStartClick = () => {
@@ -73,8 +76,9 @@ class TimelineItem extends PureComponent {
   }
 
   doPasteItemClick = (mode) => {
-    const { onPasteItem, index } = this.props;
-    onPasteItem(index, mode);
+    const { timelinePasteItem, data } = this.props;
+    const { id } = data;
+    timelinePasteItem(id, mode);
   }
 
   onContextMenuClick = (e) => {
@@ -145,4 +149,4 @@ class TimelineItem extends PureComponent {
 TimelineItem.propTypes = propTypes;
 TimelineItem.defaultProps = defaultProps;
 
-export default TimelineItem;
+export default timelineConnect(TimelineItem);

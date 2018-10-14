@@ -40,7 +40,7 @@ class TimelineWrapper extends PureComponent {
     return percent;
   }
   
-  onContainerClick = (e) => {
+  onContainerDoubleClick = (e) => {
     const { timelineUpdatePosition } = this.props;
     timelineUpdatePosition(e);
   }
@@ -50,20 +50,6 @@ class TimelineWrapper extends PureComponent {
     if (timelineData) {
       const cursorPos = this.getTimelineScreenXFromEvent(e);
       this.timelineCursorTracker.style = `left:${cursorPos}px`;
-    }
-    
-    return;
-    const { adjustItemPath, adjustItemMode } = this.state;
-    if (adjustItemPath !== null) {
-      const { timelineData } = this.props;
-      const newValue = this.getTimelinePositionFromEvent(e);
-      
-      const newData = set(timelineData, `${adjustItemPath}.${adjustItemMode}`, newValue);
-
-      this.setState({
-        timelineDataTemp: newData,
-      });
-      this.forceUpdate(); // needed for live refresh of timeline, temp
     }
   }
   
@@ -114,7 +100,7 @@ class TimelineWrapper extends PureComponent {
       <div
         ref={this.setTimelineContainerRef}
         className={styles.wrapper}
-        onClick={this.onContainerClick}
+        onDoubleClick={this.onContainerDoubleClick}
         onMouseMove={this.onContainerMouseMove}
       >
         <TimelineDisplay

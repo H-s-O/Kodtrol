@@ -49,7 +49,7 @@ class TimelineEditor extends PureComponent {
     modalAction: null,
     modalValue: null,
     
-    adjustItemPath: null,
+    adjustItemId: null,
     adjustItemMode: null,
     
     copyItemData: null,
@@ -67,6 +67,10 @@ class TimelineEditor extends PureComponent {
       timelineAddItemAt: this.onAddItemAt,
       timelineEditItem: this.onEditItem,
       timelineUpdateItem: this.onUpdateItem,
+      timelineAdjustItem: this.onAdjustItem,
+      timelineDeleteItem: this.onDeleteItem,
+      timelineCopyItem: this.onCopyItem,
+      timelinePasteItem: this.onPasteItem,
       timelineAddLayer: this.onAddLayer,
       timelineDeleteLayer: this.onDeleteLayer,
       timelineUpdatePosition: this.onTimelineUpdatePosition,
@@ -100,6 +104,19 @@ class TimelineEditor extends PureComponent {
       }
       return item;
     });
+    const newTimelineData = {
+      ...timelineData,
+      items: newItems,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  onDeleteItem = (itemId) => {
+    const { timelineData } = this.props;
+    const { items } = timelineData;
+
+    const newItems = items.filter(({id}) => id !== itemId);
     const newTimelineData = {
       ...timelineData,
       items: newItems,
@@ -194,7 +211,7 @@ class TimelineEditor extends PureComponent {
   onAddLayer = (index) => {
     const { timelineData } = this.props;
     const { layers } = timelineData;
-    console.log(index);
+
     const newLayer = {
       id: uniqid(),
       order: index,
@@ -300,18 +317,27 @@ class TimelineEditor extends PureComponent {
     if (recording) {
       const { timelineInfo } = this.props;
       const { position } = timelineInfo;
-      const { layer, ...itemData } = recordingData;
+      const { items } = timelineDataTemp;
       
       if (e.key === 't') {
-        timelineDataTemp.layers[layer].push({
-          ...itemData,
+        const newItem = {
+          ...recordingData,
           inTime: position,
           id: uniqid(),
-        });
+        };
+        const newItems = [
+          ...items,
+          newItem,
+        ];
+        const newTimelineData = {
+          ...timelineDataTemp,
+          items: newItems,
+        };
+
         this.setState({
-          timelineDataTemp,
+          timelineDataTemp: newTimelineData,
         });
-        this.forceUpdate();
+        // this.forceUpdate();
       }
     }
   }
@@ -371,12 +397,7 @@ class TimelineEditor extends PureComponent {
     });
   }
   
-  onDeleteItem = (layerIndex, itemIndex) => {
-    const { timelineData } = this.props;
-    unset(timelineData, this.getPath(layerIndex, itemIndex)); // derp
-
-    this.doSave(timelineData);
-  }
+  
 
   
   
@@ -428,46 +449,84 @@ class TimelineEditor extends PureComponent {
     doUpdateCurrentTimeline(data);
   }
   
-  getPath = (layerIndex, itemIndex = null, prop = null) => {
-    let path = `layers[${layerIndex}]`;
-    if (itemIndex !== null) {
-      path += `[${itemIndex}]`;
-    }
-    if (prop !== null) {
-      path += `.${prop}`;
-    }
-    return path;
-  }
   
-  onAdjustItem = (layerIndex, itemIndex, mode) => {
+  onAdjustItem = (itemId, mode) => {
     const { timelineData } = this.props;
+    
     this.setState({
       adjustItemMode: mode,
-      adjustItemPath: this.getPath(layerIndex, itemIndex),
+      adjustItemId: itemId,
       timelineDataTemp: {
         ...timelineData
       },
     });
     
+    window.onmousemove = this.onMouseMove;
     window.onmouseup = this.onMouseUp;
   }
-
-  onCopyItem = (layerIndex, itemIndex, mode) => {
-    const { timelineData } = this.props;
-    const itemData = get(timelineData, this.getPath(layerIndex, itemIndex, mode));
+  
+  onMouseMove = (e) => {
+    const { adjustItemId, adjustItemMode } = this.state;
     
+    if (adjustItemId !== null && adjustItemMode !== null) {
+      const { timelineData } = this.props;
+      const { items } = timelineData;
+      
+      const newValue = this.getTimelinePositionFromEvent(e);
+      const newItems = items.map((item) => {
+        if (item.id === adjustItemId) {
+          return {
+            ...item,
+            [adjustItemMode]: newValue,
+          };
+        }
+        return item;
+      });
+      const newTimelineData = {
+        ...timelineData,
+        items: newItems,
+      };
+
+      this.setState({
+        timelineDataTemp: newTimelineData,
+      });
+      // this.forceUpdate(); // needed for live refresh of timeline, temp
+    }
+  }
+
+  onCopyItem = (itemId, mode) => {
+    const item = this.getItem(itemId);
+    const itemData = item[mode];
+
     this.setState({
       copyItemData: itemData,
     });
   }
 
-  onPasteItem = (layerIndex, itemIndex, mode) => {
+  onPasteItem = (itemId, mode) => {
     const { copyItemData } = this.state;
+    
     if (copyItemData !== null) {
       const { timelineData } = this.props;
-      const newData = set(timelineData, this.getPath(layerIndex, itemIndex, mode), copyItemData);
+      const { items } = timelineData;
+      
+      const item = this.getItem(itemId);
+      const newItem = {
+        ...item,
+        [mode]: copyItemData,
+      };
+      const newItems = items.map((item) => {
+        if (item.id === itemId) {
+          return newItem;
+        }
+        return item;
+      });
+      const newTimelineData = {
+        ...timelineData,
+        items: newItems,
+      };
 
-      this.doSave(newData);
+      this.doSave(newTimelineData);
 
       this.setState({
         copyItemData: null,
@@ -504,13 +563,14 @@ class TimelineEditor extends PureComponent {
     console.log('timeline on mouse up');
     
     window.onmouseup = null;
+    window.onmousemove = null;
     
     const { timelineDataTemp } = this.state;
     
     this.doSave(timelineDataTemp);
     
     this.setState({
-      adjustItemPath: null,
+      adjustItemId: null,
       adjustItemMode: null,
       timelineDataTemp: null,
     });
@@ -526,6 +586,7 @@ class TimelineEditor extends PureComponent {
   }
   
   ////////////////////////////////////////////////////////////////////////////
+  // TIMELINE INFO
   
   onTimelineUpdatePosition = (e) => {
     const { timelineInfo } = this.props;
@@ -541,28 +602,34 @@ class TimelineEditor extends PureComponent {
   
   onTimelineRewindClick = () => {
     const { timelineInfo } = this.props;
+    
     const newInfo = {
       ...timelineInfo,
       position: 0,
     };
+    
     this.doUpdateInfo(newInfo);
   }
   
   onTimelinePlayClick = () => {
     const { timelineInfo } = this.props;
+    
     const newInfo = {
       ...timelineInfo,
       playing: true,
     };
+    
     this.doUpdateInfo(newInfo);
   }
   
   onTimelinePauseClick = () => {
     const { timelineInfo } = this.props;
+    
     const newInfo = {
       ...timelineInfo,
       playing: false,
     };
+    
     this.doUpdateInfo(newInfo);
   }
   
@@ -572,6 +639,7 @@ class TimelineEditor extends PureComponent {
   }
 
   ////////////////////////////////////////////////////////////////////////////
+  // RENDERS
   
   renderSave = () => {
     return (
@@ -836,7 +904,7 @@ class TimelineEditor extends PureComponent {
 
   render = () => {
     const { timelineData } = this.props;
-    const { adjustItemPath, timelineDataTemp } = this.state;
+    const { timelineDataTemp } = this.state;
     const workingTimelineData = timelineDataTemp || timelineData;
 
     return (

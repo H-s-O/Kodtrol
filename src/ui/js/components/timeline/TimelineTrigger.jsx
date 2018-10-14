@@ -16,8 +16,9 @@ class TimelineTrigger extends PureComponent {
   }
   
   doDragAnchorDown = (mode) => {
-    const { onAdjustItem, index } = this.props;
-    onAdjustItem(index, mode);
+    const { timelineAdjustItem, data } = this.props;
+    const { id } = data;
+    timelineAdjustItem(id, mode);
   }
   
   render = () => {
