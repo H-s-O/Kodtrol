@@ -1,11 +1,17 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import Color from 'color';
+import classNames from 'classnames'
 import { remote } from 'electron';
 
 import { deleteWarning } from '../../lib/messageBoxes';
+import percentString from '../../lib/percentString';
 import timelineConnect from './timelineConnect';
 
+import styles from '../../../styles/components/timeline/timelineitem.scss';
+
 const propTypes = {
+  type: PropTypes.oneOf(['block', 'simple']),
   index: PropTypes.number,
   typeLabel: PropTypes.string,
   data: PropTypes.shape({}),
@@ -15,9 +21,12 @@ const propTypes = {
   canCopyEndTime: PropTypes.bool,
   canPasteStartTime: PropTypes.bool,
   canPasteEndTime: PropTypes.bool,
+  getItemLabel: PropTypes.func,
+  renderContent: PropTypes.func,
 };
 
 const defaultProps = {
+  type: 'block',
   typeLabel: 'item',
   canCopyStartTime: true,
   canCopyEndTime: true,
@@ -45,6 +54,20 @@ class TimelineItem extends PureComponent {
     const { timelineEditItem, data } = this.props;
     const { id } = data;
     timelineEditItem(id);
+  }
+
+  onStartAnchorDown = (e) => {
+    console.log('anchor start down');
+    e.stopPropagation();
+    e.preventDefault();
+    this.doDragAnchorDown('inTime');
+  }
+
+  onEndAnchorDown = (e) => {
+    console.log('anchor end down');
+    e.stopPropagation();
+    e.preventDefault();
+    this.doDragAnchorDown('outTime');
   }
 
   doDragAnchorDown = (mode) => {
@@ -136,13 +159,79 @@ class TimelineItem extends PureComponent {
       window: remote.getCurrentWindow(),
     });
   }
+  
+  renderBlockType = () => {
+    const { style, data, layerDuration, getItemLabel, renderContent } = this.props;
+    const { inTime, outTime, color, name } = data;
+    const lightColor = Color(color).isLight();
+    
+    return (
+      <div
+        className={classNames({
+          [styles.timelineItem]: true,
+          [styles.lightColor]: lightColor,
+        })}
+        style={{
+          left: percentString(inTime / layerDuration),
+          width: percentString((outTime - inTime) / layerDuration),
+          backgroundColor: color,
+        }}
+        onContextMenu={this.onContextMenuClick}
+      >
+        <div
+          className={styles.header}
+        >
+          <div
+            className={classNames({
+              [styles.controls]: true,
+              [styles.leftControls]: true,
+            })}
+          >
+            <div
+              className={classNames({
+                [styles.anchors]: true,
+                [styles.leftAnchor]: true,
+              })}
+              onMouseDown={this.onStartAnchorDown}
+            >
+            </div>
+          </div>
+          <div
+            className={classNames({
+              [styles.itemLabel]: true,
+            })}
+          >
+           { getItemLabel ? getItemLabel() : name }
+         </div>
+          <div
+            className={classNames({
+              [styles.controls]: true,
+              [styles.rightControls]: true,
+            })}
+          >
+            <div
+              className={classNames({
+                [styles.anchors]: true,
+                [styles.rightAnchor]: true,
+              })}
+              onMouseDown={this.onEndAnchorDown}
+            >
+            </div>
+          </div>
+        </div>
+        <div
+          className={classNames({
+            [styles.content]: true,
+          })}
+        >
+          { renderContent ? renderContent() : null }
+        </div>
+      </div>
+    );
+  }
 
   render = () => {
-    const { children } = this.props;
-    // @see https://stackoverflow.com/a/35102287
-    return React.cloneElement(children, {
-      onContextMenu: this.onContextMenuClick,
-    });
+    return this.renderBlockType();
   }
 }
 

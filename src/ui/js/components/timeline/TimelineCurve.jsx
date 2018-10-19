@@ -36,25 +36,6 @@ class TimelineCurve extends PureComponent {
     }
   }
   
-  onStartAnchorDown = (e) => {
-    console.log('block curve start down');
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('inTime');
-  }
-
-  onEndAnchorDown = (e) => {
-    console.log('block curve end down');
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('outTime');
-  }
-  
-  doDragAnchorDown = (mode) => {
-    const { onAdjustItem, index } = this.props;
-    onAdjustItem(index, mode);
-  }
-  
   onPointClick = (e, pointId) => {
     stopEvent(e);
     
@@ -107,11 +88,26 @@ class TimelineCurve extends PureComponent {
     });
   }
   
-  renderCurveItems = (curve) => {
+  generateLabel = () => {
+    const { data } = this.props;
+    const { curve, name } = data;
+    
+    const label = `${name} [${curve.length} points]`;
+    
+    return label;
+  }
+  
+  renderCurveItems = () => {
+    const { data } = this.props;
+    const { curve } = data;
+    const { curveTemp } = this.state;
+    
+    const curveData = curveTemp || curve;
+    
     return (
       <Fragment>
-        { this.renderCurve(curve) }
-        { this.renderPoints(curve) }
+        { this.renderCurve(curveData) }
+        { this.renderPoints(curveData) }
       </Fragment>
     )
   }
@@ -178,73 +174,13 @@ class TimelineCurve extends PureComponent {
   }
   
   render = () => {
-    const { data, layerDuration } = this.props;
-    const { inTime, outTime, color, name, curve } = data;
-    const { curveTemp } = this.state;
-    const curveData = parseCurve(curveTemp || curve);
-    const lightColor = Color(color).isLight();
-    
     return (
       <TimelineItem
         {...this.props}
         typeLabel='curve'
-      >
-        <div
-          ref={this.setContainerRef}
-          className={classNames({
-            [styles.timelineCurve]: true,
-            [styles.lightCurve]: lightColor,
-          })}
-          style={{
-            left: percentString(inTime / layerDuration),
-            width: percentString((outTime - inTime) / layerDuration),
-            backgroundColor: color,
-          }}
-          onClick={this.onContainerClick}
-        >
-          <div
-            className={classNames({
-              [styles.bottomLayer]: true,
-            })}
-          >
-            <div
-              onMouseDown={this.onStartAnchorDown}
-              className={classNames({
-                [styles.dragAnchor]: true,
-                [styles.leftAnchor]: true,
-              })}
-            />
-            <div
-              onMouseDown={this.onEndAnchorDown}
-              className={classNames({
-                [styles.dragAnchor]: true,
-                [styles.rightAnchor]: true,
-              })}
-            />
-          </div>
-          <div
-            className={classNames({
-              [styles.middleLayer]: true,
-            })}
-          >
-            { this.renderCurveItems(curveData) }
-          </div>
-          <div
-            className={classNames({
-              [styles.topLayer]: true,
-            })}
-          >
-            <span
-              style={{
-                backgroundColor: color,
-              }}
-              className={styles.timelineCurveLabel}
-            >
-              { name }
-            </span>
-          </div>
-        </div>
-      </TimelineItem>
+        renderContent={this.renderCurveItems}
+        getItemLabel={this.generateLabel}
+      />
     );
   }
 }

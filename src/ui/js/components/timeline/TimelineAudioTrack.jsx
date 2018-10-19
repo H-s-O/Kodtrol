@@ -36,6 +36,7 @@ class TimelineAudioTrack extends PureComponent {
   }
   
   waveformLoaded = () => {
+    console.log('waveformLoaded');
     this.trackWaveformData = this.trackWaveform.getPath();
     
     // Parse the last "moveto" command of the waveform path to
@@ -49,21 +50,16 @@ class TimelineAudioTrack extends PureComponent {
     this.forceUpdate();
   }
   
-  onStartAnchorDown = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('inTime');
-  }
-
-  onEndAnchorDown = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('outTime');
-  }
-  
-  doDragAnchorDown = (mode) => {
-    const { onAdjustItem, index } = this.props;
-    onAdjustItem(index, mode);
+  generateLabel = () => {
+    const { data } = this.props;
+    const { name, volume } = data;
+    
+    let label = name;
+    if (volume == 0) {
+      label += ' [muted]';
+    }
+    
+    return label;
   }
   
   renderWaveform = () => {
@@ -82,78 +78,22 @@ class TimelineAudioTrack extends PureComponent {
         <path
           d={this.trackWaveformData}
           strokeWidth="1"
+          vectorEffect="non-scaling-stroke"
         />
       </svg>
     );
   }
 
   render = () => {
-    const { data, layerDuration } = this.props;
-    const { inTime, outTime, name, color, volume } = data;
-    const lightColor = Color(color).isLight();
-    
     return (
       <TimelineItem
         {...this.props}
         typeLabel='audio track'
+        getItemLabel={this.generateLabel}
+        renderContent={this.renderWaveform}
         canPasteStartTime={false}
         canPasteEndTime={false}
-      >
-        <div
-          className={classNames({
-            [styles.timelineAudioTrack]: true,
-            [styles.lightAudioTrack]: lightColor,
-          })}
-          style={{
-            left: percentString(inTime / layerDuration),
-            width: percentString((outTime - inTime) / layerDuration),
-            backgroundColor: color,
-          }}
-        >
-          <div
-            className={classNames({
-              [styles.bottomLayer]: true,
-            })}
-          >
-            <div
-              onMouseDown={this.onStartAnchorDown}
-              className={classNames({
-                [styles.dragAnchor]: true,
-                [styles.leftAnchor]: true,
-              })}
-            />
-            <div
-              onMouseDown={this.onEndAnchorDown}
-              className={classNames({
-                [styles.dragAnchor]: true,
-                [styles.rightAnchor]: true,
-              })}
-            />
-          </div>
-          <div
-            className={classNames({
-              [styles.middleLayer]: true,
-            })}
-          >
-            { this.renderWaveform() }
-          </div>
-          <div
-            className={classNames({
-              [styles.topLayer]: true,
-            })}
-          >
-            <span
-              style={{
-                backgroundColor: color,
-              }}
-              className={styles.timelineAudioTrackLabel}
-            >
-              { name }
-              { volume > 0 ? '' : ' [muted]' } 
-            </span>
-          </div>
-        </div>
-      </TimelineItem>
+      />
     );
   }
 }

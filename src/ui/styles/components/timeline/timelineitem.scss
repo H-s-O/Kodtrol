@@ -1,0 +1,82 @@
+.timelineItem {
+  position: absolute;
+  color: #FFF;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+
+  &:hover {
+    z-index: 999;
+    overflow: visible;
+  }
+
+  &.lightColor {
+    .header {
+      border-bottom-color: #000;
+    }
+    .itemLabel {
+      color: #000;
+    }
+  }
+  
+  .header {
+    width: 100%;
+    height: 33%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    border-bottom: 1px solid #FFF;
+    
+    .controls {
+      flex-grow: 1;
+      
+      &.leftControls {
+        
+      }
+      
+      &.rightControls {
+        text-align: right;
+      }
+    }
+    
+    .anchors {
+      width: 10px;
+      height: 100%;
+      background: #F00;
+      
+      &:hover {
+        background: #0F0;
+      }
+      
+      &.leftAnchor {
+        position: absolute;
+        left: 0;
+      }
+      
+      &.rightAnchor {
+        position: absolute;
+        right: 0;
+      }
+    }
+    
+    .itemLabel {
+      display: table-cell;
+      vertical-align: middle;
+      line-height: 0.9em;
+      text-align: center;
+      flex-grow: 2;
+      font-size: 0.8em;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+  
+  .content {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 66%;
+  }
+}
