@@ -22,6 +22,7 @@ const propTypes = {
   canPasteStartTime: PropTypes.bool,
   canPasteEndTime: PropTypes.bool,
   getItemLabel: PropTypes.func,
+  getDialogLabel: PropTypes.func,
   renderContent: PropTypes.func,
 };
 
@@ -36,8 +37,10 @@ const defaultProps = {
 
 class TimelineItem extends PureComponent {
   onDeleteItemClick = () => {
-    const { typeLabel } = this.props;
-    deleteWarning(`Are you sure you want to delete this ${typeLabel} ?`, (result) => {
+    const { getDialogLabel, data } = this.props;
+    const { name } = data;
+    const label = getDialogLabel ? getDialogLabel() : name;
+    deleteWarning(`Are you sure you want to delete "${label}" ?`, (result) => {
       if (result) {
         this.doDeleteItem();
       }
@@ -224,7 +227,7 @@ class TimelineItem extends PureComponent {
             [styles.content]: true,
           })}
         >
-          { renderContent ? renderContent() : null }
+          { renderContent ? renderContent(lightColor) : null }
         </div>
       </div>
     );

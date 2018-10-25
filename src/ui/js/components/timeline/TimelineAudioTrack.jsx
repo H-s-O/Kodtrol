@@ -62,7 +62,7 @@ class TimelineAudioTrack extends PureComponent {
     return label;
   }
   
-  renderWaveform = () => {
+  renderWaveform = (lightColor) => {
     if (!this.trackWaveformData) {
       return null;
     }
@@ -71,6 +71,7 @@ class TimelineAudioTrack extends PureComponent {
       <svg
         className={classNames({
           [styles.waveform]: true,
+          [styles.lightColor]: lightColor,
         })}
         viewBox={`0 -1 ${this.trackWaveformWidth} 2`}
         preserveAspectRatio="none"

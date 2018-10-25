@@ -20,6 +20,12 @@
   width: 100%;
   height: 100%;
   
+  &.lightColor {
+    polyline {
+      stroke: #000 !important;
+    }
+  }
+  
   polyline {
     fill: none;
     stroke: #FFF;
@@ -37,5 +43,13 @@
   &:hover {
     outline: 1px solid #FFF;
     outline-offset: 2px;
+  }
+  
+  &.lightColor {
+    background-color: #000 !important;
+
+    &:hover {
+      outline-color: #000 !important;
+    }
   }
 }

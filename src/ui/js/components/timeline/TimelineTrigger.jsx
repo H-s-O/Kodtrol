@@ -21,6 +21,12 @@ class TimelineTrigger extends PureComponent {
     timelineAdjustItem(id, mode);
   }
   
+  getDialogLabel = () => {
+    const { data } = this.props;
+    const { trigger } = data;
+    return trigger;
+  }
+  
   render = () => {
     const { data, layerDuration } = this.props;
     const { inTime, color, trigger } = data;

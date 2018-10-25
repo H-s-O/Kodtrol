@@ -97,7 +97,7 @@ class TimelineCurve extends PureComponent {
     return label;
   }
   
-  renderCurveItems = () => {
+  renderCurveItems = (lightColor) => {
     const { data } = this.props;
     const { curve } = data;
     const { curveTemp } = this.state;
@@ -106,13 +106,13 @@ class TimelineCurve extends PureComponent {
     
     return (
       <Fragment>
-        { this.renderCurve(curveData) }
-        { this.renderPoints(curveData) }
+        { this.renderCurve(curveData, lightColor) }
+        { this.renderPoints(curveData, lightColor) }
       </Fragment>
     )
   }
   
-  renderCurve = (curve) => {
+  renderCurve = (curve, lightColor) => {
     if (!curve.length) {
       return null;
     }
@@ -126,14 +126,17 @@ class TimelineCurve extends PureComponent {
     // vectorEffect="non-scaling-stroke" saves lives
     return (
       <svg
-        className={styles.curveGraph}
+        className={classNames({
+          [styles.curveGraph]: true,
+          [styles.lightColor]: lightColor,
+        })}
         viewBox="0 0 1 1"
         preserveAspectRatio="none"
       >
         <polyline
           points={bgPath}
           vectorEffect="non-scaling-stroke"
-          strokeWidth="1"
+          strokeWidth="2"
           strokeLinecap="butt"
           strokeLinejoin="miter"
           strokeMiterlimit="0"
@@ -144,7 +147,7 @@ class TimelineCurve extends PureComponent {
     return null;
   }
   
-  renderPoints = (curve) => {
+  renderPoints = (curve, lightColor) => {
     if (!curve.length) {
       return null;
     }
@@ -156,7 +159,10 @@ class TimelineCurve extends PureComponent {
       
       return (
         <div
-          className={styles.curvePoint}
+          className={classNames({
+            [styles.curvePoint]: true,
+            [styles.lightColor]: lightColor,
+          })}
           key={`point-${index}`}
           style={{
             left: percentString(x),
