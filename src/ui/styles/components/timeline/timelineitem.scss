@@ -57,6 +57,10 @@
         border-right: 10px solid #FFF;
         border-top: 5px solid transparent;
         border-bottom: 5px solid transparent;
+        
+        &:hover {
+          border-right-color: #999 !important;
+        }
       }
       
       &.rightAnchor {
@@ -64,6 +68,10 @@
         border-left: 10px solid #FFF;
         border-top: 5px solid transparent;
         border-bottom: 5px solid transparent;
+        
+        &:hover {
+          border-left-color: #999 !important;
+        }
       }
     }
     

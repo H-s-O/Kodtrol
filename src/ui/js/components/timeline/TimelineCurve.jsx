@@ -13,34 +13,13 @@ import styles from '../../../styles/components/timeline/timelinecurve.scss';
 
 class TimelineCurve extends PureComponent {
   container = null;
-  state = {
-    curveTemp: null,
-    // curveTemp: [
-    //   {x: 0, y: 0},
-    //   {x: 0.5, y: 0.5},
-    //   {x: 0.75, y: 0.25},
-    //   {x: 1, y: 1},
-    //   {x: 0.3, y: 0.75},
-    // ],
-  };
-  
-  constructor(props) {
-    super(props);
-    
-    const { data } = props;
-    const { curve } = data;
-    if (curve) {
-      this.state = {
-        curveTemp: curve,
-      };
-    }
-  }
   
   onPointClick = (e, pointId) => {
     stopEvent(e);
     
-    const { curveTemp } = this.state;
-    const newCurve = curveTemp.filter(({id}) => id !== pointId);
+    const { data } = this.props;
+    const { curve } = data;
+    const newCurve = curve.filter(({id}) => id !== pointId);
     
     this.doUpdate(newCurve);
   }
@@ -51,9 +30,10 @@ class TimelineCurve extends PureComponent {
     
     const x = (clientX - left) / width;
     const y = 1 - ((clientY - top) / height);
+    
     return {
-      x,
-      y,
+      x: x < 0 ? 0 : x > 1 ? 1 : x,
+      y: y < 0 ? 0 : y > 1 ? 1 : y,
     };
   }
   
@@ -61,15 +41,17 @@ class TimelineCurve extends PureComponent {
     stopEvent(e);
     
     const coords = this.getContainerCoordsFromEvent(e);
-    // console.log(coords);
     
     const newPoint = {
       ...coords,
       id: uniqid(),
     };
-    const { curveTemp } = this.state;
+    
+    const { data } = this.props;
+    const { curve } = data;
+    
     const newCurve = [
-      ...curveTemp,
+      ...curve,
       newPoint,
     ];
     
@@ -77,10 +59,6 @@ class TimelineCurve extends PureComponent {
   }
   
   doUpdate = (curve) => {
-    this.setState({
-      curveTemp: curve,
-    });
-    
     const { timelineUpdateItem, data } = this.props;
     const { id } = data;
     timelineUpdateItem(id, {
@@ -97,18 +75,26 @@ class TimelineCurve extends PureComponent {
     return label;
   }
   
-  renderCurveItems = (lightColor) => {
+  setContainerRef = (ref) => {
+    this.container = ref;
+  }
+  
+  renderCurveItems = () => {
     const { data } = this.props;
-    const { curve } = data;
-    const { curveTemp } = this.state;
-    
-    const curveData = curveTemp || curve;
+    const { curve, color } = data;
+
+    const lightColor = Color(color).isLight();
+    const curveData = parseCurve(curve);
     
     return (
-      <Fragment>
+      <div
+        ref={this.setContainerRef}
+        onClick={this.onContainerClick}
+        className={styles.container}
+      >
         { this.renderCurve(curveData, lightColor) }
         { this.renderPoints(curveData, lightColor) }
-      </Fragment>
+      </div>
     )
   }
   
@@ -175,18 +161,15 @@ class TimelineCurve extends PureComponent {
     })
   }
   
-  setContainerRef = (ref) => {
-    this.container = ref;
-  }
-  
   render = () => {
     return (
       <TimelineItem
         {...this.props}
         typeLabel='curve'
-        renderContent={this.renderCurveItems}
         getItemLabel={this.generateLabel}
-      />
+      >
+        { this.renderCurveItems() }
+      </TimelineItem>
     );
   }
 }

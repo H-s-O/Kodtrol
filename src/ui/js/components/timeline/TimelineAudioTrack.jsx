@@ -11,12 +11,15 @@ import styles from '../../../styles/components/timeline/timelineaudiotrack.scss'
 
 class TimelineAudioTrack extends PureComponent {
   trackWaveform = null;
-  trackWaveformData = null;
-  trackWaveformWidth = 0;
+  state = {
+    trackWaveformData: null,
+    trackWaveformWidth: null,
+  };
   
   componentDidMount = () => {
     const { data } = this.props;
     const { id } = data;
+    
     this.trackWaveform = new AudioSVGWaveform({
       url: `http://localhost:5555/current-timeline/blocks/${id}/file`,
     });
@@ -36,36 +39,38 @@ class TimelineAudioTrack extends PureComponent {
   }
   
   waveformLoaded = () => {
-    console.log('waveformLoaded');
-    this.trackWaveformData = this.trackWaveform.getPath();
+    const trackWaveformData = this.trackWaveform.getPath();
     
     // Parse the last "moveto" command of the waveform path to
     // find the waveform width
-    const lastM = this.trackWaveformData.lastIndexOf('M');
-    const mComma = this.trackWaveformData.indexOf(',', lastM);
-    const width = Number(this.trackWaveformData.slice(lastM + 1, mComma)) + 1; // include the last line
-    this.trackWaveformWidth = width;
+    const lastM = trackWaveformData.lastIndexOf('M');
+    const mComma = trackWaveformData.indexOf(',', lastM);
+    const trackWaveformWidth = Number(trackWaveformData.slice(lastM + 1, mComma)) + 1; // include the last line
     
-    // Force re-render to display waveform
-    this.forceUpdate();
+    this.setState({
+      trackWaveformData,
+      trackWaveformWidth,
+    });
   }
   
   generateLabel = () => {
     const { data } = this.props;
     const { name, volume } = data;
     
-    let label = name;
-    if (volume == 0) {
-      label += ' [muted]';
-    }
+    const label = `${name} [volume: ${volume}]`;
     
     return label;
   }
   
-  renderWaveform = (lightColor) => {
-    if (!this.trackWaveformData) {
+  renderWaveform = () => {
+    const { trackWaveformData, trackWaveformWidth } = this.state;
+    if (!trackWaveformData || !trackWaveformWidth) {
       return null;
     }
+    
+    const { data } = this.props;
+    const { color } = data;
+    const lightColor = Color(color).isLight();
     
     return (
       <svg
@@ -73,11 +78,11 @@ class TimelineAudioTrack extends PureComponent {
           [styles.waveform]: true,
           [styles.lightColor]: lightColor,
         })}
-        viewBox={`0 -1 ${this.trackWaveformWidth} 2`}
+        viewBox={`0 -1 ${trackWaveformWidth} 2`}
         preserveAspectRatio="none"
       >
         <path
-          d={this.trackWaveformData}
+          d={trackWaveformData}
           strokeWidth="1"
           vectorEffect="non-scaling-stroke"
         />
@@ -91,10 +96,11 @@ class TimelineAudioTrack extends PureComponent {
         {...this.props}
         typeLabel='audio track'
         getItemLabel={this.generateLabel}
-        renderContent={this.renderWaveform}
         canPasteStartTime={false}
         canPasteEndTime={false}
-      />
+      >
+        { this.renderWaveform() }
+      </TimelineItem>
     );
   }
 }

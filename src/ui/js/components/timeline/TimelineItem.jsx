@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Children } from 'react';
 import PropTypes from 'prop-types';
 import Color from 'color';
 import classNames from 'classnames'
@@ -164,7 +164,7 @@ class TimelineItem extends PureComponent {
   }
   
   renderBlockType = () => {
-    const { style, data, layerDuration, getItemLabel, renderContent } = this.props;
+    const { style, data, layerDuration, getItemLabel, renderContent, children } = this.props;
     const { inTime, outTime, color, name } = data;
     const lightColor = Color(color).isLight();
     
@@ -227,7 +227,7 @@ class TimelineItem extends PureComponent {
             [styles.content]: true,
           })}
         >
-          { renderContent ? renderContent(lightColor) : null }
+          { children }
         </div>
       </div>
     );
