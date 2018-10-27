@@ -653,7 +653,7 @@ class TimelineEditor extends PureComponent {
   }
   
   renderTimelineControls = () => {
-    const { timelineInfo } = this.props;
+    const { timelineInfo, runTimeline } = this.props;
     if (!timelineInfo) {
       return null;
     }
@@ -663,6 +663,7 @@ class TimelineEditor extends PureComponent {
     return (
       <ButtonGroup>
         <Button
+          disabled={runTimeline === null}
           bsSize="xsmall"
           onClick={this.onTimelineRewindClick}
         >
@@ -672,6 +673,7 @@ class TimelineEditor extends PureComponent {
         </Button>
         { !playing ? (
           <Button
+            disabled={runTimeline === null}
             bsSize="xsmall"
             onClick={this.onTimelinePlayClick}
           >
@@ -681,6 +683,7 @@ class TimelineEditor extends PureComponent {
           </Button>
         ) : (
           <Button
+            disabled={runTimeline === null}
             bsSize="xsmall"
             onClick={this.onTimelinePauseClick}
           >
@@ -933,11 +936,12 @@ class TimelineEditor extends PureComponent {
 TimelineEditor.propTypes = propTypes;
 TimelineEditor.defaultProps = defaultProps;
 
-const mapStateToProps = ({currentTimeline, scripts, timelineInfo}) => {
+const mapStateToProps = ({currentTimeline, scripts, timelineInfo, runTimeline}) => {
   return {
     timelineData: currentTimeline,
     scripts,
     timelineInfo,
+    runTimeline,
   };
 };
 const mapDispatchToProps = (dispatch) => {

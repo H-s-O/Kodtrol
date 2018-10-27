@@ -7,6 +7,7 @@ import * as StoreEvent from '../events/StoreEvent';
 import * as appReducers from '../../common/js/store/reducers/index';
 import resetRunningItems from '../../common/js/store/middlewares/resetRunningItems';
 import resetTimelineInfoUser from '../../common/js/store/middlewares/resetTimelineInfoUser';
+import resetTimelineInfo from '../../common/js/store/middlewares/resetTimelineInfo';
 import saveableContentCallback from '../../common/js/store/middlewares/saveableContentCallback';
 
 export default class Store extends EventEmitter {
@@ -20,6 +21,7 @@ export default class Store extends EventEmitter {
       initialState,
       applyMiddleware(
         resetRunningItems(),
+        resetTimelineInfo(),
         resetTimelineInfoUser(),
         saveableContentCallback(this.onSaveableContent),
         forwardToRenderer, // IMPORTANT! This goes last
