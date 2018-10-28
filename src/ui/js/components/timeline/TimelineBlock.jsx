@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 
 import TimelineItem from './TimelineItem';
-import timelineConnect from './timelineConnect';
 
 class TimelineBlock extends PureComponent {
   render = () => {
@@ -14,4 +13,4 @@ class TimelineBlock extends PureComponent {
   }
 }
 
-export default timelineConnect(TimelineBlock);
+export default TimelineBlock;

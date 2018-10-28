@@ -3,9 +3,7 @@ import classNames from 'classnames'
 import Color from 'color';
 import AudioSVGWaveform from 'audio-waveform-svg-path';
 
-import percentString from '../../lib/percentString';
 import TimelineItem from './TimelineItem';
-import timelineConnect from './timelineConnect';
 
 import styles from '../../../styles/components/timeline/timelineaudiotrack.scss';
 
@@ -105,4 +103,4 @@ class TimelineAudioTrack extends PureComponent {
   }
 }
 
-export default timelineConnect(TimelineAudioTrack);
+export default TimelineAudioTrack;

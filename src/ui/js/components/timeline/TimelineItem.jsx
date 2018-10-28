@@ -163,6 +163,38 @@ class TimelineItem extends PureComponent {
     });
   }
   
+  renderSimpleType = () => {
+    const { style, data, layerDuration, getItemLabel, renderContent, children } = this.props;
+    const { inTime, outTime, color, name } = data;
+    const lightColor = Color(color).isLight();
+    
+    return (
+      <div
+        className={classNames({
+          [styles.timelineSimpleItem]: true,
+          [styles.simpleLightColor]: lightColor,
+        })}
+        style={{
+          left: percentString(inTime / layerDuration),
+          backgroundColor: color,
+        }}
+        onContextMenu={this.onContextMenuClick}
+        onMouseDown={this.onStartAnchorDown}
+      >
+        <div
+          className={classNames({
+            [styles.labelFlag]: true,
+          })}
+          style={{
+            backgroundColor: color,
+          }}
+        >
+          { getItemLabel ? getItemLabel() : name }
+        </div>
+      </div>
+    );
+  }
+  
   renderBlockType = () => {
     const { style, data, layerDuration, getItemLabel, renderContent, children } = this.props;
     const { inTime, outTime, color, name } = data;
@@ -234,7 +266,8 @@ class TimelineItem extends PureComponent {
   }
 
   render = () => {
-    return this.renderBlockType();
+    const { type } = this.props;
+    return type === 'simple' ? this.renderSimpleType() : this.renderBlockType();
   }
 }
 
