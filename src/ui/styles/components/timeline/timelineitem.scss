@@ -6,7 +6,7 @@
   display: flex;
 
   &:hover {
-    z-index: 999;
+    z-index: 10;
     overflow: visible;
   }
 
@@ -104,7 +104,7 @@
   cursor: ew-resize;
   
   &:hover {
-    z-index: 999;
+    z-index: 10;
     overflow: visible;
   }
   
