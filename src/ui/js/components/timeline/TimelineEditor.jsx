@@ -470,9 +470,14 @@ class TimelineEditor extends PureComponent {
     
     if (adjustItemId !== null && adjustItemMode !== null) {
       const { timelineData } = this.props;
-      const { items } = timelineData;
+      const { items, duration } = timelineData;
       
-      const newValue = this.getTimelinePositionFromEvent(e);
+      let newValue = this.getTimelinePositionFromEvent(e);
+      if (newValue < 0) {
+        newValue = 0;
+      } else if (newValue > duration) {
+        newValue = duration;
+      }
       const newItems = items.map((item) => {
         if (item.id === adjustItemId) {
           return {
@@ -514,13 +519,18 @@ class TimelineEditor extends PureComponent {
     
     if (copyItemData !== null) {
       const { timelineData } = this.props;
-      const { items } = timelineData;
+      const { items, duration } = timelineData;
       
       let newItem;
       let newItems;
       if (mode === '*') {
         const { inTime, outTime } = copyItemData;
-        const newInTime = this.getTimelinePositionFromEvent(e);
+        let newInTime = this.getTimelinePositionFromEvent(e);
+        if (newInTime < 0) {
+          newInTime = 0;
+        } else if (newInTime > duration) {
+          newInTime = duration;
+        }
         newItem = {
           ...copyItemData,
           id: uniqid(), // override with new id
@@ -529,7 +539,12 @@ class TimelineEditor extends PureComponent {
         }
         if ('outTime' in copyItemData) {
           const diffTime = outTime - inTime;
-          const newOutTime = newInTime + diffTime;
+          let newOutTime = newInTime + diffTime;
+          if (newOutTime < 0) {
+            newOutTime = 0;
+          } else if (newOutTime > duration) {
+            newOutTime = duration;
+          }
           newItem.outTime = newOutTime;
         }
         newItems = [
