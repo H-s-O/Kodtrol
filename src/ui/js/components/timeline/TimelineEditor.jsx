@@ -496,31 +496,59 @@ class TimelineEditor extends PureComponent {
 
   onCopyItem = (itemId, mode) => {
     const item = this.getItem(itemId);
-    const itemData = item[mode];
+    
+    let itemData;
+    if (mode === '*') {
+      itemData = item;
+    } else {
+      itemData = item[mode];
+    }
 
     this.setState({
       copyItemData: itemData,
     });
   }
 
-  onPasteItem = (itemId, mode) => {
+  onPasteItem = (itemId, mode, e = null) => {
     const { copyItemData } = this.state;
     
     if (copyItemData !== null) {
       const { timelineData } = this.props;
       const { items } = timelineData;
       
-      const item = this.getItem(itemId);
-      const newItem = {
-        ...item,
-        [mode]: copyItemData,
-      };
-      const newItems = items.map((item) => {
-        if (item.id === itemId) {
-          return newItem;
+      let newItem;
+      let newItems;
+      if (mode === '*') {
+        const { inTime, outTime } = copyItemData;
+        const newInTime = this.getTimelinePositionFromEvent(e);
+        newItem = {
+          ...copyItemData,
+          id: uniqid(), // override with new id
+          layer: itemId,
+          inTime: newInTime,
         }
-        return item;
-      });
+        if ('outTime' in copyItemData) {
+          const diffTime = outTime - inTime;
+          const newOutTime = newInTime + diffTime;
+          newItem.outTime = newOutTime;
+        }
+        newItems = [
+          ...items,
+          newItem,
+        ];
+      } else {
+        const item = this.getItem(itemId);
+        newItem = {
+          ...item,
+          [mode]: copyItemData,
+        };
+        newItems = items.map((item) => {
+          if (item.id === itemId) {
+            return newItem;
+          }
+          return item;
+        });
+      }
       const newTimelineData = {
         ...timelineData,
         items: newItems,

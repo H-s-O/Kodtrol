@@ -45,6 +45,12 @@ class TimelineLayer extends PureComponent {
     timelineDeleteLayer(id);
   }
   
+  onPasteItemHere = (e) => {
+    const { timelinePasteItem, data } = this.props;
+    const { id } = data;
+    timelinePasteItem(id, '*', e);
+  }
+  
   onAddBlockHereClick = (e) => {
     this.doAddItemAt('block', e);
   }
@@ -100,6 +106,10 @@ class TimelineLayer extends PureComponent {
     }));
     menu.append(new MenuItem({
       type: 'separator',
+    }));
+    menu.append(new MenuItem({
+      label: 'Paste item here',
+      click: () => this.onPasteItemHere(e),
     }));
     menu.append(new MenuItem({
       label: 'Add block here...',

@@ -79,6 +79,10 @@ class TimelineItem extends PureComponent {
     timelineAdjustItem(id, mode);
   }
 
+  onCopyItemClick = () => {
+    this.doCopyItemClick('*');
+  }
+  
   onCopyItemStartClick = () => {
     this.doCopyItemClick('inTime');
   }
@@ -132,6 +136,10 @@ class TimelineItem extends PureComponent {
     }));
     menu.append(new MenuItem({
       type: 'separator',
+    }));
+    menu.append(new MenuItem({
+      label: `Copy ${typeLabel}`,
+      click: this.onCopyItemClick,
     }));
     if (canCopyStartTime) {
       menu.append(new MenuItem({
