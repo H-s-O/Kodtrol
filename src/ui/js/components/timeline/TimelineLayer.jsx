@@ -86,6 +86,7 @@ class TimelineLayer extends PureComponent {
     e.preventDefault();
     e.persist(); // needed so that it can be forwarded for "add here"
     
+    const { timelineCanPasteItem } = this.props;
     const { Menu, MenuItem } = remote;
 
     const menu = new Menu();
@@ -110,6 +111,7 @@ class TimelineLayer extends PureComponent {
     menu.append(new MenuItem({
       label: 'Paste item here',
       click: () => this.onPasteItemHere(e),
+      enabled: timelineCanPasteItem('*'),
     }));
     menu.append(new MenuItem({
       label: 'Add block here...',

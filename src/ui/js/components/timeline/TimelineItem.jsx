@@ -122,6 +122,7 @@ class TimelineItem extends PureComponent {
       canCopyEndTime,
       canPasteStartTime,
       canPasteEndTime,
+      timelineCanPasteItem,
     } = this.props;
     const { Menu, MenuItem } = remote;
 
@@ -157,12 +158,14 @@ class TimelineItem extends PureComponent {
       menu.append(new MenuItem({
         label: `Paste time as ${typeLabel} start time`,
         click: this.onPasteItemStartClick,
+        enabled: timelineCanPasteItem('inTime'),
       }));
     }
     if (canPasteEndTime) {
       menu.append(new MenuItem({
         label: `Paste time as ${typeLabel} end time`,
         click: this.onPasteItemEndClick,
+        enabled: timelineCanPasteItem('outTime'),
       }));
     }
 

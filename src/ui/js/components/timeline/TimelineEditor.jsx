@@ -71,6 +71,7 @@ class TimelineEditor extends PureComponent {
       timelineDeleteItem: this.onDeleteItem,
       timelineCopyItem: this.onCopyItem,
       timelinePasteItem: this.onPasteItem,
+      timelineCanPasteItem: this.canPasteItem,
       timelineAddLayer: this.onAddLayer,
       timelineDeleteLayer: this.onDeleteLayer,
       timelineUpdatePosition: this.onTimelineUpdatePosition,
@@ -512,6 +513,18 @@ class TimelineEditor extends PureComponent {
     this.setState({
       copyItemData: itemData,
     });
+  }
+  
+  canPasteItem = (mode) => {
+    const { copyItemData } = this.state;
+    if (copyItemData === null) {
+      return false;
+    } else if (mode === '*' && typeof copyItemData === 'object') {
+      return true;
+    } else if (mode !== '*' && typeof copyItemData === 'number') {
+      return true;
+    }
+    return false;
   }
 
   onPasteItem = (itemId, mode, e = null) => {
