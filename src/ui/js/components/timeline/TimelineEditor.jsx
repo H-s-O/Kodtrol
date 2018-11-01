@@ -363,6 +363,13 @@ class TimelineEditor extends PureComponent {
       curve: [],
     });
   }
+  
+  onAddAudioTrackClick = () => {
+    this.doAddItem('audioTrack', {
+      id: uniqid(), // generate new audio track id
+      volume: 1,
+    });
+  }
 
   doAddItem = (type, baseData) => {
     this.setState({
@@ -372,7 +379,7 @@ class TimelineEditor extends PureComponent {
     });
   }
   
-  onAddAudioTrack = () => {
+  /*onAddAudioTrackClick = () => {
     importAudioFile((file) => {
       if (file) {
         const { timelineData } = this.props;
@@ -396,7 +403,7 @@ class TimelineEditor extends PureComponent {
         this.doSave(newData);
       }
     });
-  }
+  }*/
   
   
 
@@ -597,12 +604,14 @@ class TimelineEditor extends PureComponent {
       inTime: this.getTimelinePositionFromEvent(e),
     };
     
-    if (type === 'block' || type === 'curve') {
+    if (type === 'block' || type === 'curve' || type === 'audioTrack') {
       const { timelineData } = this.props;
       const timelineDuration = get(timelineData, 'duration');
       data.outTime = Math.min(data.inTime + 10000, timelineDuration);
     }
-    
+    if (type === 'audioTrack') {
+      data.volume = 1;
+    }
     if (type === 'curve') {
       data.curve = [];
     }
@@ -806,12 +815,9 @@ class TimelineEditor extends PureComponent {
           Add curve...
         </MenuItem>
         <MenuItem
-          divider
-        />
-        <MenuItem
-          onSelect={this.onAddAudioTrack}
+          onSelect={this.onAddAudioTrackClick}
         >
-          Add audio track
+          Add audio track...
         </MenuItem>
       </DropdownButton>
     );

@@ -16,13 +16,23 @@ export default function(props) {
         {
           label: 'File',
           field: 'file',
-          type: 'text',
+          type: 'file',
         },
         {
           label: 'Layer',
           field: 'layer',
           type: 'select',
           from: 'layers',
+        },
+        {
+          label: 'In time',
+          field: 'inTime',
+          type: 'number',
+        },
+        {
+          label: 'Out time',
+          field: 'outTime',
+          type: 'number',
         },
         {
           label: 'Volume',

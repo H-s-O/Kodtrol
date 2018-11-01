@@ -63,6 +63,10 @@ class TimelineLayer extends PureComponent {
     this.doAddItemAt('curve', e);
   }
   
+  onAddAudioTrackHereClick = (e) => {
+    this.doAddItemAt('audioTrack', e);
+  }
+  
   doAddItemAt = (type, e) => {
     const { timelineAddItemAt, data } = this.props;
     const { id } = data;
@@ -124,6 +128,10 @@ class TimelineLayer extends PureComponent {
     menu.append(new MenuItem({
       label: 'Add curve here...',
       click: () => this.onAddCurveHereClick(e),
+    }));
+    menu.append(new MenuItem({
+      label: 'Add audio track here...',
+      click: () => this.onAddAudioTrackHereClick(e),
     }));
     menu.popup({
       window: remote.getCurrentWindow(),

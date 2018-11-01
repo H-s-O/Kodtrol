@@ -177,7 +177,18 @@ class BaseModal extends Component {
       );
     }
     
-    if (type === 'text' || type === 'number') {
+    if (type === 'file') {
+      return (
+        <FormControl
+          type="file"
+          className="form-control"
+          onChange={this.onFieldChange}
+          placeholder={fieldInitialValue}
+        />
+      );
+    }
+    
+    if (type === 'text' || type === 'number' || type === 'file') {
       return (
         <FormControl
           type={type}
