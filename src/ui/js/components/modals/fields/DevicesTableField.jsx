@@ -18,16 +18,26 @@ class DeviceTableField extends PureComponent {
     }
   }
   
-  onDeviceChange = (e, index) => {
+  onDeviceChange = (e, deviceIndex) => {
     const { value } = this.state;
     const fieldValue = e.target.value;
-    const newValue = set(value, `[${index}].id`, fieldValue);
+    
+    const newValue = value.map((device, index) => {
+      if (index === deviceIndex) {
+        return {
+          ...device,
+          id: fieldValue,
+        };
+      }
+      return device;
+    });
     
     this.doChange(newValue);
   }
   
   onAddDeviceClick = () => {
     const { value } = this.state;
+    
     const newValue = [
       ...(value || []),
       {
@@ -38,11 +48,12 @@ class DeviceTableField extends PureComponent {
     this.doChange(newValue);
   }
   
-  onDeleteDeviceClick = (index) => {
+  onDeleteDeviceClick = (deviceIndex) => {
     const { value } = this.state;
-    value.splice(index, 1);
+    
+    const newValue = value.filter((device, index) => index !== deviceIndex);
 
-    this.doChange(value);
+    this.doChange(newValue);
   }
   
   doChange = (value) => {
@@ -82,8 +93,8 @@ class DeviceTableField extends PureComponent {
                 <FormControl
                   componentClass="select"
                   bsSize="small"
+                  value={id || ""}
                   onChange={(e) => this.onDeviceChange(e, index)}
-                  defaultValue={id}
                 >
                   <option
                     value=""

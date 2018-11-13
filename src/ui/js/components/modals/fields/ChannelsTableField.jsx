@@ -20,6 +20,7 @@ class ChannelsTableField extends PureComponent {
   
   onAddChannelClick = () => {
     const { value } = this.state;
+    
     const newValue = [
       ...(value || []),
       {
@@ -31,18 +32,27 @@ class ChannelsTableField extends PureComponent {
     this.doChange(newValue);
   }
   
-  onDeleteChannelClick = (index) => {
-    const { value } = this.state;
-    value.splice(index, 1);
-
-    this.doChange(value);
-  }
-  
-  onChannelChange = (e, index, field) => {
+  onDeleteChannelClick = (channelIndex) => {
     const { value } = this.state;
     
+    const newValue = value.filter((channel, index) => index !== channelIndex);
+
+    this.doChange(newValue);
+  }
+  
+  onChannelChange = (e, channelIndex, field) => {
+    const { value } = this.state;
     const fieldValue = e.target.value;
-    const newValue = set(value, `[${index}].${field}`, fieldValue);
+    
+    const newValue = value.map((channel, index) => {
+      if (index === channelIndex) {
+        return {
+          ...channel,
+          [field]: fieldValue,
+        };
+      }
+      return channel;
+    });
     
     this.doChange(newValue);
   }
