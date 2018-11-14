@@ -200,13 +200,11 @@ class TimelineEditor extends PureComponent {
   }
   
   onAddLayerAtTopClick = () => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
-    this.onAddLayer(layers.length);
+    this.onAddLayer('max');
   }
   
   onAddLayerAtBottomClick = () => {
-    this.onAddLayer(0);
+    this.onAddLayer('min');
   }
 
   onAddLayer = (index) => {
@@ -215,16 +213,30 @@ class TimelineEditor extends PureComponent {
 
     const newLayer = {
       id: uniqid(),
-      order: index,
     };
     
-    let newLayers = [...layers];
-    if (index >= layers.length) {
-      newLayers.push(newLayer);
+    if (index === 'max') {
+      const max = layers.reduce((carry, {order}) => order > carry ? order : carry, 0);
+      newLayer.order = max + 1;
+    } else if (index === 'min') {
+      newLayer.order = 0;
     } else {
-      newLayers.splice(index, 0, newLayer);
+      newLayer.order = index;
     }
     
+    const newLayers = [
+      ...layers.map((layer) => {
+        if (layer.order >= newLayer.order) {
+          // adjust order
+          return {
+            ...layer,
+            order: layer.order + 1,
+          };
+        }
+        return layer;
+      }),
+      newLayer,
+    ];
     const newTimelineData = {
       ...timelineData,
       layers: newLayers,
@@ -237,7 +249,20 @@ class TimelineEditor extends PureComponent {
     const { timelineData } = this.props;
     const { layers, items } = timelineData;
 
-    const newLayers = layers.filter(({id}) => id !== layerId);
+    const deletedLayer = layers.find(({id}) => id === layerId);
+    
+    const newLayers = layers
+      .filter(({id}) => id !== layerId)
+      .map((layer) => {
+        if (layer.order >= deletedLayer.order) {
+          // adjust order
+          return {
+            ...layer,
+            order: layer.order - 1,
+          };
+        }
+        return layer;
+      });
     const newItems = items.filter(({layer}) => layer !== layerId);
     const newTimelineData = {
       ...timelineData,
