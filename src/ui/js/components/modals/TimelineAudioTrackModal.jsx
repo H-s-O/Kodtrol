@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import BaseModal from './BaseModal';
+import FileField from './fields/FileField';
 
 export default function(props) {
   const { layers, ...otherProps } = props;
@@ -14,9 +15,14 @@ export default function(props) {
       }}
       fields={[
         {
+          label: 'Name',
+          field: 'name',
+          type: 'text',
+        },
+        {
           label: 'File',
           field: 'file',
-          type: 'file',
+          type: FileField,
         },
         {
           label: 'Layer',

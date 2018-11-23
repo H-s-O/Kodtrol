@@ -14,7 +14,7 @@ export function deleteWarning(message, callback) {
   }, (response) => callback(response === 0));
 };
 
-export function importAudioFile(callback) {
+export function importAudioFile() {
   return dialog.showOpenDialog({
     title: 'Import audio file',
     filters: [
@@ -23,5 +23,5 @@ export function importAudioFile(callback) {
         extensions: ['mp3', 'wav'],
       },
     ],
-  }, (files) => callback(files[0]));
+  });
 }
