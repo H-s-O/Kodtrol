@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { connect } from 'react-redux';
 import { Grid, Row, Col } from 'react-bootstrap';
 
 import ScriptEditor from './components/partials/ScriptEditor';
@@ -7,40 +8,42 @@ import DevicesBrowser from './components/partials/DevicesBrowser';
 import TimelinesBrowser from './components/partials/TimelinesBrowser';
 import TimelineEditor from './components/timeline/TimelineEditor';
 import ModalsContainer from './components/partials/ModalsContainer';
+import Placeholder from './components/partials/Placeholder';
 
 import styles from '../styles/main.scss';
 
-export default props => {
+const mapStateToProps = ({currentTimeline, currentScript}) => {
+  return {
+    currentTimeline,
+    currentScript,
+  };
+};
+
+export default connect(mapStateToProps)((props) => {
   return (
     <Fragment>
       <Grid fluid>
         <Row className={styles.topRow}>
           <Col md={2} className={styles.fullHeight}>
-            <DevicesBrowser
-            />
+            <DevicesBrowser/>
           </Col>
           <Col md={2} className={styles.fullHeight}>
-            <ScriptsBrowser
-            />
+            <ScriptsBrowser/>
           </Col>
           <Col md={8} className={styles.fullHeight}>
-            <ScriptEditor
-            />
+            { props.currentScript ? <ScriptEditor/> : <Placeholder/> }
           </Col>
         </Row>
         <Row className={styles.bottomRow}>
           <Col md={2} className={styles.fullHeight}>
-            <TimelinesBrowser
-            />
+            <TimelinesBrowser/>
           </Col>
           <Col md={10} className={styles.fullHeight}>
-            <TimelineEditor
-            />
+            { props.currentTimeline ? <TimelineEditor/> : <Placeholder/> }
           </Col>
         </Row>
       </Grid>
-      <ModalsContainer
-      />
+      <ModalsContainer/>
     </Fragment>
   );
-};
+});
