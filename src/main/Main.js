@@ -215,6 +215,7 @@ export default class Main {
       'devices',
       'scripts',
       'timelines',
+      'boards',
     ]));
   }
   

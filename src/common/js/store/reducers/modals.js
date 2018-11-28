@@ -1,6 +1,12 @@
 const defaultState = {
   deviceModalAction: null,
   deviceModalValue: null,
+  scriptModalAction: null,
+  scriptModalValue: null,
+  timelineModalAction: null,
+  timelineModalValue: null,
+  boardModalAction: null,
+  boardModalValue: null,
 };
 
 export default (state = defaultState, {type, payload}) => {
@@ -31,6 +37,16 @@ export default (state = defaultState, {type, payload}) => {
         ...{
           timelineModalAction: payload.modalAction,
           timelineModalValue: payload.modalValue,
+        },
+      };
+      break;
+    
+    case 'UPDATE_BOARD_MODAL':
+      return {
+        ...state,
+        ...{
+          boardModalAction: payload.modalAction,
+          boardModalValue: payload.modalValue,
         },
       };
       break;

@@ -4,10 +4,12 @@ import { connect } from 'react-redux';
 import { createDevice, updateDevice} from '../../../../common/js/store/actions/devices';
 import { createScript, updateScript } from '../../../../common/js/store/actions/scripts';
 import { createTimeline, updateTimeline } from '../../../../common/js/store/actions/timelines';
-import { updateDeviceModal, updateScriptModal, updateTimelineModal } from '../../../../common/js/store/actions/modals';
+import { createBoard, updateBoard } from '../../../../common/js/store/actions/boards';
+import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal } from '../../../../common/js/store/actions/modals';
 import DeviceModal from '../modals/DeviceModal';
 import ScriptModal from '../modals/ScriptModal';
 import TimelineModal from '../modals/TimelineModal';
+import BoardModal from '../modals/BoardModal';
 
 class ModalsContainer extends PureComponent {
   onDeviceModalCancel = () => {
@@ -76,6 +78,28 @@ class ModalsContainer extends PureComponent {
     doCancelTimelineModal();
   }
   
+  onBoardModalCancel = () => {
+    const { doCancelBoardModal } = this.props;
+    doCancelBoardModal();
+  }
+
+  onBoardModalSuccess = (data) => {
+    const {
+      boardModalAction,
+      doCreateBoard,
+      doUpdateBoard,
+      doCancelBoardModal,
+    } = this.props;
+    
+    if (boardModalAction === 'add' || boardModalAction === 'duplicate') {
+      doCreateBoard(data);
+    } else if (boardModalAction === 'edit') {
+      doUpdateBoard(data);
+    }
+    
+    doCancelBoardModal();
+  }
+  
   renderDeviceModal = () => {
     const { deviceModalAction, deviceModalValue } = this.props;
     const title = {
@@ -137,12 +161,33 @@ class ModalsContainer extends PureComponent {
     );
   }
   
+  renderBoardModal = () => {
+    const { boardModalAction, boardModalValue } = this.props;
+    const title = {
+      add: 'Add board',
+      edit: 'Edit board',
+      duplicate: 'Duplicate board',
+      null: null,
+    }[boardModalAction];
+    
+    return (
+      <BoardModal
+        initialValue={boardModalValue}
+        show={!!boardModalAction}
+        title={title}
+        onCancel={this.onBoardModalCancel}
+        onSuccess={this.onBoardModalSuccess}
+      />
+    );
+  }
+  
   render = () => {
     return (
       <div>
         { this.renderDeviceModal() }
         { this.renderScriptModal() }
         { this.renderTimelineModal() }
+        { this.renderBoardModal() }
       </div>
     )
   }
@@ -156,6 +201,8 @@ const mapStateToProps = ({modals, devices}) => {
     scriptModalValue,
     timelineModalAction,
     timelineModalValue,
+    boardModalAction,
+    boardModalValue,
   } = modals;
 
   return {
@@ -165,6 +212,8 @@ const mapStateToProps = ({modals, devices}) => {
     scriptModalValue,
     timelineModalAction,
     timelineModalValue,
+    boardModalAction,
+    boardModalValue,
     devices,
   };
 };
@@ -180,6 +229,9 @@ const mapDispatchToProps = (dispatch) => {
     doCreateTimeline: (data) => dispatch(createTimeline(data)),
     doUpdateTimeline: (data) => dispatch(updateTimeline(data)),
     doCancelTimelineModal: () => dispatch(updateTimelineModal()),
+    doCreateBoard: (data) => dispatch(createBoard(data)),
+    doUpdateBoard: (data) => dispatch(updateBoard(data)),
+    doCancelBoardModal: () => dispatch(updateBoardModal()),
   };
 }
 

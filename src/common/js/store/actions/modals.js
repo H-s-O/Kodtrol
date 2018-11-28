@@ -30,3 +30,14 @@ export const updateTimelineModal = (modalAction = null, modalValue = null) => ({
     scope: 'local',
   },
 });
+
+export const updateBoardModal = (modalAction = null, modalValue = null) => ({
+  type: 'UPDATE_BOARD_MODAL',
+  payload: {
+    modalAction,
+    modalValue,
+  },
+  meta: {
+    scope: 'local',
+  },
+});

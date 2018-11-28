@@ -5,6 +5,6 @@ import styles from '../../../styles/components/partials/scripteditor.scss';
 
 export default (props) => {
   return (
-    <Well className={styles.fullHeight} />
+    <Well bsSize="small" className={styles.fullHeight} />
   );
 };

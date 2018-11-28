@@ -8,14 +8,17 @@ import Panel from './Panel';
 import TreeView from './TreeView';
 import stopEvent from '../../lib/stopEvent';
 import { deleteTimeline, selectTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
-import { updateTimelineModal } from '../../../../common/js/store/actions/modals';
+import { deleteBoard, selectBoard, runBoard, stopBoard } from '../../../../common/js/store/actions/boards';
+import { updateTimelineModal, updateBoardModal } from '../../../../common/js/store/actions/modals';
 import { deleteWarning } from '../../lib/messageBoxes';
 
 import styles from '../../../styles/components/partials/timelinesbrowser.scss';
 
 const propTypes = {
   timelines: PropTypes.arrayOf(PropTypes.shape({})),
+  boards: PropTypes.arrayOf(PropTypes.shape({})),
   runTimeline: PropTypes.string,
+  runBoard: PropTypes.string,
   doSelectTimeline: PropTypes.func.isRequired,
   doDeleteTimeline: PropTypes.func.isRequired,
   doCreateTimelineModal: PropTypes.func.isRequired,
@@ -23,24 +26,40 @@ const propTypes = {
   doDuplicateTimelineModal: PropTypes.func.isRequired,
   doRunTimeline: PropTypes.func.isRequired,
   doStopRunTimeline: PropTypes.func.isRequired,
+  doSelectBoard: PropTypes.func.isRequired,
+  doCreateBoardModal: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   timelines: [],
+  boards: [],
   runTimeline: null,
+  runBoard: null,
 };
 
 class TimelinesBrowser extends PureComponent {
-  onTimelineSelect = (it) => {
-    const { id } = it;
-    const { doSelectTimeline, timelines } = this.props;
-    const data = timelines.find(it => it.id === id);
-    doSelectTimeline(data);
+  onItemSelect = (it) => {
+    const { id, type } = it;
+    
+    if (type === 'timeline') {
+      const { doSelectTimeline, timelines } = this.props;
+      const data = timelines.find(it => it.id === id);
+      doSelectTimeline(data);
+    } else if (type === 'board') {
+      const { doSelectBoard, boards } = this.props;
+      const data = boards.find(it => it.id === id);
+      doSelectBoard(data);
+    }
   }
 
-  onAddClick = () => {
+  onAddTimelineClick = () => {
     const { doCreateTimelineModal } = this.props;
     doCreateTimelineModal();
+  }
+  
+  onAddBoardClick = () => {
+    const { doCreateBoardModal } = this.props;
+    doCreateBoardModal();
   }
   
   onEditClick = (id) => {
@@ -75,9 +94,11 @@ class TimelinesBrowser extends PureComponent {
   }
   
   renderTreeTags = (it) => {
-    const { runTimeline } = this.props;
+    const { runTimeline, runBoard } = this.props;
+    const { id, type} = it;
     
-    if (it.id !== runTimeline) {
+    if (type === 'timeline' && id !== runTimeline
+        || type === 'board' && id !== runBoard) {
       return null;
     }
     
@@ -137,11 +158,11 @@ class TimelinesBrowser extends PureComponent {
   }
 
   render = () => {
-    const { timelines, currentTimeline, runTimeline } = this.props;
+    const { timelines, currentTimeline, runTimeline, boards, currentBoard, runBoard } = this.props;
 
     return (
       <Panel
-        title="Timelines"
+        title="Timelines &amp; Boards"
         className={styles.fullHeight}
         headingContent={
           <ButtonToolbar
@@ -157,26 +178,47 @@ class TimelinesBrowser extends PureComponent {
                 glyph="eye-close"
               />
             </Button>
-            <Button
+            <DropdownButton
+              id="add-timeline-board"
+              title={(
+                <Glyphicon
+                  glyph="plus"
+                />
+              )}
               bsSize="xsmall"
-              onClick={this.onAddClick}
+              onClick={stopEvent}
+              pullRight
             >
-              <Glyphicon
-                glyph="plus"
-              />
-            </Button>
+              <MenuItem
+                onSelect={this.onAddTimelineClick}
+              >
+                Add timeline...
+              </MenuItem>
+              <MenuItem
+                onSelect={this.onAddBoardClick}
+              >
+                Add board...
+              </MenuItem>
+            </DropdownButton>
           </ButtonToolbar>
         }
       >
         <TreeView
           className={styles.wrapper}
           value={timelines.map(({id, name}) => ({
+            type: 'timeline',
             id,
             label: name,
             icon: 'film',
             active: id === get(currentTimeline, 'id'),
-          }))}
-          onClickItem={this.onTimelineSelect}
+          })).concat(boards.map(({id, name}) => ({
+            type: 'board',
+            id,
+            label: name,
+            icon: 'th',
+            active: id === get(currentBoard, 'id'),
+          })))}
+          onClickItem={this.onItemSelect}
           renderActions={this.renderTreeActions}
           renderTags={this.renderTreeTags}
         />
@@ -188,11 +230,14 @@ class TimelinesBrowser extends PureComponent {
 TimelinesBrowser.propTypes = propTypes;
 TimelinesBrowser.defaultProps = defaultProps;
 
-const mapStateToProps = ({timelines, currentTimeline, runTimeline}) => {
+const mapStateToProps = ({timelines, currentTimeline, runTimeline, boards, currentBoard, runBoard}) => {
   return {
     timelines,
     currentTimeline,
     runTimeline,
+    boards,
+    currentBoard,
+    runBoard,
   };
 }
 const mapDispatchToProps = (dispatch) => {
@@ -204,6 +249,8 @@ const mapDispatchToProps = (dispatch) => {
     doDuplicateTimelineModal: (data) => dispatch(updateTimelineModal('duplicate', data)),
     doRunTimeline: (id) => dispatch(runTimeline(id)),
     doStopRunTimeline: () => dispatch(stopTimeline()),
+    doSelectBoard: (id) => dispatch(selectBoard(id)),
+    doCreateBoardModal: () => dispatch(updateBoardModal('add', {})),
   };
 }
 

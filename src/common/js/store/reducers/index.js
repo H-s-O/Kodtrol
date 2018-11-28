@@ -1,5 +1,6 @@
 export { default as currentTimeline } from './currentTimeline';
 export { default as currentScript } from './currentScript';
+export { default as currentBoard } from './currentBoard';
 export { default as devices } from './devices';
 export { default as scripts } from './scripts';
 export { default as timelineInfo } from './timelineInfo';
@@ -8,3 +9,4 @@ export { default as timelines } from './timelines';
 export { default as modals } from './modals';
 export { default as previewScript } from './previewScript';
 export { default as runTimeline } from './runTimeline';
+export { default as boards } from './boards';
