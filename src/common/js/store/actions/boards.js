@@ -10,6 +10,11 @@ export const selectBoard = (boardData) => ({
   payload: boardData,
 });
 
+export const unselectBoard = () => ({
+  type: 'SELECT_BOARD',
+  payload: null,
+});
+
 export const createBoard = (boardData) => ({
   type: 'CREATE_BOARD',
   payload: {

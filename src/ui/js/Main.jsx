@@ -7,15 +7,17 @@ import ScriptsBrowser from './components/partials/ScriptsBrowser';
 import DevicesBrowser from './components/partials/DevicesBrowser';
 import TimelinesBrowser from './components/partials/TimelinesBrowser';
 import TimelineEditor from './components/timeline/TimelineEditor';
+import BoardEditor from './components/board/BoardEditor';
 import ModalsContainer from './components/partials/ModalsContainer';
 import Placeholder from './components/partials/Placeholder';
 
 import styles from '../styles/main.scss';
 
-const mapStateToProps = ({currentTimeline, currentScript}) => {
+const mapStateToProps = ({currentTimeline, currentScript, currentBoard}) => {
   return {
     currentTimeline,
     currentScript,
+    currentBoard,
   };
 };
 
@@ -31,7 +33,9 @@ export default connect(mapStateToProps)((props) => {
             <ScriptsBrowser/>
           </Col>
           <Col md={8} className={styles.fullHeight}>
-            { props.currentScript ? <ScriptEditor/> : <Placeholder/> }
+            { props.currentScript
+              ? <ScriptEditor/>
+              : <Placeholder/> }
           </Col>
         </Row>
         <Row className={styles.bottomRow}>
@@ -39,7 +43,11 @@ export default connect(mapStateToProps)((props) => {
             <TimelinesBrowser/>
           </Col>
           <Col md={10} className={styles.fullHeight}>
-            { props.currentTimeline ? <TimelineEditor/> : <Placeholder/> }
+            { props.currentTimeline
+              ? <TimelineEditor/>
+              : props.currentBoard 
+                ? <BoardEditor/>
+                : <Placeholder/> }
           </Col>
         </Row>
       </Grid>

@@ -10,6 +10,11 @@ export const selectTimeline = (timelineData) => ({
   payload: timelineData,
 });
 
+export const unselectTimeline = () => ({
+  type: 'SELECT_TIMELINE',
+  payload: null,
+});
+
 export const createTimeline = (timelineData) => ({
   type: 'CREATE_TIMELINE',
   payload: {

@@ -7,6 +7,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import Main from './Main';
 import * as appReducers from '../../common/js/store/reducers/index';
 import resetRunningItems from '../../common/js/store/middlewares/resetRunningItems';
+import resetCurrentItems from '../../common/js/store/middlewares/resetCurrentItems';
 import resetTimelineInfoUser from '../../common/js/store/middlewares/resetTimelineInfoUser';
 import resetTimelineInfo from '../../common/js/store/middlewares/resetTimelineInfo';
 
@@ -26,6 +27,7 @@ export default class Root extends PureComponent {
       composeWithDevTools(
         applyMiddleware(
           forwardToMain, // IMPORTANT! This goes first
+          resetCurrentItems(),
           resetRunningItems(),
           resetTimelineInfo(),
           resetTimelineInfoUser(),

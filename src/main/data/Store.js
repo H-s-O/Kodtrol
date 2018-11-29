@@ -6,6 +6,7 @@ import { observer, observe } from 'redux-observers'
 import * as StoreEvent from '../events/StoreEvent';
 import * as appReducers from '../../common/js/store/reducers/index';
 import resetRunningItems from '../../common/js/store/middlewares/resetRunningItems';
+import resetCurrentItems from '../../common/js/store/middlewares/resetCurrentItems';
 import resetTimelineInfoUser from '../../common/js/store/middlewares/resetTimelineInfoUser';
 import resetTimelineInfo from '../../common/js/store/middlewares/resetTimelineInfo';
 import saveableContentCallback from '../../common/js/store/middlewares/saveableContentCallback';
@@ -20,6 +21,7 @@ export default class Store extends EventEmitter {
       combineReducers(appReducers),
       initialState,
       applyMiddleware(
+        resetCurrentItems(),
         resetRunningItems(),
         resetTimelineInfo(),
         resetTimelineInfoUser(),

@@ -10,6 +10,11 @@ export const selectScript = (scriptData) => ({
   payload: scriptData,
 });
 
+export const unselectScript = () => ({
+  type: 'SELECT_SCRIPT',
+  payload: null,
+});
+
 export const createScript = (scriptData) => ({
   type: 'CREATE_SCRIPT',
   payload: {

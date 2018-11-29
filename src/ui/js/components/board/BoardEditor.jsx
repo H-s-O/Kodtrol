@@ -1,0 +1,1027 @@
+import React, { Fragment, PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import { get, set, unset } from 'lodash';
+import { Button, Glyphicon, SplitButton, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
+import uniqid from 'uniqid';
+import { connect } from 'react-redux';
+import path from 'path';
+
+import Panel from '../partials/Panel';
+import stopEvent from '../../lib/stopEvent';
+import percentString from '../../lib/percentString';
+import TimelineTriggerModal from '../modals/TimelineTriggerModal';
+import RecordTriggerModal from '../modals/RecordTriggerModal';
+import TimelineBlockModal from '../modals/TimelineBlockModal';
+import TimelineCurveModal from '../modals/TimelineCurveModal';
+import RecordBlockModal from '../modals/RecordBlockModal';
+import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
+import { updateCurrentTimeline, saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
+import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
+import { importAudioFile } from '../../lib/messageBoxes';
+import { Provider } from './boardEditorContext';
+import BoardDisplay from './BoardDisplay';
+
+import styles from '../../../styles/components/board/boardeditor.scss';
+
+const propTypes = {
+  boardData: PropTypes.shape({}),
+  boardInfo: PropTypes.shape({}),
+  scripts: PropTypes.arrayOf(PropTypes.shape({})),
+  doUpdateCurrentTimeline: PropTypes.func.isRequired,
+  doUpdateTimelineInfo: PropTypes.func.isRequired,
+  doUpdateTimelineInfoUser: PropTypes.func.isRequired,
+  doSaveTimeline: PropTypes.func.isRequired,
+  doRunTimeline: PropTypes.func.isRequired,
+  doStopRunTimeline: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+  boardData: null,
+  boardInfo: null,
+  scripts: [],
+};
+
+class BoardEditor extends PureComponent {
+  editorCallbacks = null;
+  timelineWrapper = null;
+  state = {
+    modalType: null,
+    modalAction: null,
+    modalValue: null,
+    
+    adjustItemId: null,
+    adjustItemMode: null,
+    
+    copyItemData: null,
+    
+    timelineDataTemp: null,
+    
+    recording: false,
+    recordingData: null,
+  };
+  
+  constructor(props) {
+    super(props);
+    
+    this.editorCallbacks = {
+      timelineAddItemAt: this.onAddItemAt,
+      timelineEditItem: this.onEditItem,
+      timelineUpdateItem: this.onUpdateItem,
+      timelineAdjustItem: this.onAdjustItem,
+      timelineDeleteItem: this.onDeleteItem,
+      timelineCopyItem: this.onCopyItem,
+      timelinePasteItem: this.onPasteItem,
+      timelineCanPasteItem: this.canPasteItem,
+      timelineAddLayer: this.onAddLayer,
+      timelineDeleteLayer: this.onDeleteLayer,
+      timelineUpdatePosition: this.onTimelineUpdatePosition,
+    };
+  }
+  
+  getItem = (itemId) => {
+    const { timelineData } = this.props;
+    const { items } = timelineData;
+    return items.find(({id}) => id === itemId);
+  }
+  
+  getLayer = (layerId) => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    return layers.find(({id}) => id === layerId);
+  }
+  
+  onUpdateItem = (itemId, data) => {
+    const { timelineData } = this.props;
+    const { items } = timelineData;
+    const itemData = this.getItem(itemId);
+    
+    const newItemData = {
+      ...itemData,
+      ...data,
+    };
+    const newItems = items.map((item) => {
+      if (item.id === itemId) {
+        return newItemData;
+      }
+      return item;
+    });
+    const newTimelineData = {
+      ...timelineData,
+      items: newItems,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  onDeleteItem = (itemId) => {
+    const { timelineData } = this.props;
+    const { items } = timelineData;
+
+    const newItems = items.filter(({id}) => id !== itemId);
+    const newTimelineData = {
+      ...timelineData,
+      items: newItems,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  onEditItem = (itemId) => {
+    const itemData = this.getItem(itemId);
+    
+    let type;
+    if ('script' in itemData) {
+      type = 'block';
+    } else if ('trigger' in itemData) {
+      type = 'trigger';
+    } else if ('curve' in itemData) {
+      type = 'curve';
+    } else if ('file' in itemData) {
+      type = 'audioTrack';
+    }
+    
+    this.setState({
+      modalType: type,
+      modalValue: {
+        ...itemData,
+      },
+      modalAction: 'edit',
+    });
+  }
+  
+  onItemModalSuccess = (itemData) => {
+    const { timelineData } = this.props;
+    const { items } = timelineData;
+    
+    // Attempt to find item index if existing
+    const itemIndex = items.findIndex(({id}) => id === itemData.id); 
+    
+    let newItems;
+    // If item does not exists, add it
+    if (itemIndex === -1) {
+      newItems = [
+        ...items,
+        itemData,
+      ];
+    } 
+    // Update existing item
+    else {
+      newItems = items.map((item) => {
+        if (item.id === itemData.id) {
+          return itemData;
+        }
+        return item;
+      });
+    }
+    
+    const newTimelineData = {
+      ...timelineData,
+      items: newItems,
+    };
+    
+    // Save timeline
+    this.doSave(newTimelineData);
+
+    // Hide modal
+    this.setState({
+      modalType: null,
+      modalAction: null,
+      modalValue: null,
+    });
+  }
+  
+  onItemModalCancel = () => {
+    // Hide modal
+    this.setState({
+      modalType: null,
+      modalAction: null,
+      modalValue: null,
+    });
+  }
+  
+  onAddLayerAtTopClick = () => {
+    this.onAddLayer('max');
+  }
+  
+  onAddLayerAtBottomClick = () => {
+    this.onAddLayer('min');
+  }
+
+  onAddLayer = (index) => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+
+    const newLayer = {
+      id: uniqid(),
+    };
+    
+    if (index === 'max') {
+      const max = layers.reduce((carry, {order}) => order > carry ? order : carry, 0);
+      newLayer.order = max + 1;
+    } else if (index === 'min') {
+      newLayer.order = 0;
+    } else {
+      newLayer.order = index;
+    }
+    
+    const newLayers = [
+      ...layers.map((layer) => {
+        if (layer.order >= newLayer.order) {
+          // adjust order
+          return {
+            ...layer,
+            order: layer.order + 1,
+          };
+        }
+        return layer;
+      }),
+      newLayer,
+    ];
+    const newTimelineData = {
+      ...timelineData,
+      layers: newLayers,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  onDeleteLayer = (layerId) => {
+    const { timelineData } = this.props;
+    const { layers, items } = timelineData;
+
+    const deletedLayer = layers.find(({id}) => id === layerId);
+    
+    const newLayers = layers
+      .filter(({id}) => id !== layerId)
+      .map((layer) => {
+        if (layer.order >= deletedLayer.order) {
+          // adjust order
+          return {
+            ...layer,
+            order: layer.order - 1,
+          };
+        }
+        return layer;
+      });
+    const newItems = items.filter(({layer}) => layer !== layerId);
+    const newTimelineData = {
+      ...timelineData,
+      layers: newLayers,
+      items: newItems,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  getTimelinePositionFromEvent = (e, round = true) => {
+    const percent = this.timelineWrapper.getTimelinePercentFromEvent(e);
+    
+    const { timelineData } = this.props;
+    const { duration } = timelineData;
+    
+    let position = duration * percent;
+    if (round) {
+      position = Math.round(position);
+    }
+    return position;
+  }
+  
+  
+  
+  
+  
+
+  onSaveClick = () => {
+    const { timelineData, doSaveTimeline } = this.props;
+    doSaveTimeline(timelineData);
+  }
+  
+  onRecordClick = () => {
+    const { recording } = this.state;
+    if (!recording) {
+      this.startRecording();
+    } else {
+      this.stopRecording();
+    }
+  }
+  
+  startRecording = () => {
+    const { timelineData, doRunTimeline } = this.props;
+    const { id } = timelineData;
+    
+    this.setState({
+      timelineDataTemp: {
+        ...timelineData,
+      },
+      recording: true,
+    });
+    
+    doRunTimeline(id);
+    
+    window.onkeydown = this.onKeyDown;
+  }
+  
+  stopRecording = () => {
+    const { doStopRunTimeline } = this.props;
+    const { timelineDataTemp } = this.state;
+    
+    this.doSave(timelineDataTemp);
+    
+    this.setState({
+      timelineDataTemp: null,
+      recording: false,
+    });
+    
+    doStopRunTimeline();
+    
+    window.onkeydown = null;
+  }
+  
+  onKeyDown = (e) => {
+    const { recording, timelineDataTemp, recordingData } = this.state;
+    
+    if (recording) {
+      const { timelineInfo } = this.props;
+      const { position } = timelineInfo;
+      const { items } = timelineDataTemp;
+      
+      if (e.key === 't') {
+        const newItem = {
+          ...recordingData,
+          inTime: position,
+          id: uniqid(),
+        };
+        const newItems = [
+          ...items,
+          newItem,
+        ];
+        const newTimelineData = {
+          ...timelineDataTemp,
+          items: newItems,
+        };
+
+        this.setState({
+          timelineDataTemp: newTimelineData,
+        });
+        // this.forceUpdate();
+      }
+    }
+  }
+  
+  
+  
+  onAddBlockClick = () => {
+    this.doAddItem('block', {
+      id: uniqid(), // generate new block id
+    });
+  }
+  
+  onAddTriggerClick = () => {
+    this.doAddItem('trigger', {
+      id: uniqid(), // generate new trigger id
+    });
+  }
+  
+  onAddCurveClick = () => {
+    this.doAddItem('curve', {
+      id: uniqid(), // generate new curve id
+      curve: [],
+    });
+  }
+  
+  onAddAudioTrackClick = () => {
+    this.doAddItem('audioTrack', {
+      id: uniqid(), // generate new audio track id
+      volume: 1,
+    });
+  }
+
+  doAddItem = (type, baseData) => {
+    this.setState({
+      modalType: type,
+      modalValue: baseData,
+      modalAction: 'add',
+    });
+  }
+  
+  /*onAddAudioTrackClick = () => {
+    importAudioFile((file) => {
+      if (file) {
+        const { timelineData } = this.props;
+        const newData = {
+          ...timelineData,
+          layers: [
+            ...timelineData.layers,
+            [
+              {
+                id: uniqid(),
+                name: path.basename(file),
+                file,
+                inTime: 0,
+                outTime: 274000,
+                volume: 1,
+                color: "#000",
+              },
+            ],
+          ],
+        };
+        this.doSave(newData);
+      }
+    });
+  }*/
+  
+  
+
+  
+  
+  
+  
+  onSetRecordTriggerClick = () => {
+    this.doSetRecord('trigger');
+  }
+  
+  onSetRecordBlockClick = () => {
+    this.doSetRecord('block');
+  }
+  
+  doSetRecord = (type) => {
+    this.setState({
+      modalType: type,
+      modalAction: 'record',
+    });
+  }
+  
+  onRecordModalSuccess = (recordData) => {
+    this.setState({
+      recordingData: recordData,
+    });
+    
+    // Hide modal
+    this.setState({
+      modalType: null,
+      modalAction: null,
+      modalValue: null,
+    });
+  }
+
+  onRecordModalCancel = () => {
+    // Hide modal
+    this.setState({
+      modalType: null,
+      modalAction: null,
+      modalValue: null,
+    });
+  }
+  
+  onZoomLevelClick = (level) => {
+    const { timelineData, doUpdateCurrentTimeline } = this.props;
+    const data = {
+      ...timelineData,
+      zoom: level,
+    };
+    doUpdateCurrentTimeline(data);
+  }
+  
+  
+  onAdjustItem = (itemId, mode) => {
+    const { timelineData } = this.props;
+    
+    this.setState({
+      adjustItemMode: mode,
+      adjustItemId: itemId,
+      timelineDataTemp: {
+        ...timelineData
+      },
+    });
+    
+    window.onmousemove = this.onMouseMove;
+    window.onmouseup = this.onMouseUp;
+  }
+  
+  onMouseMove = (e) => {
+    const { adjustItemId, adjustItemMode } = this.state;
+    
+    if (adjustItemId !== null && adjustItemMode !== null) {
+      const { timelineData } = this.props;
+      const { items, duration } = timelineData;
+      
+      let newValue = this.getTimelinePositionFromEvent(e);
+      if (newValue < 0) {
+        newValue = 0;
+      } else if (newValue > duration) {
+        newValue = duration;
+      }
+      const newItems = items.map((item) => {
+        if (item.id === adjustItemId) {
+          return {
+            ...item,
+            [adjustItemMode]: newValue,
+          };
+        }
+        return item;
+      });
+      const newTimelineData = {
+        ...timelineData,
+        items: newItems,
+      };
+
+      this.setState({
+        timelineDataTemp: newTimelineData,
+      });
+      // this.forceUpdate(); // needed for live refresh of timeline, temp
+    }
+  }
+
+  onCopyItem = (itemId, mode) => {
+    const item = this.getItem(itemId);
+    
+    let itemData;
+    if (mode === '*') {
+      itemData = item;
+    } else {
+      itemData = item[mode];
+    }
+
+    this.setState({
+      copyItemData: itemData,
+    });
+  }
+  
+  canPasteItem = (mode) => {
+    const { copyItemData } = this.state;
+    if (copyItemData === null) {
+      return false;
+    } else if (mode === '*' && typeof copyItemData === 'object') {
+      return true;
+    } else if (mode !== '*' && typeof copyItemData === 'number') {
+      return true;
+    }
+    return false;
+  }
+
+  onPasteItem = (itemId, mode, e = null) => {
+    const { copyItemData } = this.state;
+    
+    if (copyItemData !== null) {
+      const { timelineData } = this.props;
+      const { items, duration } = timelineData;
+      
+      let newItem;
+      let newItems;
+      if (mode === '*') {
+        const { inTime, outTime } = copyItemData;
+        let newInTime = this.getTimelinePositionFromEvent(e);
+        if (newInTime < 0) {
+          newInTime = 0;
+        } else if (newInTime > duration) {
+          newInTime = duration;
+        }
+        newItem = {
+          ...copyItemData,
+          id: uniqid(), // override with new id
+          layer: itemId,
+          inTime: newInTime,
+        }
+        if ('outTime' in copyItemData) {
+          const diffTime = outTime - inTime;
+          let newOutTime = newInTime + diffTime;
+          if (newOutTime < 0) {
+            newOutTime = 0;
+          } else if (newOutTime > duration) {
+            newOutTime = duration;
+          }
+          newItem.outTime = newOutTime;
+        }
+        newItems = [
+          ...items,
+          newItem,
+        ];
+      } else {
+        const item = this.getItem(itemId);
+        newItem = {
+          ...item,
+          [mode]: copyItemData,
+        };
+        newItems = items.map((item) => {
+          if (item.id === itemId) {
+            return newItem;
+          }
+          return item;
+        });
+      }
+      const newTimelineData = {
+        ...timelineData,
+        items: newItems,
+      };
+
+      this.doSave(newTimelineData);
+
+      this.setState({
+        copyItemData: null,
+      });
+    }
+  }
+  
+  onAddItemAt = (layerId, type, e) => {
+    const data = {
+      layer: layerId,
+      id: uniqid(), // generate new item id
+      inTime: this.getTimelinePositionFromEvent(e),
+    };
+    
+    if (type === 'block' || type === 'curve' || type === 'audioTrack') {
+      const { timelineData } = this.props;
+      const timelineDuration = get(timelineData, 'duration');
+      data.outTime = Math.min(data.inTime + 10000, timelineDuration);
+    }
+    if (type === 'audioTrack') {
+      data.volume = 1;
+    }
+    if (type === 'curve') {
+      data.curve = [];
+    }
+    
+    this.setState({
+      modalType: type,
+      modalValue: data,
+      modalAction: 'add',
+    });
+  }
+
+
+  onMouseUp = (e) => {
+    console.log('timeline on mouse up');
+    
+    window.onmouseup = null;
+    window.onmousemove = null;
+    
+    const { timelineDataTemp } = this.state;
+    
+    this.doSave(timelineDataTemp);
+    
+    this.setState({
+      adjustItemId: null,
+      adjustItemMode: null,
+      timelineDataTemp: null,
+    });
+  }
+
+  
+
+
+
+  doSave = (timelineData) => {
+    const { doUpdateCurrentTimeline } = this.props;
+    doUpdateCurrentTimeline(timelineData);
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////
+  // TIMELINE INFO
+  
+  onTimelineUpdatePosition = (e) => {
+    const { timelineInfo } = this.props;
+    
+    const newPosition = this.getTimelinePositionFromEvent(e);
+    const newInfo = {
+      ...timelineInfo,
+      position: newPosition,
+    };
+    
+    this.doUpdateInfo(newInfo);
+  }
+  
+  onTimelineRewindClick = () => {
+    const { timelineInfo } = this.props;
+    
+    const newInfo = {
+      ...timelineInfo,
+      position: 0,
+    };
+    
+    this.doUpdateInfo(newInfo);
+  }
+  
+  onTimelinePlayClick = () => {
+    const { timelineInfo } = this.props;
+    
+    const newInfo = {
+      ...timelineInfo,
+      playing: true,
+    };
+    
+    this.doUpdateInfo(newInfo);
+  }
+  
+  onTimelinePauseClick = () => {
+    const { timelineInfo } = this.props;
+    
+    const newInfo = {
+      ...timelineInfo,
+      playing: false,
+    };
+    
+    this.doUpdateInfo(newInfo);
+  }
+  
+  doUpdateInfo = (timelineInfo) => {
+    const { doUpdateTimelineInfoUser } = this.props;
+    doUpdateTimelineInfoUser(timelineInfo);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  // RENDERS
+  
+  renderSave = () => {
+    return (
+      <Button
+        bsSize="xsmall"
+        onClick={this.onSaveClick}
+      >
+        Save
+      </Button>
+    );
+  }
+  
+  renderBoardControls = () => {
+    const { timelineInfo, runTimeline } = this.props;
+    if (!timelineInfo) {
+      return null;
+    }
+    
+    const { playing, position } = timelineInfo;
+    
+    return (
+      <ButtonGroup>
+        <Button
+          disabled={runTimeline === null}
+          bsSize="xsmall"
+          onClick={this.onTimelineRewindClick}
+        >
+          <Glyphicon
+            glyph="step-backward"
+          />
+        </Button>
+        { !playing ? (
+          <Button
+            disabled={runTimeline === null}
+            bsSize="xsmall"
+            onClick={this.onTimelinePlayClick}
+          >
+            <Glyphicon
+              glyph="play"
+            />
+          </Button>
+        ) : (
+          <Button
+            disabled={runTimeline === null}
+            bsSize="xsmall"
+            onClick={this.onTimelinePauseClick}
+          >
+            <Glyphicon
+              glyph="pause"
+            />
+          </Button>
+        )}
+      </ButtonGroup>
+    );
+  }
+
+  renderAddItems = () => {
+    const { boardData } = this.props;
+    const { items } = boardData;
+    
+    return (
+      <DropdownButton
+        id="timeline-items-menu"
+        title={(
+          <Glyphicon
+            glyph="plus"
+          />
+        )}
+        bsSize="xsmall"
+        onClick={stopEvent}
+      >
+        { !items.length ? (
+          <MenuItem
+            onSelect={this.onAddLayerAtTopClick}
+            >
+            Add layer
+          </MenuItem>
+        ) : (
+          <Fragment>
+            <MenuItem
+              onSelect={this.onAddLayerAtTopClick}
+            >
+              Add layer at top
+            </MenuItem>
+            <MenuItem
+              onSelect={this.onAddLayerAtBottomClick}
+            >
+              Add layer at bottom
+            </MenuItem>
+          </Fragment>
+        )}
+        <MenuItem
+          divider
+        />
+        <MenuItem
+          onSelect={this.onAddBlockClick}
+        >
+          Add block...
+        </MenuItem>
+      </DropdownButton>
+    );
+  }
+  
+  renderRecordItems = () => {
+    const { recording, recordingData } = this.state;
+    
+    return (
+      <SplitButton
+        id="timeline-record-menu"
+        title={(
+          <Glyphicon
+            glyph="record"
+          />
+        )}
+        bsSize="xsmall"
+        bsStyle={recording ? 'danger' : 'default'}
+        onClick={this.onRecordClick}
+      >
+        <MenuItem
+          onSelect={this.onSetRecordTriggerClick}
+        >
+          Set recorded triggers...
+        </MenuItem>
+        { /*<MenuItem
+          onSelect={this.onSetRecordBlockClick}
+        >
+          Set recorded blocks...
+        </MenuItem> */}
+      </SplitButton>
+    );
+  }
+  
+  renderZoomControl = () => {
+    const levels = [1, 1.5, 3, 6, 8, 10];
+    const { timelineData } = this.props;
+    const { zoom } = timelineData;
+    
+    return (
+      <DropdownButton
+        id="timeline-zoom-menu"
+        title={(
+          <Fragment>
+            <Glyphicon
+              glyph="search"
+            />
+            <Glyphicon
+              glyph="resize-horizontal"
+            />
+          </Fragment>
+        )}
+        bsSize="xsmall"
+        onClick={stopEvent}
+      >
+        { levels.map((level) => (
+          <MenuItem
+            key={`zoom-level-${level}`}
+            onSelect={() => this.onZoomLevelClick(level)}
+            active={level == zoom}
+          >
+            { percentString(level, true) }
+          </MenuItem>
+        )) }
+      </DropdownButton>
+    );
+  }
+  
+  setTimelineWrapperRef = (ref) => {
+    this.timelineWrapper = ref;
+  }
+  
+  renderBoardDisplay = (workingBoardData) => {
+    const { boardInfo } = this.props;
+    
+    return (
+      <Provider
+        value={this.editorCallbacks}
+      >
+        <BoardDisplay
+          boardData={workingBoardData}
+          boardInfo={boardInfo}
+        />
+      </Provider>
+    );
+  }
+  
+  renderItemModals = () => {
+    const { boardData, scripts } = this.props;
+    const { modalType, modalValue, modalAction } = this.state;
+    const { layers } = boardData;
+    
+    return (
+      <Fragment>
+        <TimelineBlockModal
+          initialValue={modalValue}
+          show={modalType === 'block' && modalAction !== 'record'}
+          title={modalAction === 'add' ? 'Add block' : 'Edit block'}
+          onCancel={this.onItemModalCancel}
+          onSuccess={this.onItemModalSuccess}
+          scripts={scripts}
+          layers={layers}
+        />
+        <RecordBlockModal
+          initialValue={{}}
+          show={modalType === 'block' && modalAction === 'record'}
+          title="Set recorded blocks"
+          onCancel={this.onRecordModalCancel}
+          onSuccess={this.onRecordModalSuccess}
+          scripts={scripts}
+          layers={layers}
+        />
+        <TimelineTriggerModal
+          initialValue={modalValue}
+          show={modalType === 'trigger' && modalAction !== 'record'}
+          title={modalAction === 'add' ? 'Add trigger' : 'Edit trigger'}
+          onCancel={this.onItemModalCancel}
+          onSuccess={this.onItemModalSuccess}
+          layers={layers}
+        />
+        <RecordTriggerModal
+          initialValue={{}}
+          show={modalType === 'trigger' && modalAction === 'record'}
+          title="Set recorded triggers"
+          onCancel={this.onRecordModalCancel}
+          onSuccess={this.onRecordModalSuccess}
+          layers={layers}
+        />
+        <TimelineAudioTrackModal
+          initialValue={modalValue}
+          show={modalType === 'audioTrack'}
+          title={modalAction === 'add' ? 'Add audio track' : 'Edit audio track'}
+          onCancel={this.onItemModalCancel}
+          onSuccess={this.onItemModalSuccess}
+          layers={layers}
+        />
+        <TimelineCurveModal
+          initialValue={modalValue}
+          show={modalType === 'curve'}
+          title={modalAction === 'add' ? 'Add curve' : 'Edit curve'}
+          onCancel={this.onItemModalCancel}
+          onSuccess={this.onItemModalSuccess}
+          layers={layers}
+        />
+      </Fragment>
+    );
+  }
+
+  render = () => {
+    const { boardData } = this.props;
+    const { boardDataTemp } = this.state;
+    const workingBoardData = boardDataTemp || boardData;
+
+    return (
+      <Panel
+        title="Board editor"
+        className={styles.fullHeight}
+        headingContent={
+          workingBoardData && (
+            <ButtonToolbar>
+              { this.renderSave() }
+              { this.renderBoardControls() }
+              { this.renderAddItems() }
+            </ButtonToolbar>
+          )
+        }
+      >
+        { workingBoardData ? this.renderBoardDisplay(workingBoardData) : null }
+        { workingBoardData ? this.renderItemModals() : null }
+      </Panel>
+    );
+  }
+}
+
+BoardEditor.propTypes = propTypes;
+BoardEditor.defaultProps = defaultProps;
+
+const mapStateToProps = ({currentBoard, scripts, boardInfo, runBoard}) => {
+  return {
+    boardData: currentBoard,
+    scripts,
+    boardInfo,
+    runBoard,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    doUpdateCurrentTimeline: (data) => dispatch(updateCurrentTimeline(data)),
+    doUpdateTimelineInfo: (data) => dispatch(updateTimelineInfo(data)),
+    doUpdateTimelineInfoUser: (data) => dispatch(updateTimelineInfoUser(data)),
+    doSaveTimeline: (data) => dispatch(saveTimeline(data)),
+    doRunTimeline: (id) => dispatch(runTimeline(id)),
+    doStopRunTimeline: () => dispatch(stopTimeline()),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BoardEditor);
