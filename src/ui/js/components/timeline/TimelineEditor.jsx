@@ -788,7 +788,9 @@ class TimelineEditor extends PureComponent {
 
   renderAddItems = () => {
     const { timelineData } = this.props;
-    const { items } = timelineData;
+    const { items, layers } = timelineData;
+    
+    const canAddItems = layers && layers.length;
     
     return (
       <DropdownButton
@@ -826,21 +828,25 @@ class TimelineEditor extends PureComponent {
         />
         <MenuItem
           onSelect={this.onAddBlockClick}
+          disabled={!canAddItems}
         >
           Add block...
         </MenuItem>
         <MenuItem
           onSelect={this.onAddTriggerClick}
+          disabled={!canAddItems}
         >
           Add trigger...
         </MenuItem>
         <MenuItem
           onSelect={this.onAddCurveClick}
+          disabled={!canAddItems}
         >
           Add curve...
         </MenuItem>
         <MenuItem
           onSelect={this.onAddAudioTrackClick}
+          disabled={!canAddItems}
         >
           Add audio track...
         </MenuItem>
