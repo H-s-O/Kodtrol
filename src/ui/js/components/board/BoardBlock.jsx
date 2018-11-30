@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 
-import TimelineItem from './TimelineItem';
+import BoardItem from './BoardItem';
 
-class TimelineBlock extends PureComponent {
+class BoardBlock extends PureComponent {
   render = () => {
     return (
-      <TimelineItem
+      <BoardItem
         {...this.props}
         typeLabel='block'
       />
@@ -13,4 +13,4 @@ class TimelineBlock extends PureComponent {
   }
 }
 
-export default TimelineBlock;
+export default BoardBlock;

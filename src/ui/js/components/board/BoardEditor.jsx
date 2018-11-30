@@ -9,15 +9,9 @@ import path from 'path';
 import Panel from '../partials/Panel';
 import stopEvent from '../../lib/stopEvent';
 import percentString from '../../lib/percentString';
-import TimelineTriggerModal from '../modals/TimelineTriggerModal';
-import RecordTriggerModal from '../modals/RecordTriggerModal';
-import TimelineBlockModal from '../modals/TimelineBlockModal';
-import TimelineCurveModal from '../modals/TimelineCurveModal';
-import RecordBlockModal from '../modals/RecordBlockModal';
-import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
-import { updateCurrentTimeline, saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
-import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
-import { importAudioFile } from '../../lib/messageBoxes';
+import BoardBlockModal from './modals/BoardBlockModal';
+import { updateCurrentBoard, saveBoard, runBoard, stopBoard } from '../../../../common/js/store/actions/boards';
+import { updateBoardInfo, updateBoardInfoUser } from '../../../../common/js/store/actions/boardInfo';
 import { Provider } from './boardEditorContext';
 import BoardDisplay from './BoardDisplay';
 
@@ -27,12 +21,12 @@ const propTypes = {
   boardData: PropTypes.shape({}),
   boardInfo: PropTypes.shape({}),
   scripts: PropTypes.arrayOf(PropTypes.shape({})),
-  doUpdateCurrentTimeline: PropTypes.func.isRequired,
-  doUpdateTimelineInfo: PropTypes.func.isRequired,
-  doUpdateTimelineInfoUser: PropTypes.func.isRequired,
-  doSaveTimeline: PropTypes.func.isRequired,
-  doRunTimeline: PropTypes.func.isRequired,
-  doStopRunTimeline: PropTypes.func.isRequired,
+  doUpdateCurrentBoard: PropTypes.func.isRequired,
+  doUpdateBoardInfo: PropTypes.func.isRequired,
+  doUpdateBoardInfoUser: PropTypes.func.isRequired,
+  doSaveBoard: PropTypes.func.isRequired,
+  doRunBoard: PropTypes.func.isRequired,
+  doStopRunBoard: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -49,50 +43,43 @@ class BoardEditor extends PureComponent {
     modalAction: null,
     modalValue: null,
     
-    adjustItemId: null,
-    adjustItemMode: null,
-    
     copyItemData: null,
     
-    timelineDataTemp: null,
-    
-    recording: false,
-    recordingData: null,
+    boardDataTemp: null,
   };
   
   constructor(props) {
     super(props);
     
     this.editorCallbacks = {
-      timelineAddItemAt: this.onAddItemAt,
-      timelineEditItem: this.onEditItem,
-      timelineUpdateItem: this.onUpdateItem,
-      timelineAdjustItem: this.onAdjustItem,
-      timelineDeleteItem: this.onDeleteItem,
-      timelineCopyItem: this.onCopyItem,
-      timelinePasteItem: this.onPasteItem,
-      timelineCanPasteItem: this.canPasteItem,
-      timelineAddLayer: this.onAddLayer,
-      timelineDeleteLayer: this.onDeleteLayer,
-      timelineUpdatePosition: this.onTimelineUpdatePosition,
+      boardAddItemAt: this.onAddItemAt,
+      boardEditItem: this.onEditItem,
+      boardUpdateItem: this.onUpdateItem,
+      boardAdjustItem: this.onAdjustItem,
+      boardDeleteItem: this.onDeleteItem,
+      boardCopyItem: this.onCopyItem,
+      boardPasteItem: this.onPasteItem,
+      boardCanPasteItem: this.canPasteItem,
+      boardAddLayer: this.onAddLayer,
+      boardDeleteLayer: this.onDeleteLayer,
     };
   }
   
   getItem = (itemId) => {
-    const { timelineData } = this.props;
-    const { items } = timelineData;
+    const { boardData } = this.props;
+    const { items } = boardData;
     return items.find(({id}) => id === itemId);
   }
   
   getLayer = (layerId) => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
+    const { boardData } = this.props;
+    const { layers } = boardData;
     return layers.find(({id}) => id === layerId);
   }
   
   onUpdateItem = (itemId, data) => {
-    const { timelineData } = this.props;
-    const { items } = timelineData;
+    const { boardData } = this.props;
+    const { items } = boardData;
     const itemData = this.getItem(itemId);
     
     const newItemData = {
@@ -105,25 +92,25 @@ class BoardEditor extends PureComponent {
       }
       return item;
     });
-    const newTimelineData = {
+    const newBoardData = {
       ...timelineData,
       items: newItems,
     };
     
-    this.doSave(newTimelineData);
+    this.doSave(newBoardData);
   }
   
   onDeleteItem = (itemId) => {
-    const { timelineData } = this.props;
-    const { items } = timelineData;
+    const { boardData } = this.props;
+    const { items } = boardData;
 
     const newItems = items.filter(({id}) => id !== itemId);
-    const newTimelineData = {
-      ...timelineData,
+    const newBoardData = {
+      ...boardData,
       items: newItems,
     };
     
-    this.doSave(newTimelineData);
+    this.doSave(newBoardData);
   }
   
   onEditItem = (itemId) => {
@@ -132,12 +119,6 @@ class BoardEditor extends PureComponent {
     let type;
     if ('script' in itemData) {
       type = 'block';
-    } else if ('trigger' in itemData) {
-      type = 'trigger';
-    } else if ('curve' in itemData) {
-      type = 'curve';
-    } else if ('file' in itemData) {
-      type = 'audioTrack';
     }
     
     this.setState({
@@ -150,8 +131,8 @@ class BoardEditor extends PureComponent {
   }
   
   onItemModalSuccess = (itemData) => {
-    const { timelineData } = this.props;
-    const { items } = timelineData;
+    const { boardData } = this.props;
+    const { items } = boardData;
     
     // Attempt to find item index if existing
     const itemIndex = items.findIndex(({id}) => id === itemData.id); 
@@ -174,13 +155,13 @@ class BoardEditor extends PureComponent {
       });
     }
     
-    const newTimelineData = {
-      ...timelineData,
+    const newBoardData = {
+      ...boardData,
       items: newItems,
     };
     
     // Save timeline
-    this.doSave(newTimelineData);
+    this.doSave(newBoardData);
 
     // Hide modal
     this.setState({
@@ -208,8 +189,8 @@ class BoardEditor extends PureComponent {
   }
 
   onAddLayer = (index) => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
+    const { boardData } = this.props;
+    const { layers } = boardData;
 
     const newLayer = {
       id: uniqid(),
@@ -237,17 +218,17 @@ class BoardEditor extends PureComponent {
       }),
       newLayer,
     ];
-    const newTimelineData = {
-      ...timelineData,
+    const newBoardData = {
+      ...boardData,
       layers: newLayers,
     };
     
-    this.doSave(newTimelineData);
+    this.doSave(newBoardData);
   }
   
   onDeleteLayer = (layerId) => {
-    const { timelineData } = this.props;
-    const { layers, items } = timelineData;
+    const { boardData } = this.props;
+    const { layers, items } = boardData;
 
     const deletedLayer = layers.find(({id}) => id === layerId);
     
@@ -264,110 +245,20 @@ class BoardEditor extends PureComponent {
         return layer;
       });
     const newItems = items.filter(({layer}) => layer !== layerId);
-    const newTimelineData = {
-      ...timelineData,
+    const newBoardData = {
+      ...boardData,
       layers: newLayers,
       items: newItems,
     };
     
-    this.doSave(newTimelineData);
+    this.doSave(newBoardData);
   }
-  
-  getTimelinePositionFromEvent = (e, round = true) => {
-    const percent = this.timelineWrapper.getTimelinePercentFromEvent(e);
-    
-    const { timelineData } = this.props;
-    const { duration } = timelineData;
-    
-    let position = duration * percent;
-    if (round) {
-      position = Math.round(position);
-    }
-    return position;
-  }
-  
-  
-  
-  
   
 
   onSaveClick = () => {
-    const { timelineData, doSaveTimeline } = this.props;
-    doSaveTimeline(timelineData);
+    const { boardData, doSaveBoard } = this.props;
+    doSaveBoard(boardData);
   }
-  
-  onRecordClick = () => {
-    const { recording } = this.state;
-    if (!recording) {
-      this.startRecording();
-    } else {
-      this.stopRecording();
-    }
-  }
-  
-  startRecording = () => {
-    const { timelineData, doRunTimeline } = this.props;
-    const { id } = timelineData;
-    
-    this.setState({
-      timelineDataTemp: {
-        ...timelineData,
-      },
-      recording: true,
-    });
-    
-    doRunTimeline(id);
-    
-    window.onkeydown = this.onKeyDown;
-  }
-  
-  stopRecording = () => {
-    const { doStopRunTimeline } = this.props;
-    const { timelineDataTemp } = this.state;
-    
-    this.doSave(timelineDataTemp);
-    
-    this.setState({
-      timelineDataTemp: null,
-      recording: false,
-    });
-    
-    doStopRunTimeline();
-    
-    window.onkeydown = null;
-  }
-  
-  onKeyDown = (e) => {
-    const { recording, timelineDataTemp, recordingData } = this.state;
-    
-    if (recording) {
-      const { timelineInfo } = this.props;
-      const { position } = timelineInfo;
-      const { items } = timelineDataTemp;
-      
-      if (e.key === 't') {
-        const newItem = {
-          ...recordingData,
-          inTime: position,
-          id: uniqid(),
-        };
-        const newItems = [
-          ...items,
-          newItem,
-        ];
-        const newTimelineData = {
-          ...timelineDataTemp,
-          items: newItems,
-        };
-
-        this.setState({
-          timelineDataTemp: newTimelineData,
-        });
-        // this.forceUpdate();
-      }
-    }
-  }
-  
   
   
   onAddBlockClick = () => {
@@ -376,160 +267,12 @@ class BoardEditor extends PureComponent {
     });
   }
   
-  onAddTriggerClick = () => {
-    this.doAddItem('trigger', {
-      id: uniqid(), // generate new trigger id
-    });
-  }
-  
-  onAddCurveClick = () => {
-    this.doAddItem('curve', {
-      id: uniqid(), // generate new curve id
-      curve: [],
-    });
-  }
-  
-  onAddAudioTrackClick = () => {
-    this.doAddItem('audioTrack', {
-      id: uniqid(), // generate new audio track id
-      volume: 1,
-    });
-  }
-
   doAddItem = (type, baseData) => {
     this.setState({
       modalType: type,
       modalValue: baseData,
       modalAction: 'add',
     });
-  }
-  
-  /*onAddAudioTrackClick = () => {
-    importAudioFile((file) => {
-      if (file) {
-        const { timelineData } = this.props;
-        const newData = {
-          ...timelineData,
-          layers: [
-            ...timelineData.layers,
-            [
-              {
-                id: uniqid(),
-                name: path.basename(file),
-                file,
-                inTime: 0,
-                outTime: 274000,
-                volume: 1,
-                color: "#000",
-              },
-            ],
-          ],
-        };
-        this.doSave(newData);
-      }
-    });
-  }*/
-  
-  
-
-  
-  
-  
-  
-  onSetRecordTriggerClick = () => {
-    this.doSetRecord('trigger');
-  }
-  
-  onSetRecordBlockClick = () => {
-    this.doSetRecord('block');
-  }
-  
-  doSetRecord = (type) => {
-    this.setState({
-      modalType: type,
-      modalAction: 'record',
-    });
-  }
-  
-  onRecordModalSuccess = (recordData) => {
-    this.setState({
-      recordingData: recordData,
-    });
-    
-    // Hide modal
-    this.setState({
-      modalType: null,
-      modalAction: null,
-      modalValue: null,
-    });
-  }
-
-  onRecordModalCancel = () => {
-    // Hide modal
-    this.setState({
-      modalType: null,
-      modalAction: null,
-      modalValue: null,
-    });
-  }
-  
-  onZoomLevelClick = (level) => {
-    const { timelineData, doUpdateCurrentTimeline } = this.props;
-    const data = {
-      ...timelineData,
-      zoom: level,
-    };
-    doUpdateCurrentTimeline(data);
-  }
-  
-  
-  onAdjustItem = (itemId, mode) => {
-    const { timelineData } = this.props;
-    
-    this.setState({
-      adjustItemMode: mode,
-      adjustItemId: itemId,
-      timelineDataTemp: {
-        ...timelineData
-      },
-    });
-    
-    window.onmousemove = this.onMouseMove;
-    window.onmouseup = this.onMouseUp;
-  }
-  
-  onMouseMove = (e) => {
-    const { adjustItemId, adjustItemMode } = this.state;
-    
-    if (adjustItemId !== null && adjustItemMode !== null) {
-      const { timelineData } = this.props;
-      const { items, duration } = timelineData;
-      
-      let newValue = this.getTimelinePositionFromEvent(e);
-      if (newValue < 0) {
-        newValue = 0;
-      } else if (newValue > duration) {
-        newValue = duration;
-      }
-      const newItems = items.map((item) => {
-        if (item.id === adjustItemId) {
-          return {
-            ...item,
-            [adjustItemMode]: newValue,
-          };
-        }
-        return item;
-      });
-      const newTimelineData = {
-        ...timelineData,
-        items: newItems,
-      };
-
-      this.setState({
-        timelineDataTemp: newTimelineData,
-      });
-      // this.forceUpdate(); // needed for live refresh of timeline, temp
-    }
   }
 
   onCopyItem = (itemId, mode) => {
@@ -563,8 +306,8 @@ class BoardEditor extends PureComponent {
     const { copyItemData } = this.state;
     
     if (copyItemData !== null) {
-      const { timelineData } = this.props;
-      const { items, duration } = timelineData;
+      const { boardData } = this.props;
+      const { items, duration } = boardData;
       
       let newItem;
       let newItems;
@@ -610,7 +353,7 @@ class BoardEditor extends PureComponent {
         });
       }
       const newTimelineData = {
-        ...timelineData,
+        ...boardData,
         items: newItems,
       };
 
@@ -649,83 +392,17 @@ class BoardEditor extends PureComponent {
   }
 
 
-  onMouseUp = (e) => {
-    console.log('timeline on mouse up');
-    
-    window.onmouseup = null;
-    window.onmousemove = null;
-    
-    const { timelineDataTemp } = this.state;
-    
-    this.doSave(timelineDataTemp);
-    
-    this.setState({
-      adjustItemId: null,
-      adjustItemMode: null,
-      timelineDataTemp: null,
-    });
-  }
-
-  
-
-
-
-  doSave = (timelineData) => {
-    const { doUpdateCurrentTimeline } = this.props;
-    doUpdateCurrentTimeline(timelineData);
+  doSave = (boardData) => {
+    const { doUpdateCurrentBoard } = this.props;
+    doUpdateCurrentBoard(boardData);
   }
   
   ////////////////////////////////////////////////////////////////////////////
   // TIMELINE INFO
   
-  onTimelineUpdatePosition = (e) => {
-    const { timelineInfo } = this.props;
-    
-    const newPosition = this.getTimelinePositionFromEvent(e);
-    const newInfo = {
-      ...timelineInfo,
-      position: newPosition,
-    };
-    
-    this.doUpdateInfo(newInfo);
-  }
-  
-  onTimelineRewindClick = () => {
-    const { timelineInfo } = this.props;
-    
-    const newInfo = {
-      ...timelineInfo,
-      position: 0,
-    };
-    
-    this.doUpdateInfo(newInfo);
-  }
-  
-  onTimelinePlayClick = () => {
-    const { timelineInfo } = this.props;
-    
-    const newInfo = {
-      ...timelineInfo,
-      playing: true,
-    };
-    
-    this.doUpdateInfo(newInfo);
-  }
-  
-  onTimelinePauseClick = () => {
-    const { timelineInfo } = this.props;
-    
-    const newInfo = {
-      ...timelineInfo,
-      playing: false,
-    };
-    
-    this.doUpdateInfo(newInfo);
-  }
-  
-  doUpdateInfo = (timelineInfo) => {
-    const { doUpdateTimelineInfoUser } = this.props;
-    doUpdateTimelineInfoUser(timelineInfo);
+  doUpdateInfo = (boardInfo) => {
+    const { doUpdateBoardInfoUser } = this.props;
+    doUpdateBoardInfoUser(boardInfo);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -788,11 +465,13 @@ class BoardEditor extends PureComponent {
 
   renderAddItems = () => {
     const { boardData } = this.props;
-    const { items } = boardData;
+    const { items, layers } = boardData;
+    
+    const canAddItems = layers && layers.length;
     
     return (
       <DropdownButton
-        id="timeline-items-menu"
+        id="board-items-menu"
         title={(
           <Glyphicon
             glyph="plus"
@@ -826,80 +505,14 @@ class BoardEditor extends PureComponent {
         />
         <MenuItem
           onSelect={this.onAddBlockClick}
+          disabled={!canAddItems}
         >
           Add block...
         </MenuItem>
       </DropdownButton>
     );
   }
-  
-  renderRecordItems = () => {
-    const { recording, recordingData } = this.state;
-    
-    return (
-      <SplitButton
-        id="timeline-record-menu"
-        title={(
-          <Glyphicon
-            glyph="record"
-          />
-        )}
-        bsSize="xsmall"
-        bsStyle={recording ? 'danger' : 'default'}
-        onClick={this.onRecordClick}
-      >
-        <MenuItem
-          onSelect={this.onSetRecordTriggerClick}
-        >
-          Set recorded triggers...
-        </MenuItem>
-        { /*<MenuItem
-          onSelect={this.onSetRecordBlockClick}
-        >
-          Set recorded blocks...
-        </MenuItem> */}
-      </SplitButton>
-    );
-  }
-  
-  renderZoomControl = () => {
-    const levels = [1, 1.5, 3, 6, 8, 10];
-    const { timelineData } = this.props;
-    const { zoom } = timelineData;
-    
-    return (
-      <DropdownButton
-        id="timeline-zoom-menu"
-        title={(
-          <Fragment>
-            <Glyphicon
-              glyph="search"
-            />
-            <Glyphicon
-              glyph="resize-horizontal"
-            />
-          </Fragment>
-        )}
-        bsSize="xsmall"
-        onClick={stopEvent}
-      >
-        { levels.map((level) => (
-          <MenuItem
-            key={`zoom-level-${level}`}
-            onSelect={() => this.onZoomLevelClick(level)}
-            active={level == zoom}
-          >
-            { percentString(level, true) }
-          </MenuItem>
-        )) }
-      </DropdownButton>
-    );
-  }
-  
-  setTimelineWrapperRef = (ref) => {
-    this.timelineWrapper = ref;
-  }
-  
+
   renderBoardDisplay = (workingBoardData) => {
     const { boardInfo } = this.props;
     
@@ -908,8 +521,7 @@ class BoardEditor extends PureComponent {
         value={this.editorCallbacks}
       >
         <BoardDisplay
-          boardData={workingBoardData}
-          boardInfo={boardInfo}
+          {...workingBoardData}
         />
       </Provider>
     );
@@ -922,54 +534,13 @@ class BoardEditor extends PureComponent {
     
     return (
       <Fragment>
-        <TimelineBlockModal
+        <BoardBlockModal
           initialValue={modalValue}
           show={modalType === 'block' && modalAction !== 'record'}
           title={modalAction === 'add' ? 'Add block' : 'Edit block'}
           onCancel={this.onItemModalCancel}
           onSuccess={this.onItemModalSuccess}
           scripts={scripts}
-          layers={layers}
-        />
-        <RecordBlockModal
-          initialValue={{}}
-          show={modalType === 'block' && modalAction === 'record'}
-          title="Set recorded blocks"
-          onCancel={this.onRecordModalCancel}
-          onSuccess={this.onRecordModalSuccess}
-          scripts={scripts}
-          layers={layers}
-        />
-        <TimelineTriggerModal
-          initialValue={modalValue}
-          show={modalType === 'trigger' && modalAction !== 'record'}
-          title={modalAction === 'add' ? 'Add trigger' : 'Edit trigger'}
-          onCancel={this.onItemModalCancel}
-          onSuccess={this.onItemModalSuccess}
-          layers={layers}
-        />
-        <RecordTriggerModal
-          initialValue={{}}
-          show={modalType === 'trigger' && modalAction === 'record'}
-          title="Set recorded triggers"
-          onCancel={this.onRecordModalCancel}
-          onSuccess={this.onRecordModalSuccess}
-          layers={layers}
-        />
-        <TimelineAudioTrackModal
-          initialValue={modalValue}
-          show={modalType === 'audioTrack'}
-          title={modalAction === 'add' ? 'Add audio track' : 'Edit audio track'}
-          onCancel={this.onItemModalCancel}
-          onSuccess={this.onItemModalSuccess}
-          layers={layers}
-        />
-        <TimelineCurveModal
-          initialValue={modalValue}
-          show={modalType === 'curve'}
-          title={modalAction === 'add' ? 'Add curve' : 'Edit curve'}
-          onCancel={this.onItemModalCancel}
-          onSuccess={this.onItemModalSuccess}
           layers={layers}
         />
       </Fragment>
@@ -1015,12 +586,12 @@ const mapStateToProps = ({currentBoard, scripts, boardInfo, runBoard}) => {
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    doUpdateCurrentTimeline: (data) => dispatch(updateCurrentTimeline(data)),
-    doUpdateTimelineInfo: (data) => dispatch(updateTimelineInfo(data)),
-    doUpdateTimelineInfoUser: (data) => dispatch(updateTimelineInfoUser(data)),
-    doSaveTimeline: (data) => dispatch(saveTimeline(data)),
-    doRunTimeline: (id) => dispatch(runTimeline(id)),
-    doStopRunTimeline: () => dispatch(stopTimeline()),
+    doUpdateCurrentBoard: (data) => dispatch(updateCurrentBoard(data)),
+    doUpdateBoardInfo: (data) => dispatch(updateBoardInfo(data)),
+    doUpdateBoardInfoUser: (data) => dispatch(updateBoardInfoUser(data)),
+    doSaveBoard: (data) => dispatch(saveBoard(data)),
+    doRunBoard: (id) => dispatch(runBoard(id)),
+    doStopRunBoard: () => dispatch(stopBoard()),
   };
 };
 

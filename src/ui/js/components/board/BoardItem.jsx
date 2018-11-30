@@ -8,7 +8,7 @@ import { deleteWarning } from '../../lib/messageBoxes';
 import percentString from '../../lib/percentString';
 import boardConnect from './boardConnect';
 
-import styles from '../../../styles/components/timeline/timelineitem.scss';
+import styles from '../../../styles/components/board/boarditem.scss';
 
 const propTypes = {
   type: PropTypes.oneOf(['block', 'simple']),
@@ -35,7 +35,7 @@ const defaultProps = {
   canPasteEndTime: true,
 };
 
-class TimelineItem extends PureComponent {
+class BoardItem extends PureComponent {
   onDeleteItemClick = () => {
     const { getDialogLabel, data } = this.props;
     const { name } = data;
@@ -182,8 +182,8 @@ class TimelineItem extends PureComponent {
     return (
       <div
         className={classNames({
-          [styles.timelineSimpleItem]: true,
-          [styles.simpleLightColor]: lightColor,
+          [styles.boardItem]: true,
+          [styles.lightColor]: lightColor,
         })}
         style={{
           left: percentString(inTime / layerDuration),
@@ -282,7 +282,7 @@ class TimelineItem extends PureComponent {
   }
 }
 
-TimelineItem.propTypes = propTypes;
-TimelineItem.defaultProps = defaultProps;
+BoardItem.propTypes = propTypes;
+BoardItem.defaultProps = defaultProps;
 
-export default boardConnect(TimelineItem);
+export default boardConnect(BoardItem);
