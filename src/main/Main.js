@@ -290,9 +290,11 @@ export default class Main {
         this.powerSaveBlockerId = powerSaveBlocker.start('prevent-app-suspension');
       }
     } else {
-      console.log('stop power block');
-      powerSaveBlocker.stop(this.powerSaveBlockerId);
-      this.powerSaveBlockerId = null;
+      if (this.powerSaveBlockerId !== null) {
+        console.log('stop power block');
+        powerSaveBlocker.stop(this.powerSaveBlockerId);
+        this.powerSaveBlockerId = null;
+      }
     }
   }
 }
