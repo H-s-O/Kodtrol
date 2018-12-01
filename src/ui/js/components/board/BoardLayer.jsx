@@ -108,7 +108,7 @@ class BoardLayer extends PureComponent {
     });
   }
 
-  renderTimelineItem = (item, index) => {
+  renderTimelineItem = (item, index, items) => {
     let ComponentClass = null;
     if ('script' in item) {
       ComponentClass = BoardBlock;
@@ -118,10 +118,20 @@ class BoardLayer extends PureComponent {
       return null;
     }
     
+    const itemsCount = Math.max(4, items.length);
+    const itemWidth = (1 / itemsCount) * 0.95;
+    const left = percentString((index * itemWidth) * 1.05);
+    const width = percentString(itemWidth);
+    const style = {
+      left,
+      width,
+    };
+    
     return (
       <ComponentClass
         key={`item-${index}`}
         data={item}
+        style={style}
       />
     );
   }

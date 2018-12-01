@@ -369,20 +369,7 @@ class BoardEditor extends PureComponent {
     const data = {
       layer: layerId,
       id: uniqid(), // generate new item id
-      inTime: this.getTimelinePositionFromEvent(e),
     };
-    
-    if (type === 'block' || type === 'curve' || type === 'audioTrack') {
-      const { timelineData } = this.props;
-      const timelineDuration = get(timelineData, 'duration');
-      data.outTime = Math.min(data.inTime + 10000, timelineDuration);
-    }
-    if (type === 'audioTrack') {
-      data.volume = 1;
-    }
-    if (type === 'curve') {
-      data.curve = [];
-    }
     
     this.setState({
       modalType: type,

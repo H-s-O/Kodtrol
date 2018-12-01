@@ -188,7 +188,7 @@ export default class TimelineRenderer {
 
   beat = (beat, delta) => {
     const currentTime = this.currentTime + delta;
-    
+    console.log(delta);
     this.blocks
       .filter((block) => (
         currentTime >= block.inTime

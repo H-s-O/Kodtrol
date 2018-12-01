@@ -54,29 +54,9 @@ class BoardItem extends PureComponent {
   }
   
   onEditItemClick = () => {
-    const { timelineEditItem, data } = this.props;
+    const { boardEditItem, data } = this.props;
     const { id } = data;
-    timelineEditItem(id);
-  }
-
-  onStartAnchorDown = (e) => {
-    console.log('anchor start down');
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('inTime');
-  }
-
-  onEndAnchorDown = (e) => {
-    console.log('anchor end down');
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('outTime');
-  }
-
-  doDragAnchorDown = (mode) => {
-    const { timelineAdjustItem, data } = this.props;
-    const { id } = data;
-    timelineAdjustItem(id, mode);
+    boardEditItem(id);
   }
 
   onCopyItemClick = () => {
@@ -122,7 +102,7 @@ class BoardItem extends PureComponent {
       canCopyEndTime,
       canPasteStartTime,
       canPasteEndTime,
-      timelineCanPasteItem,
+      boardCanPasteItem,
     } = this.props;
     const { Menu, MenuItem } = remote;
 
@@ -158,14 +138,14 @@ class BoardItem extends PureComponent {
       menu.append(new MenuItem({
         label: `Paste time as ${typeLabel} start time`,
         click: this.onPasteItemStartClick,
-        enabled: timelineCanPasteItem('inTime'),
+        enabled: boardCanPasteItem('inTime'),
       }));
     }
     if (canPasteEndTime) {
       menu.append(new MenuItem({
         label: `Paste time as ${typeLabel} end time`,
         click: this.onPasteItemEndClick,
-        enabled: timelineCanPasteItem('outTime'),
+        enabled: boardCanPasteItem('outTime'),
       }));
     }
 
@@ -214,12 +194,13 @@ class BoardItem extends PureComponent {
     return (
       <div
         className={classNames({
-          [styles.timelineItem]: true,
+          [styles.boardItem]: true,
           [styles.lightColor]: lightColor,
         })}
         style={{
-          left: percentString(inTime / layerDuration),
-          width: percentString((outTime - inTime) / layerDuration),
+          // left: percentString(inTime / layerDuration),
+          // width: percentString((outTime - inTime) / layerDuration),
+          ...style,
           backgroundColor: color,
         }}
         onContextMenu={this.onContextMenuClick}
@@ -229,40 +210,10 @@ class BoardItem extends PureComponent {
         >
           <div
             className={classNames({
-              [styles.controls]: true,
-              [styles.leftControls]: true,
-            })}
-          >
-            <div
-              className={classNames({
-                [styles.anchors]: true,
-                [styles.leftAnchor]: true,
-              })}
-              onMouseDown={this.onStartAnchorDown}
-            >
-            </div>
-          </div>
-          <div
-            className={classNames({
               [styles.itemLabel]: true,
             })}
           >
            { getItemLabel ? getItemLabel() : name }
-         </div>
-          <div
-            className={classNames({
-              [styles.controls]: true,
-              [styles.rightControls]: true,
-            })}
-          >
-            <div
-              className={classNames({
-                [styles.anchors]: true,
-                [styles.rightAnchor]: true,
-              })}
-              onMouseDown={this.onEndAnchorDown}
-            >
-            </div>
           </div>
         </div>
         <div
