@@ -56,6 +56,16 @@ export default class Store extends EventEmitter {
       },
       this.onRunTimeline,
     );
+    const runBoardObserver = observer(
+      (state) => {
+        const { runBoard, boards } = state;
+        return {
+          runBoard,
+          boards,
+        };
+      },
+      this.onRunBoard,
+    );
     const timelineInfoUserObserver = observer(
       (state) => {
         return state.timelineInfoUser;
@@ -67,6 +77,7 @@ export default class Store extends EventEmitter {
       scriptsObserver,
       previewScriptObserver,
       runTimelineObserver,
+      runBoardObserver,
       timelineInfoUserObserver,
     ]);
     replayActionMain(this.store);
@@ -94,6 +105,10 @@ export default class Store extends EventEmitter {
   
   onRunTimeline = (dispatch, current, previous) => {
     this.emit(StoreEvent.RUN_TIMELINE);
+  }
+  
+  onRunBoard = (dispatch, current, previous) => {
+    this.emit(StoreEvent.RUN_BOARD);
   }
   
   onTimelineInfoUserChange = (dispatch, current, previous) => {

@@ -10,3 +10,4 @@ export { default as modals } from './modals';
 export { default as previewScript } from './previewScript';
 export { default as runTimeline } from './runTimeline';
 export { default as boards } from './boards';
+export { default as runBoard } from './runBoard';

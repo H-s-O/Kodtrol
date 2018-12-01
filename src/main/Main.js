@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, powerSaveBlocker } from 'electron';
 import { get, set, pick } from 'lodash';
 import express from 'express';
 import cors from 'cors';
@@ -26,6 +26,7 @@ export default class Main {
   store = null;
   renderer = null;
   expressApp = null;
+  powerSaveBlockerId = null;
   
   constructor() {
     app.on('ready', this.onReady);
@@ -84,6 +85,7 @@ export default class Main {
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
+    this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
     this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
   }
@@ -112,6 +114,8 @@ export default class Main {
         updateRenderer: this.store.state,
       });
     }
+    
+    this.updatePower();
   }
   
   onRunTimeline = () => {
@@ -120,6 +124,18 @@ export default class Main {
         updateRenderer: this.store.state,
       });
     }
+    
+    this.updatePower();
+  }
+  
+  onRunBoard = () => {
+    if (this.renderer) {
+      this.renderer.send({
+        updateRenderer: this.store.state,
+      });
+    }
+    
+    this.updatePower();
   }
   
   onTimelineInfoUserChanged = () => {
@@ -262,5 +278,21 @@ export default class Main {
       return res.status(404);
     }
     res.sendFile(file);
+  }
+  
+  updatePower = () => {
+    const state = this.store.state;
+    const shouldBlock = state.previewScript !== null || state.runTimeline !== null || state.runBoard !== null;
+
+    if (shouldBlock) {
+      if (this.powerSaveBlockerId === null) {
+        console.log('start power block');
+        this.powerSaveBlockerId = powerSaveBlocker.start('prevent-app-suspension');
+      }
+    } else {
+      console.log('stop power block');
+      powerSaveBlocker.stop(this.powerSaveBlockerId);
+      this.powerSaveBlockerId = null;
+    }
   }
 }
