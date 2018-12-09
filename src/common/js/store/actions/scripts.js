@@ -22,6 +22,7 @@ export const createScript = (scriptData) => ({
     previewTempo: 120,
     ...scriptData,
     id: uniqid(),
+    lastUpdated: Date.now(),
   }
 });
 
@@ -37,7 +38,10 @@ export const deleteScript = (id) => ({
 
 export const saveScript = (scriptData) => ({
   type: 'SAVE_SCRIPT',
-  payload: scriptData,
+  payload: {
+    ...scriptData,
+    lastUpdated: Date.now(),
+  },
 });
 
 export const previewScript = (id) => ({

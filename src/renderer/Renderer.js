@@ -79,8 +79,6 @@ export default class Renderer {
   }
   
   updateRenderer = (data) => {
-    this.destroyRendererRelated();
-    
     this.state = data;
 
     const { previewScript, runTimeline, scripts, devices, timelines } = this.state;
@@ -95,7 +93,17 @@ export default class Renderer {
         return;
       }
       
-      const { previewTempo } = script;
+      const { previewTempo, id, lastUpdated } = script;
+      
+      // Skip reset if same script and not updated
+      if (this.currentRenderer) {
+        if (this.currentRenderer.scriptId === id
+            && this.currentRenderer.scriptLastUpdated === lastUpdated) {
+          return;
+        }
+      }
+      
+      this.destroyRendererRelated();
       
       // temp
       delete require.cache[getCompiledScriptPath(previewScript)];
@@ -115,6 +123,8 @@ export default class Renderer {
       if (!timeline) {
         return;
       }
+      
+      this.destroyRendererRelated();
       
       const { tempo } = timeline;
       

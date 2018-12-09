@@ -6,6 +6,7 @@ import CurveRenderer from './CurveRenderer';
 import AudioRenderer from './AudioRenderer';
 
 export default class TimelineRenderer {
+  rendererType = 'timeline';
   duration = null;
   inTime = null;
   outTime = null;

@@ -4,15 +4,21 @@ import { getCompiledScriptPath } from './lib/fileSystem';
 import Device from './Device';
 
 export default class ScriptRenderer {
+  rendererType = 'script';
   scriptInstance = null;
   devicesInstances = null;
   started = false;
   setup = false;
   localBeat = 0;
   scriptData = {};
+  scriptLastUpdated = 0;
+  scriptId = null;
   
   constructor(sourceScript, sourceDevices) {
-    const { id, devices } = sourceScript;
+    const { id, devices, lastUpdated } = sourceScript;
+    
+    this.scriptLastUpdated = lastUpdated;
+    this.scriptId = id;
     
     const scriptPath = getCompiledScriptPath(id);
     this.scriptInstance = new (require(scriptPath))();

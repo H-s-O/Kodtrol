@@ -10,12 +10,16 @@ export const createDevice = (deviceData) => ({
   payload: {
     ...deviceData,
     id: uniqid(),
-  }
+    lastUpdated: Date.now(),
+  },
 });
 
 export const updateDevice = (deviceData) => ({
   type: 'UPDATE_DEVICE',
-  payload: deviceData,
+  payload: {
+    ...deviceData,
+    lastUpdated: Date.now(),
+  },
 });
 
 export const deleteDevice = (id) => ({

@@ -22,6 +22,7 @@ export const createBoard = (boardData) => ({
     layers: [],
     ...boardData,
     id: uniqid(),
+    lastUpdated: Date.now(),
   },
 });
 
@@ -37,7 +38,10 @@ export const deleteBoard = (id) => ({
 
 export const saveBoard = (boardData) => ({
   type: 'SAVE_BOARD',
-  payload: boardData,
+  payload: {
+    ...boardData,
+    lastUpdated: Date.now(),
+  },
 });
 
 export const updateCurrentBoard = (boardData) => ({

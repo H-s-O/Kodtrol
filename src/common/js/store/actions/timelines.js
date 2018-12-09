@@ -23,6 +23,7 @@ export const createTimeline = (timelineData) => ({
     layers: [],
     ...timelineData,
     id: uniqid(),
+    lastUpdated: Date.now(),
   },
 });
 
@@ -38,7 +39,10 @@ export const deleteTimeline = (id) => ({
 
 export const saveTimeline = (timelineData) => ({
   type: 'SAVE_TIMELINE',
-  payload: timelineData,
+  payload: {
+    ...timelineData,
+    lastUpdated: Date.now(),
+  },
 });
 
 export const updateCurrentTimeline = (timelineData) => ({
