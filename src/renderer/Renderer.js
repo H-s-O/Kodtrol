@@ -7,8 +7,11 @@ import OscInput from './inputs/OscInput';
 import DmxOutput from './outputs/DmxOutput';
 import ArtnetOutput from './outputs/ArtnetOutput';
 import AudioOutput from './outputs/AudioOutput';
+import Store from './data/Store';
+import * as StoreEvent from './events/StoreEvent';
 
 export default class Renderer {
+  store = null;
   outputs = {};
   inputs = {};
   currentRenderer = null;
@@ -19,6 +22,9 @@ export default class Renderer {
   playing = false;
   
   constructor() {
+    this.store = new Store();
+    this.store.on(StoreEvent.DEVICE_CHANGED, this.onDeviceChanged);
+    
     const dmxOutput = new DmxOutput();
     this.outputs.dmx = dmxOutput;
     
@@ -65,6 +71,10 @@ export default class Renderer {
     this.currentRendererIsTimeline = false;
   }
   
+  onDeviceChanged = (data) => {
+    console.log(data.item.id, data.status);
+  }
+  
   onMessage = (message) => {
     if ('updateRenderer' in message) {
       const { updateRenderer } = message;
@@ -79,6 +89,8 @@ export default class Renderer {
   }
   
   updateRenderer = (data) => {
+    this.store.update(data);
+    
     this.state = data;
 
     const { previewScript, runTimeline, scripts, devices, timelines } = this.state;
