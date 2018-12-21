@@ -19,7 +19,7 @@ export default class Store extends EventEmitter {
     
     this.store = createStore(
       combineReducers(appReducers),
-      initialState,
+      initialState || {},
       applyMiddleware(
         resetCurrentItems(),
         resetRunningItems(),
