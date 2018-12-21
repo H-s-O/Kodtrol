@@ -80,7 +80,7 @@ export default class Main {
     this.createMainWindow();
   }
   
-  createStore = (initialData = null) => {
+  createStore = (initialData = {}}) => {
     this.store = new Store(initialData);
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
