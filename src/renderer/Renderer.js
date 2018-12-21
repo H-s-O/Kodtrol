@@ -9,11 +9,15 @@ import ArtnetOutput from './outputs/ArtnetOutput';
 import AudioOutput from './outputs/AudioOutput';
 import Store from './data/Store';
 import * as StoreEvent from './events/StoreEvent';
+import Device from './rendering/Device';
+import Script from './rendering/Script';
 
 export default class Renderer {
   store = null;
   outputs = {};
   inputs = {};
+  devices = {};
+  scripts = {};
   currentRenderer = null;
   ticker = null;
   state = null;
@@ -76,7 +80,13 @@ export default class Renderer {
   }
   
   onMessage = (message) => {
-    if ('updateRenderer' in message) {
+    if ('updateDevices' in message) {
+      const { updateDevices } = message;
+      this.updateDevices(updateDevices);
+    } else if ('updateScripts' in message) {
+      const { updateScripts } = message;
+      this.updateScripts(updateScripts);
+    } else if ('updateRenderer' in message) {
       const { updateRenderer } = message;
       this.updateRenderer(updateRenderer);
     } else if ('timelineInfo' in message) {
@@ -88,8 +98,46 @@ export default class Renderer {
     }
   }
   
+  updateDevices = (data) => {
+    this.devices = data.reduce((devices, device) => {
+      const { id } = device;
+      // update existing
+      if (id in devices) {
+        devices[id].update(device);
+        return devices;
+      }
+      // new
+      else {
+        return {
+          ...devices,
+          [id]: new Device(device),
+        };
+      }
+    }, this.devices || {});
+    console.log('RENDERER updateDevices', this.devices);
+  }
+  
+  updateScripts = (data) => {
+    this.scripts = data.reduce((scripts, script) => {
+      const { id } = script;
+      // update existing
+      if (id in scripts) {
+        scripts[id].update(script);
+        return scripts;
+      }
+      // new
+      else {
+        return {
+          ...scripts,
+          [id]: new Script(script),
+        };
+      }
+    }, this.scripts || {});
+    console.log('RENDERER updateScripts', this.scripts);
+  }
+  
   updateRenderer = (data) => {
-    this.store.update(data);
+    // this.store.update(data);
     
     this.state = data;
 

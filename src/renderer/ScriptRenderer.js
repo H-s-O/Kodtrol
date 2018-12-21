@@ -51,7 +51,7 @@ export default class ScriptRenderer {
     
     this.resetDevices(false);
     
-    if (!this.setup && !('blockPercent' in blockInfo) || blockInfo.blockPercent < 0) {
+    if (typeof script.setup === 'function' && !this.setup && (!('blockPercent' in blockInfo) || blockInfo.blockPercent < 0)) {
       // Script setup
       try {
         if (typeof script.setup === 'function') {

@@ -30,6 +30,12 @@ export default class Store extends EventEmitter {
       ),
     );
     
+    const devicesObserver = observer(
+      (state) => {
+        return state.devices;
+      },
+      this.onDevicesChange
+    );
     const scriptsObserver = observer(
       (state) => {
         return state.scripts;
@@ -74,6 +80,7 @@ export default class Store extends EventEmitter {
     );
     
     observe(this.store, [
+      devicesObserver,
       scriptsObserver,
       previewScriptObserver,
       runTimelineObserver,
@@ -93,6 +100,10 @@ export default class Store extends EventEmitter {
   
   onSaveableContent = (action) => {
     this.emit(StoreEvent.CONTENT_SAVED);
+  }
+  
+  onDevicesChange = (dispatch, current, previous) => {
+    this.emit(StoreEvent.DEVICES_CHANGED);
   }
   
   onScriptsChange = (dispatch, current, previous) => {

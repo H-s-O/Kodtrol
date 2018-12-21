@@ -13,10 +13,7 @@ import * as StoreEvent from './events/StoreEvent';
 import * as RendererEvent from './events/RendererEvent';
 import Store from './data/Store';
 import ScriptsManager from './data/ScriptsManager';
-import { updateScripts } from '../common/js/store/actions/scripts';
-import { updateDevices } from '../common/js/store/actions/devices';
-import { updateTimelines } from '../common/js/store/actions/timelines';
-import { updateTimelineInfo, updateTimelineInfoUser } from '../common/js/store/actions/timelineInfo';
+import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
 import Renderer from './process/Renderer';
 
 export default class Main {
@@ -82,6 +79,7 @@ export default class Main {
   
   createStore = (initialData = null) => {
     this.store = new Store(initialData);
+    this.store.on(StoreEvent.DEVICES_CHANGED, this.onDevicesChanged);
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
@@ -98,9 +96,27 @@ export default class Main {
     }
   }
   
+  onDevicesChanged = () => {
+    const devices = this.store.state.devices;
+    
+    if (this.renderer) {
+      console.log('updateDevices');
+      this.renderer.send({
+        updateDevices: devices,
+      });
+    }
+  }
+  
   onScriptsChanged = () => {
     const scripts = this.store.state.scripts;
     ScriptsManager.compileScripts(scripts);
+    
+    if (this.renderer) {
+      console.log('updateScripts');
+      this.renderer.send({
+        updateScripts: scripts,
+      });
+    }
   }
   
   onContentSaved = () => {
