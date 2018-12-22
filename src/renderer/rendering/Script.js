@@ -3,6 +3,7 @@ import { getCompiledScriptPath } from '../lib/fileSystem';
 export default class Script {
   _id = null;
   _lastUpdated = null;
+  _tempo = 0;
   _devices = [];
   _scriptInstance = null;
   _hasSetup = false;
@@ -20,10 +21,12 @@ export default class Script {
       id,
       devices,
       lastUpdated,
+      previewTempo,
     } = sourceScript;
     
     this._id = id;
     this._lastUpdated = Number(lastUpdated);
+    this._tempo = Number(previewTempo);
     
     this.setDevices(devices);
     this.setScriptInstanceAndFlags(id);
@@ -49,8 +52,20 @@ export default class Script {
     this._hasInput = typeof scriptInstance.input === 'function';
   }
   
+  get id() {
+    return this._id;
+  }
+  
   get scriptInstance() {
     return this._scriptInstance;
+  }
+  
+  get tempo() {
+    return this._tempo;
+  }
+  
+  get devices() {
+    return this._devices;
   }
   
   get hasSetup() {

@@ -79,6 +79,10 @@ export default class Device {
     });
   }
 
+  get id() {
+    return this._id;
+  }
+  
   get startingChannel() {
     return this._startingChannel;
   }
@@ -89,6 +93,10 @@ export default class Device {
 
   get type() {
     return this._type;
+  }
+  
+  get channelDefaults() {
+    return this._channelDefaults;
   }
 
   get channels() {
@@ -104,7 +112,9 @@ export default class Device {
   }
   
   resetChannels = () => {
-    this._channels = {};
+    this._channels = {
+      ...this._channelDefaults,
+    };
   }
   
   resetVars = () => {

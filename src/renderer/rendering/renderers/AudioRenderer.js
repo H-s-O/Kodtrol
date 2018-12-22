@@ -2,7 +2,7 @@ import fs from 'fs';
 import uniqid from 'uniqid';
 import Volume from 'pcm-volume';
 
-import { getConvertedAudioPath } from './lib/fileSystem';
+import { getConvertedAudioPath } from '../../lib/fileSystem';
 
 export default class AudioRenderer {
   started = false;

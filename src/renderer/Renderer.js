@@ -1,6 +1,4 @@
 import { getCompiledScriptPath } from './lib/fileSystem';
-import ScriptRenderer from './ScriptRenderer';
-import TimelineRenderer from './TimelineRenderer';
 import Ticker from './lib/Ticker';
 import MidiInput from './inputs/MidiInput';
 import OscInput from './inputs/OscInput';
@@ -9,6 +7,8 @@ import ArtnetOutput from './outputs/ArtnetOutput';
 import AudioOutput from './outputs/AudioOutput';
 import Store from './data/Store';
 import * as StoreEvent from './events/StoreEvent';
+import ScriptRenderer from './rendering/renderers/ScriptRenderer';
+import TimelineRenderer from './rendering/renderers/TimelineRenderer';
 import Device from './rendering/Device';
 import Script from './rendering/Script';
 
@@ -18,6 +18,7 @@ export default class Renderer {
   inputs = {};
   devices = {};
   scripts = {};
+  currentScript = null;
   currentRenderer = null;
   ticker = null;
   state = null;
@@ -26,8 +27,8 @@ export default class Renderer {
   playing = false;
   
   constructor() {
-    this.store = new Store();
-    this.store.on(StoreEvent.DEVICE_CHANGED, this.onDeviceChanged);
+    // this.store = new Store();
+    // this.store.on(StoreEvent.DEVICE_CHANGED, this.onDeviceChanged);
     
     const dmxOutput = new DmxOutput();
     this.outputs.dmx = dmxOutput;
@@ -86,16 +87,21 @@ export default class Renderer {
     } else if ('updateScripts' in message) {
       const { updateScripts } = message;
       this.updateScripts(updateScripts);
-    } else if ('updateRenderer' in message) {
-      const { updateRenderer } = message;
-      this.updateRenderer(updateRenderer);
-    } else if ('timelineInfo' in message) {
-      const { timelineInfo } = message;
-      this.updateTimelineInfo(message.timelineInfo);
-      this.send({
-        'timelineInfo': message.timelineInfo,
-      });
+    } else if ('previewScript' in message) {
+      const { previewScript } = message;
+      this.previewScript(previewScript);
     }
+    
+    // else if ('updateRenderer' in message) {
+    //   const { updateRenderer } = message;
+    //   this.updateRenderer(updateRenderer);
+    // } else if ('timelineInfo' in message) {
+    //   const { timelineInfo } = message;
+    //   this.updateTimelineInfo(message.timelineInfo);
+    //   this.send({
+    //     'timelineInfo': message.timelineInfo,
+    //   });
+    // }
   }
   
   updateDevices = (data) => {
@@ -114,7 +120,9 @@ export default class Renderer {
         };
       }
     }, this.devices || {});
+    
     console.log('RENDERER updateDevices', this.devices);
+    // this.updateDmxBaseData();
   }
   
   updateScripts = (data) => {
@@ -134,6 +142,58 @@ export default class Renderer {
       }
     }, this.scripts || {});
     console.log('RENDERER updateScripts', this.scripts);
+  }
+  
+  previewScript = (id) => {
+    if (id === null || (this.currentScript && this.currentScript.script.id !== id)) {
+      if (this.currentScript) {
+        this.currentScript.destroy();
+        this.currentScript = null;
+      }
+    }
+    
+    if (id !== null) {
+      const script = this.getScript(id);
+      const devices = this.getDevices(script.devices);
+      const renderer = new ScriptRenderer(script, devices);
+      
+      this.currentScript = renderer;
+      this.updateTicker(script.tempo);
+    } else {
+      this.updateTicker();
+    }
+  }
+  
+  runTimeline = (id) => {
+    // this.updateTimelinePlaybackStatus();
+  }
+  
+  runBoard = (id) => {
+    
+  }
+  
+  updateTicker = (tempo = null) => {
+    if (this.currentScript) {
+      if (!this.ticker) {
+        this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo || 120);
+        this.ticker.start();
+      }
+    } else {
+      if (this.ticker) {
+        this.ticker.destroy();
+        this.ticker = null;
+      }
+    }
+  }
+  
+  getScript = (scriptId) => {
+    return this.scripts[scriptId];
+  }
+  
+  getDevices = (devicesList) => {
+    return devicesList.map((id) => {
+      return this.devices[id];
+    });
   }
   
   updateRenderer = (data) => {
@@ -191,7 +251,7 @@ export default class Renderer {
       this.currentRenderer = new TimelineRenderer(timeline, scripts, devices);
       this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo);
       
-      this.updateTimelinePlaybackStatus();
+      
       
       return;
     }
@@ -228,10 +288,15 @@ export default class Renderer {
   }
   
   tickerFrame = (delta) => {
-    const renderData = this.currentRenderer.render(delta);
+    this.resetDevices();
+    
+    this.currentScript.render(delta);
 
-    this.updateDmx(renderData.dmx);
-    this.updateAudio(renderData.audio);
+    const devicesData = this.getDevicesData();
+    // console.log(Object.values(this.devices).map(({channels}) => channels));
+    console.log(devicesData);
+    this.updateDmx(devicesData);
+    // this.updateAudio(renderData.audio);
     
     if (this.currentRendererIsTimeline) {
       this.send({
@@ -243,33 +308,52 @@ export default class Renderer {
     }
   }
   
+  resetDevices = () => {
+    Object.values(this.devices).forEach((device) => {
+      device.resetChannels();
+      device.resetVars();
+    });
+  }
+  
+  getDevicesData = () => {
+    return Object.values(this.devices).reduce((obj, {channels, startingChannel}) => ({
+      ...obj,
+      ...Object.entries(channels).reduce((obj2, [channel, channelValue]) => {
+        return {
+          ...obj2,
+          [startingChannel + Number(channel)]: channelValue,
+        };
+      }, {}),
+    }), {});
+  }
+  
   tickerBeat = (beat, delta) => {
-    if (this.currentRenderer) {
-      this.currentRenderer.beat(beat, delta);
+    if (this.currentScript) {
+      this.currentScript.beat(beat, delta);
     }
   }
   
   onMidiInput = (data) => {
-    if (this.currentRenderer) {
-      this.currentRenderer.input('midi', data);
+    if (this.currentScript) {
+      this.currentScript.input('midi', data);
     }
   }
   
   onOscInput = (data) => {
-    if (this.currentRenderer) {
-      this.currentRenderer.input('osc', data);
+    if (this.currentScript) {
+      this.currentScript.input('osc', data);
     }
   }
   
   updateDmx = (data = null) => {
-    const allData = {
-      ...this.dmxBaseData,
-      ...data,
-    };
+    // const allData = {
+    //   ...this.dmxBaseData,
+    //   ...data,
+    // };
 
     // const dmx = this.outputs.dmx;
     const dmx = this.outputs.artnet;
-    dmx.send(allData);
+    dmx.send(data);
   }
   
   updateAudio = (data = null) => {
@@ -277,15 +361,15 @@ export default class Renderer {
     audio.send(data);
   }
   
-  computeBaseDmxData = (allDevices) => {
-    return allDevices.reduce((obj, {channels, startChannel}) => ({
-      ...obj,
-      ...channels.reduce((obj2, {defaultValue}, index) => {
-        return {
-          ...obj2,
-          [Number(startChannel) + index]: defaultValue,
-        };
-      }, {}),
-    }), {});
-  }
+  // updateDmxBaseData = () => {
+  //   this.dmxBaseData = this.devices.reduce((obj, {channelDefaults, startChannel}) => ({
+  //     ...obj,
+  //     ...channels.reduce((obj2, defaultValue, index) => {
+  //       return {
+  //         ...obj2,
+  //         [Number(startChannel) + index]: defaultValue,
+  //       };
+  //     }, {}),
+  //   }), {});
+  // }
 }

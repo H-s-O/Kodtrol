@@ -66,6 +66,8 @@ export default class Main {
     set(appConfig, 'currentProjectFilePath', this.currentProjectFilePath);
     writeAppConfig(appConfig);
     
+    this.createRenderer();
+    
     if (init) {
       this.createStore();
     } else {
@@ -73,7 +75,6 @@ export default class Main {
       this.createStore(data);
     }
     
-    this.createRenderer();
     this.createMainWindow();
   }
   
@@ -86,6 +87,10 @@ export default class Main {
     this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
     this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
+    
+    // Force an initial update
+    this.onDevicesChanged();
+    this.onScriptsChanged();
   }
   
   destroyStore = () => {
@@ -97,7 +102,7 @@ export default class Main {
   }
   
   onDevicesChanged = () => {
-    const devices = this.store.state.devices;
+    const { devices } = this.store.state;
     
     if (this.renderer) {
       console.log('updateDevices');
@@ -108,7 +113,7 @@ export default class Main {
   }
   
   onScriptsChanged = () => {
-    const scripts = this.store.state.scripts;
+    const { scripts } = this.store.state;
     ScriptsManager.compileScripts(scripts);
     
     if (this.renderer) {
@@ -125,9 +130,11 @@ export default class Main {
   }
   
   onPreviewScript = () => {
+    const { previewScript } = this.store.state;
+    
     if (this.renderer) {
       this.renderer.send({
-        updateRenderer: this.store.state,
+        previewScript: previewScript,
       });
     }
     
