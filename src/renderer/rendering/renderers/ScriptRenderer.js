@@ -7,7 +7,6 @@ export default class ScriptRenderer {
   started = false;
   localBeat = 0;
   scriptData = {};
-  devicesData = {};
   
   constructor(script, devices, standalone = true) {
     this.script = script;
@@ -16,31 +15,14 @@ export default class ScriptRenderer {
   }
   
   reset = () => {
+    // @TODO reset vars in DeviceProxy ?
     this.scriptData = {};
-    this.devicesData = {};
     this.setuped = false;
     this.started = false;
     this.localBeat = 0;
   }
   
-  injectDevicesData = () => {
-    this.devices.forEach((device) => {
-      device.vars = device.id in this.devicesData
-                    ? this.devicesData[device.id]
-                    : {};
-    });
-  }
-  
-  extractDevicesData = () => {
-    this.devices.forEach((device) => {
-      this.devicesData[device.id] = device.vars;
-      device.vars = null;
-    });
-  }
-  
-  render = (delta, blockInfo = {}, triggerData = {}, curveData = {}) => {
-    this.injectDevicesData();
-        
+  render = (delta, blockInfo = {}, triggerData = {}, curveData = {}) => {        
     // Standalone setup
     if (this.standalone) {
       if (this.script.hasSetup && !this.setuped) {
@@ -68,7 +50,6 @@ export default class ScriptRenderer {
           console.error(err);
         }
         this.setuped = true;
-        this.extractDevicesData();
         return;
       }
     }
@@ -99,8 +80,6 @@ export default class ScriptRenderer {
         console.error(err);
       }
     }
-    
-    this.extractDevicesData();
   }
 
   beat = (beat, delta) => {
@@ -108,8 +87,6 @@ export default class ScriptRenderer {
     
     // Beat
     if (this.script.hasBeat) {
-      this.injectDevicesData();
-      
       const beatObject = {
         localBeat: this.localBeat,
         globalBeat: beat,
@@ -122,16 +99,12 @@ export default class ScriptRenderer {
       } catch (err) {
         console.error(err);
       }
-      
-      this.extractDevicesData();
     }
   }
   
   input = (type, inputData) => {
     // Input
     if (this.script.hasInput) {
-      this.injectDevicesData();
-      
       try {
         const data = this.script.scriptInstance.input(this.devices, type, inputData, this.scriptData);
         if (data) {
@@ -140,8 +113,6 @@ export default class ScriptRenderer {
       } catch (err) {
         console.error(err);
       }
-      
-      this.extractDevicesData();
     }
   }
 
@@ -149,6 +120,5 @@ export default class ScriptRenderer {
     this.script = null;
     this.devices = null;
     this.scriptData = null;
-    this.devicesData = null;
   }
 }

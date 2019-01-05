@@ -5,7 +5,7 @@ export default class ArtnetOutput {
   
   constructor() {
     this.output = artnet({
-      host: '192.168.0.109',
+      host: '192.168.0.108',
       sendAll: true, // skips sending/updating some channels without this :(
     });
   }

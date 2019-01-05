@@ -10,7 +10,6 @@ export default class Device {
   _startingChannel = null;
   _channelAliases = {};
   _channelDefaults = {};
-  _vars = {};
   _channels = {};
   
   constructor(sourceDevice) {
@@ -103,24 +102,12 @@ export default class Device {
     return this._channels;
   }
   
-  get vars() {
-    return this._vars;
-  }
-  
-  set vars(data) {
-    this._vars = data;
-  }
-  
   resetChannels = () => {
     this._channels = {
       ...this._channelDefaults,
     };
   }
   
-  resetVars = () => {
-    this._vars = {};
-  }
-
   is = (type) => {
     return this._type === type;
   }
@@ -150,29 +137,8 @@ export default class Device {
     this._channels[channel] = value;
     return value;
   }
-  
-  setChannelFromVar = (channel, varName) => {
-    return this.setChannel(channel, this.getVar(varName));
-  }
 
   updateChannel = (channel, func) => {
     return this.setChannel(channel, func(this.getChannel(channel)));
-  }
-
-  varIsSet = (name) => {
-    return name in this._vars;
-  }
-
-  getVar = (name) => {
-    return this._vars[name];
-  }
-
-  setVar = (name, value) => {
-    this._vars[name] = value;
-    return value;
-  }
-
-  updateVar = (name, func) => {
-    return this.setVar(name, func(this.getVar(name)));
   }
 };

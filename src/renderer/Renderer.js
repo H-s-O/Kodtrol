@@ -10,6 +10,7 @@ import * as StoreEvent from './events/StoreEvent';
 import ScriptRenderer from './rendering/renderers/ScriptRenderer';
 import TimelineRenderer from './rendering/renderers/TimelineRenderer';
 import Device from './rendering/Device';
+import DeviceProxy from './rendering/DeviceProxy';
 import Script from './rendering/Script';
 
 export default class Renderer {
@@ -192,7 +193,7 @@ export default class Renderer {
   
   getDevices = (devicesList) => {
     return devicesList.map((id) => {
-      return this.devices[id];
+      return new DeviceProxy(this.devices[id]);
     });
   }
   
@@ -294,7 +295,7 @@ export default class Renderer {
 
     const devicesData = this.getDevicesData();
     // console.log(Object.values(this.devices).map(({channels}) => channels));
-    console.log(devicesData);
+    // console.log(devicesData);
     this.updateDmx(devicesData);
     // this.updateAudio(renderData.audio);
     
@@ -311,7 +312,6 @@ export default class Renderer {
   resetDevices = () => {
     Object.values(this.devices).forEach((device) => {
       device.resetChannels();
-      device.resetVars();
     });
   }
   
