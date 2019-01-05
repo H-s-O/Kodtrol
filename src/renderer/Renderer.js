@@ -173,15 +173,15 @@ export default class Renderer {
   }
   
   updateTicker = (tempo = null) => {
+    if (this.ticker) {
+      this.ticker.destroy();
+      this.ticker = null;
+    }
+    
     if (this.currentScript) {
       if (!this.ticker) {
         this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo || 120);
         this.ticker.start();
-      }
-    } else {
-      if (this.ticker) {
-        this.ticker.destroy();
-        this.ticker = null;
       }
     }
   }
