@@ -6,30 +6,26 @@ import CurveRenderer from './CurveRenderer';
 import AudioRenderer from './AudioRenderer';
 
 export default class TimelineRenderer {
-  rendererType = 'timeline';
-  duration = null;
-  inTime = null;
-  outTime = null;
-  currentTime = 0;
-  blocks = null;
-  triggers = null;
-  curves = null;
+  _rendererType = 'timeline';
+  _providers = null;
+  _timeline = null;
+  _currentTime = 0;
+  _blocks = null;
+  _triggers = null;
+  _curves = null;
+  _audios = null;
   
-  constructor(sourceTimeline, sourceScripts, sourceDevices) {
-    const { inTime, outTime, duration, layers, items } = sourceTimeline;
+  constructor(providers, timelineId) {
+    this._providers = providers;
     
-    this.inTime = inTime;
-    this.outTime = outTime;
-    this.duration = duration;
+    this.setTimelineAndItems(timelineId);
+  }
+  
+  setTimelineAndItems = (timelineId) => {
+    this._timeline = this._providers.getTimeline(timelineId);
     
     // "Prepare" data
-    const sourceScriptsById = sourceScripts.reduce((obj, script) => {
-      return {
-        ...obj,
-        [script.id]: script,
-      };
-    }, {});
-    const layersById = layers.reduce((obj, layer) => {
+    const layersById = this._timeline.layers.reduce((obj, layer) => {
       return {
         ...obj,
         [layer.id]: layer,
@@ -37,20 +33,20 @@ export default class TimelineRenderer {
     }, {});
     
     // Extract timeline items
-    const timelineItems = items.sort((a, b) => {
+    const timelineItems = this._timeline.items.sort((a, b) => {
       return layersById[a.layer].order - layersById[b.layer].order;
     });
     
-    this.blocks = timelineItems
+    this._blocks = timelineItems
       .filter((item) => 'script' in item)
       .map((block) => {
         return {
           ...block,
-          instance: new ScriptRenderer(sourceScriptsById[block.script], sourceDevices),
+          instance: new ScriptRenderer(this._providers, block.script, false),
         };
       });
       
-    this.audios = timelineItems
+    this._audios = timelineItems
       .filter((item) => 'file' in item)
       .map((audio) => {
         return {
@@ -59,7 +55,7 @@ export default class TimelineRenderer {
         };
       });
     
-    this.triggers = timelineItems
+    this._triggers = timelineItems
       .filter((item) => 'trigger' in item)
       .map((trigger) => {
         return {
@@ -68,7 +64,7 @@ export default class TimelineRenderer {
         };
       });
       
-    this.curves = timelineItems
+    this._curves = timelineItems
       .filter((item) => 'curve' in item)
       .map((curve) => {
         return {
@@ -77,9 +73,21 @@ export default class TimelineRenderer {
         };
       });
   }
+  
+  get rendererType() {
+    return this._rendererType;
+  }
+  
+  get timeline() {
+    return this._timeline;
+  }
+  
+  get currentTime() {
+    return this._currentTime;
+  }
 
   setPosition = (position) => {
-    this.currentTime = position;
+    this._currentTime = position;
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
@@ -87,16 +95,17 @@ export default class TimelineRenderer {
   }
   
   render = (delta) => {
-    this.currentTime += delta;
+    this._currentTime += delta;
     
-    const currentTime = this.currentTime;
-    if (currentTime > this.outTime) {
+    const currentTime = this._currentTime;
+    if (currentTime > this._timeline.outTime) {
       // this.restartTimeline();
       // currentTime = 0;
-      return {};
+      // @TODO
+      return;
     }
 
-    const triggerData = this.triggers
+    const triggerData = this._triggers
       .filter((trigger) => (
         currentTime >= trigger.inTime
         && currentTime <= trigger.inTime + 30
@@ -111,7 +120,7 @@ export default class TimelineRenderer {
         };
       }, {});
 
-    const curveData = this.curves
+    const curveData = this._curves
       .filter((curve) => (
         currentTime >= curve.inTime
         && currentTime <= curve.outTime
@@ -133,7 +142,7 @@ export default class TimelineRenderer {
         };
       }, {});
 
-    const blocksData = this.blocks
+    const blocksData = this._blocks
       .filter((block) => (
         currentTime >= block.inTime - 500 // @TODO config script setup delay
         && currentTime <= block.outTime
@@ -147,17 +156,10 @@ export default class TimelineRenderer {
           blockPercent: ((currentTime - inTime) / (outTime - inTime)),
         };
         
-        const data = block.instance.render(currentTime, blockInfo, triggerData, curveData);
-        
-        return {
-          dmx: {
-            ...renderDataObj.dmx,
-            ...data.dmx,
-          },
-        };
+        block.instance.render(currentTime, blockInfo, triggerData, curveData);
       }, {});
     
-    const audiosData = this.audios
+    const audiosData = this._audios
       .filter((audio) => (
         currentTime >= audio.inTime
         && currentTime <= audio.outTime
@@ -182,15 +184,14 @@ export default class TimelineRenderer {
       }, {});
       
     return {
-      ...blocksData,
       ...audiosData,
     };
   }
 
   beat = (beat, delta) => {
-    const currentTime = this.currentTime + delta;
-    console.log(delta);
-    this.blocks
+    const currentTime = this._currentTime + delta;
+    // console.log(delta);
+    this._blocks
       .filter((block) => (
         currentTime >= block.inTime
         && currentTime <= block.outTime
@@ -201,35 +202,44 @@ export default class TimelineRenderer {
   }
   
   input = (type, data) => {
-    // @TODO
+    const currentTime = this._currentTime;
+    
+    this._blocks
+      .filter((block) => (
+        currentTime >= block.inTime
+        && currentTime <= block.outTime
+      ))
+      .forEach((block) => {
+        block.instance.input(type, data);
+      });
   }
 
   restartTimeline = () => {
-    this.positionTime = 0;
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
+    this.resetAudios();
   }
 
   resetBlocks = () => {
-    this.blocks.forEach((block) => block.instance.reset());
+    this._blocks.forEach((block) => block.instance.reset());
   }
 
   resetTriggers = () => {
-    this.triggers.forEach((trigger) => trigger.instance.reset());
+    this._triggers.forEach((trigger) => trigger.instance.reset());
   }
 
   resetCurves = () => {
-    this.curves.forEach((curve) => curve.instance.reset());
+    this._curves.forEach((curve) => curve.instance.reset());
   }
 
   resetAudios = () => {
-    this.audios.forEach((audio) => audio.instance.reset());
+    this._audios.forEach((audio) => audio.instance.reset());
   }
 
   destroy = () => {
-    this.blocks.forEach((block) => block.instance.destroy());
-    this.curves.forEach((curve) => curve.instance.destroy());
+    this._blocks.forEach((block) => block.instance.destroy());
+    this._curves.forEach((curve) => curve.instance.destroy());
 
     this.blocks = null;
     this.triggers = null;

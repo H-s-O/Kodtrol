@@ -1,5 +1,6 @@
 export const DEVICES_CHANGED = 'devices_changed';
 export const SCRIPTS_CHANGED = 'scripts_changed';
+export const TIMELINES_CHANGED = 'timelines_changed';
 export const PREVIEW_SCRIPT = 'preview_script';
 export const RUN_TIMELINE = 'run_timeline';
 export const RUN_BOARD = 'run_board';

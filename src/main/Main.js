@@ -82,6 +82,7 @@ export default class Main {
     this.store = new Store(initialData);
     this.store.on(StoreEvent.DEVICES_CHANGED, this.onDevicesChanged);
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
+    this.store.on(StoreEvent.TIMELINES_CHANGED, this.onTimelinesChanged);
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
     this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
@@ -91,6 +92,7 @@ export default class Main {
     // Force an initial update
     this.onDevicesChanged();
     this.onScriptsChanged();
+    this.onTimelinesChanged();
   }
   
   destroyStore = () => {
@@ -124,6 +126,17 @@ export default class Main {
     }
   }
   
+  onTimelinesChanged = () => {
+    const { timelines } = this.store.state;
+    
+    if (this.renderer) {
+      console.log('updateTimelines');
+      this.renderer.send({
+        updateTimelines: timelines,
+      });
+    }
+  }
+  
   onContentSaved = () => {
     console.log('onContentSaved');
     this.saveCurrentProject();
@@ -134,7 +147,7 @@ export default class Main {
     
     if (this.renderer) {
       this.renderer.send({
-        previewScript: previewScript,
+        previewScript,
       });
     }
     
@@ -142,9 +155,11 @@ export default class Main {
   }
   
   onRunTimeline = () => {
+    const { runTimeline } = this.store.state;
+    
     if (this.renderer) {
       this.renderer.send({
-        updateRenderer: this.store.state,
+        runTimeline,
       });
     }
     
@@ -152,9 +167,11 @@ export default class Main {
   }
   
   onRunBoard = () => {
+    const { runBoard } = this.store.state;
+    
     if (this.renderer) {
       this.renderer.send({
-        updateRenderer: this.store.state,
+        runBoard,
       });
     }
     
@@ -163,9 +180,10 @@ export default class Main {
   
   onTimelineInfoUserChanged = () => {
     const { timelineInfoUser } = this.store.state;
+    
     if (this.renderer && timelineInfoUser !== null) {
       this.renderer.send({
-        timelineInfo: timelineInfoUser,
+        timelineInfoUser,
       });
     }
   }
