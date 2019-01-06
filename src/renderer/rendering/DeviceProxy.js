@@ -1,21 +1,10 @@
-export default class DeviceProxy {
-  _originDevice = null;
+import AbstractProxy from './AbstractProxy';
+
+export default class DeviceProxy extends AbstractProxy {
   _vars = {};
     
   constructor(originDevice) {
-    this._originDevice = originDevice;
-    
-    this.setProxiedMembers(originDevice);
-  }
-  
-  setProxiedMembers = (originDevice) => {
-    for (let prop in originDevice) {
-      if (typeof originDevice[prop] === 'function') {
-        this[prop] = (...args) => { 
-          return Reflect.apply(this._originDevice[prop], this._originDevice, args);
-        };
-      }
-    }
+    super(originDevice);
   }
   
   get vars() {

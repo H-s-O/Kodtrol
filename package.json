@@ -32,13 +32,11 @@
     "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
     "howler": "^2.0.15",
-    "libao": "0.0.4",
     "lodash": "^4.17.5",
     "midi": "^0.9.5",
     "midi-clock": "0.0.1",
     "midimessage": "^1.0.5",
     "moscow": "^0.1.0",
-    "pcm-volume": "^1.0.0",
     "prop-types": "^15.6.0",
     "react": "^16.5.2",
     "react-ace": "^5.9.0",
@@ -53,7 +51,6 @@
     "react-splitter-layout": "^3.0.0",
     "redux": "^3.7.2",
     "redux-observers": "^2.0.2",
-    "speaker": "^0.4.1",
     "uniqid": "^4.1.1"
   },
   "devDependencies": {

@@ -7,6 +7,8 @@ import ArtnetOutput from './outputs/ArtnetOutput';
 import AudioOutput from './outputs/AudioOutput';
 import ScriptRenderer from './rendering/renderers/ScriptRenderer';
 import TimelineRenderer from './rendering/renderers/TimelineRenderer';
+import Media from './rendering/Media';
+import MediaProxy from './rendering/MediaProxy';
 import Device from './rendering/Device';
 import DeviceProxy from './rendering/DeviceProxy';
 import Script from './rendering/Script';
@@ -18,6 +20,7 @@ export default class Renderer {
   devices = {};
   scripts = {};
   timelines = {};
+  medias = {};
   currentScript = null;
   currentTimeline = null;
   ticker = null;
@@ -45,6 +48,7 @@ export default class Renderer {
       getScripts: this.getScripts,
       getDevices: this.getDevices,
       getTimeline: this.getTimeline,
+      getMedia: this.getMedia,
     }
     
     process.on('exit', this.onExit);
@@ -106,8 +110,7 @@ export default class Renderer {
       }
     }, this.devices || {});
     
-    console.log('RENDERER updateDevices', this.devices);
-    // this.updateDmxBaseData();
+    // console.log('RENDERER updateDevices', this.devices);
   }
   
   updateScripts = (data) => {
@@ -126,7 +129,7 @@ export default class Renderer {
         };
       }
     }, this.scripts || {});
-    console.log('RENDERER updateScripts', this.scripts);
+    // console.log('RENDERER updateScripts', this.scripts);
   }
   
   updateTimelines = (data) => {
@@ -145,7 +148,36 @@ export default class Renderer {
         };
       }
     }, this.timelines || {});
-    console.log('RENDERER updateTimelines', this.timelines);
+    // console.log('RENDERER updateTimelines', this.timelines);
+    
+    // temp patch to simulate future medias
+    const medias = Object.values(this.timelines).reduce((arr, timeline) => {
+      const medias = timeline.items.filter(({file}) => !!file);
+      return [
+        ...arr,
+        ...medias,
+      ]
+    }, []);
+    this.updateMedias(medias);
+  }
+  
+  updateMedias = (data) => {
+    this.medias = data.reduce((medias, media) => {
+      const { id } = media;
+      // update existing
+      if (id in medias) {
+        medias[id].update(media);
+        return medias;
+      }
+      // new
+      else {
+        return {
+          ...medias,
+          [id]: new Media(media),
+        };
+      }
+    }, this.medias || {});
+    console.log('RENDERER updateMedias', this.medias);
   }
   
   getScript = (scriptId) => {
@@ -166,6 +198,10 @@ export default class Renderer {
     return devicesList.map((id) => {
       return new DeviceProxy(this.devices[id]);
     });
+  }
+  
+  getMedia = (mediaId) => {
+    return new MediaProxy(this.medias[mediaId]);
   }
   
   previewScript = (id) => {
@@ -203,9 +239,9 @@ export default class Renderer {
       const renderer = new TimelineRenderer(this.providers, id);
       
       this.currentTimeline = renderer;
-      this.updateTicker(renderer.timeline.tempo);
+      this.updateTicker(renderer.timeline.tempo, false);
     } else {
-      this.updateTicker();
+      this.updateTicker(null, false);
     }
     
     this.updateDmx();
@@ -220,7 +256,7 @@ export default class Renderer {
     this.updateAudio();
   }
   
-  updateTicker = (tempo = null) => {
+  updateTicker = (tempo = null, start = true) => {
     if (this.ticker) {
       this.ticker.destroy();
       this.ticker = null;
@@ -229,7 +265,9 @@ export default class Renderer {
     if (this.currentScript || this.currentTimeline) {
       if (!this.ticker) {
         this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo || 120);
-        this.ticker.start();
+        if (start) {
+          this.ticker.start();
+        }
       }
     }
   }
@@ -243,6 +281,7 @@ export default class Renderer {
         this.updateTimelinePlaybackStatus(playing);
       }
       if (typeof position !== 'undefined') {
+        this.resetDevices();
         this.currentTimeline.setPosition(position);
       }
       this.send({
@@ -285,7 +324,9 @@ export default class Renderer {
     // console.log(Object.values(this.devices).map(({channels}) => channels));
     // console.log(devicesData);
     this.updateDmx(devicesData);
-    // this.updateAudio(renderData.audio);
+    
+    const mediasData = this.getMediasData();
+    this.updateAudio(mediasData);
   }
   
   resetDevices = () => {
@@ -301,6 +342,13 @@ export default class Renderer {
           [startingChannel + Number(channel)]: channelValue,
         };
       }, {}),
+    }), {});
+  }
+  
+  getMediasData = () => {
+    return Object.values(this.medias).reduce((obj, media) => ({
+      ...obj,
+      [media.streamId]: media.outputData,
     }), {});
   }
   

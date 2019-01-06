@@ -23,7 +23,7 @@ export default class ScriptRenderer {
   
   reset = () => {
     Object.values(this._devices).forEach((device) => {
-      device.resetChannels();
+      // device.resetChannels();
       device.resetVars();
     });
     

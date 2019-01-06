@@ -51,7 +51,7 @@ export default class TimelineRenderer {
       .map((audio) => {
         return {
           ...audio,
-          instance: new AudioRenderer(audio),
+          instance: new AudioRenderer(this._providers, audio),
         };
       });
     
@@ -142,7 +142,7 @@ export default class TimelineRenderer {
         };
       }, {});
 
-    const blocksData = this._blocks
+    this._blocks
       .filter((block) => (
         currentTime >= block.inTime - 500 // @TODO config script setup delay
         && currentTime <= block.outTime
@@ -159,7 +159,7 @@ export default class TimelineRenderer {
         block.instance.render(currentTime, blockInfo, triggerData, curveData);
       }, {});
     
-    const audiosData = this._audios
+    this._audios
       .filter((audio) => (
         currentTime >= audio.inTime
         && currentTime <= audio.outTime
@@ -173,19 +173,8 @@ export default class TimelineRenderer {
           audioPercent: ((currentTime - inTime) / (outTime - inTime)),
         };
         
-        const data = audio.instance.render(currentTime, audioInfo);
-        
-        return {
-          audio: {
-            ...renderDataObj.audio,
-            ...data.audio,
-          },
-        };
+        audio.instance.render(currentTime, audioInfo);
       }, {});
-      
-    return {
-      ...audiosData,
-    };
   }
 
   beat = (beat, delta) => {
