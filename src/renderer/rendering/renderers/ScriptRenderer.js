@@ -59,7 +59,8 @@ export default class ScriptRenderer {
     // In-timeline setup
     else {
       // If in setup period
-      if (this._script.hasSetup && blockInfo.blockPercent < 0) {
+      const early = blockInfo.blockPercent < 0;
+      if (this._script.hasSetup && (early || !this._setuped)) {
         try {
           const data = this._script.scriptInstance.setup(this._devices);
           if (data) {
@@ -69,7 +70,9 @@ export default class ScriptRenderer {
           console.error(err);
         }
         this._setuped = true;
-        return;
+        if (early) {
+          return;
+        }
       }
     }
   
