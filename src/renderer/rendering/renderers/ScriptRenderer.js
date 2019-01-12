@@ -41,12 +41,14 @@ export default class ScriptRenderer {
     return this._script;
   }
   
-  render = (delta, blockInfo = {}, triggerData = {}, curveData = {}) => {        
+  render = (delta, blockInfo = {}, triggerData = {}, curveData = {}) => {
+    const script = this._script;
+           
     // Standalone setup
     if (this._standalone) {
-      if (this._script.hasSetup && !this._setuped) {
+      if (script.hasSetup && !this._setuped) {
         try {
-          const data = this._script.scriptInstance.setup(this._devices);
+          const data = script.scriptInstance.setup(this._devices);
           if (data) {
             this._scriptData = data;
           }
@@ -60,9 +62,10 @@ export default class ScriptRenderer {
     else {
       // If in setup period
       const early = blockInfo.blockPercent < 0;
-      if (this._script.hasSetup && (early || !this._setuped)) {
+      // If has setup
+      if (script.hasSetup && (early || !this._setuped)) {
         try {
-          const data = this._script.scriptInstance.setup(this._devices);
+          const data = script.scriptInstance.setup(this._devices);
           if (data) {
             this._scriptData = data;
           }
@@ -73,14 +76,18 @@ export default class ScriptRenderer {
         if (early) {
           return;
         }
+      } 
+      // Has no setup, but we need to stop early
+      else if (!script.hasSetup && early) {
+        return;
       }
     }
   
     // Start
     if (!this._started) {
-      if (this._script.hasStart) {
+      if (script.hasStart) {
         try {
-          const data = this._script.scriptInstance.start(this._devices, triggerData, curveData);
+          const data = script.scriptInstance.start(this._devices, triggerData, curveData);
           if (data) {
             this._scriptData = data;
           }
@@ -92,9 +99,9 @@ export default class ScriptRenderer {
     }
 
     // Loop
-    if (this._script.hasLoop) {
+    if (script.hasLoop) {
       try {
-        const data = this._script.scriptInstance.loop(this._devices, this._scriptData, blockInfo, triggerData, curveData);
+        const data = script.scriptInstance.loop(this._devices, this._scriptData, blockInfo, triggerData, curveData);
         if (data) {
           this._scriptData = data;
         }
