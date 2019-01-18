@@ -135,31 +135,7 @@ export default class TimelineRenderer {
       }
     }
     this._timeMap = timeMap;
-    
-    // this._timeMap = timelineItems.reduce((arr, item) => {
-    //   const { id, inTime, script, file, trigger, curve } = item;
-    //   const index = Math.floor(inTime / 1000);
-    //   if (!arr[index]) {
-    //     arr[index] = [
-    //       [], // triggers
-    //       [], // curves
-    //       [], // blocks
-    //       [], // medias
-    //     ];
-    //   }
-    //   if (script) {
-    //     arr[index][2].push(id);
-    //   } else if (file) {
-    //     arr[index][3].push(id);
-    //   } else if (trigger) {
-    //     arr[index][0].push(id);
-    //   } else if (curve) {
-    //     arr[index][1].push(id);
-    //   } 
-    //   return arr;
-    // }, []);
-    
-    console.log(this._timeMap);
+    // console.log(this._timeMap);
   }
   
   get rendererType() {
@@ -201,30 +177,33 @@ export default class TimelineRenderer {
       return;
     }
     const timeItems = timeMap[timeIndex];
-
-    const triggerData = timeItems[0]
-      .map((id) => this._triggers[id])
-      .filter((trigger) => (
+    // console.log(timeItems);
+    
+    const triggers = timeItems[0];
+    const triggerCount = triggers.length;
+    const triggerData = {};
+    for (let i = 0; i < triggerCount; i++) {
+      const trigger = this._triggers[triggers[i]];
+      if (
         currentTime >= trigger.inTime
-        && currentTime <= trigger.inTime + 25 // 1 frame
+        && currentTime <= trigger.inTime + 50 // 2 frames
         && !trigger.instance.triggered
-      ))
-      .reduce((renderTriggerData, trigger) => {
-        trigger.instance.render();
+      ) {
+        const data = trigger.instance.render();
+        
+        triggerData[trigger.trigger] = true;
+      }
+    }
 
-        return {
-          ...renderTriggerData,
-          [trigger.trigger]: true,
-        };
-      }, {});
-
-    const curveData = timeItems[1]
-      .map((id) => this._curves[id])
-      .filter((curve) => (
+    const curves = timeItems[1];
+    const curveCount = curves.length;
+    const curveData = {};
+    for (let i = 0; i < curveCount; i++) {
+      const curve = this._curves[curves[i]];
+      if (
         currentTime >= curve.inTime
         && currentTime <= curve.outTime
-      ))
-      .reduce((renderCurveData, curve) => {
+      ) {
         const { inTime, outTime } = curve;
         const curveInfo = {
           inTime,
@@ -234,20 +213,19 @@ export default class TimelineRenderer {
         };
         
         const data = curve.instance.render(currentTime, curveInfo);
+        
+        curveData[curve.name] = data;
+      }
+    }
 
-        return {
-          ...renderCurveData,
-          [curve.name]: data,
-        };
-      }, {});
-
-    timeItems[2]
-      .map((id) => this._blocks[id])
-      .filter((block) => (
+    const blocks = timeItems[2];
+    const blockCount = blocks.length;
+    for (let i = 0; i < blockCount; i++) {
+      const block = this._blocks[blocks[i]];
+      if (
         currentTime >= block.inTime - 500 // @TODO config script setup delay
         && currentTime <= block.outTime
-      ))
-      .reduce((renderDataObj, block) => {
+      ) {
         const { inTime, outTime } = block;
         const blockInfo = {
           inTime,
@@ -257,25 +235,28 @@ export default class TimelineRenderer {
         };
         
         block.instance.render(currentTime, blockInfo, triggerData, curveData);
-      }, {});
+      }
+    }
     
-    timeItems[3]
-      .map((id) => this._audios[id])
-      .filter((audio) => (
-        currentTime >= audio.inTime
-        && currentTime <= audio.outTime
-      ))
-      .reduce((renderDataObj, audio) => {
-        const { id, inTime, outTime } = audio;
-        const audioInfo = {
+    const medias = timeItems[3];
+    const mediaCount = medias.length;
+    for (let i = 0; i < mediaCount; i++) {
+      const media = this._audios[medias[i]];
+      if (
+        currentTime >= media.inTime
+        && currentTime <= media.outTime
+      ) {
+        const { id, inTime, outTime } = media;
+        const mediaInfo = {
           inTime,
           outTime,
           currentTime,
           audioPercent: ((currentTime - inTime) / (outTime - inTime)),
         };
         
-        audio.instance.render(currentTime, audioInfo);
-      }, {});
+        media.instance.render(currentTime, mediaInfo);
+      }
+    }
   }
 
   beat = (beat, delta) => {
