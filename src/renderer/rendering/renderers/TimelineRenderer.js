@@ -169,14 +169,12 @@ export default class TimelineRenderer {
       return;
     }
     
-    const timeMap = this._timeMap;
-    const timeDivisor = 1000;
-    const timeIndex = (currentTime / timeDivisor) >> 0;
-    if (timeIndex > timeMap.length || !timeMap[timeIndex]) {
+    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    if (timeItems === null) {
       // Nothing to render
       return;
     }
-    const timeItems = timeMap[timeIndex];
+    
     // console.log(timeItems);
     
     const triggers = timeItems[0];
@@ -260,16 +258,24 @@ export default class TimelineRenderer {
   }
 
   beat = (beat, delta) => {
-    // const currentTime = this._currentTime + delta;
-    // // console.log(delta);
-    // this._blocks
-    //   .filter((block) => (
-    //     currentTime >= block.inTime
-    //     && currentTime <= block.outTime
-    //   ))
-    //   .forEach((block) => {
-    //     block.instance.beat(beat, currentTime);
-    //   });
+    const currentTime = this._currentTime + delta;
+    
+    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    if (timeItems === null) {
+      return;
+    }
+    
+    const blocks = timeItems[2];
+    const blockCount = blocks.length;
+    for (let i = 0; i < blockCount; i++) {
+      const block = this._blocks[blocks[i]];
+      if (
+        currentTime >= block.inTime
+        && currentTime <= block.outTime
+      ) {
+        block.instance.beat(beat, currentTime);
+      }
+    }
   }
   
   input = (type, data) => {
@@ -283,6 +289,16 @@ export default class TimelineRenderer {
     //   .forEach((block) => {
     //     block.instance.input(type, data);
     //   });
+  }
+  
+  getTimelineItemsAtTime = (time) => {
+    const timeMap = this._timeMap;
+    const timeDivisor = 1000;
+    const timeIndex = (time / timeDivisor) >> 0;
+    if (timeIndex > timeMap.length || !timeMap[timeIndex]) {
+      return null;
+    }
+    return timeMap[timeIndex];
   }
 
   restartTimeline = () => {
