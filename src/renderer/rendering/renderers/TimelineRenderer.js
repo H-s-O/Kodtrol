@@ -15,6 +15,7 @@ export default class TimelineRenderer {
   _curves = null;
   _audios = null;
   _timeMap = null;
+  _timeDivisor = 1000;
   
   constructor(providers, timelineId) {
     this._providers = providers;
@@ -85,12 +86,12 @@ export default class TimelineRenderer {
           },
         };
       }, {});
-    
-    // Warning, experimental stuff below  
+
+    // Speedy stuff below
     const timeMap = [];
     const duration = this._timeline.duration;
     const itemsCount = timelineItems.length;
-    const divisor = 1000;
+    const divisor = this._timeDivisor;
     for (let t = 0; t < duration; t += divisor) {
       const timeIndex = (t / divisor) >> 0;
       const end = t + divisor;
@@ -98,11 +99,16 @@ export default class TimelineRenderer {
         const item = timelineItems[i];
         const { id, inTime, outTime, script, file, trigger, curve } = item;
         let addIt = false;
+        let inOffset = 0;
+        if (typeof script !== 'undefined') {
+          inOffset = 500 // @TODO config script setup delay
+        }
         if (typeof outTime !== 'undefined') {
+          const trueInTime = inTime - inOffset;
           if (
-              (inTime >= t && inTime <= end)
-              || (outTime >= t && outTime <= end)
-              || (inTime < t && outTime > end)
+              (trueInTime >= t && trueInTime <= end) // division at start
+              || (outTime >= t && outTime <= end) // division at end
+              || (trueInTime < t && outTime > end) // division in middle
             ) {
             addIt = true;
           }
@@ -130,12 +136,21 @@ export default class TimelineRenderer {
               ];
             }
             timeMap[timeIndex][addIndex].push(id);
+            // timeMap[timeIndex][addIndex].push(item);
           }
         }
       }
+      /*if (timeMap[timeIndex]) {
+        for (let sub = 0; sub < 4; sub++) {
+          const subArr = timeMap[timeIndex][sub].sort((a, b) => a.inTime - b.inTime); // sort by inTime
+          const subItemsCount = subArr.length;
+          for (let ii = 0; ii < subItemsCount; ii++) {
+            subArr[ii] = subArr[ii].id; // "map"
+          }
+        }
+      }*/
     }
     this._timeMap = timeMap;
-    // console.log(this._timeMap);
   }
   
   get rendererType() {
@@ -174,9 +189,7 @@ export default class TimelineRenderer {
       // Nothing to render
       return;
     }
-    
-    // console.log(timeItems);
-    
+
     const triggers = timeItems[0];
     const triggerCount = triggers.length;
     const triggerData = {};
@@ -184,7 +197,7 @@ export default class TimelineRenderer {
       const trigger = this._triggers[triggers[i]];
       if (
         currentTime >= trigger.inTime
-        && currentTime <= trigger.inTime + 50 // 2 frames
+        && currentTime <= trigger.inTime + 50 // 2 frames, we could do better
         && !trigger.instance.triggered
       ) {
         const data = trigger.instance.render();
@@ -279,23 +292,31 @@ export default class TimelineRenderer {
   }
   
   input = (type, data) => {
-    // const currentTime = this._currentTime;
-    // 
-    // this._blocks
-    //   .filter((block) => (
-    //     currentTime >= block.inTime
-    //     && currentTime <= block.outTime
-    //   ))
-    //   .forEach((block) => {
-    //     block.instance.input(type, data);
-    //   });
+    const currentTime = this._currentTime;
+    
+    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    if (timeItems === null) {
+      return;
+    }
+    
+    const blocks = timeItems[2];
+    const blockCount = blocks.length;
+    for (let i = 0; i < blockCount; i++) {
+      const block = this._blocks[blocks[i]];
+      if (
+        currentTime >= block.inTime
+        && currentTime <= block.outTime
+      ) {
+        block.instance.input(type, data);
+      }
+    }
   }
   
   getTimelineItemsAtTime = (time) => {
     const timeMap = this._timeMap;
-    const timeDivisor = 1000;
+    const timeDivisor = this._timeDivisor;
     const timeIndex = (time / timeDivisor) >> 0;
-    if (timeIndex > timeMap.length || !timeMap[timeIndex]) {
+    if (timeIndex < 0 || timeIndex > timeMap.length || !timeMap[timeIndex]) {
       return null;
     }
     return timeMap[timeIndex];
@@ -328,8 +349,9 @@ export default class TimelineRenderer {
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
     Object.values(this._curves).forEach((curve) => curve.instance.destroy());
 
-    this.blocks = null;
-    this.triggers = null;
-    this.curves = null;
+    this._blocks = null;
+    this._triggers = null;
+    this._curves = null;
+    this._audios = null;
   }
 }
