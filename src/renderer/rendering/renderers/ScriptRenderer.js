@@ -48,7 +48,7 @@ export default class ScriptRenderer {
     if (this._standalone) {
       if (script.hasSetup && !this._setuped) {
         try {
-          const data = script.scriptInstance.setup(this._devices);
+          const data = script.scriptInstance.setup(this._devices, this._scriptData);
           if (data) {
             this._scriptData = data;
           }
@@ -65,7 +65,7 @@ export default class ScriptRenderer {
       // If has setup
       if (script.hasSetup && (early || !this._setuped)) {
         try {
-          const data = script.scriptInstance.setup(this._devices);
+          const data = script.scriptInstance.setup(this._devices, this._scriptData);
           if (data) {
             this._scriptData = data;
           }
@@ -87,7 +87,7 @@ export default class ScriptRenderer {
     if (!this._started) {
       if (script.hasStart) {
         try {
-          const data = script.scriptInstance.start(this._devices, triggerData, curveData);
+          const data = script.scriptInstance.start(this._devices, this._scriptData, triggerData, curveData);
           if (data) {
             this._scriptData = data;
           }
