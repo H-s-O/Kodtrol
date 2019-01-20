@@ -212,6 +212,8 @@ export default class Renderer {
       }
     }
     
+    this.resetAll();
+    
     if (id !== null) {
       const renderer = new ScriptRenderer(this.providers, id);
       
@@ -235,6 +237,8 @@ export default class Renderer {
       }
     }
     
+    this.resetAll();
+    
     if (id !== null) {
       const renderer = new TimelineRenderer(this.providers, id);
       
@@ -257,6 +261,7 @@ export default class Renderer {
   }
   
   updateTicker = (tempo = null, start = true) => {
+    console.log('===tempo', tempo);
     if (this.ticker) {
       this.ticker.destroy();
       this.ticker = null;
@@ -329,8 +334,17 @@ export default class Renderer {
     this.updateAudio(mediasData);
   }
   
+  resetAll = () => {
+    this.resetDevices();
+    this.resetAudios();
+  }
+  
   resetDevices = () => {
     Object.values(this.devices).forEach((device) => device.resetChannels());
+  }
+  
+  resetAudios = () => {
+    Object.values(this.medias).forEach((media) => media.resetOutputData());
   }
   
   getDevicesData = () => {

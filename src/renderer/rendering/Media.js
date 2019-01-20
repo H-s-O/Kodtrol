@@ -41,6 +41,11 @@ export default class Media {
     };
   }
   
+  resetOutputData = () => {
+    this._streamId = null;
+    this._position = 0;
+  }
+  
   setStreamId = (streamId) => {
     this._streamId = streamId;
   }

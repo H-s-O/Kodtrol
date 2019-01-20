@@ -14,6 +14,8 @@ export default class TimelineRenderer {
   _triggers = null;
   _curves = null;
   _audios = null;
+  _timeMap = null;
+  _timeDivisor = 1000;
   
   constructor(providers, timelineId) {
     this._providers = providers;
@@ -39,39 +41,116 @@ export default class TimelineRenderer {
     
     this._blocks = timelineItems
       .filter((item) => 'script' in item)
-      .map((block) => {
+      .reduce((obj, block) => {
         return {
-          ...block,
-          instance: new ScriptRenderer(this._providers, block.script, false),
+          ...obj,
+          [block.id]: {
+            ...block,
+            instance: new ScriptRenderer(this._providers, block.script, false),
+          },
         };
-      });
+      }, {});
       
     this._audios = timelineItems
       .filter((item) => 'file' in item)
-      .map((audio) => {
+      .reduce((obj, audio) => {
         return {
-          ...audio,
-          instance: new AudioRenderer(this._providers, audio),
+          ...obj,
+          [audio.id]: {
+            ...audio,
+            instance: new AudioRenderer(this._providers, audio),
+          },
         };
-      });
+      }, {});
     
     this._triggers = timelineItems
       .filter((item) => 'trigger' in item)
-      .map((trigger) => {
+      .reduce((obj, trigger) => {
         return {
-          ...trigger,
-          instance: new TriggerRenderer(),
+          ...obj,
+          [trigger.id]: {
+            ...trigger,
+            instance: new TriggerRenderer(),
+          },
         };
-      });
+      }, {});
       
     this._curves = timelineItems
       .filter((item) => 'curve' in item)
-      .map((curve) => {
+      .reduce((obj, curve) => {
         return {
-          ...curve,
-          instance: new CurveRenderer(curve),
+          ...obj,
+          [curve.id]: {
+            ...curve,
+            instance: new CurveRenderer(curve),
+          },
         };
-      });
+      }, {});
+
+    // Speedy stuff below
+    const timeMap = [];
+    const duration = this._timeline.duration;
+    const itemsCount = timelineItems.length;
+    const divisor = this._timeDivisor;
+    for (let t = 0; t < duration; t += divisor) {
+      const timeIndex = (t / divisor) >> 0;
+      const end = t + divisor;
+      for (let i = 0; i < itemsCount; i++) {
+        const item = timelineItems[i];
+        const { id, inTime, outTime, script, file, trigger, curve } = item;
+        let addIt = false;
+        let inOffset = 0;
+        if (typeof script !== 'undefined') {
+          inOffset = 500 // @TODO config script setup delay
+        }
+        if (typeof outTime !== 'undefined') {
+          const trueInTime = inTime - inOffset;
+          if (
+              (trueInTime >= t && trueInTime <= end) // division at start
+              || (outTime >= t && outTime <= end) // division at end
+              || (trueInTime < t && outTime > end) // division in middle
+            ) {
+            addIt = true;
+          }
+        } else if (inTime >= t && inTime <= end) {
+          addIt = true;
+        }
+        if (addIt) {
+          let addIndex = null;
+          if (typeof script !== 'undefined') {
+            addIndex = 2;
+          } else if (typeof file !== 'undefined') {
+            addIndex = 3;
+          } else if (typeof trigger !== 'undefined') {
+            addIndex = 0;
+          } else if (typeof curve !== 'undefined') {
+            addIndex = 1;
+          } 
+          if (addIndex !== null) {
+            if (!timeMap[timeIndex]) {
+              timeMap[timeIndex] = [
+                [], // triggers
+                [], // curves
+                [], // blocks
+                [], // medias
+              ];
+            }
+            timeMap[timeIndex][addIndex].push(id);
+            // timeMap[timeIndex][addIndex].push(item);
+          }
+        }
+      }
+      /*if (timeMap[timeIndex]) {
+        for (let sub = 0; sub < 4; sub++) {
+          const subArr = timeMap[timeIndex][sub].sort((a, b) => a.inTime - b.inTime); // sort by inTime
+          const subItemsCount = subArr.length;
+          for (let ii = 0; ii < subItemsCount; ii++) {
+            subArr[ii] = subArr[ii].id; // "map"
+          }
+        }
+      }*/
+    }
+    this._timeMap = timeMap;
   }
   
   get rendererType() {
@@ -104,28 +183,38 @@ export default class TimelineRenderer {
       // @TODO
       return;
     }
+    
+    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    if (timeItems === null) {
+      // Nothing to render
+      return;
+    }
 
-    const triggerData = this._triggers
-      .filter((trigger) => (
+    const triggers = timeItems[0];
+    const triggerCount = triggers.length;
+    const triggerData = {};
+    for (let i = 0; i < triggerCount; i++) {
+      const trigger = this._triggers[triggers[i]];
+      if (
         currentTime >= trigger.inTime
-        && currentTime <= trigger.inTime + 30
+        && currentTime <= trigger.inTime + 50 // 2 frames, we could do better
         && !trigger.instance.triggered
-      ))
-      .reduce((renderTriggerData, trigger) => {
-        trigger.instance.render();
+      ) {
+        const data = trigger.instance.render();
+        
+        triggerData[trigger.trigger] = true;
+      }
+    }
 
-        return {
-          ...renderTriggerData,
-          [trigger.trigger]: true,
-        };
-      }, {});
-
-    const curveData = this._curves
-      .filter((curve) => (
+    const curves = timeItems[1];
+    const curveCount = curves.length;
+    const curveData = {};
+    for (let i = 0; i < curveCount; i++) {
+      const curve = this._curves[curves[i]];
+      if (
         currentTime >= curve.inTime
         && currentTime <= curve.outTime
-      ))
-      .reduce((renderCurveData, curve) => {
+      ) {
         const { inTime, outTime } = curve;
         const curveInfo = {
           inTime,
@@ -135,19 +224,19 @@ export default class TimelineRenderer {
         };
         
         const data = curve.instance.render(currentTime, curveInfo);
+        
+        curveData[curve.name] = data;
+      }
+    }
 
-        return {
-          ...renderCurveData,
-          [curve.name]: data,
-        };
-      }, {});
-
-    this._blocks
-      .filter((block) => (
+    const blocks = timeItems[2];
+    const blockCount = blocks.length;
+    for (let i = 0; i < blockCount; i++) {
+      const block = this._blocks[blocks[i]];
+      if (
         currentTime >= block.inTime - 500 // @TODO config script setup delay
         && currentTime <= block.outTime
-      ))
-      .reduce((renderDataObj, block) => {
+      ) {
         const { inTime, outTime } = block;
         const blockInfo = {
           inTime,
@@ -157,50 +246,80 @@ export default class TimelineRenderer {
         };
         
         block.instance.render(currentTime, blockInfo, triggerData, curveData);
-      }, {});
+      }
+    }
     
-    this._audios
-      .filter((audio) => (
-        currentTime >= audio.inTime
-        && currentTime <= audio.outTime
-      ))
-      .reduce((renderDataObj, audio) => {
-        const { id, inTime, outTime } = audio;
-        const audioInfo = {
+    const medias = timeItems[3];
+    const mediaCount = medias.length;
+    for (let i = 0; i < mediaCount; i++) {
+      const media = this._audios[medias[i]];
+      if (
+        currentTime >= media.inTime
+        && currentTime <= media.outTime
+      ) {
+        const { id, inTime, outTime } = media;
+        const mediaInfo = {
           inTime,
           outTime,
           currentTime,
           audioPercent: ((currentTime - inTime) / (outTime - inTime)),
         };
         
-        audio.instance.render(currentTime, audioInfo);
-      }, {});
+        media.instance.render(currentTime, mediaInfo);
+      }
+    }
   }
 
   beat = (beat, delta) => {
     const currentTime = this._currentTime + delta;
-    // console.log(delta);
-    this._blocks
-      .filter((block) => (
+    
+    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    if (timeItems === null) {
+      return;
+    }
+    
+    const blocks = timeItems[2];
+    const blockCount = blocks.length;
+    for (let i = 0; i < blockCount; i++) {
+      const block = this._blocks[blocks[i]];
+      if (
         currentTime >= block.inTime
         && currentTime <= block.outTime
-      ))
-      .forEach((block) => {
+      ) {
         block.instance.beat(beat, currentTime);
-      });
+      }
+    }
   }
   
   input = (type, data) => {
     const currentTime = this._currentTime;
     
-    this._blocks
-      .filter((block) => (
+    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    if (timeItems === null) {
+      return;
+    }
+    
+    const blocks = timeItems[2];
+    const blockCount = blocks.length;
+    for (let i = 0; i < blockCount; i++) {
+      const block = this._blocks[blocks[i]];
+      if (
         currentTime >= block.inTime
         && currentTime <= block.outTime
-      ))
-      .forEach((block) => {
+      ) {
         block.instance.input(type, data);
-      });
+      }
+    }
+  }
+  
+  getTimelineItemsAtTime = (time) => {
+    const timeMap = this._timeMap;
+    const timeDivisor = this._timeDivisor;
+    const timeIndex = (time / timeDivisor) >> 0;
+    if (timeIndex < 0 || timeIndex > timeMap.length || !timeMap[timeIndex]) {
+      return null;
+    }
+    return timeMap[timeIndex];
   }
 
   restartTimeline = () => {
@@ -211,27 +330,28 @@ export default class TimelineRenderer {
   }
 
   resetBlocks = () => {
-    this._blocks.forEach((block) => block.instance.reset());
+    Object.values(this._blocks).forEach((block) => block.instance.reset());
   }
 
   resetTriggers = () => {
-    this._triggers.forEach((trigger) => trigger.instance.reset());
+    Object.values(this._triggers).forEach((trigger) => trigger.instance.reset());
   }
 
   resetCurves = () => {
-    this._curves.forEach((curve) => curve.instance.reset());
+    Object.values(this._curves).forEach((curve) => curve.instance.reset());
   }
 
   resetAudios = () => {
-    this._audios.forEach((audio) => audio.instance.reset());
+    Object.values(this._audios).forEach((audio) => audio.instance.reset());
   }
 
   destroy = () => {
-    this._blocks.forEach((block) => block.instance.destroy());
-    this._curves.forEach((curve) => curve.instance.destroy());
+    Object.values(this._blocks).forEach((block) => block.instance.destroy());
+    Object.values(this._curves).forEach((curve) => curve.instance.destroy());
 
-    this.blocks = null;
-    this.triggers = null;
-    this.curves = null;
+    this._blocks = null;
+    this._triggers = null;
+    this._curves = null;
+    this._audios = null;
   }
 }
