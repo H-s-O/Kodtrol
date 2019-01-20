@@ -5,6 +5,7 @@ export default class Media {
   _position = 0;
   _speed = 1;
   _streamId = null;
+  _active = false;
   
   constructor(sourceMedia) {
     this.update(sourceMedia);
@@ -33,6 +34,10 @@ export default class Media {
   }
   
   get outputData() {
+    if (!this._active) {
+      return {}
+    };
+    
     return {
       id: this._id,
       volume: this._volume,
@@ -41,9 +46,14 @@ export default class Media {
     };
   }
   
+  get active() {
+    return this._active;
+  }
+  
   resetOutputData = () => {
     this._streamId = null;
     this._position = 0;
+    this._active = false;
   }
   
   setStreamId = (streamId) => {
@@ -60,5 +70,9 @@ export default class Media {
   
   setSpeed = (speed) => {
     this._speed = speed;
+  }
+  
+  setActive = (flag) => {
+    this._active = flag;
   }
 }

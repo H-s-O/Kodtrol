@@ -29,6 +29,7 @@ export default class AudioRenderer {
   
   reset = () => {
     this.started = false;
+    this.streamId = null;
   }
   
   render = (delta, blockInfo) => {
@@ -42,6 +43,7 @@ export default class AudioRenderer {
     const position = audioPercent * this.duration;
     const volume = this.volume;
     
+    this._media.setActive(true);
     this._media.setVolume(volume);
     this._media.setPosition(position);
     this._media.setStreamId(this.streamId); // hack
