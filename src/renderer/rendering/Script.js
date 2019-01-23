@@ -42,14 +42,18 @@ export default class Script {
     // clear existing cached module before attempting load
     delete require.cache[scriptPath];
     
-    const scriptInstance = new (require(scriptPath))();
-    
-    this._scriptInstance = scriptInstance;
-    this._hasSetup = typeof scriptInstance.setup === 'function';
-    this._hasStart = typeof scriptInstance.start === 'function';
-    this._hasLoop = typeof scriptInstance.loop === 'function';
-    this._hasBeat = typeof scriptInstance.beat === 'function';
-    this._hasInput = typeof scriptInstance.input === 'function';
+    try {
+      const scriptInstance = new (require(scriptPath))();
+      
+      this._scriptInstance = scriptInstance;
+      this._hasSetup = typeof scriptInstance.setup === 'function';
+      this._hasStart = typeof scriptInstance.start === 'function';
+      this._hasLoop = typeof scriptInstance.loop === 'function';
+      this._hasBeat = typeof scriptInstance.beat === 'function';
+      this._hasInput = typeof scriptInstance.input === 'function';
+    } catch (e) {
+      console.error(e);
+    }
   }
   
   get id() {
