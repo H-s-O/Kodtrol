@@ -94,7 +94,7 @@ export default class TimelineRenderer {
     const divisor = this._timeDivisor;
     for (let t = 0; t < duration; t += divisor) {
       const timeIndex = (t / divisor) >> 0;
-      const end = t + divisor;
+      const end = t + divisor - 1;
       for (let i = 0; i < itemsCount; i++) {
         const item = timelineItems[i];
         const { id, inTime, outTime, script, file, trigger, curve } = item;
@@ -197,7 +197,7 @@ export default class TimelineRenderer {
       const trigger = this._triggers[triggers[i]];
       if (
         currentTime >= trigger.inTime
-        && currentTime <= trigger.inTime + 50 // 2 frames, we could do better
+        && currentTime <= trigger.inTime + 50
         && !trigger.instance.triggered
       ) {
         const data = trigger.instance.render();
@@ -316,7 +316,7 @@ export default class TimelineRenderer {
     const timeMap = this._timeMap;
     const timeDivisor = this._timeDivisor;
     const timeIndex = (time / timeDivisor) >> 0;
-    if (timeIndex < 0 || timeIndex > timeMap.length || !timeMap[timeIndex]) {
+    if (timeIndex < 0 || timeIndex >= timeMap.length || !timeMap[timeIndex]) {
       return null;
     }
     return timeMap[timeIndex];
