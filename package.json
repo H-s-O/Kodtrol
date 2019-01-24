@@ -23,7 +23,7 @@
     "color": "^3.0.0",
     "cors": "^2.8.4",
     "css-electron-reset": "^1.0.0",
-    "dmx": "0.0.7",
+    "dmx": "^0.2.2",
     "domready": "^1.0.8",
     "eases": "^1.0.8",
     "electron": "^1.8.8",
