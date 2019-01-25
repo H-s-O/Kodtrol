@@ -20,7 +20,7 @@ export default (state = [], {type, payload}) => {
       break;
       
     case 'SAVE_SCRIPT':
-      return state.map(it => it.id === payload.id ? payload : it);
+      return state.map(it => it.id === payload.id ? {...it, ...payload} : it);
       break;
       
     default:

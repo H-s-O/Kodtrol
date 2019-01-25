@@ -5,9 +5,9 @@ export const updateScripts = (scripts) => ({
   payload: scripts,
 });
 
-export const selectScript = (scriptData) => ({
+export const selectScript = (id) => ({
   type: 'SELECT_SCRIPT',
-  payload: scriptData,
+  payload: id,
 });
 
 export const unselectScript = () => ({
@@ -36,10 +36,11 @@ export const deleteScript = (id) => ({
   payload: id,
 });
 
-export const saveScript = (scriptData) => ({
+export const saveScript = (id, content) => ({
   type: 'SAVE_SCRIPT',
   payload: {
-    ...scriptData,
+    id,
+    content,
     lastUpdated: Date.now(),
   },
 });

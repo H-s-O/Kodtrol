@@ -33,9 +33,8 @@ const defaultProps = {
 class ScriptsBrowser extends PureComponent {
   onScriptSelect = (it) => {
     const { id } = it;
-    const { doSelectScript, scripts } = this.props;
-    const data = scripts.find(it => it.id === id);
-    doSelectScript(data);
+    const { doSelectScript } = this.props;
+    doSelectScript(id);
   }
   
   onAddClick = () => {
@@ -173,7 +172,7 @@ class ScriptsBrowser extends PureComponent {
             id,
             label: name,
             icon: 'file',
-            active: id === get(currentScript, 'id'),
+            active: id === currentScript,
           }))}
           onClickItem={this.onScriptSelect}
           renderActions={this.renderTreeActions}

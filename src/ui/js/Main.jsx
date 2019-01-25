@@ -34,7 +34,7 @@ export default connect(mapStateToProps)((props) => {
           </Col>
           <Col md={8} className={styles.fullHeight}>
             { props.currentScript
-              ? <ScriptEditor/>
+              ? <ScriptEditor key={props.currentScript} />
               : <Placeholder/> }
           </Col>
         </Row>
