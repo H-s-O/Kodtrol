@@ -44,9 +44,9 @@ export default connect(mapStateToProps)((props) => {
           </Col>
           <Col md={10} className={styles.fullHeight}>
             { props.currentTimeline
-              ? <TimelineEditor/>
+              ? <TimelineEditor key={props.currentTimeline} />
               : props.currentBoard 
-                ? <BoardEditor/>
+                ? <BoardEditor key={props.currentBoard} />
                 : <Placeholder/> }
           </Col>
         </Row>

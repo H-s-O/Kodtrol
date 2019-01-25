@@ -43,12 +43,10 @@ class TimelinesBrowser extends PureComponent {
     
     if (type === 'timeline') {
       const { doSelectTimeline, timelines } = this.props;
-      const data = timelines.find(it => it.id === id);
-      doSelectTimeline(data);
+      doSelectTimeline(id);
     } else if (type === 'board') {
       const { doSelectBoard, boards } = this.props;
-      const data = boards.find(it => it.id === id);
-      doSelectBoard(data);
+      doSelectBoard(id);
     }
   }
 
@@ -62,19 +60,50 @@ class TimelinesBrowser extends PureComponent {
     doCreateBoardModal();
   }
   
-  onEditClick = (id) => {
+  onEditClick = (it) => {
+    const { id, type } = it;
+    if (type === 'timeline') { 
+      this.editTimeline(id);
+    } else if (type === 'board') {
+      this.editBoard(id);
+    }
+  }
+  
+  editTimeline = (id) => {
     const { doEditTimelineModal, timelines } = this.props;
     const data = timelines.find(it => it.id === id);
     doEditTimelineModal(data);
   }
   
-  onDuplicateClick = (id) => {
+  editBoard = (id) => {
+    const { doEditBoardModal, boards } = this.props;
+    const data = boards.find(it => it.id === id);
+    doEditBoardModal(data);
+  }
+  
+  onDuplicateClick = (it) => {
+    const { id, type } = it;
+    if (type === 'timeline') { 
+      this.duplicateTimeline(id);
+    } else if (type === 'board') {
+      this.duplicateBoard(id);
+    }
+  }
+  
+  duplicateTimeline = (id) => {
     const { doDuplicateTimelineModal, timelines } = this.props;
     const data = timelines.find(it => it.id === id);
     doDuplicateTimelineModal(data);
   }
   
-  onPreviewClick = (id) => {
+  duplicateBoard = (id) => {
+    const { doDuplicateBoardModal, boards } = this.props;
+    const data = boards.find(it => it.id === id);
+    doDuplicateBoardModal(data);
+  }
+  
+  onPreviewClick = (it) => {
+    const { id, type } = it;
     const { doRunTimeline } = this.props;
     doRunTimeline(id);
   }
@@ -84,11 +113,29 @@ class TimelinesBrowser extends PureComponent {
     doStopRunTimeline();
   }
   
-  onDeleteClick = (id) => {
+  onDeleteClick = (it) => {
+    const { id, type } = it;
+    if (type === 'timeline') { 
+      this.deleteTimeline(id);
+    } else if (type === 'board') {
+      this.deleteBoard(id);
+    }
+  }
+  
+  deleteTimeline = (id) => {
     deleteWarning(`Are you sure you want to delete this timeline ?`, (result) => {
       if (result) {
         const { doDeleteTimeline } = this.props;
         doDeleteTimeline(id);
+      }
+    });
+  }
+  
+  deleteBoard = (id) => {
+    deleteWarning(`Are you sure you want to delete this board ?`, (result) => {
+      if (result) {
+        const { doDeleteBoard } = this.props;
+        doDeleteBoard(id);
       }
     });
   }
@@ -121,7 +168,7 @@ class TimelinesBrowser extends PureComponent {
         <ButtonGroup>
           <Button
             bsSize="xsmall"
-            onClick={(e) => {stopEvent(e); this.onPreviewClick(it.id)}}
+            onClick={(e) => {stopEvent(e); this.onPreviewClick(it)}}
           >
             <Glyphicon
               glyph="eye-open"
@@ -129,7 +176,7 @@ class TimelinesBrowser extends PureComponent {
           </Button>
           <Button
             bsSize="xsmall"
-            onClick={(e) => {stopEvent(e); this.onDuplicateClick(it.id)}}
+            onClick={(e) => {stopEvent(e); this.onDuplicateClick(it)}}
           >
             <Glyphicon
               glyph="duplicate"
@@ -137,7 +184,7 @@ class TimelinesBrowser extends PureComponent {
           </Button>
           <Button
             bsSize="xsmall"
-            onClick={(e) => {stopEvent(e); this.onEditClick(it.id)}}
+            onClick={(e) => {stopEvent(e); this.onEditClick(it)}}
           >
             <Glyphicon
               glyph="cog"
@@ -147,7 +194,7 @@ class TimelinesBrowser extends PureComponent {
         <Button
           bsSize="xsmall"
           bsStyle="danger"
-          onClick={(e) => {stopEvent(e); this.onDeleteClick(it.id)}}
+          onClick={(e) => {stopEvent(e); this.onDeleteClick(it)}}
         >
           <Glyphicon
             glyph="trash"
@@ -250,6 +297,7 @@ const mapDispatchToProps = (dispatch) => {
     doRunTimeline: (id) => dispatch(runTimeline(id)),
     doStopRunTimeline: () => dispatch(stopTimeline()),
     doSelectBoard: (id) => dispatch(selectBoard(id)),
+    doDeleteBoard: (id) => dispatch(deleteBoard(id)),
     doCreateBoardModal: () => dispatch(updateBoardModal('add', {})),
   };
 }

@@ -4,6 +4,7 @@ import { get, set, unset } from 'lodash';
 import { Button, Glyphicon, SplitButton, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
 import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
 import path from 'path';
 
 import Panel from '../partials/Panel';
@@ -24,6 +25,7 @@ import TimelineWrapper from './TimelineWrapper';
 import styles from '../../../styles/components/timeline/timelineeditor.scss';
 
 const propTypes = {
+  currentTimeline: PropTypes.string,
   timelineData: PropTypes.shape({}),
   timelineInfo: PropTypes.shape({}),
   scripts: PropTypes.arrayOf(PropTypes.shape({})),
@@ -36,6 +38,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  currentTimeline: null,
   timelineData: null,
   timelineInfo: null,
   scripts: [],
@@ -1029,12 +1032,26 @@ class TimelineEditor extends PureComponent {
 TimelineEditor.propTypes = propTypes;
 TimelineEditor.defaultProps = defaultProps;
 
-const mapStateToProps = ({currentTimeline, scripts, timelineInfo, runTimeline}) => {
+const timelineDataSelector = createSelector(
+  [
+    (state) => state.currentTimeline,
+    (state) => state.timelines,
+  ],
+  (currentTimeline, timelines) => {
+    if (currentTimeline === null) {
+      return null;
+    }
+    return timelines.find(({id}) => id === currentTimeline);
+  }
+);
+
+const mapStateToProps = (state) => {
   return {
-    timelineData: currentTimeline,
-    scripts,
-    timelineInfo,
-    runTimeline,
+    currentTimeline: state.currentTimeline,
+    timelineData: timelineDataSelector(state),
+    scripts: state.scripts,
+    timelineInfo: state.timelineInfo,
+    runTimeline: state.runTimeline,
   };
 };
 const mapDispatchToProps = (dispatch) => {

@@ -5,9 +5,9 @@ export const updateTimelines = (timelines) => ({
   payload: timelines,
 });
 
-export const selectTimeline = (timelineData) => ({
+export const selectTimeline = (id) => ({
   type: 'SELECT_TIMELINE',
-  payload: timelineData,
+  payload: id,
 });
 
 export const unselectTimeline = () => ({

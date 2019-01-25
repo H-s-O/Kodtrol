@@ -5,9 +5,9 @@ export const updateBoards = (boards) => ({
   payload: boards,
 });
 
-export const selectBoard = (boardData) => ({
+export const selectBoard = (id) => ({
   type: 'SELECT_BOARD',
-  payload: boardData,
+  payload: id,
 });
 
 export const unselectBoard = () => ({
