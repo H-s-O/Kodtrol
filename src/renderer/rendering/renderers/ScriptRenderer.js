@@ -98,10 +98,10 @@ export default class ScriptRenderer {
       this._started = true;
     }
 
-    // Loop
-    if (script.hasLoop) {
+    // Frame
+    if (script.hasFrame) {
       try {
-        const data = script.scriptInstance.loop(this._devices, this._scriptData, blockInfo, triggerData, curveData);
+        const data = script.scriptInstance.frame(this._devices, this._scriptData, blockInfo, triggerData, curveData);
         if (data) {
           this._scriptData = data;
         }

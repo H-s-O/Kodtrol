@@ -8,7 +8,7 @@ export default class Script {
   _scriptInstance = null;
   _hasSetup = false;
   _hasStart = false;
-  _hasLoop = false;
+  _hasFrame = false;
   _hasBeat = false;
   _hasInput = false;
   
@@ -48,7 +48,7 @@ export default class Script {
       this._scriptInstance = scriptInstance;
       this._hasSetup = typeof scriptInstance.setup === 'function';
       this._hasStart = typeof scriptInstance.start === 'function';
-      this._hasLoop = typeof scriptInstance.loop === 'function';
+      this._hasFrame = typeof scriptInstance.frame === 'function';
       this._hasBeat = typeof scriptInstance.beat === 'function';
       this._hasInput = typeof scriptInstance.input === 'function';
     } catch (e) {
@@ -80,8 +80,8 @@ export default class Script {
     return this._hasStart;
   }
   
-  get hasLoop() {
-    return this._hasLoop;
+  get hasFrame() {
+    return this._hasFrame;
   }
   
   get hasBeat() {
