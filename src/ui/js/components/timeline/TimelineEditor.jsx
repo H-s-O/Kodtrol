@@ -16,7 +16,7 @@ import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineCurveModal from '../modals/TimelineCurveModal';
 import RecordBlockModal from '../modals/RecordBlockModal';
 import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
-import { updateCurrentTimeline, saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
+import { saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
 import { importAudioFile } from '../../lib/messageBoxes';
 import { Provider } from './timelineEditorContext';
@@ -29,7 +29,6 @@ const propTypes = {
   timelineData: PropTypes.shape({}),
   timelineInfo: PropTypes.shape({}),
   scripts: PropTypes.arrayOf(PropTypes.shape({})),
-  doUpdateCurrentTimeline: PropTypes.func.isRequired,
   doUpdateTimelineInfo: PropTypes.func.isRequired,
   doUpdateTimelineInfoUser: PropTypes.func.isRequired,
   doSaveTimeline: PropTypes.func.isRequired,
@@ -109,7 +108,6 @@ class TimelineEditor extends PureComponent {
       return item;
     });
     const newTimelineData = {
-      ...timelineData,
       items: newItems,
     };
     
@@ -122,7 +120,6 @@ class TimelineEditor extends PureComponent {
 
     const newItems = items.filter(({id}) => id !== itemId);
     const newTimelineData = {
-      ...timelineData,
       items: newItems,
     };
     
@@ -178,7 +175,6 @@ class TimelineEditor extends PureComponent {
     }
     
     const newTimelineData = {
-      ...timelineData,
       items: newItems,
     };
     
@@ -241,7 +237,6 @@ class TimelineEditor extends PureComponent {
       newLayer,
     ];
     const newTimelineData = {
-      ...timelineData,
       layers: newLayers,
     };
     
@@ -268,7 +263,6 @@ class TimelineEditor extends PureComponent {
       });
     const newItems = items.filter(({layer}) => layer !== layerId);
     const newTimelineData = {
-      ...timelineData,
       layers: newLayers,
       items: newItems,
     };
@@ -295,8 +289,8 @@ class TimelineEditor extends PureComponent {
   
 
   onSaveClick = () => {
-    const { timelineData, doSaveTimeline } = this.props;
-    doSaveTimeline(timelineData);
+    // const { timelineData, doSaveTimeline, currentTimeline } = this.props;
+    // doSaveTimeline(currentTimeline, timelineData);
   }
   
   onRecordClick = () => {
@@ -477,12 +471,10 @@ class TimelineEditor extends PureComponent {
   }
   
   onZoomLevelClick = (level) => {
-    const { timelineData, doUpdateCurrentTimeline } = this.props;
     const data = {
-      ...timelineData,
       zoom: level,
     };
-    doUpdateCurrentTimeline(data);
+    this.doSave(data);
   }
   
   
@@ -674,8 +666,8 @@ class TimelineEditor extends PureComponent {
 
 
   doSave = (timelineData) => {
-    const { doUpdateCurrentTimeline } = this.props;
-    doUpdateCurrentTimeline(timelineData);
+    const { doSaveTimeline, currentTimeline } = this.props;
+    doSaveTimeline(currentTimeline, timelineData);
   }
   
   ////////////////////////////////////////////////////////////////////////////
@@ -1044,7 +1036,6 @@ const timelineDataSelector = createSelector(
     return timelines.find(({id}) => id === currentTimeline);
   }
 );
-
 const mapStateToProps = (state) => {
   return {
     currentTimeline: state.currentTimeline,
@@ -1056,10 +1047,9 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    doUpdateCurrentTimeline: (data) => dispatch(updateCurrentTimeline(data)),
     doUpdateTimelineInfo: (data) => dispatch(updateTimelineInfo(data)),
     doUpdateTimelineInfoUser: (data) => dispatch(updateTimelineInfoUser(data)),
-    doSaveTimeline: (data) => dispatch(saveTimeline(data)),
+    doSaveTimeline: (id, data) => dispatch(saveTimeline(id, data)),
     doRunTimeline: (id) => dispatch(runTimeline(id)),
     doStopRunTimeline: () => dispatch(stopTimeline()),
   };

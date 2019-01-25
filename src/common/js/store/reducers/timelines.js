@@ -11,16 +11,12 @@ export default (state = [], {type, payload}) => {
       ];
       break;
       
-    case 'UPDATE_TIMELINE':
-      return state.map(it => it.id === payload.id ? payload : it);
-      break;
-      
     case 'DELETE_TIMELINE':
       return state.filter(it => it.id !== payload);
       break;
       
     case 'SAVE_TIMELINE':
-      return state.map(it => it.id === payload.id ? payload : it);
+      return state.map(it => it.id === payload.id ? {...it, ...payload.data} : it);
       break;
       
     default:

@@ -26,22 +26,19 @@ export const createScript = (scriptData) => ({
   }
 });
 
-export const updateScript = (scriptData) => ({
-  type: 'UPDATE_SCRIPT',
-  payload: scriptData,
-});
-
 export const deleteScript = (id) => ({
   type: 'DELETE_SCRIPT',
   payload: id,
 });
 
-export const saveScript = (id, content) => ({
+export const saveScript = (id, data) => ({
   type: 'SAVE_SCRIPT',
   payload: {
     id,
-    content,
-    lastUpdated: Date.now(),
+    data: {
+      ...data,
+      lastUpdated: Date.now(),
+    },
   },
 });
 

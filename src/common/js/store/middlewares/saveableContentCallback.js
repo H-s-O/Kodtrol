@@ -7,6 +7,7 @@ export default (callback) => {
     if (
       action.type === 'SAVE_SCRIPT'
       || action.type === 'SAVE_TIMELINE'
+      || action.type === 'SAVE_BOARD'
     ) {
       callback(action.type);
     }

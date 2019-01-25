@@ -11,16 +11,12 @@ export default (state = [], {type, payload}) => {
       ];
       break;
       
-    case 'UPDATE_SCRIPT':
-      return state.map(it => it.id === payload.id ? payload : it);
-      break;
-      
     case 'DELETE_SCRIPT':
       return state.filter(it => it.id !== payload);
       break;
       
     case 'SAVE_SCRIPT':
-      return state.map(it => it.id === payload.id ? {...it, ...payload} : it);
+      return state.map(it => it.id === payload.id ? {...it, ...payload.data} : it);
       break;
       
     default:

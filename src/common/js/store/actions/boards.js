@@ -36,17 +36,15 @@ export const deleteBoard = (id) => ({
   payload: id,
 });
 
-export const saveBoard = (boardData) => ({
+export const saveBoard = (id, data) => ({
   type: 'SAVE_BOARD',
   payload: {
-    ...boardData,
-    lastUpdated: Date.now(),
+    id,
+    data: {
+      ...data,
+      lastUpdated: Date.now(),
+    },
   },
-});
-
-export const updateCurrentBoard = (boardData) => ({
-  type: 'UPDATE_CURRENT_BOARD',
-  payload: boardData,
 });
 
 export const runBoard = (id) => ({

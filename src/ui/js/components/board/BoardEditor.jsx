@@ -4,13 +4,14 @@ import { get, set, unset } from 'lodash';
 import { Button, Glyphicon, SplitButton, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
 import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
 import path from 'path';
 
 import Panel from '../partials/Panel';
 import stopEvent from '../../lib/stopEvent';
 import percentString from '../../lib/percentString';
 import BoardBlockModal from './modals/BoardBlockModal';
-import { updateCurrentBoard, saveBoard, runBoard, stopBoard } from '../../../../common/js/store/actions/boards';
+import { saveBoard, runBoard, stopBoard } from '../../../../common/js/store/actions/boards';
 import { updateBoardInfo, updateBoardInfoUser } from '../../../../common/js/store/actions/boardInfo';
 import { Provider } from './boardEditorContext';
 import BoardDisplay from './BoardDisplay';
@@ -21,7 +22,6 @@ const propTypes = {
   boardData: PropTypes.shape({}),
   boardInfo: PropTypes.shape({}),
   scripts: PropTypes.arrayOf(PropTypes.shape({})),
-  doUpdateCurrentBoard: PropTypes.func.isRequired,
   doUpdateBoardInfo: PropTypes.func.isRequired,
   doUpdateBoardInfoUser: PropTypes.func.isRequired,
   doSaveBoard: PropTypes.func.isRequired,
@@ -93,7 +93,6 @@ class BoardEditor extends PureComponent {
       return item;
     });
     const newBoardData = {
-      ...timelineData,
       items: newItems,
     };
     
@@ -106,7 +105,6 @@ class BoardEditor extends PureComponent {
 
     const newItems = items.filter(({id}) => id !== itemId);
     const newBoardData = {
-      ...boardData,
       items: newItems,
     };
     
@@ -156,7 +154,6 @@ class BoardEditor extends PureComponent {
     }
     
     const newBoardData = {
-      ...boardData,
       items: newItems,
     };
     
@@ -219,7 +216,6 @@ class BoardEditor extends PureComponent {
       newLayer,
     ];
     const newBoardData = {
-      ...boardData,
       layers: newLayers,
     };
     
@@ -246,7 +242,6 @@ class BoardEditor extends PureComponent {
       });
     const newItems = items.filter(({layer}) => layer !== layerId);
     const newBoardData = {
-      ...boardData,
       layers: newLayers,
       items: newItems,
     };
@@ -256,8 +251,8 @@ class BoardEditor extends PureComponent {
   
 
   onSaveClick = () => {
-    const { boardData, doSaveBoard } = this.props;
-    doSaveBoard(boardData);
+    // const { boardData, doSaveBoard } = this.props;
+    // doSaveBoard(boardData);
   }
   
   
@@ -380,12 +375,12 @@ class BoardEditor extends PureComponent {
 
 
   doSave = (boardData) => {
-    const { doUpdateCurrentBoard } = this.props;
-    doUpdateCurrentBoard(boardData);
+    const { doSaveBoard, currentBoard } = this.props;
+    doSaveBoard(currentBoard, boardData);
   }
   
   ////////////////////////////////////////////////////////////////////////////
-  // TIMELINE INFO
+  // BOARD INFO
   
   doUpdateInfo = (boardInfo) => {
     const { doUpdateBoardInfoUser } = this.props;
@@ -563,20 +558,29 @@ class BoardEditor extends PureComponent {
 BoardEditor.propTypes = propTypes;
 BoardEditor.defaultProps = defaultProps;
 
-const mapStateToProps = ({currentBoard, scripts, boardInfo, runBoard}) => {
+const boardDataSelector = createSelector(
+  [
+    (state) => state.currentBoard,
+    (state) => state.boards,
+  ],
+  (currentBoard, boards) => {
+    return boards.find(({id}) => id === currentBoard);
+  }
+);
+const mapStateToProps = (state) => {
   return {
-    boardData: currentBoard,
-    scripts,
-    boardInfo,
-    runBoard,
+    currentBoard: state.currentBoard,
+    boardData: boardDataSelector(state),
+    scripts: state.scripts,
+    boardInfo: state.boardInfo,
+    runBoard: state.runBoard,
   };
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    doUpdateCurrentBoard: (data) => dispatch(updateCurrentBoard(data)),
     doUpdateBoardInfo: (data) => dispatch(updateBoardInfo(data)),
     doUpdateBoardInfoUser: (data) => dispatch(updateBoardInfoUser(data)),
-    doSaveBoard: (data) => dispatch(saveBoard(data)),
+    doSaveBoard: (id, data) => dispatch(saveBoard(id, data)),
     doRunBoard: (id) => dispatch(runBoard(id)),
     doStopRunBoard: () => dispatch(stopBoard()),
   };

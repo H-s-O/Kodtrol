@@ -2,7 +2,6 @@ import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Label, ButtonGroup, ButtonToolbar, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 
 import Panel from './Panel';
 import TreeView from './TreeView';
@@ -17,6 +16,8 @@ import styles from '../../../styles/components/partials/timelinesbrowser.scss';
 const propTypes = {
   timelines: PropTypes.arrayOf(PropTypes.shape({})),
   boards: PropTypes.arrayOf(PropTypes.shape({})),
+  currentTimeline: PropTypes.string,
+  currentBoard: PropTypes.string,
   runTimeline: PropTypes.string,
   runBoard: PropTypes.string,
   doSelectTimeline: PropTypes.func.isRequired,
@@ -35,6 +36,8 @@ const defaultProps = {
   boards: [],
   runTimeline: null,
   runBoard: null,
+  currentTimeline: null,
+  currentBoard: null,
 };
 
 class TimelinesBrowser extends PureComponent {
@@ -104,8 +107,21 @@ class TimelinesBrowser extends PureComponent {
   
   onPreviewClick = (it) => {
     const { id, type } = it;
+    if (type === 'timeline') {
+      this.runTimeline(id);
+    } else if (type === 'board') {
+      this.runBoard(id);
+    }
+  }
+  
+  runTimeline = (id) => {
     const { doRunTimeline } = this.props;
     doRunTimeline(id);
+  }
+  
+  runBoard = (id) => {
+    const { doRunBoard } = this.props;
+    doRunBoard(id);
   }
   
   onStopPreviewClick = () => {
@@ -257,13 +273,13 @@ class TimelinesBrowser extends PureComponent {
             id,
             label: name,
             icon: 'film',
-            active: id === get(currentTimeline, 'id'),
+            active: id === currentTimeline,
           })).concat(boards.map(({id, name}) => ({
             type: 'board',
             id,
             label: name,
             icon: 'th',
-            active: id === get(currentBoard, 'id'),
+            active: id === currentBoard,
           })))}
           onClickItem={this.onItemSelect}
           renderActions={this.renderTreeActions}
@@ -299,6 +315,11 @@ const mapDispatchToProps = (dispatch) => {
     doSelectBoard: (id) => dispatch(selectBoard(id)),
     doDeleteBoard: (id) => dispatch(deleteBoard(id)),
     doCreateBoardModal: () => dispatch(updateBoardModal('add', {})),
+    
+    doEditBoardModal: (data) => dispatch(updateBoardModal('edit', data)),
+    doDuplicateBoardModal: (data) => dispatch(updateBoardModal('duplicate', data)),
+    doRunBoard: (id) => dispatch(runBoard(id)),
+    doStopRunBoard: () => dispatch(stopBoard()),
   };
 }
 

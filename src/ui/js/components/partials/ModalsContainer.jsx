@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
 import { createDevice, updateDevice} from '../../../../common/js/store/actions/devices';
-import { createScript, updateScript } from '../../../../common/js/store/actions/scripts';
-import { createTimeline, updateTimeline } from '../../../../common/js/store/actions/timelines';
+import { createScript, saveScript } from '../../../../common/js/store/actions/scripts';
+import { createTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
 import { createBoard, updateBoard } from '../../../../common/js/store/actions/boards';
 import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal } from '../../../../common/js/store/actions/modals';
 import DeviceModal from '../modals/DeviceModal';
@@ -43,14 +43,15 @@ class ModalsContainer extends PureComponent {
     const {
       scriptModalAction,
       doCreateScript,
-      doUpdateScript,
+      doSaveScript,
       doCancelScriptModal,
     } = this.props;
     
     if (scriptModalAction === 'add' || scriptModalAction === 'duplicate') {
       doCreateScript(data);
     } else if (scriptModalAction === 'edit') {
-      doUpdateScript(data);
+      const { id, ...scriptData } = data;
+      doSaveScript(id, scriptData);
     }
     
     doCancelScriptModal();
@@ -65,14 +66,15 @@ class ModalsContainer extends PureComponent {
     const {
       timelineModalAction,
       doCreateTimeline,
-      doUpdateTimeline,
+      doSaveTimeline,
       doCancelTimelineModal,
     } = this.props;
     
     if (timelineModalAction === 'add' || timelineModalAction === 'duplicate') {
       doCreateTimeline(data);
     } else if (timelineModalAction === 'edit') {
-      doUpdateTimeline(data);
+      const { id, ...timelineData } = data;
+      doSaveTimeline(id, timelineData);
     }
     
     doCancelTimelineModal();
@@ -224,10 +226,10 @@ const mapDispatchToProps = (dispatch) => {
     doUpdateDevice: (data) => dispatch(updateDevice(data)),
     doCancelDeviceModal: () => dispatch(updateDeviceModal()),
     doCreateScript: (data) => dispatch(createScript(data)),
-    doUpdateScript: (data) => dispatch(updateScript(data)),
+    doSaveScript: (id, data) => dispatch(saveScript(id, data)),
     doCancelScriptModal: () => dispatch(updateScriptModal()),
     doCreateTimeline: (data) => dispatch(createTimeline(data)),
-    doUpdateTimeline: (data) => dispatch(updateTimeline(data)),
+    doSaveTimeline: (id, data) => dispatch(saveTimeline(id, data)),
     doCancelTimelineModal: () => dispatch(updateTimelineModal()),
     doCreateBoard: (data) => dispatch(createBoard(data)),
     doUpdateBoard: (data) => dispatch(updateBoard(data)),

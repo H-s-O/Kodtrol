@@ -49,7 +49,9 @@ class ScriptEditor extends PureComponent {
   saveScript = () => {
     const { editorValue } = this.state;
     const { doSaveScript, currentScript } = this.props;
-    doSaveScript(currentScript, editorValue);
+    doSaveScript(currentScript, {
+      content: editorValue,
+    });
     
     this.setState({
       editorValue: null,
@@ -129,7 +131,7 @@ const mapStateToProps = (state) => {
 }
 const mapDispatchToProps = (dispatch) => {
   return {
-    doSaveScript: (id, content) => dispatch(saveScript(id, content)),
+    doSaveScript: (id, data) => dispatch(saveScript(id, data)),
     doPreviewScript: (id) => dispatch(previewScript(id)),
   };
 }
