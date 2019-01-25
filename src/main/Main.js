@@ -304,9 +304,8 @@ export default class Main {
     if (!this.store) {
       return next();
     }
-    // const timelines = this.store.state.timelines;
-    // const timeline = timelines.find(({id}) => id === req.params.timelineId);
-    const timeline = this.store.state.currentTimeline;
+    const timelines = this.store.state.timelines;
+    const timeline = timelines.find(({id}) => id === this.store.state.currentTimeline);
     if (!timeline) {
       return res.status(404);
     }
