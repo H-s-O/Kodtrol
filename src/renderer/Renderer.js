@@ -7,12 +7,14 @@ import ArtnetOutput from './outputs/ArtnetOutput';
 import AudioOutput from './outputs/AudioOutput';
 import ScriptRenderer from './rendering/renderers/ScriptRenderer';
 import TimelineRenderer from './rendering/renderers/TimelineRenderer';
+import BoardRenderer from './rendering/renderers/BoardRenderer';
 import Media from './rendering/Media';
 import MediaProxy from './rendering/MediaProxy';
 import Device from './rendering/Device';
 import DeviceProxy from './rendering/DeviceProxy';
 import Script from './rendering/Script';
 import Timeline from './rendering/Timeline';
+import Board from './rendering/Board';
 
 export default class Renderer {
   outputs = {};
@@ -20,9 +22,11 @@ export default class Renderer {
   devices = {};
   scripts = {};
   timelines = {};
+  boards = {};
   medias = {};
   currentScript = null;
   currentTimeline = null;
+  currentBoard = null;
   ticker = null;
   playing = false;
   providers = null;
@@ -48,6 +52,7 @@ export default class Renderer {
       getScripts: this.getScripts,
       getDevices: this.getDevices,
       getTimeline: this.getTimeline,
+      getBoard: this.getBoard,
       getMedia: this.getMedia,
     }
     
@@ -56,7 +61,6 @@ export default class Renderer {
   }
   
   onExit = () => {
-    this.destroyRendererRelated();
     this.destroy();
   }
   
@@ -78,6 +82,9 @@ export default class Renderer {
     } else if ('updateTimelines' in message) {
       const { updateTimelines } = message;
       this.updateTimelines(updateTimelines);
+    } else if ('updateBoards' in message) {
+      const { updateBoards } = message;
+      this.updateBoards(updateBoards);
     } else if ('previewScript' in message) {
       const { previewScript } = message;
       this.previewScript(previewScript);
@@ -161,6 +168,25 @@ export default class Renderer {
     this.updateMedias(medias);
   }
   
+  updateBoards = (data) => {
+    this.boards = data.reduce((boards, board) => {
+      const { id } = board;
+      // update existing
+      if (id in boards) {
+        boards[id].update(board);
+        return boards;
+      }
+      // new
+      else {
+        return {
+          ...boards,
+          [id]: new Board(board),
+        };
+      }
+    }, this.boards || {});
+    console.log('RENDERER updateBoards', this.boards);
+  }
+  
   updateMedias = (data) => {
     this.medias = data.reduce((medias, media) => {
       const { id } = media;
@@ -177,7 +203,7 @@ export default class Renderer {
         };
       }
     }, this.medias || {});
-    console.log('RENDERER updateMedias', this.medias);
+    // console.log('RENDERER updateMedias', this.medias);
   }
   
   getScript = (scriptId) => {
@@ -192,6 +218,10 @@ export default class Renderer {
   
   getTimeline = (timelineId) => {
     return this.timelines[timelineId];
+  }
+  
+  getBoard = (boardId) => {
+    return this.boards[boardId];
   }
   
   getDevices = (devicesList) => {
@@ -256,8 +286,28 @@ export default class Renderer {
   }
   
   runBoard = (id) => {
+    if (id === null || (this.currentBoard && this.currentBoard.id !== id)) {
+      if (this.currentBoard) {
+        this.currentBoard.destroy();
+        this.currentBoard = null;
+      }
+    }
+    
+    this.resetAll();
+    
+    if (id !== null) {
+      const renderer = new BoardRenderer(this.providers, id);
+      
+      this.currentBoard = renderer;
+      this.updateTicker(renderer.board.tempo);
+    } else {
+      this.updateTicker(null, false);
+    }
+    
     this.updateDmx();
     this.updateAudio();
+    
+    console.log('RENDERER runBoard', id);
   }
   
   updateTicker = (tempo = null, start = true) => {
@@ -267,7 +317,7 @@ export default class Renderer {
       this.ticker = null;
     }
     
-    if (this.currentScript || this.currentTimeline) {
+    if (this.currentScript || this.currentTimeline || this.currentBoard) {
       if (!this.ticker) {
         this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo || 120);
         if (start) {
@@ -324,6 +374,14 @@ export default class Renderer {
         },
       });
     }
+    if (this.currentBoard) {
+      this.currentBoard.render(delta);
+      this.send({
+        boardInfo: {
+          activeItems: this.currentBoard.activeItems,
+        },
+      });
+    }
 
     const devicesData = this.getDevicesData();
     // console.log(Object.values(this.devices).map(({channels}) => channels));
@@ -373,6 +431,9 @@ export default class Renderer {
     if (this.currentTimeline) {
       this.currentTimeline.beat(beat, delta);
     }
+    if (this.currentBoard) {
+      this.currentBoard.beat(beat, delta);
+    }
   }
   
   onMidiInput = (data) => {
@@ -382,6 +443,9 @@ export default class Renderer {
     if (this.currentTimeline) {
       this.currentTimeline.input('midi', data);
     }
+    if (this.currentBoard) {
+      this.currentBoard.input('midi', data);
+    }
   }
   
   onOscInput = (data) => {
@@ -390,6 +454,9 @@ export default class Renderer {
     }
     if (this.currentTimeline) {
       this.currentTimeline.input('osc', data);
+    }
+    if (this.currentBoard) {
+      this.currentBoard.input('osc', data);
     }
   }
   

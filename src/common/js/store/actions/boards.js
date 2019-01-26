@@ -26,11 +26,6 @@ export const createBoard = (boardData) => ({
   },
 });
 
-export const updateBoard = (boardData) => ({
-  type: 'UPDATE_BOARD',
-  payload: boardData,
-});
-
 export const deleteBoard = (id) => ({
   type: 'DELETE_BOARD',
   payload: id,

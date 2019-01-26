@@ -48,6 +48,12 @@ export default class Store extends EventEmitter {
       },
       this.onTimelinesChange
     );
+    const boardsObserver = observer(
+      (state) => {
+        return state.boards;
+      },
+      this.onBoardsChange
+    );
     const previewScriptObserver = observer(
       (state) => {
         const { previewScript, scripts } = state;
@@ -89,6 +95,7 @@ export default class Store extends EventEmitter {
       devicesObserver,
       scriptsObserver,
       timelinesObserver,
+      boardsObserver,
       previewScriptObserver,
       runTimelineObserver,
       runBoardObserver,
@@ -119,6 +126,10 @@ export default class Store extends EventEmitter {
   
   onTimelinesChange = (dispatch, current, previous) => {
     this.emit(StoreEvent.TIMELINES_CHANGED);
+  }
+  
+  onBoardsChange = (dispatch, current, previous) => {
+    this.emit(StoreEvent.BOARDS_CHANGED);
   }
   
   onPreviewScript = (dispatch, current, previous) => {

@@ -83,6 +83,7 @@ export default class Main {
     this.store.on(StoreEvent.DEVICES_CHANGED, this.onDevicesChanged);
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
     this.store.on(StoreEvent.TIMELINES_CHANGED, this.onTimelinesChanged);
+    this.store.on(StoreEvent.BOARDS_CHANGED, this.onBoardsChanged);
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
     this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
@@ -90,9 +91,11 @@ export default class Main {
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
     
     // Force an initial update
+    // @TODO somehow trigger in the store ?
     this.onDevicesChanged();
     this.onScriptsChanged();
     this.onTimelinesChanged();
+    this.onBoardsChanged();
   }
   
   destroyStore = () => {
@@ -133,6 +136,17 @@ export default class Main {
       console.log('updateTimelines');
       this.renderer.send({
         updateTimelines: timelines,
+      });
+    }
+  }
+  
+  onBoardsChanged = () => {
+    const { boards } = this.store.state;
+    
+    if (this.renderer) {
+      console.log('updateBoards');
+      this.renderer.send({
+        updateBoards: boards,
       });
     }
   }

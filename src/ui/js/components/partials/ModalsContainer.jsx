@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { createDevice, updateDevice} from '../../../../common/js/store/actions/devices';
 import { createScript, saveScript } from '../../../../common/js/store/actions/scripts';
 import { createTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
-import { createBoard, updateBoard } from '../../../../common/js/store/actions/boards';
+import { createBoard, saveBoard } from '../../../../common/js/store/actions/boards';
 import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal } from '../../../../common/js/store/actions/modals';
 import DeviceModal from '../modals/DeviceModal';
 import ScriptModal from '../modals/ScriptModal';
@@ -89,14 +89,15 @@ class ModalsContainer extends PureComponent {
     const {
       boardModalAction,
       doCreateBoard,
-      doUpdateBoard,
+      doSaveBoard,
       doCancelBoardModal,
     } = this.props;
     
     if (boardModalAction === 'add' || boardModalAction === 'duplicate') {
       doCreateBoard(data);
     } else if (boardModalAction === 'edit') {
-      doUpdateBoard(data);
+      const { id, ...boardData } = data;
+      doSaveBoard(id, boardData);
     }
     
     doCancelBoardModal();
@@ -232,7 +233,7 @@ const mapDispatchToProps = (dispatch) => {
     doSaveTimeline: (id, data) => dispatch(saveTimeline(id, data)),
     doCancelTimelineModal: () => dispatch(updateTimelineModal()),
     doCreateBoard: (data) => dispatch(createBoard(data)),
-    doUpdateBoard: (data) => dispatch(updateBoard(data)),
+    doSaveBoard: (id, data) => dispatch(saveBoard(id, data)),
     doCancelBoardModal: () => dispatch(updateBoardModal()),
   };
 }
