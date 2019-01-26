@@ -1,7 +1,7 @@
 {
-  "name": "Manuscript",
+  "name": "Kodtrol",
   "version": "0.0.1",
-  "description": "Timeline and code-based show control software",
+  "description": "Code-based show control software",
   "main": "src/main/process.js",
   "scripts": {
     "dev": "webpack-dev-server --progress --config build/webpack.config.js",
