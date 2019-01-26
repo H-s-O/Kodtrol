@@ -9,6 +9,8 @@ import resetRunningItems from '../../common/js/store/middlewares/resetRunningIte
 import resetCurrentItems from '../../common/js/store/middlewares/resetCurrentItems';
 import resetTimelineInfoUser from '../../common/js/store/middlewares/resetTimelineInfoUser';
 import resetTimelineInfo from '../../common/js/store/middlewares/resetTimelineInfo';
+import resetBoardInfoUser from '../../common/js/store/middlewares/resetBoardInfoUser';
+import resetBoardInfo from '../../common/js/store/middlewares/resetBoardInfo';
 import saveableContentCallback from '../../common/js/store/middlewares/saveableContentCallback';
 
 export default class Store extends EventEmitter {
@@ -25,6 +27,8 @@ export default class Store extends EventEmitter {
         resetRunningItems(),
         resetTimelineInfo(),
         resetTimelineInfoUser(),
+        resetBoardInfo(),
+        resetBoardInfoUser(),
         saveableContentCallback(this.onSaveableContent),
         forwardToRenderer, // IMPORTANT! This goes last
       ),
@@ -90,6 +94,12 @@ export default class Store extends EventEmitter {
       },
       this.onTimelineInfoUserChange
     );
+    const boardInfoUserObserver = observer(
+      (state) => {
+        return state.boardInfoUser;
+      },
+      this.onBoardInfoUserChange
+    );
     
     observe(this.store, [
       devicesObserver,
@@ -100,6 +110,7 @@ export default class Store extends EventEmitter {
       runTimelineObserver,
       runBoardObserver,
       timelineInfoUserObserver,
+      boardInfoUserObserver,
     ]);
     replayActionMain(this.store);
   }
@@ -146,6 +157,10 @@ export default class Store extends EventEmitter {
   
   onTimelineInfoUserChange = (dispatch, current, previous) => {
     this.emit(StoreEvent.TIMELINE_INFO_USER_CHANGED);
+  }
+  
+  onBoardInfoUserChange = (dispatch, current, previous) => {
+    this.emit(StoreEvent.BOARD_INFO_USER_CHANGED);
   }
   
   dispatch = (action) => {

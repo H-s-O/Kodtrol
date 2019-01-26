@@ -15,6 +15,11 @@ export default function(props) {
           id,
           label: order + 1,
         })),
+        types: [
+          { id: 'trigger_once', label: 'Trigger once' },
+          { id: 'trigger_mult', label: 'Trigger multiple' },
+          { id: 'toggle', label: 'Toggle' },
+        ],
       }}
       fields={[
         {
@@ -33,6 +38,12 @@ export default function(props) {
           field: 'layer',
           type: 'select',
           from: 'layers',
+        },
+        {
+          label: 'Type',
+          field: 'type',
+          type: 'select',
+          from: 'types',
         },
         {
           label: 'Color',

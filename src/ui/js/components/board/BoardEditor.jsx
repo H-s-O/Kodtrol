@@ -62,6 +62,7 @@ class BoardEditor extends PureComponent {
       boardCanPasteItem: this.canPasteItem,
       boardAddLayer: this.onAddLayer,
       boardDeleteLayer: this.onDeleteLayer,
+      boardItemClick: this.onItemClick,
     };
   }
   
@@ -381,6 +382,14 @@ class BoardEditor extends PureComponent {
   
   ////////////////////////////////////////////////////////////////////////////
   // BOARD INFO
+  
+  onItemClick = (id) => {
+    // const item = this.getItem(id);
+    const newItems = {
+      [id]: true,
+    };
+    this.doUpdateInfo(newItems);
+  }
   
   doUpdateInfo = (boardInfo) => {
     const { doUpdateBoardInfoUser } = this.props;

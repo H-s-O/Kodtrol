@@ -10,6 +10,8 @@ import resetRunningItems from '../../common/js/store/middlewares/resetRunningIte
 import resetCurrentItems from '../../common/js/store/middlewares/resetCurrentItems';
 import resetTimelineInfoUser from '../../common/js/store/middlewares/resetTimelineInfoUser';
 import resetTimelineInfo from '../../common/js/store/middlewares/resetTimelineInfo';
+import resetBoardInfoUser from '../../common/js/store/middlewares/resetBoardInfoUser';
+import resetBoardInfo from '../../common/js/store/middlewares/resetBoardInfo';
 
 import styles from '../styles/root.scss';
 
@@ -31,6 +33,8 @@ export default class Root extends PureComponent {
           resetRunningItems(),
           resetTimelineInfo(),
           resetTimelineInfoUser(),
+          resetBoardInfo(),
+          resetBoardInfoUser(),
         ),
       ),
     );

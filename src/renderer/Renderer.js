@@ -97,6 +97,9 @@ export default class Renderer {
     } else if ('timelineInfoUser' in message) {
       const { timelineInfoUser } = message;
       this.updateTimelineInfo(timelineInfoUser);
+    } else if ('boardInfoUser' in message) {
+      const { boardInfoUser } = message;
+      this.updateBoardInfo(boardInfoUser);
     }
   }
   

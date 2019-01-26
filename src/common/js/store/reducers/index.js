@@ -5,6 +5,8 @@ export { default as devices } from './devices';
 export { default as scripts } from './scripts';
 export { default as timelineInfo } from './timelineInfo';
 export { default as timelineInfoUser } from './timelineInfoUser';
+export { default as boardInfo } from './boardInfo';
+export { default as boardInfoUser } from './boardInfoUser';
 export { default as timelines } from './timelines';
 export { default as modals } from './modals';
 export { default as previewScript } from './previewScript';

@@ -100,15 +100,15 @@ export default class BoardRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      block.instance.render(currentTime);
+      block.instance.render(delta);
     }
     
-    const medias = boardItems[1];
-    const mediaCount = medias.length;
-    for (let i = 0; i < mediaCount; i++) {
-      const media = this._audios[medias[i]];
-      media.instance.render(currentTime, mediaInfo);
-    }
+    // const medias = boardItems[1];
+    // const mediaCount = medias.length;
+    // for (let i = 0; i < mediaCount; i++) {
+    //   const media = this._audios[medias[i]];
+    //   media.instance.render(currentTime, mediaInfo);
+    // }
   }
 
   beat = (beat, delta) => {

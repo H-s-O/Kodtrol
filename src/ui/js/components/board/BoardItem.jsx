@@ -11,7 +11,7 @@ import boardConnect from './boardConnect';
 import styles from '../../../styles/components/board/boarditem.scss';
 
 const propTypes = {
-  type: PropTypes.oneOf(['block', 'simple']),
+  type: PropTypes.oneOf(['block']),
   index: PropTypes.number,
   typeLabel: PropTypes.string,
   data: PropTypes.shape({}),
@@ -24,6 +24,7 @@ const propTypes = {
   getItemLabel: PropTypes.func,
   getDialogLabel: PropTypes.func,
   renderContent: PropTypes.func,
+  boardItemClick: PropTypes.func,
 };
 
 const defaultProps = {
@@ -154,36 +155,10 @@ class BoardItem extends PureComponent {
     });
   }
   
-  renderSimpleType = () => {
-    const { style, data, layerDuration, getItemLabel, renderContent, children } = this.props;
-    const { inTime, outTime, color, name } = data;
-    const lightColor = Color(color).isLight();
-    
-    return (
-      <div
-        className={classNames({
-          [styles.boardItem]: true,
-          [styles.lightColor]: lightColor,
-        })}
-        style={{
-          left: percentString(inTime / layerDuration),
-          backgroundColor: color,
-        }}
-        onContextMenu={this.onContextMenuClick}
-        onMouseDown={this.onStartAnchorDown}
-      >
-        <div
-          className={classNames({
-            [styles.labelFlag]: true,
-          })}
-          style={{
-            backgroundColor: color,
-          }}
-        >
-          { getItemLabel ? getItemLabel() : name }
-        </div>
-      </div>
-    );
+  onClick = (e) => {
+    const { data, boardItemClick } = this.props;
+    const { id } = data;
+    boardItemClick(id);
   }
   
   renderBlockType = () => {
@@ -204,6 +179,7 @@ class BoardItem extends PureComponent {
           backgroundColor: color,
         }}
         onContextMenu={this.onContextMenuClick}
+        onClick={this.onClick}
       >
         <div
           className={styles.header}
