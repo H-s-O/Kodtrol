@@ -358,6 +358,20 @@ export default class Renderer {
     }
   }
   
+  updateBoardInfo = (data) => {
+    console.log('Renderer.updateBoardInfo', data);
+    
+    if (this.currentBoard) {
+      const { activeItems } = data;
+      if (typeof activeItems !== 'undefined') {
+        this.currentBoard.setActiveItems(activeItems);
+      }
+      this.send({
+        'boardInfo': data
+      });
+    }
+  }
+  
   send = (data) => {
     process.send(data);
   }
