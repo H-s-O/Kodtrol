@@ -197,7 +197,6 @@ export default class TimelineRenderer {
       const trigger = this._triggers[triggers[i]];
       if (
         currentTime >= trigger.inTime
-        && currentTime <= trigger.inTime + 50
         && !trigger.instance.triggered
       ) {
         const data = trigger.instance.render();
