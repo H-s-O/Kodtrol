@@ -11,12 +11,12 @@ export default (state = [], {type, payload}) => {
       ];
       break;
       
-    case 'UPDATE_DEVICE':
-      return state.map(it => it.id === payload.id ? payload : it);
-      break;
-      
     case 'DELETE_DEVICE':
       return state.filter(it => it.id !== payload);
+      break;
+      
+    case 'SAVE_DEVICE':
+      return state.map(it => it.id === payload.id ? {...it, ...payload.data} : it);
       break;
       
     default:

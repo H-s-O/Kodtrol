@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
-import { createDevice, updateDevice} from '../../../../common/js/store/actions/devices';
+import { createDevice, saveDevice} from '../../../../common/js/store/actions/devices';
 import { createScript, saveScript } from '../../../../common/js/store/actions/scripts';
 import { createTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
 import { createBoard, saveBoard } from '../../../../common/js/store/actions/boards';
@@ -21,14 +21,15 @@ class ModalsContainer extends PureComponent {
     const {
       deviceModalAction,
       doCreateDevice,
-      doUpdateDevice,
+      doSaveDevice,
       doCancelDeviceModal,
     } = this.props;
     
     if (deviceModalAction === 'add' || deviceModalAction === 'duplicate') {
       doCreateDevice(data);
     } else if (deviceModalAction === 'edit') {
-      doUpdateDevice(data);
+      const { id, ...deviceData } = data;
+      doSaveDevice(id, deviceData);
     }
     
     doCancelDeviceModal();
@@ -224,7 +225,7 @@ const mapStateToProps = ({modals, devices}) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     doCreateDevice: (data) => dispatch(createDevice(data)),
-    doUpdateDevice: (data) => dispatch(updateDevice(data)),
+    doSaveDevice: (id, data) => dispatch(saveDevice(id, data)),
     doCancelDeviceModal: () => dispatch(updateDeviceModal()),
     doCreateScript: (data) => dispatch(createScript(data)),
     doSaveScript: (id, data) => dispatch(saveScript(id, data)),

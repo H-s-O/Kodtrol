@@ -14,15 +14,18 @@ export const createDevice = (deviceData) => ({
   },
 });
 
-export const updateDevice = (deviceData) => ({
-  type: 'UPDATE_DEVICE',
-  payload: {
-    ...deviceData,
-    lastUpdated: Date.now(),
-  },
-});
-
 export const deleteDevice = (id) => ({
   type: 'DELETE_DEVICE',
   payload: id,
+});
+
+export const saveDevice = (id, data) => ({
+  type: 'SAVE_DEVICE',
+  payload: {
+    id,
+    data: {
+      ...data,
+      lastUpdated: Date.now(),
+    },
+  },
 });
