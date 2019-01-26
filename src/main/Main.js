@@ -14,6 +14,7 @@ import * as RendererEvent from './events/RendererEvent';
 import Store from './data/Store';
 import ScriptsManager from './data/ScriptsManager';
 import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
+import { updateBoardInfo } from '../common/js/store/actions/boardInfo';
 import Renderer from './process/Renderer';
 
 export default class Main {
@@ -241,10 +242,15 @@ export default class Main {
   createRenderer = () => {
     this.renderer = new Renderer();
     this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
+    this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
   }
   
   onRendererTimelineInfoUpdate = (info) => {
     this.store.dispatch(updateTimelineInfo(info));
+  }
+  
+  onRendererBoardInfoUpdate = (info) => {
+    this.store.dispatch(updateBoardInfo(info));
   }
   
   destroyRenderer = () => {

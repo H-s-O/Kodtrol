@@ -1,4 +1,5 @@
 const defaultState = {
+  activeItems: null,
 };
 
 export default (state = defaultState, {type, payload}) => {

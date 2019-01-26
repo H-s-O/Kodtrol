@@ -24,7 +24,8 @@ const propTypes = {
   getItemLabel: PropTypes.func,
   getDialogLabel: PropTypes.func,
   renderContent: PropTypes.func,
-  boardItemClick: PropTypes.func,
+  boardItemMouseDown: PropTypes.func,
+  boardItemMouseUp: PropTypes.func,
 };
 
 const defaultProps = {
@@ -155,10 +156,16 @@ class BoardItem extends PureComponent {
     });
   }
   
-  onClick = (e) => {
-    const { data, boardItemClick } = this.props;
+  onMouseDown = (e) => {
+    const { data, boardItemMouseDown } = this.props;
     const { id } = data;
-    boardItemClick(id);
+    boardItemMouseDown(id);
+  }
+  
+  onMouseUp = (e) => {
+    const { data, boardItemMouseUp } = this.props;
+    const { id } = data;
+    boardItemMouseUp(id);
   }
   
   renderBlockType = () => {
@@ -179,7 +186,8 @@ class BoardItem extends PureComponent {
           backgroundColor: color,
         }}
         onContextMenu={this.onContextMenuClick}
-        onClick={this.onClick}
+        onMouseDown={this.onMouseDown}
+        onMouseUp={this.onMouseUp}
       >
         <div
           className={styles.header}

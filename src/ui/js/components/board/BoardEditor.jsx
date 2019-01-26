@@ -62,7 +62,8 @@ class BoardEditor extends PureComponent {
       boardCanPasteItem: this.canPasteItem,
       boardAddLayer: this.onAddLayer,
       boardDeleteLayer: this.onDeleteLayer,
-      boardItemClick: this.onItemClick,
+      boardItemMouseDown: this.onItemMouseDown,
+      boardItemMouseUp: this.onItemMouseUp,
     };
   }
   
@@ -383,12 +384,35 @@ class BoardEditor extends PureComponent {
   ////////////////////////////////////////////////////////////////////////////
   // BOARD INFO
   
-  onItemClick = (id) => {
-    // const item = this.getItem(id);
+  onItemMouseDown = (id) => {
+    const item = this.getItem(id);
+    const { type } = item;
+    const { boardInfo } = this.props;
+    const { activeItems } = boardInfo;
     const newItems = {
+      ...activeItems,
       [id]: true,
     };
-    this.doUpdateInfo(newItems);
+    if (type === 'toggle' && id in activeItems) {
+      delete newItems[id];
+    }
+    this.doUpdateInfo({
+      activeItems: newItems
+    });
+  }
+  
+  onItemMouseUp = (id) => {
+    const item = this.getItem(id);
+    const { type } = item;
+    if (type === 'trigger_once') {
+      const { boardInfo } = this.props;
+      const { activeItems } = boardInfo;
+      const newItems = { ...activeItems };
+      delete newItems[id];
+      this.doUpdateInfo({
+        activeItems: newItems
+      });
+    }
   }
   
   doUpdateInfo = (boardInfo) => {
