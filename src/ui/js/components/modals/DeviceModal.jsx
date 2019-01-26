@@ -8,8 +8,8 @@ export default function(props) {
       {...props}
       relatedData={{
         deviceTypes: [
-          { label: 'DMX / ArtNet', value: 'dmx' },
-          { label: 'Serial', value: 'serial' },
+          { id: 'dmx', label: 'DMX / ArtNet' },
+          { id: 'serial', label: 'Serial' },
         ],
       }}
       fields={[
