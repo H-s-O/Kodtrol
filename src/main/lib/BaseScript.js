@@ -17,6 +17,9 @@ export default {
   _interpolate(a, b, percent = 0.5, type = 'linear') {
     return a + ((b - a) * percent);
   },
+  _tri(x) {
+    return (2 / Math.PI) * Math.asin(Math.sin(x));
+  },
   _randomBetween(min, max) {
     return (min + (Math.random() * (max - min)));
   },
