@@ -119,7 +119,11 @@ const scriptValueSelector = createSelector(
     if (currentScript === null) {
       return null;
     }
-    return scripts.find(({id}) => id === currentScript).content;
+    const script = scripts.find(({id}) => id === currentScript);
+    if (!script) {
+      return null;
+    }
+    return script.content;
   }
 );
 
