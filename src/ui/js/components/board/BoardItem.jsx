@@ -26,6 +26,7 @@ const propTypes = {
   renderContent: PropTypes.func,
   boardItemMouseDown: PropTypes.func,
   boardItemMouseUp: PropTypes.func,
+  boardItemIsActive: PropTypes.func,
 };
 
 const defaultProps = {
@@ -169,8 +170,8 @@ class BoardItem extends PureComponent {
   }
   
   renderBlockType = () => {
-    const { style, data, layerDuration, getItemLabel, renderContent, children } = this.props;
-    const { inTime, outTime, color, name } = data;
+    const { style, data, layerDuration, getItemLabel, renderContent, children, boardItemIsActive } = this.props;
+    const { inTime, outTime, color, name, id } = data;
     const lightColor = Color(color).isLight();
     
     return (
@@ -203,6 +204,7 @@ class BoardItem extends PureComponent {
         <div
           className={classNames({
             [styles.content]: true,
+            [styles.anim]: boardItemIsActive(id),
           })}
         >
           { children }

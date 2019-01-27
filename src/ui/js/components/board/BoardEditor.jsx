@@ -64,6 +64,7 @@ class BoardEditor extends PureComponent {
       boardDeleteLayer: this.onDeleteLayer,
       boardItemMouseDown: this.onItemMouseDown,
       boardItemMouseUp: this.onItemMouseUp,
+      boardItemIsActive: this.itemIsActive,
     };
   }
   
@@ -393,7 +394,7 @@ class BoardEditor extends PureComponent {
       ...activeItems,
       [id]: true,
     };
-    if (type === 'toggle' && id in activeItems) {
+    if (type === 'toggle' && activeItems && id in activeItems) {
       delete newItems[id];
     }
     this.doUpdateInfo({
@@ -413,6 +414,13 @@ class BoardEditor extends PureComponent {
         activeItems: newItems
       });
     }
+  }
+  
+  itemIsActive = (id) => {
+    const item = this.getItem(id);
+    const { boardInfo } = this.props;
+    const { activeItems } = boardInfo;
+    return activeItems && id in activeItems;
   }
   
   doUpdateInfo = (boardInfo) => {
@@ -537,6 +545,7 @@ class BoardEditor extends PureComponent {
       >
         <BoardDisplay
           {...workingBoardData}
+          boardInfo={boardInfo}
         />
       </Provider>
     );

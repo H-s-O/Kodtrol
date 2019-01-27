@@ -9,6 +9,7 @@ import styles from '../../../styles/components/board/boarddisplay.scss';
 const propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape({})),
   layers: PropTypes.arrayOf(PropTypes.shape({})),
+  boardInfo: PropTypes.shape({}),
 };
 
 const defaultProps = {
