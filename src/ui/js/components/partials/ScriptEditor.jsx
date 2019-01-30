@@ -71,21 +71,21 @@ class ScriptEditor extends PureComponent {
             <Button
               bsSize="xsmall"
               onClick={this.onSaveClick}
-              disabled={!editorValue}
+              disabled={editorValue === null}
             >
               Save
             </Button>
             <Button
               bsSize="xsmall"
               onClick={this.onSaveAndPreviewClick}
-              disabled={!editorValue}
+              disabled={editorValue === null}
             >
               Save and preview
             </Button>
           </ButtonToolbar>
         ) : null }
       >
-        { value ? (
+        { value !== null ? (
           <AceEditor
             value={editorValue || value}
             onChange={this.onEditorChange}
