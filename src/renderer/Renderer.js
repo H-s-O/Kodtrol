@@ -121,6 +121,11 @@ export default class Renderer {
     }, this.devices || {});
     
     // console.log('RENDERER updateDevices', this.devices);
+    if (!this.playing) {
+      this.resetDevices();
+      const devicesData = this.getDevicesData();
+      this.updateDmx(devicesData);
+    }
   }
   
   updateScripts = (data) => {
@@ -187,7 +192,7 @@ export default class Renderer {
         };
       }
     }, this.boards || {});
-    console.log('RENDERER updateBoards', this.boards);
+    // console.log('RENDERER updateBoards', this.boards);
   }
   
   updateMedias = (data) => {
