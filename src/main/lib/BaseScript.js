@@ -14,7 +14,7 @@ export default {
   _map(value, valueMin, valueMax, outMin, outMax) {
     return (outMin + (((value - valueMin) / (valueMax - valueMin) * (outMax - outMin))));
   },
-  _interpolate(a, b, percent = 0.5, type = 'linear') {
+  _mix(a, b, percent = 0.5, type = 'linear') {
     return a + ((b - a) * percent);
   },
   _tri(x) {
