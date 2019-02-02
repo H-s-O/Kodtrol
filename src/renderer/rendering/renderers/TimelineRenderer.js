@@ -98,24 +98,25 @@ export default class TimelineRenderer {
       for (let i = 0; i < itemsCount; i++) {
         const item = timelineItems[i];
         const { id, inTime, outTime, script, file, trigger, curve } = item;
-        let addIt = false;
-        let inOffset = 0;
-        if (typeof script !== 'undefined') {
-          inOffset = 500 // @TODO config script setup delay
+        let trueInTime, trueOutTime;
+        if (typeof trigger !== 'undefined') {
+          trueInTime = inTime;
+          // Fake a duration of at two divisions; this will
+          // make triggers with inTime near the end of a division to span at least two
+          // divisions, which will lessen the chance of being missed when there's lag
+          trueOutTime = inTime + divisor;
+        } else if (typeof script !== 'undefined') {
+          trueInTime = inTime - 500;// @TODO config script setup delay
+          trueOutTime = outTime;
+        } else {
+          trueInTime = inTime;
+          trueOutTime = outTime;
         }
-        if (typeof outTime !== 'undefined') {
-          const trueInTime = inTime - inOffset;
-          if (
-              (trueInTime >= t && trueInTime <= end) // division at start
-              || (outTime >= t && outTime <= end) // division at end
-              || (trueInTime < t && outTime > end) // division in middle
-            ) {
-            addIt = true;
-          }
-        } else if (inTime >= t && inTime <= end) {
-          addIt = true;
-        }
-        if (addIt) {
+        if (
+            (trueInTime >= t && trueInTime <= end) // division at start
+            || (trueOutTime >= t && trueOutTime <= end) // division at end
+            || (trueInTime < t && trueOutTime > end) // division in middle
+          ) {
           let addIndex = null;
           if (typeof script !== 'undefined') {
             addIndex = 2;
