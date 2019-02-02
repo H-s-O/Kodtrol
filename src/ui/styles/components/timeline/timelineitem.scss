@@ -106,6 +106,10 @@
   &:hover {
     z-index: 10;
     overflow: visible;
+    
+    .labelFlag {
+      display: inherit;
+    }
   }
   
   &.simpleLightColor {
@@ -119,5 +123,6 @@
     line-height: 0.9em;
     font-size: 0.8em;
     pointer-events: none;
+    display: none;
   }
 }
