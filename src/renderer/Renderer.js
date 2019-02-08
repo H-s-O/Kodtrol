@@ -483,8 +483,8 @@ export default class Renderer {
   }
   
   updateDmx = (data = null) => {
-    // const dmx = this.outputs.dmx;
-    const dmx = this.outputs.artnet;
+    const dmx = this.outputs.dmx;
+    // const dmx = this.outputs.artnet;
     dmx.send(data);
   }
   

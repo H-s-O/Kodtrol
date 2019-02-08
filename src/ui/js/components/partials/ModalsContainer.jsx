@@ -10,6 +10,7 @@ import DeviceModal from '../modals/DeviceModal';
 import ScriptModal from '../modals/ScriptModal';
 import TimelineModal from '../modals/TimelineModal';
 import BoardModal from '../modals/BoardModal';
+import ConfigModal from '../modals/ConfigModal';
 
 class ModalsContainer extends PureComponent {
   onDeviceModalCancel = () => {
@@ -185,6 +186,16 @@ class ModalsContainer extends PureComponent {
     );
   }
   
+  renderConfigModal = () => {
+    const { outputs } = this.props;
+    
+    return (
+      <ConfigModal
+        outputs={outputs}
+      />
+    );
+  }
+  
   render = () => {
     return (
       <div>
@@ -192,6 +203,7 @@ class ModalsContainer extends PureComponent {
         { this.renderScriptModal() }
         { this.renderTimelineModal() }
         { this.renderBoardModal() }
+        { this.renderConfigModal() }
       </div>
     )
   }
