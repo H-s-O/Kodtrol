@@ -63,9 +63,11 @@ class ConfigModal extends Component {
   }
   
   render = () => {
+    const show = false;
+    
     return (
       <Modal
-        show
+        show={show}
         keyboard
         bsSize="large"
       >
