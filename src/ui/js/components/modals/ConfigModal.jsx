@@ -82,28 +82,46 @@ class ConfigModal extends Component {
           closeButton
         >
           <Modal.Title>
-            Config
+            Configuration
           </Modal.Title>
         </Modal.Header>
-        <Tabs
-          id="config-tabs"
-          defaultActiveKey="outputs"
-          animation={false}
-          justified
-        >
-          <Tab
-            eventKey="outputs"
-            title="Outputs"
+        <Modal.Body>
+          <Tabs
+            id="config-tabs"
+            defaultActiveKey="outputs"
+            animation={false}
+            justified
+            >
+            <Tab
+              eventKey="outputs"
+              title="Outputs"
+              >
+              { this.renderOutputsConfig() }
+            </Tab>
+            <Tab
+              eventKey="inputs"
+              title="Inputs"
+              >
+              { this.renderInputsConfig() }
+            </Tab>
+          </Tabs>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
           >
-            { this.renderOutputsConfig() }
-          </Tab>
-          <Tab
-            eventKey="inputs"
-            title="Inputs"
+            Cancel
+          </Button>
+          <Button
+            bsStyle="info"
           >
-            { this.renderInputsConfig() }
-          </Tab>
-        </Tabs>
+            Apply
+          </Button>
+          <Button
+            bsStyle="success"
+          >
+            Save
+          </Button>
+        </Modal.Footer>
       </Modal>
     );
   }
