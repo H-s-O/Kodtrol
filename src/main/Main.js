@@ -304,6 +304,8 @@ export default class Main {
       'scripts',
       'timelines',
       'boards',
+      'outputs',
+      'inputs',
     ]));
   }
   

@@ -10,6 +10,7 @@ import TimelineEditor from './components/timeline/TimelineEditor';
 import BoardEditor from './components/board/BoardEditor';
 import ModalsContainer from './components/partials/ModalsContainer';
 import Placeholder from './components/partials/Placeholder';
+import MainNav from './components/partials/MainNav';
 
 import styles from '../styles/main.scss';
 
@@ -25,6 +26,11 @@ export default connect(mapStateToProps)((props) => {
   return (
     <Fragment>
       <Grid fluid>
+        <Row className={styles.headerRow}>
+          <Col md={12} className={styles.fullHeight}>
+            <MainNav/>
+          </Col>
+        </Row>
         <Row className={styles.topRow}>
           <Col md={2} className={styles.fullHeight}>
             <DevicesBrowser/>

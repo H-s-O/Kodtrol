@@ -10,6 +10,11 @@ $grid-gutter-width: 5px;
   cursor: default !important;
 }
 
+:global .close {
+  color: #FFF !important;
+  text-shadow: 0 1px 0 #000 !important;
+}
+
 :global ::-webkit-scrollbar {
   background: #333;
   width: 10px;

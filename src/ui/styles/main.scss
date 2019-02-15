@@ -1,11 +1,16 @@
 @import './utils.scss';
 
+.headerRow {
+  padding: 7.5px 3px 0px 2.5px;
+  height: 5vh;
+}
+
 .topRow {
-  padding: 7.5px 2.5px 2.5px;
-  height: 50vh;
+  padding: 7.5px 2.5px 2.0px;
+  height: 47.5vh;
 }
 
 .bottomRow {
-  padding: 2.5px 2.5px 7.5px;
-  height: 50vh;
+  padding: 2.0px 2.5px 7.5px;
+  height: 47.5vh;
 }

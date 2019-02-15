@@ -41,3 +41,11 @@ export const updateBoardModal = (modalAction = null, modalValue = null) => ({
     scope: 'local',
   },
 });
+
+export const updateConfigModal = (show = false) => ({
+  type: 'UPDATE_CONFIG_MODAL',
+  payload: show,
+  meta: {
+    scope: 'local',
+  },
+});

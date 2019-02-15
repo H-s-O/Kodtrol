@@ -2,12 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, Tabs, Tab, Row, Col, Nav, NavItem, Panel, ListGroup, ListGroupItem, Well, Button, Glyphicon } from 'react-bootstrap';
 
+import isFunction from '../../lib/isFunction';
+
 const propTypes = {
+  show: PropTypes.bool,
   outputs: PropTypes.arrayOf(PropTypes.shape({})),
+  onClose: PropTypes.func,
 };
 
 const defaultProps = {
+  show: false,
   outputs: [],
+  onClose: null,
 };
 
 class ConfigModal extends Component {
@@ -63,15 +69,18 @@ class ConfigModal extends Component {
   }
   
   render = () => {
-    const show = false;
+    const { show, onClose } = this.props;
     
     return (
       <Modal
         show={show}
         keyboard
         bsSize="large"
+        onHide={onClose}
       >
-        <Modal.Header>
+        <Modal.Header
+          closeButton
+        >
           <Modal.Title>
             Config
           </Modal.Title>

@@ -5,7 +5,7 @@ import { createDevice, saveDevice} from '../../../../common/js/store/actions/dev
 import { createScript, saveScript } from '../../../../common/js/store/actions/scripts';
 import { createTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
 import { createBoard, saveBoard } from '../../../../common/js/store/actions/boards';
-import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal } from '../../../../common/js/store/actions/modals';
+import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal, updateConfigModal } from '../../../../common/js/store/actions/modals';
 import DeviceModal from '../modals/DeviceModal';
 import ScriptModal from '../modals/ScriptModal';
 import TimelineModal from '../modals/TimelineModal';
@@ -187,11 +187,13 @@ class ModalsContainer extends PureComponent {
   }
   
   renderConfigModal = () => {
-    const { outputs } = this.props;
+    const { showConfigModal, outputs, doCloseConfigModal } = this.props;
     
     return (
       <ConfigModal
+        show={showConfigModal}
         outputs={outputs}
+        onClose={doCloseConfigModal}
       />
     );
   }
@@ -219,6 +221,7 @@ const mapStateToProps = ({modals, devices}) => {
     timelineModalValue,
     boardModalAction,
     boardModalValue,
+    showConfigModal,
   } = modals;
 
   return {
@@ -230,6 +233,7 @@ const mapStateToProps = ({modals, devices}) => {
     timelineModalValue,
     boardModalAction,
     boardModalValue,
+    showConfigModal,
     devices,
   };
 };
@@ -248,6 +252,7 @@ const mapDispatchToProps = (dispatch) => {
     doCreateBoard: (data) => dispatch(createBoard(data)),
     doSaveBoard: (id, data) => dispatch(saveBoard(id, data)),
     doCancelBoardModal: () => dispatch(updateBoardModal()),
+    doCloseConfigModal: () => dispatch(updateConfigModal()),
   };
 }
 

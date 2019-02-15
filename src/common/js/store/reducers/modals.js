@@ -7,6 +7,7 @@ const defaultState = {
   timelineModalValue: null,
   boardModalAction: null,
   boardModalValue: null,
+  showConfigModal: false,
 };
 
 export default (state = defaultState, {type, payload}) => {
@@ -47,6 +48,15 @@ export default (state = defaultState, {type, payload}) => {
         ...{
           boardModalAction: payload.modalAction,
           boardModalValue: payload.modalValue,
+        },
+      };
+      break;
+    
+    case 'UPDATE_CONFIG_MODAL':
+      return {
+        ...state,
+        ...{
+          showConfigModal: payload,
         },
       };
       break;
