@@ -214,15 +214,18 @@ class BaseModal extends Component {
   } 
 
   render = () => {
-    const { show, title, fields, successLabel, cancelLabel } = this.props;
+    const { show, title, fields, successLabel, cancelLabel, onCancel } = this.props;
 
     return (
       <Modal
         show={show}
         onEnter={this.onEnter}
+        onHide={onCancel}
+        backdrop="static"
         keyboard
       >
       <Modal.Header
+        closeButton
       >
         <Modal.Title
         >

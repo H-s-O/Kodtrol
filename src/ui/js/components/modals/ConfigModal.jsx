@@ -77,6 +77,7 @@ class ConfigModal extends Component {
         keyboard
         bsSize="large"
         onHide={onClose}
+        backdrop="static"
       >
         <Modal.Header
           closeButton
