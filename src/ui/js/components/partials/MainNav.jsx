@@ -10,20 +10,14 @@ class MainNav extends PureComponent {
   renderOutputs = () => {
     const { outputs } = this.props;
     
-    if (outputs) {
-      if (outputs.length === 1) {
+    if (outputs && outputs.length) {
+      return outputs.map(({name}, index) => {
         return (
-          <Label bsStyle="success">
-            1 output
+          <Label bsStyle="success" key={`output-${index}`}>
+            { name } <Glyphicon glyph="log-out" />
           </Label>
         );
-      } else if (outputs.length > 1) {
-        return (
-          <Label bsStyle="success">
-            { outputs.length } outputs
-          </Label>
-        );
-      }
+      })
     }
     
     return (
@@ -36,20 +30,14 @@ class MainNav extends PureComponent {
   renderInputs = () => {
     const { inputs } = this.props;
     
-    if (inputs) {
-      if (inputs.length === 1) {
+    if (inputs && inputs.length) {
+      return inputs.map(({name}, index) => {
         return (
-          <Label>
-            1 input
+          <Label key={`input-${index}`}>
+            <Glyphicon glyph="log-in" /> { name }
           </Label>
         );
-      } else if (inputs.length > 1) {
-        return (
-          <Label>
-            { inputs.length } inputs
-          </Label>
-        );
-      }
+      });
     }
     
     return (
@@ -72,10 +60,10 @@ class MainNav extends PureComponent {
         <Navbar.Collapse>
           <div className={styles.centerContent}>
             <Navbar.Text className={styles.text}>
-              { this.renderOutputs() }
+              { this.renderInputs() }
             </Navbar.Text>
             <Navbar.Text className={styles.text}>
-              { this.renderInputs() }
+              { this.renderOutputs() }
             </Navbar.Text>
           </div>
           <Navbar.Form pullRight>
