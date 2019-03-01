@@ -3,9 +3,9 @@ import DMX from 'dmx';
 export default class DmxOutput {
   output = null;
   
-  constructor() {
+  constructor(driver, port) {
     this.output = new DMX();
-    this.output.addUniverse('main', 'enttec-usb-dmx-pro', '/dev/tty.usbserial-EN086444');
+    this.output.addUniverse('main', driver, port);
   }
   
   send = (data) => {

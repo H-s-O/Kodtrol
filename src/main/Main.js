@@ -81,6 +81,8 @@ export default class Main {
   
   createStore = (initialData = null) => {
     this.store = new Store(initialData);
+    this.store.on(StoreEvent.OUTPUTS_CHANGED, this.onOutputsChanged);
+    this.store.on(StoreEvent.INPUTS_CHANGED, this.onInputsChanged);
     this.store.on(StoreEvent.DEVICES_CHANGED, this.onDevicesChanged);
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
     this.store.on(StoreEvent.TIMELINES_CHANGED, this.onTimelinesChanged);
@@ -93,7 +95,9 @@ export default class Main {
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
     
     // Force an initial update
-    // @TODO somehow trigger in the store ?
+    // @TODO somehow trigger directly in the store ?
+    this.onOutputsChanged();
+    this.onInputsChanged();
     this.onDevicesChanged();
     this.onScriptsChanged();
     this.onTimelinesChanged();
@@ -105,6 +109,28 @@ export default class Main {
       this.store.removeAllListeners();
       this.store.destroy();
       this.store = null;
+    }
+  }
+  
+  onOutputsChanged = () => {
+    const { outputs } = this.store.state;
+    
+    if (this.renderer) {
+      console.log('updateOutputs');
+      this.renderer.send({
+        updateOutputs: outputs,
+      });
+    }
+  }
+  
+  onInputsChanged = () => {
+    const { inputs } = this.store.state;
+    
+    if (this.renderer) {
+      console.log('updateInputs');
+      this.renderer.send({
+        updateInputs: inputs,
+      });
     }
   }
   

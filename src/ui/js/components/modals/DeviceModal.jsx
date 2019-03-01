@@ -3,14 +3,15 @@ import BaseModal from './BaseModal';
 import ChannelsTableField from './fields/ChannelsTableField';
 
 export default function(props) {
+  const { outputs, ...otherProps } = props;
   return (
     <BaseModal
-      {...props}
+      {...otherProps}
       relatedData={{
-        deviceTypes: [
-          { id: 'dmx', label: 'DMX / ArtNet' },
-          { id: 'serial', label: 'Serial' },
-        ],
+        outputs: outputs.map(({id, name}) => ({
+          id,
+          label: name,
+        })),
       }}
       fields={[
         {
@@ -24,10 +25,10 @@ export default function(props) {
           type: 'text',
         },
         {
-          label: 'Device type',
-          field: 'type',
+          label: 'Output to',
+          field: 'output',
           type: 'select',
-          from: 'deviceTypes',
+          from: 'outputs',
         },
         {
           label: 'Starting channel',

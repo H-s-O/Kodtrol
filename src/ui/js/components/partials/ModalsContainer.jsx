@@ -106,7 +106,7 @@ class ModalsContainer extends PureComponent {
   }
   
   renderDeviceModal = () => {
-    const { deviceModalAction, deviceModalValue } = this.props;
+    const { deviceModalAction, deviceModalValue, outputs } = this.props;
     const title = {
       add: 'Add device',
       edit: 'Edit device',
@@ -121,6 +121,7 @@ class ModalsContainer extends PureComponent {
         title={title}
         onCancel={this.onDeviceModalCancel}
         onSuccess={this.onDeviceModalSuccess}
+        outputs={outputs}
       />
     );
   }
@@ -211,7 +212,7 @@ class ModalsContainer extends PureComponent {
   }
 }
 
-const mapStateToProps = ({modals, devices}) => {
+const mapStateToProps = ({modals, devices, outputs}) => {
   const {
     deviceModalAction,
     deviceModalValue,
@@ -235,6 +236,7 @@ const mapStateToProps = ({modals, devices}) => {
     boardModalValue,
     showConfigModal,
     devices,
+    outputs,
   };
 };
 

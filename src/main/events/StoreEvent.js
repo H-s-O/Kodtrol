@@ -1,3 +1,5 @@
+export const OUTPUTS_CHANGED = 'outputs_changed';
+export const INPUTS_CHANGED = 'inputs_changed';
 export const DEVICES_CHANGED = 'devices_changed';
 export const SCRIPTS_CHANGED = 'scripts_changed';
 export const TIMELINES_CHANGED = 'timelines_changed';

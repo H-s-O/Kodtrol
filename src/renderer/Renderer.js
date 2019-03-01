@@ -15,6 +15,8 @@ import DeviceProxy from './rendering/DeviceProxy';
 import Script from './rendering/Script';
 import Timeline from './rendering/Timeline';
 import Board from './rendering/Board';
+import Output from './rendering/Output';
+import Input from './rendering/Input';
 
 export default class Renderer {
   outputs = {};
@@ -32,20 +34,20 @@ export default class Renderer {
   providers = null;
   
   constructor() {
-    const dmxOutput = new DmxOutput();
-    this.outputs.dmx = dmxOutput;
-    
-    const artnetOutput = new ArtnetOutput();
-    this.outputs.artnet = artnetOutput;
-    
-    const audioOutput = new AudioOutput();
-    this.outputs.audio = audioOutput;
-    
-    const midiInput = new MidiInput(this.onMidiInput);
-    this.inputs.midi = midiInput;
-    
-    const oscInput = new OscInput(this.onOscInput);
-    this.inputs.osc = oscInput;
+    // const dmxOutput = new DmxOutput();
+    // this.outputs.dmx = dmxOutput;
+    // 
+    // const artnetOutput = new ArtnetOutput();
+    // this.outputs.artnet = artnetOutput;
+    // 
+    // const audioOutput = new AudioOutput();
+    // this.outputs.audio = audioOutput;
+    // 
+    // const midiInput = new MidiInput(this.onMidiInput);
+    // this.inputs.midi = midiInput;
+    // 
+    // const oscInput = new OscInput(this.onOscInput);
+    // this.inputs.osc = oscInput;
     
     this.providers = {
       getScript: this.getScript,
@@ -73,7 +75,13 @@ export default class Renderer {
   }
   
   onMessage = (message) => {
-    if ('updateDevices' in message) {
+    if ('updateOutputs' in message) {
+      const { updateOutputs } = message;
+      this.updateOutputs(updateOutputs);
+    } else if ('updateInputs' in message) {
+      const { updateInputs } = message;
+      this.updateInputs(updateInputs);
+    } else if ('updateDevices' in message) {
       const { updateDevices } = message;
       this.updateDevices(updateDevices);
     } else if ('updateScripts' in message) {
@@ -103,6 +111,44 @@ export default class Renderer {
     }
   }
   
+  updateOutputs = (data) => {
+    this.outputs = data.reduce((outputs, output) => {
+      const { id } = output;
+      // update existing
+      if (id in outputs) {
+        outputs[id].update(output);
+        return outputs;
+      }
+      // new
+      else {
+        return {
+          ...outputs,
+          [id]: new Output(output),
+        };
+      }
+    }, this.outputs || {});
+    // console.log('RENDERER updateOutputs', this.outputs);
+  }
+  
+  updateInputs = (data) => {
+    this.inputs = data.reduce((inputs, input) => {
+      const { id } = input;
+      // update existing
+      if (id in inputs) {
+        inputs[id].update(input);
+        return inputs;
+      }
+      // new
+      else {
+        return {
+          ...inputs,
+          [id]: new Input(input),
+        };
+      }
+    }, this.inputs || {});
+    // console.log('RENDERER updateInputs', this.inputs);
+  }
+  
   updateDevices = (data) => {
     this.devices = data.reduce((devices, device) => {
       const { id } = device;
@@ -121,11 +167,11 @@ export default class Renderer {
     }, this.devices || {});
     
     // console.log('RENDERER updateDevices', this.devices);
-    if (!this.playing) {
-      this.resetDevices();
-      const devicesData = this.getDevicesData();
-      this.updateDmx(devicesData);
-    }
+    // if (!this.playing) {
+    //   this.resetDevices();
+    //   const devicesData = this.getDevicesData();
+    //   this.updateDmx(devicesData);
+    // }
   }
   
   updateScripts = (data) => {

@@ -34,6 +34,18 @@ export default class Store extends EventEmitter {
       ),
     );
     
+    const outputsObserver = observer(
+      (state) => {
+        return state.outputs;
+      },
+      this.onOutputsChange
+    );
+    const inputsObserver = observer(
+      (state) => {
+        return state.inputs;
+      },
+      this.onInputsChange
+    );
     const devicesObserver = observer(
       (state) => {
         return state.devices;
@@ -102,6 +114,8 @@ export default class Store extends EventEmitter {
     );
     
     observe(this.store, [
+      outputsObserver,
+      inputsObserver,
       devicesObserver,
       scriptsObserver,
       timelinesObserver,
@@ -125,6 +139,14 @@ export default class Store extends EventEmitter {
   
   onSaveableContent = (action) => {
     this.emit(StoreEvent.CONTENT_SAVED);
+  }
+  
+  onOutputsChange = (dispatch, current, previous) => {
+    this.emit(StoreEvent.OUTPUTS_CHANGED);
+  }
+  
+  onInputsChange = (dispatch, current, previous) => {
+    this.emit(StoreEvent.INPUTS_CHANGED);
   }
   
   onDevicesChange = (dispatch, current, previous) => {

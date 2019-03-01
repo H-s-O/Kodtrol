@@ -3,9 +3,9 @@ import artnet from 'artnet';
 export default class ArtnetOutput {
   output = null;
   
-  constructor() {
+  constructor(address) {
     this.output = artnet({
-      host: '192.168.0.108',
+      host: address,
       sendAll: true, // skips sending/updating some channels without this :(
     });
   }
