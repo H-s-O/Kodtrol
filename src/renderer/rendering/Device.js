@@ -107,6 +107,10 @@ export default class Device {
   get channelDefaults() {
     return this._channelDefaults;
   }
+  
+  get channelAliases() {
+    return this._channelAliases;
+  }
 
   get channels() {
     return this._channels;
