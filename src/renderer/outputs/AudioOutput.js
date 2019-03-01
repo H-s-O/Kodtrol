@@ -7,6 +7,11 @@ export default class AudioOutput {
     this.audioSubProcess = new AudioSubProcess();
   }
   
+  // temp
+  flush = () => {
+    
+  }
+  
   send = (data) => {
     if (this.audioSubProcess) {
       this.audioSubProcess.send(data);

@@ -6,6 +6,7 @@ export default class Output {
   _type = null;
   _extraData = null;
   _output = null;
+  _data = {};
   
   constructor(sourceOutput) {
     this.update(sourceOutput);
@@ -45,10 +46,20 @@ export default class Output {
     return this._type;
   }
   
-  send = (data) => {
+  buffer = (data) => {
+    // @TODO handle serial/OSC/MIDI output data
+    this._data = {
+      ...this._data,
+      ...data,
+    };
+  }
+  
+  flush = () => {
     if (this._output) {
-      this._output.send(data);
+      // console.log(this._data);
+      this._output.send(this._data);
     }
+    this._data = {};
   }
   
   destroy = () => {

@@ -11,8 +11,12 @@ export default class Device {
   _channelAliases = {};
   _channelDefaults = {};
   _channels = {};
+  _output = null;
+  _providers = null;
   
-  constructor(sourceDevice) {
+  constructor(providers, sourceDevice) {
+    this._providers = providers;
+    
     this.update(sourceDevice);
   }
   
@@ -25,6 +29,7 @@ export default class Device {
       groups,
       channels,
       startChannel,
+      output,
     } = sourceDevice;
 
     this._id = id;
@@ -33,10 +38,15 @@ export default class Device {
     this._type = type;
     this._startingChannel = Number(startChannel);
     
+    this.setOutput(output);
     this.setGroups(groups);
     this.setChannelAliases(channels);
     this.setDefaultValues(channels);
     this.setChannelGettersAndSetters(channels);
+  }
+  
+  setOutput = (outputId) => {
+    this._output = this._providers.getOutput(outputId);
   }
   
   setGroups = (groups) => {
@@ -106,6 +116,19 @@ export default class Device {
     this._channels = {
       ...this._channelDefaults,
     };
+  }
+  
+  sendDataToOutput = () => {
+    if (this._output) {
+      const data = Object.entries(this._channels).reduce((obj, [channel, channelValue]) => {
+        return {
+          ...obj,
+          [this._startingChannel + Number(channel)]: channelValue,
+        };
+      }, {});
+      
+      this._output.buffer(data);
+    }
   }
   
   is = (type) => {

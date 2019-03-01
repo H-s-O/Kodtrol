@@ -40,8 +40,8 @@ export default class Renderer {
     // const artnetOutput = new ArtnetOutput();
     // this.outputs.artnet = artnetOutput;
     // 
-    // const audioOutput = new AudioOutput();
-    // this.outputs.audio = audioOutput;
+    const audioOutput = new AudioOutput();
+    this.outputs.audio = audioOutput;
     // 
     // const midiInput = new MidiInput(this.onMidiInput);
     // this.inputs.midi = midiInput;
@@ -50,6 +50,7 @@ export default class Renderer {
     // this.inputs.osc = oscInput;
     
     this.providers = {
+      getOutput: this.getOutput,
       getScript: this.getScript,
       getScripts: this.getScripts,
       getDevices: this.getDevices,
@@ -161,7 +162,7 @@ export default class Renderer {
       else {
         return {
           ...devices,
-          [id]: new Device(device),
+          [id]: new Device(this.providers, device),
         };
       }
     }, this.devices || {});
@@ -260,6 +261,10 @@ export default class Renderer {
     // console.log('RENDERER updateMedias', this.medias);
   }
   
+  getOutput = (outputId) => {
+    return this.outputs[outputId];
+  }
+  
   getScript = (scriptId) => {
     return this.scripts[scriptId];
   }
@@ -307,7 +312,7 @@ export default class Renderer {
       this.updateTicker();
     }
     
-    this.updateDmx();
+    // this.updateDmx();
     this.updateAudio();
     
     console.log('RENDERER previewScript', id);
@@ -332,7 +337,7 @@ export default class Renderer {
       this.updateTicker(null, false);
     }
     
-    this.updateDmx();
+    // this.updateDmx();
     this.updateAudio();
     
     console.log('RENDERER runTimeline', id);
@@ -358,7 +363,7 @@ export default class Renderer {
       this.updateTicker(null, false);
     }
     
-    this.updateDmx();
+    // this.updateDmx();
     this.updateAudio();
     
     console.log('RENDERER runBoard', id);
@@ -450,11 +455,13 @@ export default class Renderer {
         },
       });
     }
+    
+    this.outputDevices();
 
-    const devicesData = this.getDevicesData();
-    // console.log(Object.values(this.devices).map(({channels}) => channels));
-    // console.log(devicesData);
-    this.updateDmx(devicesData);
+    // const devicesData = this.getDevicesData();
+    // // console.log(Object.values(this.devices).map(({channels}) => channels));
+    // // console.log(devicesData);
+    // this.updateDmx(devicesData);
     
     const mediasData = this.getMediasData();
     this.updateAudio(mediasData);
@@ -471,6 +478,11 @@ export default class Renderer {
   
   resetAudios = () => {
     Object.values(this.medias).forEach((media) => media.resetOutputData());
+  }
+  
+  outputDevices = () => {
+    Object.values(this.devices).forEach((device) => device.sendDataToOutput());
+    Object.values(this.outputs).forEach((output) => output.flush());
   }
   
   getDevicesData = () => {
