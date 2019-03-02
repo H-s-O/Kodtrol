@@ -117,22 +117,40 @@ class ScriptsBrowser extends PureComponent {
   }
   
   renderTreeTags = (it) => {
+    const { devices, id } = it;
     const { previewScript } = this.props;
+    const tags = [];
     
-    if (it.id !== previewScript) {
-      return null;
+    if (!devices || !devices.length) {
+      tags.push(
+        <Label
+          key="tag1"
+          bsSize="xsmall"
+          bsStyle="warning"
+          title="No device(s) assigned"
+        >
+          <Glyphicon
+            glyph="warning-sign"
+          />
+        </Label>
+      );
     }
     
-    return (
-      <Label
-        bsSize="xsmall"
-        bsStyle="success"
-      >
-        <Glyphicon
-          glyph="eye-open"
-        />
-      </Label>
-    )
+    if (id === previewScript) {
+      tags.push(
+        <Label
+          key="tag2"
+          bsSize="xsmall"
+          bsStyle="success"
+        >
+          <Glyphicon
+            glyph="eye-open"
+          />
+        </Label>
+      );
+    }
+    
+    return tags;
   }
   
   render = () => {
@@ -168,11 +186,12 @@ class ScriptsBrowser extends PureComponent {
       >
         <TreeView
           className={styles.wrapper}
-          value={scripts.map(({id, name}) => ({
+          value={scripts.map(({id, name, devices}) => ({
             id,
             label: name,
             icon: 'file',
             active: id === currentScript,
+            devices,
           }))}
           onClickItem={this.onScriptSelect}
           renderActions={this.renderTreeActions}

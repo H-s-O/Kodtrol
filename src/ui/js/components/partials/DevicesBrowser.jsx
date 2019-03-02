@@ -87,19 +87,36 @@ class DevicesBrowser extends PureComponent {
   }
   
   renderTreeTags = (it) => {
-    const { groups } = it;
-
-    if (!groups) { 
-      return null;
+    const { groups, output } = it;
+    const tags = [];
+    
+    if (!output) {
+      tags.push(
+        <Label
+          key="tag1"
+          bsSize="xsmall"
+          bsStyle="warning"
+          title="No output assigned"
+        >
+        <Glyphicon
+          glyph="warning-sign"
+        />
+        </Label>
+      );
     }
     
-    return (
-      <Label
-        bsSize="xsmall"
-      >
-        { groups }
-      </Label>
-    )
+    if (groups) { 
+      tags.push(
+        <Label
+          key="tag2"
+          bsSize="xsmall"
+        >
+          { groups }
+        </Label>
+      );
+    }
+    
+    return tags;
   }
 
   render = () => {
@@ -125,11 +142,12 @@ class DevicesBrowser extends PureComponent {
       >
         <TreeView
           className={styles.wrapper}
-          value={devices.map(({id, name, groups}) => ({
+          value={devices.map(({id, name, groups, output}) => ({
             id,
             label: name,
             icon: 'modal-window',
             groups,
+            output,
           }))}
           onClickItem={this.onScriptSelect}
           renderActions={this.renderTreeActions}
