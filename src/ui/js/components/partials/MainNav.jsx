@@ -54,7 +54,7 @@ class MainNav extends PureComponent {
       <Navbar fluid className={styles.navbar}>
         <Navbar.Header className={styles.header}>
           <Navbar.Brand className={styles.brand}>
-            Kodtrol
+            <strong>Kodtrol</strong>
           </Navbar.Brand>
         </Navbar.Header>
         <Navbar.Collapse>
