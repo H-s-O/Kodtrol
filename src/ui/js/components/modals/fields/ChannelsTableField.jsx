@@ -94,6 +94,9 @@ class ChannelsTableField extends PureComponent {
                 <FormControl
                   type="number"
                   bsSize="small"
+                  placeholder="0 - 255"
+                  min="0"
+                  max="255"
                   value={defaultValue || ""}
                   onChange={(e) => this.onChannelChange(e, index, 'defaultValue')}
                 />
@@ -102,6 +105,7 @@ class ChannelsTableField extends PureComponent {
                 <FormControl
                   type="text"
                   bsSize="small"
+                  placeholder="(none)"
                   value={alias || ""}
                   onChange={(e) => this.onChannelChange(e, index, 'alias')}
                 />
