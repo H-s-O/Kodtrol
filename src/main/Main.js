@@ -297,6 +297,7 @@ export default class Main {
   openProject = () => {
     if (this.mainWindow) {
       this.mainWindow.close();
+      this.destroyMainWindow();
     }
     
     const projectPath = openProjectDialog();
