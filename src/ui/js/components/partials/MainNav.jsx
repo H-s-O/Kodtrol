@@ -21,7 +21,7 @@ class MainNav extends PureComponent {
     }
     
     return (
-      <Label bsStyle="danger">
+      <Label bsStyle="warning">
         No outputs
       </Label>
     );
