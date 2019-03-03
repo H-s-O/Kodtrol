@@ -19,6 +19,10 @@ export default (state = [], {type, payload}) => {
       return state.map(it => it.id === payload.id ? {...it, ...payload.data} : it);
       break;
       
+    case 'SAVE_INPUTS':
+      return payload;
+      break;
+      
     default:
       return state;
       break;

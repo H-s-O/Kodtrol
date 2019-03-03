@@ -13,7 +13,7 @@ class MainNav extends PureComponent {
     if (outputs && outputs.length) {
       return outputs.map(({name}, index) => {
         return (
-          <Label bsStyle="success" key={`output-${index}`}>
+          <Label key={`output-${index}`} className={styles.tags}>
             { name } <Glyphicon glyph="log-out" />
           </Label>
         );
@@ -33,7 +33,7 @@ class MainNav extends PureComponent {
     if (inputs && inputs.length) {
       return inputs.map(({name}, index) => {
         return (
-          <Label key={`input-${index}`}>
+          <Label key={`input-${index}`} className={styles.tags}>
             <Glyphicon glyph="log-in" /> { name }
           </Label>
         );

@@ -29,3 +29,13 @@ export const saveOutput = (id, data) => ({
     },
   },
 });
+
+export const saveOutputs = (data) => ({
+  type: 'SAVE_OUTPUTS',
+  payload: data.map((output) => {
+    return {
+      ...output,
+      lastUpdated: Date.now(),
+    }
+  }),
+});

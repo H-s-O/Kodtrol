@@ -1,7 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
-import { createDevice, saveDevice} from '../../../../common/js/store/actions/devices';
+import { saveOutputs } from '../../../../common/js/store/actions/outputs';
+import { saveInputs } from '../../../../common/js/store/actions/inputs';
+import { createDevice, saveDevice } from '../../../../common/js/store/actions/devices';
 import { createScript, saveScript } from '../../../../common/js/store/actions/scripts';
 import { createTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
 import { createBoard, saveBoard } from '../../../../common/js/store/actions/boards';
@@ -105,6 +107,25 @@ class ModalsContainer extends PureComponent {
     doCancelBoardModal();
   }
   
+  onConfigModalCancel = () => {
+    const { doCloseConfigModal } = this.props;
+    doCloseConfigModal();
+  }
+  
+  onConfigModalSuccess = (data) => {
+    const {
+      doSaveOutputs,
+      doSaveInputs,
+      doCloseConfigModal,
+    } = this.props;
+    const { outputs, inputs } = data;
+    
+    doSaveOutputs(outputs);
+    doSaveInputs(inputs);
+    
+    doCloseConfigModal();
+  }
+  
   renderDeviceModal = () => {
     const { deviceModalAction, deviceModalValue, outputs } = this.props;
     const title = {
@@ -188,13 +209,15 @@ class ModalsContainer extends PureComponent {
   }
   
   renderConfigModal = () => {
-    const { showConfigModal, outputs, doCloseConfigModal } = this.props;
+    const { showConfigModal, outputs, inputs } = this.props;
     
     return (
       <ConfigModal
         show={showConfigModal}
         outputs={outputs}
-        onClose={doCloseConfigModal}
+        inputs={inputs}
+        onCancel={this.onConfigModalCancel}
+        onSuccess={this.onConfigModalSuccess}
       />
     );
   }
@@ -212,7 +235,7 @@ class ModalsContainer extends PureComponent {
   }
 }
 
-const mapStateToProps = ({modals, devices, outputs}) => {
+const mapStateToProps = ({modals, devices, outputs, inputs}) => {
   const {
     deviceModalAction,
     deviceModalValue,
@@ -237,6 +260,7 @@ const mapStateToProps = ({modals, devices, outputs}) => {
     showConfigModal,
     devices,
     outputs,
+    inputs,
   };
 };
 
@@ -254,6 +278,8 @@ const mapDispatchToProps = (dispatch) => {
     doCreateBoard: (data) => dispatch(createBoard(data)),
     doSaveBoard: (id, data) => dispatch(saveBoard(id, data)),
     doCancelBoardModal: () => dispatch(updateBoardModal()),
+    doSaveOutputs: (data) => dispatch(saveOutputs(data)),
+    doSaveInputs: (data) => dispatch(saveInputs(data)),
     doCloseConfigModal: () => dispatch(updateConfigModal()),
   };
 }
