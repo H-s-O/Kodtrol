@@ -8,6 +8,10 @@ export default (callback) => {
       action.type === 'SAVE_SCRIPT'
       || action.type === 'SAVE_TIMELINE'
       || action.type === 'SAVE_BOARD'
+      || action.type === 'SAVE_INPUT'
+      || action.type === 'SAVE_OUTPUT'
+      || action.type === 'SAVE_INPUTS'
+      || action.type === 'SAVE_OUTPUTS'
     ) {
       callback(action.type);
     }
