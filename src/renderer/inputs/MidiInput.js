@@ -1,5 +1,4 @@
-import midi from 'midi';
-import MIDIMessage from 'midimessage';
+import JZZ from 'jzz';
 
 export default class MidiInput {
   input = null;
@@ -8,27 +7,30 @@ export default class MidiInput {
   constructor(messageCallback) {
     this.messageCallback = messageCallback;
     
-    this.input = new midi.input();
-    this.input.on('message', this.onMessage);
-    if (this.input.getPortCount()) {
-      console.log('MIDI');
-      this.input.openPort(0);
-    } 
+    this.input = JZZ()
+      .openMidiIn()
+      .or('Cannot open MIDI In port!')
+      .and(function() { console.log('MIDI', this.name()); })
+      .connect(this.onMessage);
   }
   
-  onMessage = (deltaTime, message) => {
-    const fakeEvent = {
-      data: message,
-      receivedTime: Date.now(),
-    };
-    const parsedMessage = MIDIMessage(fakeEvent);
-    
-    this.messageCallback(parsedMessage);
+  onMessage = (message) => {
+    // Ignore active sensing messages
+    // (maybe use as a device disconnected detection?)
+    if (message.length === 1 && '0' in message && message['0'] === 0xFE) {
+      return;
+    }
+
+    if (this.messageCallback) {
+      this.messageCallback(message);
+    }
   }
   
   destroy = () => {
     if (this.input) {
-      this.input.closePort();
+      this.input
+        .disconnect()
+        .and(function() { this.close(); });
     }
     this.input = null;
   }

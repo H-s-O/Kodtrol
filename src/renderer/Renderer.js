@@ -42,12 +42,12 @@ export default class Renderer {
     // 
     const audioOutput = new AudioOutput();
     this.outputs.audio = audioOutput;
-    // 
-    // const midiInput = new MidiInput(this.onMidiInput);
-    // this.inputs.midi = midiInput;
-    // 
-    // const oscInput = new OscInput(this.onOscInput);
-    // this.inputs.osc = oscInput;
+    
+    const midiInput = new MidiInput(this.onMidiInput);
+    this.inputs.midi = midiInput;
+    
+    const oscInput = new OscInput(this.onOscInput);
+    this.inputs.osc = oscInput;
     
     this.providers = {
       getOutput: this.getOutput,
