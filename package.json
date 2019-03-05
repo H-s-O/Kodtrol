@@ -64,6 +64,7 @@
     "babel-preset-react": "^6.24.1",
     "css-loader": "^0.28.11",
     "electron-packager": "^11.0.1",
+    "electron-rebuild": "^1.8.4",
     "node-sass": "^4.11.0",
     "redux-devtools-extension": "^2.13.5",
     "sass-loader": "^6.0.6",
