@@ -2,7 +2,7 @@
   "name": "Kodtrol",
   "version": "0.0.1",
   "description": "Code-based show control software",
-  "main": "src/main/process.js",
+  "main": "src/main/kodtrol-main.js",
   "scripts": {
     "dev": "webpack-dev-server --progress --config build/webpack.config.js",
     "build": "npx webpack --progress --config build/webpack.config.js -p",
