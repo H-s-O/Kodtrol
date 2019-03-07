@@ -421,23 +421,23 @@ class ConfigModal extends Component {
         <Modal.Body>
           <Tabs
             id="config-tabs"
-            defaultActiveKey="outputs"
+            defaultActiveKey="inputs"
             animation={false}
             justified
             >
-            <Tab
-              eventKey="outputs"
-              title="Outputs"
-              className={styles.tabContent}
-              >
-              { this.renderOutputsConfig() }
-            </Tab>
             <Tab
               eventKey="inputs"
               title="Inputs"
               className={styles.tabContent}
               >
               { this.renderInputsConfig() }
+            </Tab>
+            <Tab
+              eventKey="outputs"
+              title="Outputs"
+              className={styles.tabContent}
+              >
+              { this.renderOutputsConfig() }
             </Tab>
           </Tabs>
         </Modal.Body>
