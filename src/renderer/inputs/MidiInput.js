@@ -8,6 +8,8 @@ export default class MidiInput {
     this.messageCallback = messageCallback;
     
     this.input = JZZ()
+      .or('Cannot start MIDI engine!')
+      .and(function() { console.log(this.info()); })
       .openMidiIn()
       .or('Cannot open MIDI In port!')
       .and(function() { console.log(this.name()); })
