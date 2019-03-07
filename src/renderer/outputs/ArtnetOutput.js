@@ -8,6 +8,7 @@ export default class ArtnetOutput {
       host: address,
       sendAll: true, // skips sending/updating some channels without this :(
     });
+    console.log('Art-Net output');
   }
   
   send = (data) => {

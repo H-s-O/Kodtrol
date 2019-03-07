@@ -1,14 +1,18 @@
+import MidiInput from '../inputs/MidiInput';
+import OscInput from '../inputs/OscInput';
+
 export default class Input {
   _status = 0;
   _type = null;
   _extraData = null;
   _input = null;
+  _onInputCallback = null;
   
-  constructor(sourceInput) {
-    this.update(sourceInput);
+  constructor(sourceInput, onInputCallback) {
+    this.update(sourceInput, onInputCallback);
   }
   
-  update = (sourceInput) => {
+  update = (sourceInput, onInputCallback) => {
     const {
       type,
       extraData,
@@ -16,6 +20,22 @@ export default class Input {
     
     this._type = type;
     this._extraData = extraData;
+    this._onInputCallback = onInputCallback;
+    
+    this.setInput(type, extraData);
+  }
+  
+  setInput = (type, extraData) => {
+    let input = null;
+    
+    if (type === 'midi') {
+      input = new MidiInput(this.inputMessageCallback);
+    } else if (type === 'osc') {
+      const { port } = extraData;
+      input = new OscInput(this.inputMessageCallback, port);
+    }
+
+    this._input = input;
   }
   
   get status() {
@@ -24,6 +44,12 @@ export default class Input {
   
   get type() {
     return this._type;
+  }
+  
+  inputMessageCallback = (message) => {
+    if (this._onInputCallback) {
+      this._onInputCallback(this._type, message);
+    }
   }
   
   destroy = () => {

@@ -6,6 +6,7 @@ export default class DmxOutput {
   constructor(driver, port) {
     this.output = new DMX();
     this.output.addUniverse('main', driver, port);
+    console.log('DMX output');
   }
   
   send = (data) => {

@@ -4,14 +4,13 @@ export default class OscInput {
   server = null;
   messageCallback = null;
   
-  constructor(messageCallback) {
+  constructor(messageCallback, port) {
     this.messageCallback = messageCallback;
     
-    // Creates a UDP server, listening on port 9000
-    this.server = moscow.createServer(9000, 'udp');
+    this.server = moscow.createServer(port, 'udp');
     this.server.on('message', this.onMessage);
     this.server.start();
-    console.log('OSC');
+    console.log('OSC input');
   }
   
   onMessage = (address, args) => {

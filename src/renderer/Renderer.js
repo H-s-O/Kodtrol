@@ -1,7 +1,5 @@
 import { getCompiledScriptPath } from './lib/fileSystem';
 import Ticker from './lib/Ticker';
-import MidiInput from './inputs/MidiInput';
-import OscInput from './inputs/OscInput';
 import DmxOutput from './outputs/DmxOutput';
 import ArtnetOutput from './outputs/ArtnetOutput';
 import AudioOutput from './outputs/AudioOutput';
@@ -43,11 +41,11 @@ export default class Renderer {
     const audioOutput = new AudioOutput();
     this.outputs.audio = audioOutput;
     
-    const midiInput = new MidiInput(this.onMidiInput);
-    this.inputs.midi = midiInput;
-    
-    const oscInput = new OscInput(this.onOscInput);
-    this.inputs.osc = oscInput;
+    // const midiInput = new MidiInput(this.onMidiInput);
+    // this.inputs.midi = midiInput;
+    // 
+    // const oscInput = new OscInput(this.onOscInput);
+    // this.inputs.osc = oscInput;
     
     this.providers = {
       getOutput: this.getOutput,
@@ -143,7 +141,7 @@ export default class Renderer {
       else {
         return {
           ...inputs,
-          [id]: new Input(input),
+          [id]: new Input(input, this.onInput),
         };
       }
     }, this.inputs || {});
@@ -516,27 +514,15 @@ export default class Renderer {
     }
   }
   
-  onMidiInput = (data) => {
+  onInput = (type, data) => {
     if (this.currentScript) {
-      this.currentScript.input('midi', data);
+      this.currentScript.input(type, data);
     }
     if (this.currentTimeline) {
-      this.currentTimeline.input('midi', data);
+      this.currentTimeline.input(type, data);
     }
     if (this.currentBoard) {
-      this.currentBoard.input('midi', data);
-    }
-  }
-  
-  onOscInput = (data) => {
-    if (this.currentScript) {
-      this.currentScript.input('osc', data);
-    }
-    if (this.currentTimeline) {
-      this.currentTimeline.input('osc', data);
-    }
-    if (this.currentBoard) {
-      this.currentBoard.input('osc', data);
+      this.currentBoard.input(type, data);
     }
   }
   

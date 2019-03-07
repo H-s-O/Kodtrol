@@ -10,8 +10,9 @@ export default class MidiInput {
     this.input = JZZ()
       .openMidiIn()
       .or('Cannot open MIDI In port!')
-      .and(function() { console.log('MIDI', this.name()); })
+      .and(function() { console.log(this.name()); })
       .connect(this.onMessage);
+    console.log('MIDI input');
   }
   
   onMessage = (message) => {
