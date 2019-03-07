@@ -20,7 +20,7 @@ export default class AudioOutput {
   
   destroy = () => {
     if (this.audioSubProcess) {
-      this.audioSubProcess.kill();
+      this.audioSubProcess.destroy();
     }
     this.audioSubProcess = null;
   }
