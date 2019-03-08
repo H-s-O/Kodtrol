@@ -5,13 +5,16 @@ import { connect } from 'react-redux';
 import { Modal, Tabs, Tab, Row, Col, Nav, NavItem, Panel, ListGroup, ListGroupItem, Well, Button, Glyphicon, Form, FormGroup, FormControl, ControlLabel, HelpBlock } from 'react-bootstrap';
 import uniqid from 'uniqid';
 
-import isFunction from '../../lib/isFunction';
+import TreeView from '../partials/TreeView';
+import stopEvent from '../../lib/stopEvent';
 import openExternalUrl from '../../../../common/js/lib/openExternalUrl';
+import { deleteWarning } from '../../lib/messageBoxes';
 
 import styles from '../../../styles/components/modals/configmodal.scss';
 
 const propTypes = {
   show: PropTypes.bool,
+  devices: PropTypes.arrayOf(PropTypes.shape({})),
   outputs: PropTypes.arrayOf(PropTypes.shape({})),
   inputs: PropTypes.arrayOf(PropTypes.shape({})),
   onCancel: PropTypes.func,
@@ -20,6 +23,7 @@ const propTypes = {
 
 const defaultProps = {
   show: false,
+  devices: [],
   outputs: [],
   inputs: [],
   onCancel: null,
@@ -39,8 +43,8 @@ class ConfigModal extends Component {
     this.setState({
       inputs,
       outputs,
-      currentOutput: outputs && outputs.length ? outputs[0].id : null,
-      currentInput: inputs && inputs.length ? inputs[0].id : null,
+      currentOutput: outputs.length > 0 ? outputs[0].id : null,
+      currentInput: inputs.length > 0 ? inputs[0].id : null,
     });
   }
   
@@ -58,7 +62,7 @@ class ConfigModal extends Component {
     });
   }
   
-  onAddOutput = () => {
+  onAddOutputClick = () => {
     const { outputs } = this.state;
     const id = uniqid();
     const newOutputs = [
@@ -75,7 +79,34 @@ class ConfigModal extends Component {
     });
   }
   
-  onSelectOutput = (id) => {
+  onDeleteOutputClick = (outputId) => {
+    const { devices } = this.props;
+    const { outputs } = this.state;
+    const outputObj = outputs.find(({id}) => id === outputId);
+    const devicesUsing = devices.filter(({output}) => output === outputId);
+    const message = `Delete output "${outputObj.name}"?`;
+    // const detail = devicesUsing.length > 0 ? `This output is used by ${devicesUsing.length} device(s).` : null;
+    
+    if (deleteWarning(message, (result) => {
+      if (result) {
+        this.doDeleteOutput(outputId);
+      }
+    }));
+  }
+  
+  doDeleteOutput = (outputId) => {
+    const { outputs } = this.state;
+    const newOutputs = outputs.filter(({id}) => id !== outputId);
+    const newCurrentOutput = newOutputs.length > 0 ? newOutputs[0].id : null;
+    
+    this.setState({
+      currentOutput: newCurrentOutput,
+      outputs: newOutputs,
+    });
+  }
+  
+  onSelectOutput = (it) => {
+    const { id } = it;
     this.setState({
       currentOutput: id,
     });
@@ -103,7 +134,7 @@ class ConfigModal extends Component {
     });
   }
   
-  onAddInput = () => {
+  onAddInputClick = () => {
     const { inputs } = this.state;
     const id = uniqid();
     const newInputs = [
@@ -120,7 +151,31 @@ class ConfigModal extends Component {
     });
   }
   
-  onSelectInput = (id) => {
+  onDeleteInputClick = (inputId) => {
+    const { inputs } = this.state;
+    const inputObj = inputs.find(({id}) => id === inputId);
+    const message = `Delete input "${inputObj.name}"?`;
+    
+    deleteWarning(message, (result) => {
+      if (result) {
+        this.doDeleteInput(inputId);
+      }
+    });
+  }
+  
+  doDeleteInput = (inputId) => {
+    const { inputs } = this.state;
+    const newInputs = inputs.filter(({id}) => id !== inputId);
+    const newCurrentInput = newInputs.length > 0 ? newInputs[0].id : null;
+    
+    this.setState({
+      currentInput: newCurrentInput,
+      inputs: newInputs,
+    });
+  }
+  
+  onSelectInput = (it) => {
+    const { id } = it;
     this.setState({
       currentInput: id,
     });
@@ -160,49 +215,61 @@ class ConfigModal extends Component {
             <Panel.Heading>
               <Button
                 bsSize="xsmall"
-                onClick={this.onAddOutput}
+                onClick={this.onAddOutputClick}
               >
                 <Glyphicon glyph="plus" />
               </Button>
             </Panel.Heading>
-            <ListGroup
-              >
-              { outputs.map(({id, name}) => {
-                return (
-                  <ListGroupItem
-                    key={id}
-                    active={id === currentOutput}
-                    onClick={() => this.onSelectOutput(id)}
-                  >
-                    <Glyphicon glyph="log-out" /> { name || "(unamed)" }
-                  </ListGroupItem>
-                );
-              })}
-            </ListGroup>
+            <TreeView
+              value={outputs.map(({id, name}) => ({
+                id,
+                label: name || '(unamed)',
+                icon: 'log-in',
+                active: id === currentOutput,
+              }))}
+              onClickItem={this.onSelectOutput}
+              renderActions={this.renderOutputActions}
+            />
           </Panel>
         </Col>
         <Col
           sm={8}
         >
-          { currentOutput ? (
-            <Well>
-              <Form
-                horizontal
-              >
-                { this.renderOutputForm(currentOutput) }
-              </Form>
-            </Well>
-          ) : (
-            <h4 className="text-center">No outputs</h4>
-          ) }
+          <Well>
+            { outputs.length > 0 && currentOutput ? (
+                <Form
+                  horizontal
+                >
+                  { this.renderOutputForm(currentOutput) }
+                </Form>
+            ) : (
+              <h4 className="text-center">No outputs</h4>
+            ) }
+          </Well>
         </Col>
       </Row>
     );
   }
   
+  renderOutputActions = (it) => {
+    return (
+      <Button
+        bsSize="xsmall"
+        bsStyle="danger"
+        onClick={(e) => { stopEvent(e); this.onDeleteOutputClick(it.id); }}
+      >
+        <Glyphicon glyph="trash" />
+      </Button>
+    )
+  }
+  
   renderOutputForm = (outputId) => {
     const { outputs } = this.state;
     const output = outputs.find(({id}) => id === outputId);
+    if (!output) {
+      return null;
+    }
+    
     const { id, name, type, extraData } = output;
     
     return (
@@ -307,49 +374,61 @@ class ConfigModal extends Component {
             <Panel.Heading>
               <Button
                 bsSize="xsmall"
-                onClick={this.onAddInput}
+                onClick={this.onAddInputClick}
               >
                 <Glyphicon glyph="plus" />
               </Button>
             </Panel.Heading>
-            <ListGroup
-              >
-              { inputs.map(({id, name}) => {
-                return (
-                  <ListGroupItem
-                    key={id}
-                    active={id === currentInput}
-                    onClick={() => this.onSelectInput(id)}
-                  >
-                    <Glyphicon glyph="log-in" /> { name || "(unamed)" }
-                  </ListGroupItem>
-                );
-              })}
-            </ListGroup>
+            <TreeView
+              value={inputs.map(({id, name}) => ({
+                id,
+                label: name || '(unamed)',
+                icon: 'log-in',
+                active: id === currentInput,
+              }))}
+              onClickItem={this.onSelectInput}
+              renderActions={this.renderInputActions}
+            />
           </Panel>
         </Col>
         <Col
           sm={8}
         >
-          { currentInput ? (
-            <Well>
-              <Form
-                horizontal
-              >
-                { this.renderInputForm(currentInput) }
-              </Form>
-            </Well>
-          ) : (
-            <h4 className="text-center">No inputs</h4>
-          ) }
+        <Well>
+            { inputs.length > 0 && currentInput ? (
+                <Form
+                  horizontal
+                >
+                  { this.renderInputForm(currentInput) }
+                </Form>
+            ) : (
+              <h4 className="text-center">No inputs</h4>
+            ) }
+          </Well>
         </Col>
       </Row>
     );
   }
   
+  renderInputActions = (it) => {
+    return (
+      <Button
+        bsSize="xsmall"
+        bsStyle="danger"
+        onClick={(e) => { stopEvent(e); this.onDeleteInputClick(it.id); }}
+      >
+        <Glyphicon glyph="trash" />
+      </Button>
+    )
+  }
+  
   renderInputForm = (inputId) => {
     const { inputs } = this.state;
     const input = inputs.find(({id}) => id === inputId);
+    if (!input) {
+      return null;
+    }
+    
     const { id, name, type, extraData } = input;
     
     return (
@@ -462,10 +541,11 @@ class ConfigModal extends Component {
 ConfigModal.propTypes = propTypes;
 ConfigModal.defaultProps = defaultProps;
 
-const mapStateToProps = ({outputs, inputs}) => {
+const mapStateToProps = ({outputs, inputs, devices}) => {
   return {
     outputs,
     inputs,
+    devices,
   };
 }
 
