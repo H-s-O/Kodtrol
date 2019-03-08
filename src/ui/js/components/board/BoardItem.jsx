@@ -51,9 +51,9 @@ class BoardItem extends PureComponent {
   }
   
   doDeleteItem = () => {
-    const { timelineDeleteItem, data } = this.props;
+    const { boardDeleteItem, data } = this.props;
     const { id } = data;
-    timelineDeleteItem(id);
+    boardDeleteItem(id);
   }
   
   onEditItemClick = () => {
