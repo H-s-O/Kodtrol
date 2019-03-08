@@ -1,4 +1,5 @@
 import JZZ from 'jzz';
+import midi from 'midi';
 
 export default class MidiInput {
   input = null;
@@ -7,33 +8,28 @@ export default class MidiInput {
   constructor(messageCallback) {
     this.messageCallback = messageCallback;
     
-    this.input = JZZ()
-      .or('Cannot start MIDI engine!')
-      .and(function() { console.log(this.info()); })
-      .openMidiIn()
-      .or('Cannot open MIDI In port!')
-      .and(function() { console.log(this.name()); })
-      .connect(this.onMessage);
+    this.input = new midi.input();
+    this.input.on('message', this.onMessage);
+    if (this.input.getPortCount()) {
+      // temp: open first available port
+      console.log('midi ports', this.input.getPortCount());
+      this.input.openPort(0);
+      // @TODO enable Active Sensing messages for device status detect ?
+      // this.input.ignoreTypes(true, true, false);
+    }
     console.log('MIDI input');
   }
   
-  onMessage = (message) => {
-    // Ignore active sensing messages
-    // (maybe use as a device disconnected detection?)
-    if (message.length === 1 && '0' in message && message['0'] === 0xFE) {
-      return;
-    }
-
+  onMessage = (deltaTime, message) => {
     if (this.messageCallback) {
-      this.messageCallback(message);
+      const midiMessage = new JZZ.MIDI(message);
+      this.messageCallback(midiMessage);
     }
   }
   
   destroy = () => {
     if (this.input) {
-      this.input
-        .disconnect()
-        .and(function() { this.close(); });
+      this.input.closePort();
     }
     this.input = null;
   }

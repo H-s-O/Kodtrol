@@ -7,7 +7,8 @@
     "dev": "webpack-dev-server --progress --config build/webpack.config.js",
     "build": "npx webpack --progress --config build/webpack.config.js -p",
     "start": "npx electron -r babel-register .",
-    "package": "npm run build && npx electron-packager dist MyApp"
+    "package": "npm run build && npx electron-packager dist MyApp",
+    "rebuild": "npx electron-rebuild"
   },
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",
@@ -35,6 +36,7 @@
     "howler": "^2.0.15",
     "jzz": "^0.7.0",
     "lodash": "^4.17.11",
+    "midi": "^0.9.5",
     "midi-clock": "0.0.1",
     "moscow": "^0.1.0",
     "prop-types": "^15.6.0",
