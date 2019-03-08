@@ -1,8 +1,17 @@
 import { remote } from 'electron';
 
+import isFunction from './isFunction';
+
 const { dialog } = remote;
 
-export function deleteWarning(message, callback) {
+export function deleteWarning(message, detail = null, callback) {
+  console.log(message, detail, callback);
+  // Handle two arguments call
+  if (isFunction(detail)) {
+    callback = detail;
+    detail = null;
+  }
+  
   dialog.showMessageBox(remote.getCurrentWindow(), {
     type: 'warning',
     buttons: [
@@ -11,6 +20,7 @@ export function deleteWarning(message, callback) {
     defaultId: 0,
     cancelId: 1,
     message,
+    detail,
   }, (response) => callback(response === 0));
 };
 

@@ -84,10 +84,10 @@ class ConfigModal extends Component {
     const { outputs } = this.state;
     const outputObj = outputs.find(({id}) => id === outputId);
     const devicesUsing = devices.filter(({output}) => output === outputId);
-    const message = `Delete output "${outputObj.name}"?`;
-    // const detail = devicesUsing.length > 0 ? `This output is used by ${devicesUsing.length} device(s).` : null;
+    const message = `Delete output "${outputObj.name || '(unamed)'}"?`;
+    const detail = devicesUsing.length > 0 ? `This output is used by ${devicesUsing.length} device(s).` : null;
     
-    if (deleteWarning(message, (result) => {
+    if (deleteWarning(message, detail, (result) => {
       if (result) {
         this.doDeleteOutput(outputId);
       }
