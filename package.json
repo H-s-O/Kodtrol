@@ -1,7 +1,11 @@
 {
   "name": "Kodtrol",
   "version": "0.0.1",
+  "private": true,
   "description": "Code-based show control software",
+  "homepage": "http://kodtrol.com",
+  "repository": "https://github.com/H-s-O/Kodtrol",
+  "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "src/main/kodtrol-main.js",
   "scripts": {
     "dev": "webpack-dev-server --progress --config build/webpack.config.js",
@@ -12,6 +16,9 @@
   },
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "dependencies": {
     "artnet": "^1.4.0",
     "audio-waveform-svg-path": "^1.0.2",
