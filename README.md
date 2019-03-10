@@ -1,7 +1,9 @@
 # Kodtrol
 ![Kodtrol screenshot](screenshot.png)
+(Curious to see what the project in this screenshot looks like? [Here it is](https://youtu.be/CueEGW6SlJ0).)
 
 # Note: this software is still in alpha stage. Use at your own risk; expect breaking changes without prior notice.
+See "Local development / run from source" below.
 
 ## Features roadmap (in no particular order)
 - [Open Fixture Library](https://open-fixture-library.org/) integration
@@ -29,6 +31,9 @@
   - **Workaround:** use a non-Art-Net output. (This issue will be promptly addressed.)
 - Cannot un-arm a board.
   - **Workaround:** quit and relaunch the app. (Will require a UI change on how arming/un-arming is handled.)
+- Inputs/outputs crash after saving the configuration if they did not change.
+  - **Workaround:** do not save the project configuration if you did not change it; otherwise, quit and
+  relaunch the app.
 - others i might have forgotten about...
 
 ## Local development / run from source
