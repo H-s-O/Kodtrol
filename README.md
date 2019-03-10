@@ -1,5 +1,6 @@
 # Kodtrol
-![Kodtrol screenshot](screenshot.png)  
+![Kodtrol screenshot](screenshot.png)
+
 (Curious to see what the project in this screenshot looks like? [Here it is](https://youtu.be/CueEGW6SlJ0).)
 
 # Note: this software is still in alpha stage. Use at your own risk; expect breaking changes without prior notice.
