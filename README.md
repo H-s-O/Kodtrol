@@ -3,7 +3,7 @@
 (Curious to see what the project in this screenshot looks like? [Here it is](https://youtu.be/CueEGW6SlJ0).)
 
 # Note: this software is still in alpha stage. Use at your own risk; expect breaking changes without prior notice.
-See "Local development / run from source" below.
+There is no executable build yet. Still an Electron noob. See "Local development / run from source" below.
 
 ## Features roadmap (in no particular order)
 - [Open Fixture Library](https://open-fixture-library.org/) integration
