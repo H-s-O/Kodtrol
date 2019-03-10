@@ -5,7 +5,7 @@
 
 ## Features roadmap (in no particular order)
 - [Open Fixture Library](https://open-fixture-library.org/) integration
-- External OSC/MSC support
+- OSC/MSC/Serial outputs
 - MIDI timecode sync
 - Helpers Hub (where users can post their script helpers and share them)
 - Manual and docs on [kodtrol.com](http://kodtrol.com)
