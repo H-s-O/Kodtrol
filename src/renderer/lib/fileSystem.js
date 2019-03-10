@@ -1,11 +1,11 @@
 import path from 'path';
 
 export const getCompiledScriptsDir = () => {
-  return process.env.MANUSCRIPT_SCRIPTS_DIR;
+  return process.env.KODTROL_SCRIPTS_DIR;
 }
 
 export const getConvertedAudiosDir = () => {
-  return process.env.MANUSCRIPT_AUDIOS_DIR;
+  return process.env.KODTROL_AUDIOS_DIR;
 }
 
 export const getCompiledScriptPath = (scriptId) => {

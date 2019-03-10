@@ -20,7 +20,7 @@ export default class AudioSubProcess extends EventEmitter {
     ], {
       stdio: ['pipe', 'inherit', 'inherit'],
       env: {
-        MANUSCRIPT_AUDIOS_DIR: getConvertedAudiosDir(),
+        KODTROL_AUDIOS_DIR: getConvertedAudiosDir(),
       },
     });
   }
