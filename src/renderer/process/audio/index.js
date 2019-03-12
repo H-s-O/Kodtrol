@@ -1,8 +1,6 @@
 import { Howl, Howler } from 'howler';
 import { ipcRenderer } from 'electron';
 
-Howler.usingWebAudio = true;
-
 const instances = {};
 
 ipcRenderer.on('data', (e, data) => {
@@ -25,7 +23,7 @@ ipcRenderer.on('data', (e, data) => {
         
         const instance = new Howl({
           src: `http://localhost:5555/current-timeline/blocks/${id}/file`,
-          html5: true,
+          html5: true, // As per Howler's docs, does not require loading the entire file before playing
         });
         instance.play();
         instance.volume(volume);
