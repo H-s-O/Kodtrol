@@ -1,3 +1,4 @@
+export { default as fileVersion } from './fileVersion';
 export { default as currentTimeline } from './currentTimeline';
 export { default as currentScript } from './currentScript';
 export { default as currentBoard } from './currentBoard';

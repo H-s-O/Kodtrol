@@ -327,6 +327,7 @@ export default class Main {
   saveCurrentProject = () => {
     const state = this.store.state;
     writeJson(this.currentProjectFilePath, pick(state, [
+      'fileVersion',
       'devices',
       'scripts',
       'timelines',
