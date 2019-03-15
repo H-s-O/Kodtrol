@@ -3,7 +3,7 @@
 
 (Curious to see what the project in this screenshot looks like? [Here it is](https://youtu.be/CueEGW6SlJ0).)
 
-# Note: this software is still in alpha stage. Use at your own risk; expect breaking changes without prior notice.
+# ⚠️ Note: this software is still in alpha stage. Use at your own risk; expect breaking changes without prior notice.
 There is no executable build yet. Still an Electron noob. See "Local development / run from source" below.
 
 ## Features roadmap (in no particular order)
@@ -30,8 +30,8 @@ There is no executable build yet. Still an Electron noob. See "Local development
   - **Workaround:** pause the timeline / un-arm the board that is currently running.
 - Scripts `beat()` hooks are falling off-tempo when using a Art-Net output.
   - **Workaround:** use a non-Art-Net output. (This issue will be promptly addressed.)
-- Cannot un-arm a board.
-  - **Workaround:** quit and relaunch the app. (Will require a UI change on how arming/un-arming is handled.)
+- ~Cannot un-arm a board.~
+  - ~**Workaround:** quit and relaunch the app. (Will require a UI change on how arming/un-arming is handled.)~
 - Inputs/outputs crash after saving the configuration if they did not change.
   - **Workaround:** do not save the project configuration if you did not change it; otherwise, quit and
   relaunch the app.
