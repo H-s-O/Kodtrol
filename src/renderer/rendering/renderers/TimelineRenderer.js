@@ -174,6 +174,15 @@ export default class TimelineRenderer {
     this.resetAudios()
   }
   
+  notifyPlay = () => {
+    
+  }
+  
+  notifyStop = () => {
+    // Stop all medias
+    Object.values(this._audios).forEach(({instance}) => instance.stop());
+  }
+  
   render = (delta) => {
     this._currentTime += delta;
     

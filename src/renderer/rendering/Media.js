@@ -6,8 +6,12 @@ export default class Media {
   _speed = 1;
   _streamId = null;
   _active = false;
+  _output = null;
+  _providers = null;
   
-  constructor(sourceMedia) {
+  constructor(providers, sourceMedia) {
+    this._providers = providers;
+    
     this.update(sourceMedia);
   }
   
@@ -19,6 +23,12 @@ export default class Media {
     
     this._id = id;
     this._file = file;
+    
+    this.setOutput('audio'); // @TODO
+  }
+  
+  setOutput = (outputId) => {
+    this._output = this._providers.getOutput(outputId);
   }
   
   get id() {
@@ -51,10 +61,33 @@ export default class Media {
     return this._active;
   }
   
+  stop = () => {
+    this.resetOutputData();
+    this.sendDataToOutput();
+  }
+  
   resetOutputData = () => {
     this._streamId = null;
     this._position = 0;
     this._active = false;
+  }
+  
+  sendDataToOutput = () => {
+    if (this._output) {
+      const data = {
+        [this._streamId]: this._active ? {
+          active: true,
+          volume: this._volume,
+          position: this._position,
+          speed: this._speed,
+          file: this._file,
+        } : { 
+          active: false,
+        },
+      };
+      
+      this._output.buffer(data);
+    }
   }
   
   setStreamId = (streamId) => {

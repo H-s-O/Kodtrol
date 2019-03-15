@@ -1,5 +1,6 @@
 import DmxOutput from '../outputs/DmxOutput';
 import ArtnetOutput from '../outputs/ArtnetOutput';
+import AudioOutput from '../outputs/AudioOutput';
 
 export default class Output {
   _status = 0;
@@ -33,6 +34,8 @@ export default class Output {
     } else if (type === 'artnet') {
       const { address } = extraData;
       output = new ArtnetOutput(address);
+    } else if (type === 'audio') {
+      output = new AudioOutput();
     }
     
     this._output = output;

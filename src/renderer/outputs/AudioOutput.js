@@ -5,6 +5,7 @@ export default class AudioOutput {
   
   constructor() {
     this.audioSubProcess = new AudioSubProcess();
+    console.log('Audio output');
   }
   
   // temp

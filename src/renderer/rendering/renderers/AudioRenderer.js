@@ -48,4 +48,9 @@ export default class AudioRenderer {
     this._media.setPosition(position);
     this._media.setStreamId(this.streamId); // hack
   }
+  
+  stop = () => {
+    this.reset();
+    this._media.stop();
+  }
 }

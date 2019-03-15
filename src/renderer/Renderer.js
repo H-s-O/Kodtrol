@@ -38,8 +38,8 @@ export default class Renderer {
     // const artnetOutput = new ArtnetOutput();
     // this.outputs.artnet = artnetOutput;
     // 
-    const audioOutput = new AudioOutput();
-    this.outputs.audio = audioOutput;
+    // const audioOutput = new AudioOutput();
+    // this.outputs.audio = audioOutput;
     
     // const midiInput = new MidiInput(this.onMidiInput);
     // this.inputs.midi = midiInput;
@@ -126,6 +126,16 @@ export default class Renderer {
         };
       }
     }, this.outputs || {});
+    
+    // temp patch so that audio tracks may continue working
+    if (!('audio' in this.outputs)) {
+      const audioOutput = new Output({
+        id: 'audio',
+        type: 'audio',
+      });
+      this.outputs.audio = audioOutput;
+    }
+    
     // console.log('RENDERER updateOutputs', this.outputs);
   }
   
@@ -252,7 +262,7 @@ export default class Renderer {
       else {
         return {
           ...medias,
-          [id]: new Media(media),
+          [id]: new Media(this.providers, media),
         };
       }
     }, this.medias || {});
@@ -311,7 +321,7 @@ export default class Renderer {
     }
     
     // this.updateDmx();
-    this.updateAudio();
+    // this.updateAudio();
     
     console.log('RENDERER previewScript', id);
   }
@@ -336,7 +346,7 @@ export default class Renderer {
     }
     
     // this.updateDmx();
-    this.updateAudio();
+    // this.updateAudio();
     
     console.log('RENDERER runTimeline', id);
     // this.updateTimelinePlaybackStatus();
@@ -362,7 +372,7 @@ export default class Renderer {
     }
     
     // this.updateDmx();
-    this.updateAudio();
+    // this.updateAudio();
     
     console.log('RENDERER runBoard', id);
   }
@@ -404,11 +414,16 @@ export default class Renderer {
   
   updateTimelinePlaybackStatus = (playing) => {
     if (playing && !this.ticker.running) {
+      this.currentTimeline.notifyPlay();
+      
       this.playing = true;
       this.ticker.start();
     } else if (!playing && this.ticker.running) {
       this.playing = false;
       this.ticker.stop();
+      
+      this.currentTimeline.notifyStop();
+      this.outputAll();
     }
   }
   
@@ -454,53 +469,54 @@ export default class Renderer {
       });
     }
     
-    this.outputDevices();
+    this.outputAll();
 
     // const devicesData = this.getDevicesData();
     // // console.log(Object.values(this.devices).map(({channels}) => channels));
     // // console.log(devicesData);
     // this.updateDmx(devicesData);
     
-    const mediasData = this.getMediasData();
-    this.updateAudio(mediasData);
+    // const mediasData = this.getMediasData();
+    // this.updateAudio(mediasData);
   }
   
   resetAll = () => {
     this.resetDevices();
-    this.resetAudios();
+    this.resetMedias();
   }
   
   resetDevices = () => {
     Object.values(this.devices).forEach((device) => device.resetChannels());
   }
   
-  resetAudios = () => {
+  resetMedias = () => {
     Object.values(this.medias).forEach((media) => media.resetOutputData());
   }
   
-  outputDevices = () => {
+  outputAll = () => {
     Object.values(this.devices).forEach((device) => device.sendDataToOutput());
+    Object.values(this.medias).forEach((media) => media.sendDataToOutput());
     Object.values(this.outputs).forEach((output) => output.flush());
   }
   
-  getDevicesData = () => {
-    return Object.values(this.devices).reduce((obj, {channels, startingChannel}) => ({
-      ...obj,
-      ...Object.entries(channels).reduce((obj2, [channel, channelValue]) => {
-        return {
-          ...obj2,
-          [startingChannel + Number(channel)]: channelValue,
-        };
-      }, {}),
-    }), {});
-  }
-  
-  getMediasData = () => {
-    return Object.values(this.medias).reduce((obj, media) => ({
-      ...obj,
-      [media.streamId]: media.outputData,
-    }), {});
-  }
+  // getDevicesData = () => {
+  //   return Object.values(this.devices).reduce((obj, {channels, startingChannel}) => ({
+  //     ...obj,
+  //     ...Object.entries(channels).reduce((obj2, [channel, channelValue]) => {
+  //       return {
+  //         ...obj2,
+  //         [startingChannel + Number(channel)]: channelValue,
+  //       };
+  //     }, {}),
+  //   }), {});
+  // }
+  // 
+  // getMediasData = () => {
+  //   return Object.values(this.medias).reduce((obj, media) => ({
+  //     ...obj,
+  //     [media.streamId]: media.outputData,
+  //   }), {});
+  // }
   
   tickerBeat = (beat, delta) => {
     if (this.currentScript) {
