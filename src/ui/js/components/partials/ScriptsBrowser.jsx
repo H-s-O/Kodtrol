@@ -74,10 +74,24 @@ class ScriptsBrowser extends PureComponent {
   }
   
   renderTreeActions = (it) => {
+    const { id } = it;
+    const { previewScript } = this.props;
+    
     return (
       <Fragment
       >
-        <ButtonGroup>
+        { id === previewScript ? (
+          <Button
+            className={styles.buttonMargin}
+            bsSize="xsmall"
+            bsStyle="danger"
+            onClick={(e) => {stopEvent(e); this.onStopPreviewClick()}}
+          >
+            <Glyphicon
+              glyph="off"
+            />
+          </Button>
+        ) : (
           <Button
             bsSize="xsmall"
             onClick={(e) => {stopEvent(e); this.onPreviewClick(it.id)}}
@@ -86,6 +100,10 @@ class ScriptsBrowser extends PureComponent {
               glyph="eye-open"
             />
           </Button>
+        )}
+        <ButtonGroup
+          className={styles.buttonMargin}
+        >
           <Button
             bsSize="xsmall"
             onClick={(e) => {stopEvent(e); this.onDuplicateClick(it.id)}}
@@ -104,6 +122,7 @@ class ScriptsBrowser extends PureComponent {
           </Button>
         </ButtonGroup>
         <Button
+          className={styles.buttonMargin}
           bsSize="xsmall"
           bsStyle="danger"
           onClick={(e) => {stopEvent(e); this.onDeleteClick(it.id)}}
@@ -160,28 +179,15 @@ class ScriptsBrowser extends PureComponent {
         title="Scripts"
         className={styles.fullHeight}
         headingContent={
-          <ButtonToolbar
+          <Button
             className="pull-right"
+            bsSize="xsmall"
+            onClick={this.onAddClick}
           >
-            <Button
-              bsSize="xsmall"
-              disabled={previewScript === null}
-              bsStyle={previewScript !== null ? 'danger' : 'default' }
-              onClick={previewScript !== null ? this.onStopPreviewClick : null}
-            >
-              <Glyphicon
-                glyph="eye-close"
-              />
-            </Button>
-            <Button
-              bsSize="xsmall"
-              onClick={this.onAddClick}
-            >
-              <Glyphicon
-                glyph="plus"
-              />
-            </Button>
-          </ButtonToolbar>
+            <Glyphicon
+              glyph="plus"
+            />
+          </Button>
         }
       >
         <TreeView

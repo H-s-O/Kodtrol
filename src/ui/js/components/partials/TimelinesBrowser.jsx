@@ -124,9 +124,14 @@ class TimelinesBrowser extends PureComponent {
     doRunBoard(id);
   }
   
-  onStopPreviewClick = () => {
+  onStopTimelineClick = () => {
     const { doStopRunTimeline } = this.props;
     doStopRunTimeline();
+  }
+  
+  onStopBoardClick = () => {
+    const { doStopRunBoard } = this.props;
+    doStopRunBoard();
   }
   
   onDeleteClick = (it) => {
@@ -178,10 +183,35 @@ class TimelinesBrowser extends PureComponent {
   }
   
   renderTreeActions = (it) => {
+    const { id } = it;
+    const { runTimeline, runBoard } = this.props;
+    
     return (
       <Fragment
       >
-        <ButtonGroup>
+        { id === runTimeline ? (
+          <Button
+            className={styles.buttonMargin}
+            bsSize="xsmall"
+            bsStyle="danger"
+            onClick={(e) => {stopEvent(e); this.onStopTimelineClick()}}
+          >
+            <Glyphicon
+              glyph="off"
+            />
+          </Button>
+        ) : id === runBoard ? (
+          <Button
+            className={styles.buttonMargin}
+            bsSize="xsmall"
+            bsStyle="danger"
+            onClick={(e) => {stopEvent(e); this.onStopBoardClick()}}
+          >
+            <Glyphicon
+              glyph="off"
+            />
+          </Button>
+        ) : (
           <Button
             bsSize="xsmall"
             onClick={(e) => {stopEvent(e); this.onPreviewClick(it)}}
@@ -190,6 +220,10 @@ class TimelinesBrowser extends PureComponent {
               glyph="eye-open"
             />
           </Button>
+        )}
+        <ButtonGroup
+          className={styles.buttonMargin}
+        >
           <Button
             bsSize="xsmall"
             onClick={(e) => {stopEvent(e); this.onDuplicateClick(it)}}
@@ -208,6 +242,7 @@ class TimelinesBrowser extends PureComponent {
           </Button>
         </ButtonGroup>
         <Button
+          className={styles.buttonMargin}
           bsSize="xsmall"
           bsStyle="danger"
           onClick={(e) => {stopEvent(e); this.onDeleteClick(it)}}
@@ -228,42 +263,32 @@ class TimelinesBrowser extends PureComponent {
         title="Timelines &amp; Boards"
         className={styles.fullHeight}
         headingContent={
-          <ButtonToolbar
+          <ButtonGroup
             className="pull-right"
           >
-            <Button
-              bsSize="xsmall"
-              disabled={runTimeline === null}
-              bsStyle={runTimeline !== null ? 'danger' : 'default' }
-              onClick={runTimeline !== null ? this.onStopPreviewClick : null}
-            >
-              <Glyphicon
-                glyph="eye-close"
-              />
-            </Button>
             <DropdownButton
               id="add-timeline-board"
               title={(
                 <Glyphicon
                   glyph="plus"
-                />
+                  />
               )}
               bsSize="xsmall"
               onClick={stopEvent}
               pullRight
-            >
+              >
               <MenuItem
                 onSelect={this.onAddTimelineClick}
-              >
+                >
                 Add timeline...
               </MenuItem>
               <MenuItem
                 onSelect={this.onAddBoardClick}
-              >
+                >
                 Add board...
               </MenuItem>
             </DropdownButton>
-          </ButtonToolbar>
+          </ButtonGroup>
         }
       >
         <TreeView
