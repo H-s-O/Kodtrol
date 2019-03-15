@@ -16,10 +16,10 @@ class TimelineAudioTrack extends PureComponent {
   
   componentDidMount = () => {
     const { data } = this.props;
-    const { id } = data;
+    const { file } = data;
     
     this.trackWaveform = new AudioSVGWaveform({
-      url: `http://localhost:5555/current-timeline/blocks/${id}/file`,
+      url: `file://${file}`,
     });
     this.trackWaveform.loadFromUrl().then(this.waveformLoaded);
   }

@@ -19,6 +19,9 @@ export default class MainWindow extends EventEmitter {
       height: 900,
       backgroundColor: '#333',
       show: false,
+      webPreferences: {
+        webSecurity: false, // Allows fetch() to use "file://" scheme
+      }
     });
     this.win.on('close', this.onClose);
     this.win.once('closed', this.onClosed);
