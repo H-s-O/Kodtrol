@@ -80,6 +80,14 @@ class TimelineEditor extends PureComponent {
     };
   }
   
+  componentDidMount = () => {
+    window.onkeydown = this.onKeyDown;
+  }
+  
+  componentWillUnmount = () => {
+    window.onkeydown = null;
+  }
+  
   getItem = (itemId) => {
     const { timelineData } = this.props;
     const { items } = timelineData;
@@ -314,8 +322,6 @@ class TimelineEditor extends PureComponent {
     });
     
     doRunTimeline(id);
-    
-    window.onkeydown = this.onKeyDown;
   }
   
   stopRecording = () => {
@@ -330,8 +336,6 @@ class TimelineEditor extends PureComponent {
     });
     
     doStopRunTimeline();
-    
-    window.onkeydown = null;
   }
   
   onKeyDown = (e) => {
@@ -361,6 +365,17 @@ class TimelineEditor extends PureComponent {
           timelineDataTemp: newTimelineData,
         });
         // this.forceUpdate();
+      } 
+    } else if (e.key === ' ') {
+      const { timelineInfo, runTimeline } = this.props;
+      const { playing } = timelineInfo;
+      
+      if (runTimeline !== null) {
+        if (playing) {
+          this.doPauseTimeline();
+        } else {
+          this.doPlayTimeline();
+        }
       }
     }
   }
@@ -697,6 +712,10 @@ class TimelineEditor extends PureComponent {
   }
   
   onTimelinePlayClick = () => {
+    this.doPlayTimeline();
+  }
+  
+  doPlayTimeline = () => {
     const { timelineInfo } = this.props;
     
     const newInfo = {
@@ -708,6 +727,10 @@ class TimelineEditor extends PureComponent {
   }
   
   onTimelinePauseClick = () => {
+    this.doPauseTimeline();
+  }
+  
+  doPauseTimeline = () => {
     const { timelineInfo } = this.props;
     
     const newInfo = {
