@@ -43,6 +43,7 @@ export default class Media {
       volume: this._volume,
       position: this._position,
       speed: this._speed,
+      file: this._file,
     };
   }
   

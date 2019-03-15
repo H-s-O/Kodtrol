@@ -32,6 +32,9 @@ export default class AudioRenderer {
   createAudioWindow = () => {
     this.audioWindow = new BrowserWindow({
       show: false,
+      webPreferences: {
+        webSecurity: false,
+      },
     });
     this.audioWindow.loadURL('http://localhost:8080/audio/index.html');
     this.contents = this.audioWindow.webContents;

@@ -1,4 +1,4 @@
-import { Howl, Howler } from 'howler';
+import { Howl } from 'howler';
 import { ipcRenderer } from 'electron';
 
 const instances = {};
@@ -17,12 +17,10 @@ ipcRenderer.on('data', (e, data) => {
   
   if (dataObj) {
     for (let streamId in dataObj) {
-      const { id, position, volume } = dataObj[streamId];
+      const { position, volume, file } = dataObj[streamId];
       if (!(streamId in instances)) {
-        // console.log('create', id, position);
-        
         const instance = new Howl({
-          src: `http://localhost:5555/current-timeline/blocks/${id}/file`,
+          src: `file://${file}`,
           html5: true, // As per Howler's docs, does not require loading the entire file before playing
         });
         instance.play();
