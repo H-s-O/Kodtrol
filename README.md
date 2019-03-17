@@ -15,10 +15,10 @@ There is no executable build yet. Still an Electron noob. See "Local development
 - Display a nice first time "welcome" screen
 
 ## Known issues (fixing in progress)
-- While the app is running, creating/opening subsequent projects will create an accumulation
+- ~While the app is running, creating/opening subsequent projects will create an accumulation
   effect in the data store which will in turn generate duplicates for each new item (device, script, etc.)
-  that you may create.
-  - **Workaround:** after opening/creating a project, quit and relaunch the app.
+  that you may create.~
+  - ~**Workaround:** after opening/creating a project, quit and relaunch the app.~
 - ~Audio tracks will continue playing after pausing a timeline.~
   - ~**Workaround:** de-arm the timeline by clicking the red eye button at the top of the timeline list.~
 - A timeline/board item value may become un-copyable if it was previously edited in the contextual
