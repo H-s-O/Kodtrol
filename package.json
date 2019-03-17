@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
+    "babel-eslint": "^10.0.1",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
@@ -72,6 +73,8 @@
     "css-loader": "^0.28.11",
     "electron-packager": "^11.0.1",
     "electron-rebuild": "^1.8.4",
+    "eslint": "^5.15.2",
+    "eslint-plugin-babel": "^5.3.0",
     "node-sass": "^4.11.0",
     "redux-devtools-extension": "^2.13.5",
     "sass-loader": "^6.0.6",
