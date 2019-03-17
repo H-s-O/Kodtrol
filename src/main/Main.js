@@ -32,6 +32,10 @@ export default class Main {
     ScriptsManager.init();
   }
   
+  get hasProjectOpened() {
+    return this.currentProjectFilePath !== null;
+  }
+  
   onWindowAllClosed = () => {
     // Do nothing, keep the app alive
   }
@@ -48,13 +52,10 @@ export default class Main {
   }
   
   run = () => {
-    const appConfig = readAppConfig();
-    const configCurrentProject = get(appConfig, 'currentProjectFilePath');
-    if (!configCurrentProject) {
-      return;
+    const configCurrentProject = readAppConfig('currentProjectFilePath');
+    if (configCurrentProject) {
+      this.loadProject(configCurrentProject);
     }
-    
-    this.loadProject(configCurrentProject);
   }
   
   loadProject = (path, init = false) => {
@@ -178,7 +179,7 @@ export default class Main {
   
   onContentSaved = () => {
     console.log('onContentSaved');
-    this.saveCurrentProject();
+    this.saveProject();
   }
   
   onPreviewScript = () => {
@@ -240,18 +241,6 @@ export default class Main {
   createMainWindow = () => {
     this.mainWindow = new MainWindow(`${app.getName()} — ${this.currentProjectFilePath}`);
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
-    this.mainWindow.once(MainWindowEvent.CLOSED, this.onMainWindowClosed);
-  }
-  
-  onMainWindowClosing = (e) => {
-    // const canClose = warnBeforeClosingProject(this.mainWindow.browserWindow);
-    // if (!canClose) {
-    //   e.preventDefault();
-    // }
-  }
-  
-  onMainWindowClosed = () => {
-    this.closeCurrentProject();
   }
   
   destroyMainWindow = () => {
@@ -262,18 +251,14 @@ export default class Main {
     }
   }
   
+  onMainWindowClosing = () => {
+    this.doCloseProjectWarn();
+  }
+  
   createRenderer = () => {
     this.renderer = new Renderer();
     this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
     this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
-  }
-  
-  onRendererTimelineInfoUpdate = (info) => {
-    this.store.dispatch(updateTimelineInfo(info));
-  }
-  
-  onRendererBoardInfoUpdate = (info) => {
-    this.store.dispatch(updateBoardInfo(info));
   }
   
   destroyRenderer = () => {
@@ -284,44 +269,64 @@ export default class Main {
     }
   }
   
-  createMainMenu = () => {
-    this.mainMenu = new MainMenu();
-    this.mainMenu.on(MainMenuEvent.OPEN_PROJECT, this.openProject);
-    this.mainMenu.on(MainMenuEvent.CREATE_PROJECT, this.createProject);
-    this.mainMenu.on(MainMenuEvent.SAVE_PROJECT, this.saveCurrentProject);
+  onRendererTimelineInfoUpdate = (info) => {
+    this.store.dispatch(updateTimelineInfo(info));
   }
   
-  openProject = () => {
-    if (this.mainWindow) {
-      this.mainWindow.close();
-      this.destroyMainWindow();
+  onRendererBoardInfoUpdate = (info) => {
+    this.store.dispatch(updateBoardInfo(info));
+  }
+  
+  createMainMenu = () => {
+    this.mainMenu = new MainMenu();
+    this.mainMenu.on(MainMenuEvent.OPEN_PROJECT, this.onMainMenuOpenProject);
+    this.mainMenu.on(MainMenuEvent.CREATE_PROJECT, this.onMainMenuCreateProject);
+    this.mainMenu.on(MainMenuEvent.SAVE_PROJECT, this.onMainMenuSaveProject);
+    this.mainMenu.on(MainMenuEvent.CLOSE_PROJECT, this.onMainMenuCloseProject);
+  }
+  
+  onMainMenuOpenProject = () => {
+    if (this.hasProjectOpened) {
+      this.doCloseProjectWarn(this.selectProjectToOpen);
+    } else {
+      this.selectProjectToOpen();
     }
-    
+  }
+  
+  selectProjectToOpen = () => {
     const projectPath = openProjectDialog();
-    if (!projectPath) {
-      return;
+    if (projectPath !== null) {
+      this.loadProject(projectPath);
     }
-    
-    this.loadProject(projectPath);
+  }
+  
+  onMainMenuCreateProject = () => {
+    if (this.hasProjectOpened) {
+      this.doCloseProjectWarn(this.createProject);
+    } else {
+      this.createProject();
+    }
+  }
+  
+  onMainMenuSaveProject = () => {
+    this.saveProject();
+  }
+  
+  onMainMenuCloseProject = () => {
+    this.doCloseProjectWarn();
   }
   
   createProject = () => {
-    if (this.mainWindow) {
-      this.mainWindow.close();
-    }
-    
     const projectPath = createProjectDialog();
-    if (!projectPath) {
-      return;
+    if (projectPath !== null) {
+      const finalPath = `${projectPath}.manuscrit`;
+      
+      this.loadProject(finalPath, true);
+      this.saveProject();
     }
-    
-    const finalPath = `${projectPath}.manuscrit`;
-    
-    this.loadProject(finalPath, true);
-    this.saveCurrentProject();
   }
   
-  saveCurrentProject = () => {
+  saveProject = () => {
     const state = this.store.state;
     writeJson(this.currentProjectFilePath, pick(state, [
       'fileVersion',
@@ -334,14 +339,30 @@ export default class Main {
     ]));
   }
   
-  closeCurrentProject = () => {
+  doCloseProjectWarn = (next) => {
+    if (this.hasProjectOpened) {
+      const canClose = warnBeforeClosingProject(this.mainWindow.browserWindow);
+      if (canClose) {
+        this.closeProject();
+        if (typeof next === 'function') {
+          next();
+        }
+      }
+    } else {
+      if (typeof next === 'function') {
+        next();
+      }
+    }
+  }
+  
+  closeProject = () => {
     this.destroyMainWindow();
     this.destroyStore();
     this.destroyRenderer();
     
-    // const appConfig = readAppConfig();
-    // set(appConfig, 'currentProjectFilePath', null);
-    // writeAppConfig(appConfig);
+    const appConfig = readAppConfig();
+    set(appConfig, 'currentProjectFilePath', null);
+    writeAppConfig(appConfig);
     
     this.currentProjectFilePath = null;
   }

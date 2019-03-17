@@ -44,6 +44,10 @@ export default class MainMenu extends EventEmitter {
             click: this.onSaveProjectClick,
           },
           {
+            label: 'Close project',
+            click: this.onCloseProjectClick,
+          },
+          {
             type: 'separator',
           },
           {
@@ -109,5 +113,9 @@ export default class MainMenu extends EventEmitter {
   
   onSaveProjectClick = () => {
     this.emit(MainMenuEvent.SAVE_PROJECT);
+  }
+  
+  onCloseProjectClick = () => {
+    this.emit(MainMenuEvent.CLOSE_PROJECT);
   }
 }

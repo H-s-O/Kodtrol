@@ -61,19 +61,24 @@ export default class MainWindow extends EventEmitter {
   }
   
   onClose = (e) => {
-    this.emit(MainWindowEvent.CLOSING, e);
+    // Do not let the window close by itself; handle it in Main
+    e.preventDefault();
+    
+    this.emit(MainWindowEvent.CLOSING);
   }
   
   onClosed = () => {
     this.emit(MainWindowEvent.CLOSED);
   }
   
-  close = () => {
-    this.win.close();
-  }
-  
   destroy = () => {
-    this.win.removeAllListeners();
+    if (this.win) {
+      this.win.removeAllListeners();
+      this.win.destroy();
+    }
+    if (this.contents) {
+      this.contents.removeAllListeners();
+    }
     
     this.win = null;
     this.contents = null;

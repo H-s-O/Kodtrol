@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import { ipcMain } from 'electron';
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { forwardToRenderer, triggerAlias, replayActionMain } from 'electron-redux';
 import { observer, observe } from 'redux-observers'
@@ -192,7 +193,11 @@ export default class Store extends EventEmitter {
   }
   
   destroy = () => {
-    this.scriptsObserver = null;
     this.store = null;
+    
+    // electron-redux does not offer destructors, so we must manually remove
+    // the listeners it added to ipcMain, otherwise we get duplicate actions
+    // @TODO open an issue on Github ?
+    ipcMain.removeAllListeners('redux-action');
   }
 }

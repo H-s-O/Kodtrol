@@ -28,7 +28,7 @@ export const warnBeforeClosingProject = (win) => {
     ],
     defaultId: 0,
     cancelId: 1,
-    message: 'You will lose changes in the current project.',
+    message: 'Are you sure you want to close this project?',
   });
   return result === 0;
 };
