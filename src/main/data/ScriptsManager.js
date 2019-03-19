@@ -24,7 +24,10 @@ export default class ScriptsManager {
           [prop.substring(1)]: funcBody,
         };
       }, {});
-    this.macrosRegexp = new RegExp(`(?<!\\.)(${Object.keys(this.macros).join('|')})`, 'g');
+      
+    const orderedMacros = Object.keys(this.macros)
+      .sort((a, b,) => b.length - a.length);
+    this.macrosRegexp = new RegExp(`(?<!\\.)(${orderedMacros.join('|')})`, 'g');
     
     // Make sure the destination dir for compiled scripts exists
     ensureDir(ScriptsManager.getCompiledScriptsDir());
