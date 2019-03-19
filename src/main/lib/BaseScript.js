@@ -33,6 +33,16 @@ export default {
     } while (index == except);
     return index;
   },
+  _randomIndexWhere(arr, predicate) {
+    if (!arr || arr.length === 0 || !predicate) {
+      return null;
+    }
+    let index;
+    do {
+      index = (Math.floor(Math.random() * arr.length));
+    } while (!predicate(index));
+    return index;
+  },
   _randomValue(arr, except = null) {
     if (!arr || arr.length === 0) {
       return null;
@@ -41,6 +51,16 @@ export default {
     do {
       value = arr[(Math.floor(Math.random() * arr.length))];
     } while (value == except);
+    return value;
+  },
+  _randomValueWhere(arr, predicate) {
+    if (!arr || arr.length === 0 || !predicate) {
+      return null;
+    }
+    let value;
+    do {
+      value = arr[(Math.floor(Math.random() * arr.length))];
+    } while (!predicate(value));
     return value;
   },
   _isBeatDivision(beat, division) {
