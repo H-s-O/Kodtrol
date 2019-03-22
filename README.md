@@ -32,9 +32,9 @@ There is no executable build yet. Still an Electron noob. See "Local development
   - **Workaround:** use a non-Art-Net output. (This issue will be promptly addressed.)
 - ~Cannot un-arm a board.~
   - ~**Workaround:** quit and relaunch the app. (Will require a UI change on how arming/un-arming is handled.)~
-- Inputs/outputs crash after saving the configuration if they did not change.
-  - **Workaround:** do not save the project configuration if you did not change it; otherwise, quit and
-  relaunch the app.
+- ~Inputs/outputs crash after saving the configuration if they did not change.~
+  - ~**Workaround:** do not save the project configuration if you did not change it; otherwise, quit and
+  relaunch the app.~
 - others i might have forgotten about...
 
 ## Local development / run from source
