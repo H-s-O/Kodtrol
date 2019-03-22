@@ -6,7 +6,7 @@ export default class Timeline {
   _outTime = 0;
   _layers = [];
   _items = [];
-  _lastUpdated = null;
+  _hash = null;
   
   constructor(sourceTimeline) {
     this.update(sourceTimeline);
@@ -21,7 +21,7 @@ export default class Timeline {
       layers,
       items,
       tempo,
-      lastUpdated
+      hash
     } = sourceTimeline;
     
     this._id = id;
@@ -31,7 +31,7 @@ export default class Timeline {
     this._layers = layers;
     this._items = items;
     this._tempo = Number(tempo);
-    this._lastUpdated = Number(lastUpdated);
+    this._hash = hash;
   }
   
   get id() {
@@ -60,5 +60,20 @@ export default class Timeline {
   
   get tempo() {
     return this._tempo;
+  }
+  
+  get hash() {
+    return this._hash;
+  }
+  
+  destroy = () => {
+    this._id = null;
+    this._tempo = null;
+    this._duration = null;
+    this._inTime = null;
+    this._outTime = null;
+    this._layers = null;
+    this._items = null;
+    this._hash = null;
   }
 }

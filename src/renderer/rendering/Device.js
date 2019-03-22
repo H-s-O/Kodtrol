@@ -3,7 +3,6 @@ import _upperFirst from 'lodash/upperFirst';
 
 export default class Device {
   _id = null;
-  _lastUpdated = null;
   _name = null;
   _type = null;
   _groups = [];
@@ -13,6 +12,7 @@ export default class Device {
   _channels = {};
   _output = null;
   _providers = null;
+  _hash = null;
   
   constructor(providers, sourceDevice) {
     this._providers = providers;
@@ -23,20 +23,20 @@ export default class Device {
   update = (sourceDevice) => {
     const {
       id,
-      lastUpdated,
       name,
       type,
       groups,
       channels,
       startChannel,
       output,
+      hash,
     } = sourceDevice;
 
     this._id = id;
-    this._lastUpdated = Number(lastUpdated);
     this._name = name;
     this._type = type;
     this._startingChannel = Number(startChannel);
+    this._hash = hash;
     
     this.setOutput(output);
     this.setGroups(groups);
@@ -116,6 +116,10 @@ export default class Device {
     return this._channels;
   }
   
+  get hash() {
+    return this._hash;
+  }
+  
   resetChannels = () => {
     this._channels = {
       ...this._channelDefaults,
@@ -167,5 +171,19 @@ export default class Device {
 
   updateChannel = (channel, func) => {
     return this.setChannel(channel, func(this.getChannel(channel)));
+  }
+  
+  destroy = () => {
+    this._id = null;
+    this._name = null;
+    this._type = null;
+    this._groups = null;
+    this._startingChannel = null;
+    this._channelAliases = null;
+    this._channelDefaults = null;
+    this._channels = null;
+    this._output = null;
+    this._providers = null;
+    this._hash = null;
   }
 };

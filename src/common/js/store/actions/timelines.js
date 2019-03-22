@@ -1,5 +1,7 @@
 import uniqid from 'uniqid';
 
+import hash from '../../lib/hash';
+
 export const updateTimelines = (timelines) => ({
   type: 'UPDATE_TIMELINES',
   payload: timelines,
@@ -23,7 +25,7 @@ export const createTimeline = (timelineData) => ({
     layers: [],
     ...timelineData,
     id: uniqid(),
-    lastUpdated: Date.now(),
+    hash: hash(timelineData),
   },
 });
 
@@ -38,7 +40,7 @@ export const saveTimeline = (id, data) => ({
     id,
     data: {
       ...data,
-      lastUpdated: Date.now(),
+      hash: hash(data),
     },
   },
 });

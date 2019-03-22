@@ -1,5 +1,7 @@
 import uniqid from 'uniqid';
 
+import hash from '../../lib/hash';
+
 export const updateBoards = (boards) => ({
   type: 'UPDATE_BOARDS',
   payload: boards,
@@ -22,7 +24,7 @@ export const createBoard = (boardData) => ({
     layers: [],
     ...boardData,
     id: uniqid(),
-    lastUpdated: Date.now(),
+    hash: hash(boardData),
   },
 });
 
@@ -37,7 +39,7 @@ export const saveBoard = (id, data) => ({
     id,
     data: {
       ...data,
-      lastUpdated: Date.now(),
+      hash: hash(data),
     },
   },
 });

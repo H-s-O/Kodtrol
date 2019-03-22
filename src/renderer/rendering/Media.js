@@ -8,6 +8,7 @@ export default class Media {
   _active = false;
   _output = null;
   _providers = null;
+  _hash = null;
   
   constructor(providers, sourceMedia) {
     this._providers = providers;
@@ -19,10 +20,12 @@ export default class Media {
     const {
       id,
       file,
+      hash,
     } = sourceMedia;
     
     this._id = id;
     this._file = file;
+    this._hash = hash;
     
     this.setOutput('audio'); // @TODO
   }
@@ -59,6 +62,10 @@ export default class Media {
   
   get active() {
     return this._active;
+  }
+  
+  get hash() {
+    return this._hash;
   }
   
   stop = () => {
@@ -108,5 +115,18 @@ export default class Media {
   
   setActive = (flag) => {
     this._active = flag;
+  }
+  
+  destroy = () => {
+    this._id = null;
+    this._file = null;
+    this._volume = null;
+    this._position = null;
+    this._speed = null;
+    this._streamId = null;
+    this._active = false;
+    this._output = null;
+    this._providers = null;
+    this._hash = null;
   }
 }

@@ -15,6 +15,7 @@ import Timeline from './rendering/Timeline';
 import Board from './rendering/Board';
 import Output from './rendering/Output';
 import Input from './rendering/Input';
+import hashComparator from '../common/js/lib/hashComparator';
 
 export default class Renderer {
   outputs = {};
@@ -111,21 +112,13 @@ export default class Renderer {
   }
   
   updateOutputs = (data) => {
-    this.outputs = data.reduce((outputs, output) => {
-      const { id } = output;
-      // update existing
-      if (id in outputs) {
-        outputs[id].update(output);
-        return outputs;
-      }
-      // new
-      else {
-        return {
-          ...outputs,
-          [id]: new Output(output),
-        };
-      }
-    }, this.outputs || {});
+    this.outputs = hashComparator(
+      data,
+      this.outputs,
+      (item) => new Output(item),
+      (output, item) => output.update(item),
+      (output) => output.destroy()
+    );
     
     // temp patch so that audio tracks may continue working
     if (!('audio' in this.outputs)) {
@@ -140,84 +133,45 @@ export default class Renderer {
   }
   
   updateInputs = (data) => {
-    this.inputs = data.reduce((inputs, input) => {
-      const { id } = input;
-      // update existing
-      if (id in inputs) {
-        inputs[id].update(input);
-        return inputs;
-      }
-      // new
-      else {
-        return {
-          ...inputs,
-          [id]: new Input(input, this.onInput),
-        };
-      }
-    }, this.inputs || {});
+    this.inputs = hashComparator(
+      data,
+      this.inputs,
+      (item) => new Input(item, this.onInput),
+      (input, item) => input.update(item),
+      (input) => input.destroy()
+    );
     // console.log('RENDERER updateInputs', this.inputs);
   }
   
   updateDevices = (data) => {
-    this.devices = data.reduce((devices, device) => {
-      const { id } = device;
-      // update existing
-      if (id in devices) {
-        devices[id].update(device);
-        return devices;
-      }
-      // new
-      else {
-        return {
-          ...devices,
-          [id]: new Device(this.providers, device),
-        };
-      }
-    }, this.devices || {});
-    
-    // console.log('RENDERER updateDevices', this.devices);
-    // if (!this.playing) {
-    //   this.resetDevices();
-    //   const devicesData = this.getDevicesData();
-    //   this.updateDmx(devicesData);
-    // }
+    this.devices = hashComparator(
+      data,
+      this.devices,
+      (item) => new Device(this.providers, item),
+      (device, item) => device.update(item),
+      (device) => device.destroy()
+    );
   }
   
   updateScripts = (data) => {
-    this.scripts = data.reduce((scripts, script) => {
-      const { id } = script;
-      // update existing
-      if (id in scripts) {
-        scripts[id].update(script);
-        return scripts;
-      }
-      // new
-      else {
-        return {
-          ...scripts,
-          [id]: new Script(script),
-        };
-      }
-    }, this.scripts || {});
+    this.scripts = hashComparator(
+      data,
+      this.scripts,
+      (item) => new Script(item),
+      (script, item) => script.update(item),
+      (script) => script.destroy()
+    );
     // console.log('RENDERER updateScripts', this.scripts);
   }
   
   updateTimelines = (data) => {
-    this.timelines = data.reduce((timelines, timeline) => {
-      const { id } = timeline;
-      // update existing
-      if (id in timelines) {
-        timelines[id].update(timeline);
-        return timelines;
-      }
-      // new
-      else {
-        return {
-          ...timelines,
-          [id]: new Timeline(timeline),
-        };
-      }
-    }, this.timelines || {});
+    this.timelines = hashComparator(
+      data,
+      this.timelines,
+      (item) => new Timeline(item),
+      (timeline, item) => timeline.update(item),
+      (timeline) => timeline.destroy()
+    );
     // console.log('RENDERER updateTimelines', this.timelines);
     
     // temp patch to simulate future medias
@@ -232,40 +186,24 @@ export default class Renderer {
   }
   
   updateBoards = (data) => {
-    this.boards = data.reduce((boards, board) => {
-      const { id } = board;
-      // update existing
-      if (id in boards) {
-        boards[id].update(board);
-        return boards;
-      }
-      // new
-      else {
-        return {
-          ...boards,
-          [id]: new Board(board),
-        };
-      }
-    }, this.boards || {});
+    this.boards = hashComparator(
+      data,
+      this.boards,
+      (item) => new Board(item),
+      (board, item) => board.update(item),
+      (board) => board.destroy()
+    );
     // console.log('RENDERER updateBoards', this.boards);
   }
   
   updateMedias = (data) => {
-    this.medias = data.reduce((medias, media) => {
-      const { id } = media;
-      // update existing
-      if (id in medias) {
-        medias[id].update(media);
-        return medias;
-      }
-      // new
-      else {
-        return {
-          ...medias,
-          [id]: new Media(this.providers, media),
-        };
-      }
-    }, this.medias || {});
+    this.medias = hashComparator(
+      data,
+      this.medias,
+      (item) => new Media(this.providers, item),
+      (media, item) => media.update(item),
+      (media) => media.destroy()
+    );
     // console.log('RENDERER updateMedias', this.medias);
   }
   

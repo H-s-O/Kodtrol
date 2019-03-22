@@ -1,5 +1,7 @@
 import uniqid from 'uniqid';
 
+import hash from '../../lib/hash';
+
 export const updateDevices = (devices) => ({
   type: 'UPDATE_DEVICES',
   payload: devices,
@@ -10,7 +12,7 @@ export const createDevice = (deviceData) => ({
   payload: {
     ...deviceData,
     id: uniqid(),
-    lastUpdated: Date.now(),
+    hash: hash(deviceData),
   },
 });
 
@@ -25,7 +27,7 @@ export const saveDevice = (id, data) => ({
     id,
     data: {
       ...data,
-      lastUpdated: Date.now(),
+      hash: hash(data),
     },
   },
 });

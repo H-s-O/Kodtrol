@@ -3,7 +3,7 @@ export default class Board {
   _tempo = 0;
   _layers = [];
   _items = [];
-  _lastUpdated = null;
+  _hash = null;
   
   constructor(sourceBoard) {
     this.update(sourceBoard);
@@ -15,14 +15,14 @@ export default class Board {
       layers,
       items,
       tempo,
-      lastUpdated,
+      hash,
     } = sourceBoard;
     
     this._id = id;
     this._layers = layers;
     this._items = items;
     this._tempo = Number(tempo);
-    this._lastUpdated = Number(lastUpdated);
+    this._hash = hash;
   }
   
   get id() {
@@ -39,5 +39,17 @@ export default class Board {
   
   get tempo() {
     return this._tempo;
+  }
+  
+  get hash() {
+    return this._hash;
+  }
+  
+  destroy = () => {
+    this._id = null;
+    this._layers = null;
+    this._items = null;
+    this._tempo = null;
+    this._hash = null;
   }
 }

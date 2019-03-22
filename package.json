@@ -59,6 +59,7 @@
     "redux": "^3.7.2",
     "redux-observers": "^2.0.2",
     "reselect": "^4.0.0",
+    "spark-md5": "^3.0.0",
     "uniqid": "^4.1.1"
   },
   "devDependencies": {

@@ -1,5 +1,7 @@
 import uniqid from 'uniqid';
 
+import hash from '../../lib/hash';
+
 export const updateScripts = (scripts) => ({
   type: 'UPDATE_SCRIPTS',
   payload: scripts,
@@ -22,7 +24,7 @@ export const createScript = (scriptData) => ({
     previewTempo: 120,
     ...scriptData,
     id: uniqid(),
-    lastUpdated: Date.now(),
+    hash: hash(scriptData),
   }
 });
 
@@ -37,7 +39,7 @@ export const saveScript = (id, data) => ({
     id,
     data: {
       ...data,
-      lastUpdated: Date.now(),
+      hash: hash(data),
     },
   },
 });

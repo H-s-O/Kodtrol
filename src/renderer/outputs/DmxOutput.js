@@ -14,6 +14,11 @@ export default class DmxOutput {
   }
   
   destroy = () => {
+    if (this.output) {
+      // Manually stop universes
+      Object.values(this.output.universes).forEach((universe) => universe.stop());
+    }
+    
     this.output = null;
   }
 }

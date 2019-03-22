@@ -1,5 +1,7 @@
 import uniqid from 'uniqid';
 
+import hash from '../../lib/hash';
+
 export const updateOutputs = (outputs) => ({
   type: 'UPDATE_OUTPUTS',
   payload: outputs,
@@ -10,7 +12,7 @@ export const createOutput = (outputData) => ({
   payload: {
     ...outputData,
     id: uniqid(),
-    lastUpdated: Date.now(),
+    hash: hash(outputData),
   },
 });
 
@@ -25,7 +27,7 @@ export const saveOutput = (id, data) => ({
     id,
     data: {
       ...data,
-      lastUpdated: Date.now(),
+      hash: hash(data),
     },
   },
 });
@@ -35,7 +37,7 @@ export const saveOutputs = (data) => ({
   payload: data.map((output) => {
     return {
       ...output,
-      lastUpdated: Date.now(),
+      hash: hash(output),
     }
   }),
 });

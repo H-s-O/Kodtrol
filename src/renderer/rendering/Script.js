@@ -2,7 +2,6 @@ import { getCompiledScriptPath } from '../lib/fileSystem';
 
 export default class Script {
   _id = null;
-  _lastUpdated = null;
   _tempo = 0;
   _devices = [];
   _scriptInstance = null;
@@ -11,6 +10,7 @@ export default class Script {
   _hasFrame = false;
   _hasBeat = false;
   _hasInput = false;
+  _hash = null;
   
   constructor(sourceScript) {
     this.update(sourceScript);
@@ -20,12 +20,12 @@ export default class Script {
     const {
       id,
       devices,
-      lastUpdated,
       previewTempo,
+      hash,
     } = sourceScript;
     
     this._id = id;
-    this._lastUpdated = Number(lastUpdated);
+    this._hash = hash;
     this._tempo = Number(previewTempo);
     
     this.setDevices(devices);
@@ -90,5 +90,22 @@ export default class Script {
   
   get hasInput() {
     return this._hasInput;
+  }
+  
+  get hash() {
+    return this._hash;
+  }
+  
+  destroy = () => {
+    this._id = null;
+    this._tempo = 0;
+    this._devices = [];
+    this._scriptInstance = null;
+    this._hasSetup = false;
+    this._hasStart = false;
+    this._hasFrame = false;
+    this._hasBeat = false;
+    this._hasInput = false;
+    this._hash = null;
   }
 }
