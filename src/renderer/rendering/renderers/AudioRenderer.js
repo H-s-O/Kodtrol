@@ -1,4 +1,3 @@
-import fs from 'fs';
 import uniqid from 'uniqid';
 
 export default class AudioRenderer {

@@ -1,8 +1,4 @@
-import { getCompiledScriptPath } from './lib/fileSystem';
 import Ticker from './lib/Ticker';
-import DmxOutput from './outputs/DmxOutput';
-import ArtnetOutput from './outputs/ArtnetOutput';
-import AudioOutput from './outputs/AudioOutput';
 import ScriptRenderer from './rendering/renderers/ScriptRenderer';
 import TimelineRenderer from './rendering/renderers/TimelineRenderer';
 import BoardRenderer from './rendering/renderers/BoardRenderer';
@@ -33,21 +29,6 @@ export default class Renderer {
   providers = null;
   
   constructor() {
-    // const dmxOutput = new DmxOutput();
-    // this.outputs.dmx = dmxOutput;
-    // 
-    // const artnetOutput = new ArtnetOutput();
-    // this.outputs.artnet = artnetOutput;
-    // 
-    // const audioOutput = new AudioOutput();
-    // this.outputs.audio = audioOutput;
-    
-    // const midiInput = new MidiInput(this.onMidiInput);
-    // this.inputs.midi = midiInput;
-    // 
-    // const oscInput = new OscInput(this.onOscInput);
-    // this.inputs.osc = oscInput;
-    
     this.providers = {
       getOutput: this.getOutput,
       getScript: this.getScript,
@@ -258,9 +239,6 @@ export default class Renderer {
       this.updateTicker();
     }
     
-    // this.updateDmx();
-    // this.updateAudio();
-    
     console.log('RENDERER previewScript', id);
   }
   
@@ -283,11 +261,7 @@ export default class Renderer {
       this.updateTicker(null, false);
     }
     
-    // this.updateDmx();
-    // this.updateAudio();
-    
     console.log('RENDERER runTimeline', id);
-    // this.updateTimelinePlaybackStatus();
   }
   
   runBoard = (id) => {
@@ -308,9 +282,6 @@ export default class Renderer {
     } else {
       this.updateTicker(null, false);
     }
-    
-    // this.updateDmx();
-    // this.updateAudio();
     
     console.log('RENDERER runBoard', id);
   }
@@ -408,14 +379,6 @@ export default class Renderer {
     }
     
     this.outputAll();
-
-    // const devicesData = this.getDevicesData();
-    // // console.log(Object.values(this.devices).map(({channels}) => channels));
-    // // console.log(devicesData);
-    // this.updateDmx(devicesData);
-    
-    // const mediasData = this.getMediasData();
-    // this.updateAudio(mediasData);
   }
   
   resetAll = () => {
@@ -436,25 +399,6 @@ export default class Renderer {
     Object.values(this.medias).forEach((media) => media.sendDataToOutput());
     Object.values(this.outputs).forEach((output) => output.flush());
   }
-  
-  // getDevicesData = () => {
-  //   return Object.values(this.devices).reduce((obj, {channels, startingChannel}) => ({
-  //     ...obj,
-  //     ...Object.entries(channels).reduce((obj2, [channel, channelValue]) => {
-  //       return {
-  //         ...obj2,
-  //         [startingChannel + Number(channel)]: channelValue,
-  //       };
-  //     }, {}),
-  //   }), {});
-  // }
-  // 
-  // getMediasData = () => {
-  //   return Object.values(this.medias).reduce((obj, media) => ({
-  //     ...obj,
-  //     [media.streamId]: media.outputData,
-  //   }), {});
-  // }
   
   tickerBeat = (beat, delta) => {
     if (this.currentScript) {
@@ -478,16 +422,5 @@ export default class Renderer {
     if (this.currentBoard) {
       this.currentBoard.input(type, data);
     }
-  }
-  
-  updateDmx = (data = null) => {
-    const dmx = this.outputs.dmx;
-    // const dmx = this.outputs.artnet;
-    dmx.send(data);
-  }
-  
-  updateAudio = (data = null) => {
-    const audio = this.outputs.audio;
-    audio.send(data);
   }
 }

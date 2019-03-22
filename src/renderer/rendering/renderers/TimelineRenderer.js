@@ -1,5 +1,3 @@
-import { flatten, uniq, pick } from 'lodash';
-
 import ScriptRenderer from './ScriptRenderer';
 import TriggerRenderer from './TriggerRenderer';
 import CurveRenderer from './CurveRenderer';
