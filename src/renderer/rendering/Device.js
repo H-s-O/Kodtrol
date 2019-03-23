@@ -46,6 +46,10 @@ export default class Device {
   }
   
   setOutput = (outputId) => {
+    // Guard
+    if (!outputId) {
+      this._output = null;
+    }
     this._output = this._providers.getOutput(outputId);
   }
   
