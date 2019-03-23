@@ -36,6 +36,7 @@ export default class Script {
     // Guard
     if (!devices) {
       this._devices = [];
+      return;
     }
     this._devices = devices.map(({id}) => id);
   }
