@@ -1,55 +1,74 @@
 import uniqid from 'uniqid';
 
-import hash from '../../lib/hash';
+import { hashDataObject } from '../../lib/hash';
 
-export const updateBoards = (boards) => ({
-  type: 'UPDATE_BOARDS',
-  payload: boards,
-});
+export const updateBoards = (boards) => {
+  return {
+    type: 'UPDATE_BOARDS',
+    payload: boards,
+  };
+};
 
-export const selectBoard = (id) => ({
-  type: 'SELECT_BOARD',
-  payload: id,
-});
+export const selectBoard = (id) => {
+  return {
+    type: 'SELECT_BOARD',
+    payload: id,
+  };
+};
 
-export const unselectBoard = () => ({
-  type: 'SELECT_BOARD',
-  payload: null,
-});
+export const unselectBoard = () => {
+  return {
+    type: 'SELECT_BOARD',
+    payload: null,
+  };
+};
 
-export const createBoard = (boardData) => ({
-  type: 'CREATE_BOARD',
-  payload: {
+export const createBoard = (data) => {
+  const hashableData = {
     items: [],
     layers: [],
-    ...boardData,
-    id: uniqid(),
-    hash: hash(boardData),
-  },
-});
-
-export const deleteBoard = (id) => ({
-  type: 'DELETE_BOARD',
-  payload: id,
-});
-
-export const saveBoard = (id, data) => ({
-  type: 'SAVE_BOARD',
-  payload: {
-    id,
-    data: {
-      ...data,
-      hash: hash(data),
+    ...data,
+  };
+  return {
+    type: 'CREATE_BOARD',
+    payload: {
+      ...hashableData,
+      id: uniqid(),
+      hash: hashDataObject(hashableData),
     },
-  },
-});
+  };
+};
 
-export const runBoard = (id) => ({
-  type: 'RUN_BOARD',
-  payload: id,
-});
+export const deleteBoard = (id) => {
+  return {
+    type: 'DELETE_BOARD',
+    payload: id,
+  };
+};
 
-export const stopBoard = () => ({
-  type: 'RUN_BOARD',
-  payload: null,
-});
+export const saveBoard = (id, data) => {
+  return {
+    type: 'SAVE_BOARD',
+    payload: {
+      id,
+      data: {
+        ...data,
+        hash: hashDataObject(data),
+      },
+    },
+  };
+};
+
+export const runBoard = (id) => {
+  return {
+    type: 'RUN_BOARD',
+    payload: id,
+  };
+};
+
+export const stopBoard = () => {
+  return {
+    type: 'RUN_BOARD',
+    payload: null,
+  };
+};

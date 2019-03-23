@@ -1,8 +1,10 @@
 import SparkMD5 from 'spark-md5';
 
-export default (value) => {
-  if (typeof value === 'string') {
-    return SparkMD5.hash(value);
-  }
-  return SparkMD5.hash(JSON.stringify(value));
-}
+export const hashString = (value) => {
+  return SparkMD5.hash(value);
+};
+
+export const hashDataObject = (value) => {
+  const { hash, ...hashless } = value;
+  return hashString(JSON.stringify(hashless));
+};
