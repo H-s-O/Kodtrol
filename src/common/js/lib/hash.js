@@ -1,10 +1,12 @@
-import SparkMD5 from 'spark-md5';
-
-export const hashString = (value) => {
-  return SparkMD5.hash(value);
-};
+import objectHash from 'object-hash';
 
 export const hashDataObject = (value) => {
-  const { hash, ...hashless } = value;
-  return hashString(JSON.stringify(hashless));
+  const newHash = objectHash(value, {
+    algorithm: 'md5',
+    ignoreUnknown: true,
+    respectType: false,
+    unorderedArrays: true,
+    excludeKeys: (key) => key === 'hash',
+  });
+  return newHash;
 };

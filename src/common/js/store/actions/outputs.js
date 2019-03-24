@@ -1,5 +1,3 @@
-import uniqid from 'uniqid';
-
 import { hashDataObject } from '../../lib/hash';
 
 export const updateOutputs = (outputs) => {
