@@ -20,6 +20,7 @@ export default class Media {
     const {
       id,
       file,
+      output,
       hash,
     } = sourceMedia;
     
@@ -27,7 +28,7 @@ export default class Media {
     this._file = file;
     this._hash = hash;
     
-    this.setOutput('audio'); // @TODO
+    this.setOutput(output);
   }
   
   setOutput = (outputId) => {

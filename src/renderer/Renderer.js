@@ -146,11 +146,15 @@ export default class Renderer {
     // console.log('RENDERER updateTimelines', this.timelines);
     
     // temp patch to simulate future medias
+    const audioOutput = Object.values(this.outputs).find(({type}) => type === 'audio');
     const medias = Object.values(this.timelines).reduce((arr, timeline) => {
       const medias = timeline.items.filter(({file}) => !!file);
       return [
         ...arr,
-        ...medias,
+        ...medias.map((media) => ({
+          ...media,
+          output: audioOutput.id,
+        })),
       ]
     }, []);
     this.updateMedias(medias);
