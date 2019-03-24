@@ -45,7 +45,8 @@ export default class Output {
       const { address } = extraData;
       output = new ArtnetOutput(address);
     } else if (type === 'audio') {
-      output = new AudioOutput();
+      const { device } = extraData;
+      output = new AudioOutput(device);
     }
     
     this._output = output;

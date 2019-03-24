@@ -291,6 +291,7 @@ class ConfigModal extends Component {
               <option value="">--</option>
               <option value="dmx">DMX</option>
               <option value="artnet">ArtNet</option>
+              <option value="audio">Audio</option>
             </FormControl>
           </Col>
         </FormGroup>
@@ -332,6 +333,20 @@ class ConfigModal extends Component {
               </Col>
               <Col md={10}>
                 <FormControl type="text" value={extraData.address || ''} onChange={(e) => this.updateOutput(id, 'extraData.address', e)} />
+              </Col>
+            </FormGroup>
+          </Fragment>
+        ) : type === 'audio' ? (
+          <Fragment>
+            <FormGroup>
+              <Col md={2} componentClass={ControlLabel}>
+                Device
+              </Col>
+              <Col md={10}>
+                <FormControl componentClass="select" value={extraData.device} onChange={(e) => this.updateOutput(id, 'extraData.device', e)} >
+                  <option value="">--</option>
+                  <option value="default">System default</option>
+                </FormControl>
               </Col>
             </FormGroup>
           </Fragment>

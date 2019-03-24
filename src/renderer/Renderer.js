@@ -100,16 +100,6 @@ export default class Renderer {
       (output, item) => output.update(item),
       (output) => output.destroy()
     );
-    
-    // temp patch so that audio tracks may continue working
-    if (!('audio' in this.outputs)) {
-      const audioOutput = new Output({
-        id: 'audio',
-        type: 'audio',
-      });
-      this.outputs.audio = audioOutput;
-    }
-    
     // console.log('RENDERER updateOutputs', this.outputs);
   }
   
