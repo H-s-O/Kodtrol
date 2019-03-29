@@ -27,16 +27,16 @@ const defaultProps = {
 
 class TimelineLayer extends PureComponent {
   onDeleteLayerClick = () => {
-    const { data } = this.props;
+    const { data, items } = this.props;
     const { order } = data;
-    deleteWarning(
-      `Are you sure you want to delete layer ${order + 1} ? Deleting a layer will also delete all its items.`,
-      (result) => {
-        if (result) {
-          this.doDeleteLayer();
-        }
+    const message = `Are you sure you want to delete layer ${order + 1}?`;
+    const details = items && items.length > 0 ? `This layer contains ${items.length} item(s).` : null;
+    
+    deleteWarning(message, details, (result) => {
+      if (result) {
+        this.doDeleteLayer();
       }
-    );
+    });
   }
   
   doDeleteLayer = () => {
