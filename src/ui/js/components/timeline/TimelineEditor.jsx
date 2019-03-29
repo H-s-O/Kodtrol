@@ -75,6 +75,9 @@ class TimelineEditor extends PureComponent {
       timelinePasteItem: this.onPasteItem,
       timelineCanPasteItem: this.canPasteItem,
       timelineAddLayer: this.onAddLayer,
+      timelineMoveLayer: this.onMoveLayer,
+      timelineCanMoveLayerUp: this.canMoveLayerUp,
+      timelineCanMoveLayerDown: this.canMoveLayerDown,
       timelineDeleteLayer: this.onDeleteLayer,
       timelineUpdatePosition: this.onTimelineUpdatePosition,
     };
@@ -223,32 +226,68 @@ class TimelineEditor extends PureComponent {
     };
     
     if (index === 'max') {
-      const max = layers.reduce((carry, {order}) => order > carry ? order : carry, 0);
-      newLayer.order = max + 1;
+      newLayer.order = layers.length;
     } else if (index === 'min') {
-      newLayer.order = 0;
+      newLayer.order = -0.5;
     } else {
-      newLayer.order = index;
+      newLayer.order = index - 0.5;
     }
     
-    const newLayers = [
-      ...layers.map((layer) => {
-        if (layer.order >= newLayer.order) {
-          // adjust order
-          return {
-            ...layer,
-            order: layer.order + 1,
-          };
-        }
-        return layer;
-      }),
+    const newLayers = this.sortLayers([
+      ...layers,
       newLayer,
-    ];
+    ]);
     const newTimelineData = {
       layers: newLayers,
     };
     
     this.doSave(newTimelineData);
+  }
+  
+  onMoveLayer = (layerId, offset) => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    
+    const layer = layers.find(({id}) => id === layerId);
+    
+    const newOrder = layer.order + (offset * 1.5);
+    // Guard
+    if (newOrder < -1 || newOrder > layers.length) {
+      return;
+    }
+    
+    const newLayers = this.sortLayers(layers.map((layer) => {
+      if (layer.id === layerId) {
+        return {
+          ...layer,
+          order: newOrder,
+        };
+      }
+      return layer;
+    }));
+    const newTimelineData = {
+      layers: newLayers,
+    };
+    
+    this.doSave(newTimelineData);
+  }
+  
+  canMoveLayerUp = (layerId) => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    
+    const layer = layers.find(({id}) => id === layerId);
+    
+    return layer.order < layers.length - 1;
+  }
+  
+  canMoveLayerDown = (layerId) => {
+    const { timelineData } = this.props;
+    const { layers } = timelineData;
+    
+    const layer = layers.find(({id}) => id === layerId);
+    
+    return layer.order > 0;
   }
   
   onDeleteLayer = (layerId) => {
@@ -257,18 +296,7 @@ class TimelineEditor extends PureComponent {
 
     const deletedLayer = layers.find(({id}) => id === layerId);
     
-    const newLayers = layers
-      .filter(({id}) => id !== layerId)
-      .map((layer) => {
-        if (layer.order >= deletedLayer.order) {
-          // adjust order
-          return {
-            ...layer,
-            order: layer.order - 1,
-          };
-        }
-        return layer;
-      });
+    const newLayers = this.sortLayers(layers.filter(({id}) => id !== layerId));
     const newItems = items.filter(({layer}) => layer !== layerId);
     const newTimelineData = {
       layers: newLayers,
@@ -277,6 +305,20 @@ class TimelineEditor extends PureComponent {
     
     this.doSave(newTimelineData);
   }
+  
+  sortLayers = (layers) => {
+    const sortedLayers = layers
+      .sort((a, b) => a.order < b.order ? -1 : 1)
+      .map((layer, index) => {
+        return {
+          ...layer,
+          order: index,
+        };
+      });
+      console.log(sortedLayers);
+    return sortedLayers;
+  }
+  
   
   getTimelinePositionFromEvent = (e, round = true) => {
     const percent = this.timelineWrapper.getTimelinePercentFromEvent(e);

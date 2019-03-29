@@ -85,15 +85,46 @@ class TimelineLayer extends PureComponent {
     timelineAddLayer(order);
   }
   
+  onMoveLayerUpClick = () => {
+    const { timelineMoveLayer, data } = this.props;
+    const { id } = data;
+    timelineMoveLayer(id, 1);
+  }
+  
+  onMoveLayerDownClick = () => {
+    const { timelineMoveLayer, data } = this.props;
+    const { id } = data;
+    timelineMoveLayer(id, -1);
+  }
+  
   onTimelineLayerContextMenu = (e) => {
     e.stopPropagation();
     e.preventDefault();
     e.persist(); // needed so that it can be forwarded for "add here"
     
-    const { timelineCanPasteItem } = this.props;
+    const {
+      timelineCanPasteItem,
+      timelineCanMoveLayerUp,
+      timelineCanMoveLayerDown,
+      data,
+    } = this.props;
+    const { id } = data;
     const { Menu, MenuItem } = remote;
 
     const menu = new Menu();
+    menu.append(new MenuItem({
+      label: 'Move layer up',
+      click: this.onMoveLayerUpClick,
+      enabled: timelineCanMoveLayerUp(id),
+    }));
+    menu.append(new MenuItem({
+      label: 'Move layer down',
+      click: this.onMoveLayerDownClick,
+      enabled: timelineCanMoveLayerDown(id),
+    }));
+    menu.append(new MenuItem({
+      type: 'separator',
+    }));
     menu.append(new MenuItem({
       label: 'Add layer above',
       click: this.onAddLayerAboveClick,
