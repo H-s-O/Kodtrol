@@ -492,6 +492,13 @@ class TimelineEditor extends PureComponent {
     this.doSave(data);
   }
   
+  onZoomVertLevelClick = (level) => {
+    const data = {
+      zoomVert: level,
+    };
+    this.doSave(data);
+  }
+  
   
   onAdjustItem = (itemId, mode) => {
     const { timelineData } = this.props;
@@ -901,37 +908,64 @@ class TimelineEditor extends PureComponent {
     );
   }
   
-  renderZoomControl = () => {
+  renderZoomControls = () => {
     const levels = [1, 1.5, 3, 6, 8, 10];
     const { timelineData } = this.props;
-    const { zoom } = timelineData;
+    const { zoom, zoomVert } = timelineData;
     
     return (
-      <DropdownButton
-        id="timeline-zoom-menu"
-        title={(
-          <Fragment>
-            <Glyphicon
-              glyph="search"
-            />
-            <Glyphicon
-              glyph="resize-horizontal"
-            />
-          </Fragment>
-        )}
-        bsSize="xsmall"
-        onClick={stopEvent}
-      >
-        { levels.map((level) => (
-          <MenuItem
-            key={`zoom-level-${level}`}
-            onSelect={() => this.onZoomLevelClick(level)}
-            active={level == zoom}
+      <ButtonGroup>
+        <DropdownButton
+          id="timeline-zoom-menu"
+          title={(
+            <Fragment>
+              <Glyphicon
+                glyph="search"
+                />
+              <Glyphicon
+                glyph="resize-horizontal"
+                />
+            </Fragment>
+          )}
+          bsSize="xsmall"
+          onClick={stopEvent}
           >
-            { percentString(level, true) }
-          </MenuItem>
-        )) }
-      </DropdownButton>
+          { levels.map((level) => (
+            <MenuItem
+              key={`zoom-level-${level}`}
+              onSelect={() => this.onZoomLevelClick(level)}
+              active={level == zoom}
+              >
+              { percentString(level, true) }
+            </MenuItem>
+          )) }
+        </DropdownButton>
+        <DropdownButton
+          id="timeline-zoom-vert-menu"
+          title={(
+            <Fragment>
+              <Glyphicon
+                glyph="search"
+                />
+              <Glyphicon
+                glyph="resize-vertical"
+                />
+            </Fragment>
+          )}
+          bsSize="xsmall"
+          onClick={stopEvent}
+          >
+          { levels.map((level) => (
+            <MenuItem
+              key={`zoom-vert-level-${level}`}
+              onSelect={() => this.onZoomVertLevelClick(level)}
+              active={level == zoomVert}
+              >
+              { percentString(level, true) }
+            </MenuItem>
+          )) }
+        </DropdownButton>
+      </ButtonGroup>
     );
   }
   
@@ -1032,7 +1066,7 @@ class TimelineEditor extends PureComponent {
               { this.renderTimelineControls() }
               { this.renderRecordItems() }
               { this.renderAddItems() }
-              { this.renderZoomControl() }
+              { this.renderZoomControls() }
             </ButtonToolbar>
           )
         }

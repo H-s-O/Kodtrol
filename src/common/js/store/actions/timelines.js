@@ -26,6 +26,7 @@ export const unselectTimeline = () => {
 export const createTimeline = (data) => {
   const hashableData = {
     zoom: 1.0,
+    zoomVert: 1.0,
     items: [],
     layers: [],
     ...data,

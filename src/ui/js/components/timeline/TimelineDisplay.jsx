@@ -10,6 +10,7 @@ const propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape({})),
   layers: PropTypes.arrayOf(PropTypes.shape({})),
   zoom: PropTypes.number,
+  zoomVert: PropTypes.number,
   duration: PropTypes.number,
 };
 
@@ -17,6 +18,7 @@ const defaultProps = {
   items: [],
   layers: [],
   zoom: 1,
+  zoomVert: 1,
   duration: 0,
 };
 
@@ -47,7 +49,7 @@ class TimelineDisplay extends PureComponent {
   }
   
   render = () => {
-    const { zoom, layers } = this.props;
+    const { zoom, zoomVert, layers } = this.props;
     const sortedLayers = layers.sort((a, b) => a.order - b.order);
     
     return (
@@ -55,6 +57,7 @@ class TimelineDisplay extends PureComponent {
         className={styles.timelineDisplay}
         style={{
           width: percentString(zoom),
+          height: percentString(zoomVert),
         }}
       >
       { sortedLayers && sortedLayers.length ? sortedLayers.map(this.renderTimelineLayer) : null }
