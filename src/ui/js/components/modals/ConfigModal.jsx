@@ -9,6 +9,9 @@ import TreeView from '../partials/TreeView';
 import stopEvent from '../../lib/stopEvent';
 import openExternalUrl from '../../../../common/js/lib/openExternalUrl';
 import { deleteWarning } from '../../lib/messageBoxes';
+import TextField from '../forms/fields/TextField';
+import NumberField from '../forms/fields/NumberField';
+import SelectField from '../forms/fields/SelectField';
 
 import styles from '../../../styles/components/modals/configmodal.scss';
 
@@ -112,9 +115,7 @@ class ConfigModal extends Component {
     });
   }
   
-  updateOutput = (id, path, e) => {
-    const value = e.target.value;
-    
+  updateOutput = (id, path, value) => {
     const { outputs } = this.state;
     const newOutputs = [
       ...outputs.map((output) => {
@@ -181,9 +182,7 @@ class ConfigModal extends Component {
     });
   }
   
-  updateInput = (id, path, e) => {
-    const value = e.target.value;
-    
+  updateInput = (id, path, value) => {
     const { inputs } = this.state;
     const newInputs = [
       ...inputs.map((input) => {
@@ -279,7 +278,7 @@ class ConfigModal extends Component {
             Name
           </Col>
           <Col md={10}>
-            <FormControl type="text" value={name || ''} onChange={(e) => this.updateOutput(id, 'name', e)} />
+            <TextField value={name || ''} onChange={(value) => this.updateOutput(id, 'name', value)} />
           </Col>
         </FormGroup>
         <FormGroup>
@@ -287,12 +286,11 @@ class ConfigModal extends Component {
             Type
           </Col>
           <Col md={10}>
-            <FormControl componentClass="select" value={type} onChange={(e) => this.updateOutput(id, 'type', e)} >
-              <option value="">--</option>
-              <option value="dmx">DMX</option>
-              <option value="artnet">ArtNet</option>
-              <option value="audio">Audio</option>
-            </FormControl>
+            <SelectField value={type || ''} onChange={(value) => this.updateOutput(id, 'type', value)} options={[
+              { value: 'dmx', label: 'DMX' },
+              { value: 'artnet', label: 'ArtNet' },
+              { value: 'audio', label: 'Audio' },
+            ]} />
           </Col>
         </FormGroup>
         <hr />
@@ -303,14 +301,13 @@ class ConfigModal extends Component {
                 Driver
               </Col>
               <Col md={10}>
-                <FormControl componentClass="select" value={extraData.subType} onChange={(e) => this.updateOutput(id, 'extraData.subType', e)} >
-                  <option value="">--</option>
-                  <option value="bbdmx">BeagleBone-DMX</option>
-                  <option value="dmx4all">DMX4ALL</option>
-                  <option value="enttec-usb-dmx-pro">Enttec USB DMX Pro</option>
-                  <option value="enttec-open-usb-dmx">Enttec Open DMX USB</option>
-                  <option value="dmxking-utra-dmx-pro">DMXKing Ultra DMX pro</option>
-                </FormControl>
+                <SelectField value={extraData.subType || ''} onChange={(value) => this.updateOutput(id, 'extraData.subType', value)} options={[
+                  { value: 'bbdmx', label: 'BeagleBone-DMX' },
+                  { value: 'dmx4all', label: 'DMX4ALL' },
+                  { value: 'enttec-usb-dmx-pro', label: 'Enttec USB DMX Pro' },
+                  { value: 'enttec-open-usb-dmx', label: 'Enttec Open DMX USB' },
+                  { value: 'dmxking-utra-dmx-pro', label: 'DMXKing Ultra DMX pro' },
+                ]} />
                 <HelpBlock>
                   { this.renderOutputTypeHelp(extraData.subType) }
                 </HelpBlock>
@@ -321,7 +318,7 @@ class ConfigModal extends Component {
                 Port
               </Col>
               <Col md={10}>
-                <FormControl type="text" value={extraData.port || ''} onChange={(e) => this.updateOutput(id, 'extraData.port', e)} />
+                <TextField value={extraData.port || ''} onChange={(value) => this.updateOutput(id, 'extraData.port', value)} />
               </Col>
             </FormGroup>
           </Fragment>
@@ -332,7 +329,7 @@ class ConfigModal extends Component {
                 Address
               </Col>
               <Col md={10}>
-                <FormControl type="text" value={extraData.address || ''} onChange={(e) => this.updateOutput(id, 'extraData.address', e)} />
+                <TextField value={extraData.address || ''} onChange={(value) => this.updateOutput(id, 'extraData.address', value)} />
               </Col>
             </FormGroup>
           </Fragment>
@@ -343,10 +340,9 @@ class ConfigModal extends Component {
                 Device
               </Col>
               <Col md={10}>
-                <FormControl componentClass="select" value={extraData.device} onChange={(e) => this.updateOutput(id, 'extraData.device', e)} >
-                  <option value="">--</option>
-                  <option value="default">System default</option>
-                </FormControl>
+                <SelectField value={extraData.device || ''} onChange={(value) => this.updateOutput(id, 'extraData.device', value)} options={[
+                  { value: 'default', label: 'System default' },
+                ]} />
               </Col>
             </FormGroup>
           </Fragment>
@@ -453,7 +449,7 @@ class ConfigModal extends Component {
             Name
           </Col>
           <Col md={10}>
-            <FormControl type="text" value={name || ''} onChange={(e) => this.updateInput(id, 'name', e)} />
+            <TextField value={name || ''} onChange={(value) => this.updateInput(id, 'name', value)} />
           </Col>
         </FormGroup>
         <FormGroup>
@@ -461,11 +457,10 @@ class ConfigModal extends Component {
             Type
           </Col>
           <Col md={10}>
-            <FormControl componentClass="select" value={type} onChange={(e) => this.updateInput(id, 'type', e)} >
-              <option value="">--</option>
-              <option value="midi">MIDI</option>
-              <option value="osc">OSC</option>
-            </FormControl>
+            <SelectField value={type || ''} onChange={(value) => this.updateInput(id, 'type', value)} options={[
+              { value: 'midi', label: 'MIDI' },
+              { value: 'osc', label: 'OSC' },
+            ]} />
           </Col>
         </FormGroup>
         <hr />
@@ -476,7 +471,7 @@ class ConfigModal extends Component {
                 Port
               </Col>
               <Col md={10}>
-                <FormControl type="text" value={extraData.port || ''} onChange={(e) => this.updateInput(id, 'extraData.port', e)} />
+                <NumberField value={extraData.port || ''} onChange={(value) => this.updateInput(id, 'extraData.port', value)} />
                 <HelpBlock>
                   { this.renderInputAddressAndPortHelp(extraData.port) }
                 </HelpBlock>
