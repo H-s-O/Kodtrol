@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import { set } from 'lodash';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, Form, Col, Table } from 'react-bootstrap';
 
+import SelectField from '../../forms/fields/SelectField';
+
 class DeviceTableField extends PureComponent {
   state = {
     value: [],
@@ -18,9 +20,8 @@ class DeviceTableField extends PureComponent {
     }
   }
   
-  onDeviceChange = (e, deviceIndex) => {
+  onDeviceChange = (fieldValue, deviceIndex) => {
     const { value } = this.state;
-    const fieldValue = e.target.value;
     
     const newValue = value.map((device, index) => {
       if (index === deviceIndex) {
@@ -90,26 +91,15 @@ class DeviceTableField extends PureComponent {
                 {index + 1}
               </td>
               <td>
-                <FormControl
-                  componentClass="select"
+                <SelectField
                   bsSize="small"
                   value={id || ""}
-                  onChange={(e) => this.onDeviceChange(e, index)}
-                >
-                  <option
-                    value=""
-                  >
-                    --
-                  </option>
-                  {devices.map(({id, name}, index) => (
-                    <option
-                      key={`device-${index}`}
-                      value={id}
-                    >
-                      { name }
-                    </option>
-                  ))}
-                </FormControl>
+                  onChange={(value) => this.onDeviceChange(value, index)}
+                  options={devices.map(({id, name}) => ({
+                    value: id,
+                    label: name,
+                  }))}
+                />
               </td>
               <td>
                 <Button

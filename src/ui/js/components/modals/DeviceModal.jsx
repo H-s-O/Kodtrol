@@ -9,7 +9,7 @@ export default function(props) {
       {...otherProps}
       relatedData={{
         outputs: outputs.map(({id, name}) => ({
-          id,
+          value: id,
           label: name,
         })),
       }}

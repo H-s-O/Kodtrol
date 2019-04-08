@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import BaseModal from './BaseModal';
-import FileField from './fields/FileField';
 
 export default function(props) {
   const { layers, ...otherProps } = props;
@@ -9,7 +8,7 @@ export default function(props) {
       {...otherProps}
       relatedData={{
         layers: layers.map(({id, order}) => ({
-          id,
+          value: id,
           label: order + 1,
         })),
       }}
@@ -22,7 +21,7 @@ export default function(props) {
         {
           label: 'File',
           field: 'file',
-          type: FileField,
+          type: 'file',
         },
         {
           label: 'Layer',

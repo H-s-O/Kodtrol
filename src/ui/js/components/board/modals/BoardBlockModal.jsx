@@ -8,17 +8,17 @@ export default function(props) {
       {...otherProps}
       relatedData={{
         scripts: scripts.map(({id, name}) => ({
-          id,
+          value: id,
           label: name,
         })),
         layers: layers.map(({id, order}) => ({
-          id,
+          value: id,
           label: order + 1,
         })),
         types: [
-          { id: 'trigger_once', label: 'Trigger once' },
-          { id: 'trigger_mult', label: 'Trigger multiple' },
-          { id: 'toggle', label: 'Toggle' },
+          { value: 'trigger_once', label: 'Trigger once' },
+          { value: 'trigger_mult', label: 'Trigger multiple' },
+          { value: 'toggle', label: 'Toggle' },
         ],
       }}
       fields={[

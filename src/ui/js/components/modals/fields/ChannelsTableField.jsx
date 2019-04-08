@@ -2,6 +2,9 @@ import React, { PureComponent } from 'react';
 import { set } from 'lodash';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, Form, Col, Table } from 'react-bootstrap';
 
+import NumberField from '../../forms/fields/NumberField';
+import TextField from '../../forms/fields/TextField';
+
 class ChannelsTableField extends PureComponent {
   state = {
     value: [],
@@ -40,9 +43,8 @@ class ChannelsTableField extends PureComponent {
     this.doChange(newValue);
   }
   
-  onChannelChange = (e, channelIndex, field) => {
+  onChannelChange = (fieldValue, channelIndex, field) => {
     const { value } = this.state;
-    const fieldValue = e.target.value;
     
     const newValue = value.map((channel, index) => {
       if (index === channelIndex) {
@@ -91,23 +93,21 @@ class ChannelsTableField extends PureComponent {
                 {index + 1}
               </td>
               <td>
-                <FormControl
-                  type="number"
+                <NumberField
                   bsSize="small"
                   placeholder="0 - 255"
                   min="0"
                   max="255"
                   value={defaultValue || ""}
-                  onChange={(e) => this.onChannelChange(e, index, 'defaultValue')}
+                  onChange={(value) => this.onChannelChange(value, index, 'defaultValue')}
                 />
               </td>
               <td>
-                <FormControl
-                  type="text"
+                <TextField
                   bsSize="small"
                   placeholder="(none)"
                   value={alias || ""}
-                  onChange={(e) => this.onChannelChange(e, index, 'alias')}
+                  onChange={(value) => this.onChannelChange(value, index, 'alias')}
                 />
               </td>
               <td>

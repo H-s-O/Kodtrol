@@ -8,7 +8,7 @@ export default function(props) {
       {...otherProps}
       relatedData={{
         layers: layers.map(({id, order}) => ({
-          id,
+          value: id,
           label: order + 1,
         })),
       }}

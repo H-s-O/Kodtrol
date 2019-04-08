@@ -3,6 +3,12 @@ import PropTypes from 'prop-types';
 import { get} from 'lodash';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, Form, Col, Table } from 'react-bootstrap';
 import { GithubPicker } from 'react-color';
+
+import TextField from '../forms/fields/TextField';
+import NumberField from '../forms/fields/NumberField';
+import SelectField from '../forms/fields/SelectField';
+import ColorField from '../forms/fields/ColorField';
+import FileField from '../forms/fields/FileField';
 import isFunction from '../../lib/isFunction';
 
 const propTypes = {
@@ -144,35 +150,19 @@ class BaseModal extends Component {
       const fieldRelatedData = get(relatedData, from || field, []);
       
       return (
-        <FormControl
-          onChange={this.onFieldChange}
-          componentClass='select'
+        <SelectField
+          onChange={(value) => this.onCustomFieldChange(field, value)}
           defaultValue={fieldInitialValue}
-        >
-          <option
-            value=""
-          >
-            --
-          </option>
-          { fieldRelatedData.map(({id, label}, index) => (
-            <option
-              key={`option-${index}`}
-              value={id}
-            >
-              { label }
-            </option>
-          )) }
-        </FormControl>
+          options={fieldRelatedData}
+        />
       );
     }
     
     if (type === 'color') {
       return (
-        <GithubPicker
-          triangle="hide"
-          width="100%"
-          color={fieldInitialValue}
-          onChangeComplete={(color) => this.onColorChange(field, color)}
+        <ColorField
+          value={fieldInitialValue}
+          onChange={(value) => this.onCustomFieldChange(field, value)}
         />
       );
     }
@@ -188,11 +178,19 @@ class BaseModal extends Component {
       );
     }
     
-    if (type === 'text' || type === 'number' || type === 'file') {
+    if (type === 'number') {
       return (
-        <FormControl
-          type={type}
-          onChange={this.onFieldChange}
+        <NumberField
+          onChange={(value) => this.onCustomFieldChange(field, value)}
+          defaultValue={fieldInitialValue}
+        />
+      );
+    }
+    
+    if (type === 'text') {
+      return (
+        <TextField
+          onChange={(value) => this.onCustomFieldChange(field, value)}
           defaultValue={fieldInitialValue}
         />
       );

@@ -8,11 +8,11 @@ export default function(props) {
       {...otherProps}
       relatedData={{
         scripts: scripts.map(({id, name}) => ({
-          id,
+          value: id,
           label: name,
         })),
         layers: layers.map(({id, order}) => ({
-          id,
+          value: id,
           label: order + 1,
         })),
       }}
