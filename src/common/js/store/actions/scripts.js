@@ -48,7 +48,6 @@ export const deleteScript = (id) => {
 };
 
 export const saveScript = (id, data) => {
-  console.log(id, data);
   return {
     type: 'SAVE_SCRIPT',
     payload: {
