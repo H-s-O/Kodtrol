@@ -21,11 +21,11 @@ There is no executable build yet. Still an Electron noob. See "Local development
   - ~**Workaround:** after opening/creating a project, quit and relaunch the app.~
 - ~Audio tracks will continue playing after pausing a timeline.~
   - ~**Workaround:** de-arm the timeline by clicking the red eye button at the top of the timeline list.~
-- A timeline/board item value may become un-copyable if it was previously edited in the contextual
-  item's *Edit [item]...* modal.
-  - **Workaround:** none in-app. You can edit your project's file and find the offending value in the 
+- ~A timeline/board item value may become un-copyable if it was previously edited in the contextual
+  item's *Edit [item]...* modal.~
+  - ~**Workaround:** none in-app. You can edit your project's file and find the offending value in the 
   JSON and then make sure that if it's a numeric value (such as the start time and end time), it is not
-  quoted.
+  quoted.~
 - Sluggish UI modals when running a timeline or board.
   - **Workaround:** pause the timeline / un-arm the board that is currently running.
 - Scripts `beat()` hooks are falling off-tempo when using a Art-Net output.
