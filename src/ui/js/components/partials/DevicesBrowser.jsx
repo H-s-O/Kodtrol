@@ -72,16 +72,16 @@ class DevicesBrowser extends PureComponent {
               glyph="cog"
             />
           </Button>
+          <Button
+            bsSize="xsmall"
+            bsStyle="danger"
+            onClick={(e) => {stopEvent(e); this.onDeleteClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="trash"
+            />
+          </Button>
         </ButtonGroup>
-        <Button
-          bsSize="xsmall"
-          bsStyle="danger"
-          onClick={(e) => {stopEvent(e); this.onDeleteClick(it.id)}}
-        >
-          <Glyphicon
-            glyph="trash"
-          />
-        </Button>
       </Fragment>
     );
   }

@@ -120,17 +120,17 @@ class ScriptsBrowser extends PureComponent {
               glyph="cog"
             />
           </Button>
+          <Button
+            className={styles.buttonMargin}
+            bsSize="xsmall"
+            bsStyle="danger"
+            onClick={(e) => {stopEvent(e); this.onDeleteClick(it.id)}}
+          >
+            <Glyphicon
+              glyph="trash"
+            />
+          </Button>
         </ButtonGroup>
-        <Button
-          className={styles.buttonMargin}
-          bsSize="xsmall"
-          bsStyle="danger"
-          onClick={(e) => {stopEvent(e); this.onDeleteClick(it.id)}}
-        >
-          <Glyphicon
-            glyph="trash"
-          />
-        </Button>
       </Fragment>
     );
   }

@@ -240,17 +240,17 @@ class TimelinesBrowser extends PureComponent {
               glyph="cog"
             />
           </Button>
+          <Button
+            className={styles.buttonMargin}
+            bsSize="xsmall"
+            bsStyle="danger"
+            onClick={(e) => {stopEvent(e); this.onDeleteClick(it)}}
+          >
+            <Glyphicon
+              glyph="trash"
+            />
+          </Button>
         </ButtonGroup>
-        <Button
-          className={styles.buttonMargin}
-          bsSize="xsmall"
-          bsStyle="danger"
-          onClick={(e) => {stopEvent(e); this.onDeleteClick(it)}}
-        >
-          <Glyphicon
-            glyph="trash"
-          />
-        </Button>
       </Fragment>
     );
   }
