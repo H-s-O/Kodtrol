@@ -247,7 +247,7 @@ export default class Renderer {
     this.resetAll();
     
     if (id !== null) {
-      const renderer = new TimelineRenderer(this.providers, id);
+      const renderer = new TimelineRenderer(this.providers, id, this.onTimelineEnded);
       
       this.currentTimeline = renderer;
       this.updateTicker(renderer.timeline.tempo, false);
@@ -295,6 +295,16 @@ export default class Renderer {
         }
       }
     }
+  }
+
+  onTimelineEnded = () => {
+    this.updateTimelinePlaybackStatus(false);
+    this.send({
+      'timelineInfo': {
+        'playing': false,
+        'position': this.currentTimeline.currentTime,
+      },
+    });
   }
   
   updateTimelineInfo = (data) => {

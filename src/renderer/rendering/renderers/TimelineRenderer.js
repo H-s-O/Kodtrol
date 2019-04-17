@@ -14,10 +14,12 @@ export default class TimelineRenderer {
   _audios = null;
   _timeMap = null;
   _timeDivisor = 1000;
+  _endCallback = null;
   
-  constructor(providers, timelineId) {
+  constructor(providers, timelineId, endCallback) {
     this._providers = providers;
-    
+    this._endCallback = endCallback;
+
     this.setTimelineAndItems(timelineId);
   }
   
@@ -185,10 +187,9 @@ export default class TimelineRenderer {
     this._currentTime += delta;
     
     const currentTime = this._currentTime;
-    if (currentTime > this._timeline.outTime) {
-      // this.restartTimeline();
-      // currentTime = 0;
-      // @TODO
+    if (currentTime >= this._timeline.outTime) {
+      this._currentTime = this.timeline.outTime;
+      this._endCallback();
       return;
     }
     
