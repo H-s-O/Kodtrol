@@ -70,6 +70,31 @@ export default class MainWindow extends EventEmitter {
   onClosed = () => {
     this.emit(MainWindowEvent.CLOSED);
   }
+
+  capture = async (id, callback) => {
+    if (this.contents) {
+      const js = `
+        (function() {
+          let b = document.querySelector('*[data-screenshot-id="${id}"]').getBoundingClientRect();
+          return {
+            x: b.x,
+            y: b.y,
+            width: b.width,
+            height: b.height
+          };
+        })()`;
+      const bounds = await this.contents.executeJavaScript(js);
+      // We need to rounds values, otherwise get a runtime error:
+      // "Error processing argument at index 0, conversion failure from #<Object>"
+      const roundedBounds = {
+        x: Math.floor(bounds.x),
+        y: Math.floor(bounds.y),
+        width: Math.floor(bounds.width),
+        height: Math.floor(bounds.height),
+      };
+      this.contents.capturePage(roundedBounds, callback)
+    }
+  }
   
   destroy = () => {
     if (this.win) {

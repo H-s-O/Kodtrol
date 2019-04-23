@@ -125,6 +125,7 @@ class DevicesBrowser extends PureComponent {
       <Panel
         title="Devices"
         className={styles.fullHeight}
+        data-screenshot-id="devices-browser"
         headingContent={
           <div
             className="pull-right"

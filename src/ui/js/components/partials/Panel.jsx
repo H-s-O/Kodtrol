@@ -5,9 +5,10 @@ import classNames from 'classnames';
 import styles from '../../../styles/components/partials/panel.scss';
 
 export default (props) => {
-  const { className, title, headingContent, children } = props;
+  const { className, title, headingContent, children, ...otherProps } = props;
   return (
     <Panel
+      {...otherProps}
       className={classNames({
         [className]: !!className,
         [styles.panelCol]: true,

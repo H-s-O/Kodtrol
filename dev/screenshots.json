@@ -1,0 +1,14 @@
+[
+    {
+        "id": "devices-browser",
+        "file": "devices_browser.png"
+    },
+    {
+        "id": "scripts-browser",
+        "file": "scripts_browser.png"
+    },
+    {
+        "id": "timelines-boards-browser",
+        "file": "timelines_boards_browser.png"
+    }
+]

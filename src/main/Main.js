@@ -1,8 +1,9 @@
 import { app, powerSaveBlocker } from 'electron';
 import { get, set, pick } from 'lodash';
+import { join } from 'path';
 
 import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
-import { readAppConfig, writeAppConfig, createProject, writeJson, readJson } from './lib/fileSystem';
+import { readAppConfig, writeAppConfig, createProject, writeJson, readJson, writeFile, ensureDir } from './lib/fileSystem';
 import MainWindow from './ui/MainWindow';
 import MainMenu from './ui/MainMenu';
 import * as MainWindowEvent from './events/MainWindowEvent';
@@ -14,6 +15,7 @@ import ScriptsManager from './data/ScriptsManager';
 import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
 import { updateBoardInfo } from '../common/js/store/actions/boardInfo';
 import Renderer from './process/Renderer';
+import { screenshotsFile } from './lib/commandLine';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -241,6 +243,7 @@ export default class Main {
   createMainWindow = () => {
     this.mainWindow = new MainWindow(`${app.getName()} — ${this.currentProjectFilePath}`);
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
+    this.mainWindow.on(MainWindowEvent.LOADED, this.onMainWindowLoaded);
   }
   
   destroyMainWindow = () => {
@@ -253,6 +256,15 @@ export default class Main {
   
   onMainWindowClosing = () => {
     this.doCloseProjectWarn();
+  }
+
+  onMainWindowLoaded = () => {
+    // Check if we are in the "generate screenshots" mode
+    const screenshots = screenshotsFile();
+    if (screenshots !== null) {
+      const data = readJson(screenshots);
+      this.generateScreenshots(data);
+    }
   }
   
   createRenderer = () => {
@@ -383,5 +395,22 @@ export default class Main {
         this.powerSaveBlockerId = null;
       }
     }
+  }
+
+  generateScreenshots = (data) => {
+    const dir = './dev/screenshots/';
+    ensureDir(dir);
+
+    data.forEach(async ({id, file}) => {
+      await new Promise((resolve, reject) => {
+        this.mainWindow.capture(id,  (image) => {
+          const pngData = image.toPNG();
+          const filePath = join(dir, file);
+          writeFile(filePath, pngData);
+          console.info(`Generated screenshot for ${id} to file ${filePath}`);
+          resolve();
+        });
+      });
+    });
   }
 }

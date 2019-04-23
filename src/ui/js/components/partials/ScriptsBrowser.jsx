@@ -178,6 +178,7 @@ class ScriptsBrowser extends PureComponent {
       <Panel
         title="Scripts"
         className={styles.fullHeight}
+        data-screenshot-id="scripts-browser"
         headingContent={
           <Button
             className="pull-right"

@@ -12,7 +12,8 @@
     "build": "npx webpack --progress --config build/webpack.config.js -p",
     "start": "npx electron -r babel-register .",
     "package": "npm run build && npx electron-packager dist MyApp",
-    "rebuild": "npx electron-rebuild"
+    "rebuild": "npx electron-rebuild",
+    "generate-screenshots": "npm start -- --screenshots ./dev/screenshots.json --new-project"
   },
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",
@@ -60,7 +61,8 @@
     "redux": "^3.7.2",
     "redux-observers": "^2.0.2",
     "reselect": "^4.0.0",
-    "uniqid": "^4.1.1"
+    "uniqid": "^4.1.1",
+    "yargs": "^13.2.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

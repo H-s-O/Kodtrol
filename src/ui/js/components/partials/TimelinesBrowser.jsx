@@ -262,6 +262,7 @@ class TimelinesBrowser extends PureComponent {
       <Panel
         title="Timelines &amp; Boards"
         className={styles.fullHeight}
+        data-screenshot-id="timelines-boards-browser"
         headingContent={
           <ButtonGroup
             className="pull-right"
