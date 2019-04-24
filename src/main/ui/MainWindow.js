@@ -87,10 +87,10 @@ export default class MainWindow extends EventEmitter {
       // We need to rounds values, otherwise get a runtime error:
       // "Error processing argument at index 0, conversion failure from #<Object>"
       const roundedBounds = {
-        x: Math.floor(bounds.x),
-        y: Math.floor(bounds.y),
-        width: Math.floor(bounds.width),
-        height: Math.floor(bounds.height),
+        x: Math.round(bounds.x),
+        y: Math.round(bounds.y),
+        width: Math.round(bounds.width),
+        height: Math.round(bounds.height),
       };
       this.contents.capturePage(roundedBounds, callback)
     }
