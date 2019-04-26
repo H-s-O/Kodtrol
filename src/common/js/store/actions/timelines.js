@@ -2,6 +2,13 @@ import uniqid from 'uniqid';
 
 import { hashDataObject } from '../../lib/hash';
 
+const excludeHashProps = [
+  'id',
+  'name',
+  'zoom',
+  'zoomVert',
+];
+
 export const updateTimelines = (timelines) => {
   return {
     type: 'UPDATE_TIMELINES',
@@ -24,19 +31,19 @@ export const unselectTimeline = () => {
 };
 
 export const createTimeline = (data) => {
-  const hashableData = {
+  const newData = {
     zoom: 1.0,
     zoomVert: 1.0,
     items: [],
     layers: [],
     ...data,
+    id: uniqid(),
   };
   return {
     type: 'CREATE_TIMELINE',
     payload: {
-      ...hashableData,
-      id: uniqid(),
-      hash: hashDataObject(hashableData),
+      ...newData,
+      hash: hashDataObject(newData, excludeHashProps),
     },
   };
 };
@@ -55,7 +62,7 @@ export const saveTimeline = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data),
+        hash: hashDataObject(data, excludeHashProps),
       },
     },
   };

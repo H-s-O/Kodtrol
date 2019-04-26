@@ -2,6 +2,11 @@ import uniqid from 'uniqid';
 
 import { hashDataObject } from '../../lib/hash';
 
+const excludeHashProps = [
+  'id',
+  'name',
+];
+
 export const updateScripts = (scripts) => {
   return {
     type: 'UPDATE_SCRIPTS',
@@ -24,18 +29,18 @@ export const unselectScript = () => {
 };
 
 export const createScript = (data) => {
-  const hashableData = {
+  const newData = {
     content: '',
     previewTempo: 120,
     devices: [],
     ...data,
+    id: uniqid(),
   };
   return {
     type: 'CREATE_SCRIPT',
     payload: {
-      ...hashableData,
-      id: uniqid(),
-      hash: hashDataObject(hashableData),
+      ...newData,
+      hash: hashDataObject(newData, excludeHashProps),
     }
   };
 };
@@ -54,7 +59,7 @@ export const saveScript = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data),
+        hash: hashDataObject(data, excludeHashProps),
       },
     },
   };

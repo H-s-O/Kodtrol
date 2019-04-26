@@ -2,6 +2,11 @@ import uniqid from 'uniqid';
 
 import { hashDataObject } from '../../lib/hash';
 
+const excludeHashProps = [
+  'id',
+  'name',
+];
+
 export const updateDevices = (devices) => {
   return {
     type: 'UPDATE_DEVICES',
@@ -10,15 +15,15 @@ export const updateDevices = (devices) => {
 };
 
 export const createDevice = (data) => {
-  const hashableData = {
+  const newData = {
     ...data,
+    id: uniqid(),
   }
   return {
     type: 'CREATE_DEVICE',
     payload: {
-      ...hashableData,
-      id: uniqid(),
-      hash: hashDataObject(hashableData),
+      ...newData,
+      hash: hashDataObject(newData, excludeHashProps),
     },
   };
 };
@@ -37,7 +42,7 @@ export const saveDevice = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data),
+        hash: hashDataObject(data, excludeHashProps),
       },
     },
   };

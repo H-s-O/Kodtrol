@@ -2,6 +2,11 @@ import uniqid from 'uniqid';
 
 import { hashDataObject } from '../../lib/hash';
 
+const excludeHashProps = [
+  'id',
+  'name',
+];
+
 export const updateBoards = (boards) => {
   return {
     type: 'UPDATE_BOARDS',
@@ -24,17 +29,17 @@ export const unselectBoard = () => {
 };
 
 export const createBoard = (data) => {
-  const hashableData = {
+  const newData = {
+    ...data,
     items: [],
     layers: [],
-    ...data,
+    id: uniqid(),
   };
   return {
     type: 'CREATE_BOARD',
     payload: {
-      ...hashableData,
-      id: uniqid(),
-      hash: hashDataObject(hashableData),
+      ...newData,
+      hash: hashDataObject(newData, excludeHashProps),
     },
   };
 };
@@ -53,7 +58,7 @@ export const saveBoard = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data),
+        hash: hashDataObject(data, excludeHashProps),
       },
     },
   };

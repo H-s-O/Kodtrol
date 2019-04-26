@@ -1,5 +1,10 @@
 import { hashDataObject } from '../../lib/hash';
 
+const excludeHashProps = [
+  'id',
+  'name',
+];
+
 export const updateInputs = (inputs) => {
   return {
     type: 'UPDATE_INPUTS',
@@ -13,7 +18,7 @@ export const saveInputs = (data) => {
     payload: data.map((input) => {
       return {
         ...input,
-        hash: hashDataObject(input),
+        hash: hashDataObject(input, excludeHashProps),
       }
     }),
   };
