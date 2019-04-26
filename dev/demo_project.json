@@ -1,0 +1,26 @@
+{
+    "devices": [
+        {
+            "id": "A",
+            "name": "Demo device 1"
+        }
+    ],
+    "scripts": [
+        {
+            "id": "A",
+            "name": "Demo script 1"
+        }
+    ],
+    "timelines": [
+        {
+            "id": "A",
+            "name": "Demo timeline 1"
+        }
+    ],
+    "boards": [
+        {
+            "id": "A",
+            "name": "Demo boards 1"
+        }
+    ]
+}
