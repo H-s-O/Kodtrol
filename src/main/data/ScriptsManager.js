@@ -76,7 +76,7 @@ export default class ScriptsManager {
 
   static compileClass(className, classBody) {
     const helpersList = [];
-    const convertedFunctions = classBody.replace(/function (frame|start|end|beat|input|setup)/g, '$1');
+    const convertedFunctions = (classBody || '').replace(/function (frame|start|end|beat|input|setup)/g, '$1');
     const convertedMacros = convertedFunctions.replace(this.macrosRegexp, (fullMatch, macro) => {
       if (helpersList.indexOf(macro) === -1) {
         helpersList.push(macro);

@@ -63,6 +63,11 @@ export default class Device {
   }
   
   setChannelAliases = (channels) => {
+    // Guard
+    if (!channels) {
+      this._channelAliases = {};
+      return;
+    }
     this._channelAliases = channels.reduce((obj, {alias}, index) => {
       if (alias) {
         return {
@@ -75,22 +80,29 @@ export default class Device {
   }
   
   setDefaultValues = (channels) => {
+    // Guard
+    if (!channels) {
+      this._channelDefaults = [];
+      return;
+    }
     this._channelDefaults = channels.map(({defaultValue}) => Number(defaultValue));
   }
   
   setChannelGettersAndSetters = (channels) => {
-    channels.forEach(({alias}) => {
-      if (alias) {
-        const aliasMethodName = _upperFirst(_camelCase(alias));
-        this[`get${aliasMethodName}`] = () => {
-          return this.getChannel(alias);
-        };
-        this[`set${aliasMethodName}`] = (value) => {
-          this.setChannel(alias, value);
-          return this;
-        };
-      }
-    });
+    if (channels) {
+      channels.forEach(({alias}) => {
+        if (alias) {
+          const aliasMethodName = _upperFirst(_camelCase(alias));
+          this[`get${aliasMethodName}`] = () => {
+            return this.getChannel(alias);
+          };
+          this[`set${aliasMethodName}`] = (value) => {
+            this.setChannel(alias, value);
+            return this;
+          };
+        }
+      });
+    }
   }
 
   get id() {
