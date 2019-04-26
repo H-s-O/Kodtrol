@@ -14,6 +14,7 @@ import Store from './data/Store';
 import ScriptsManager from './data/ScriptsManager';
 import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
 import { updateBoardInfo } from '../common/js/store/actions/boardInfo';
+import { updateIOStatus } from '../common/js/store/actions/ioStatus';
 import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
 
@@ -279,6 +280,7 @@ export default class Main {
     this.renderer = new Renderer();
     this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
     this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
+    this.renderer.on(RendererEvent.IO_STATUS_UPDATE, this.onRendererIOStatusUpdate);
   }
   
   destroyRenderer = () => {
@@ -295,6 +297,10 @@ export default class Main {
   
   onRendererBoardInfoUpdate = (info) => {
     this.store.dispatch(updateBoardInfo(info));
+  }
+
+  onRendererIOStatusUpdate = (status) => {
+    this.store.dispatch(updateIOStatus(status));
   }
   
   createMainMenu = () => {

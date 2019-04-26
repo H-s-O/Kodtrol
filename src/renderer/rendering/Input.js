@@ -9,8 +9,12 @@ export default class Input {
   _input = null;
   _onInputCallback = null;
   _hash = null;
-  
-  constructor(sourceInput, onInputCallback) {
+  _statusCallback = null;
+
+  constructor(sourceInput, onInputCallback, statusCallback) {
+    this._onInputCallback = onInputCallback;
+    this._statusCallback = statusCallback;
+    
     this.update(sourceInput, onInputCallback);
   }
   
@@ -25,7 +29,6 @@ export default class Input {
     this._id = id;
     this._type = type;
     this._extraData = extraData;
-    this._onInputCallback = onInputCallback;
     this._hash = hash;
     
     this.setInput(type, extraData);

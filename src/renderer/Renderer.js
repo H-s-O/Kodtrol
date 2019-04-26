@@ -101,6 +101,13 @@ export default class Renderer {
       (output) => output.destroy()
     );
     // console.log('RENDERER updateOutputs', this.outputs);
+
+    // temp test
+    this.send({
+      ioStatus: {
+        [this.outputs[Object.keys(this.outputs)[0]].id]: 'activity', 
+      },
+    });
   }
   
   updateInputs = (data) => {

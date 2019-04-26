@@ -10,8 +10,11 @@ export default class Output {
   _output = null;
   _bufferData = {};
   _hash = null;
-  
-  constructor(sourceOutput) {
+  _statusCallback = null;
+
+  constructor(sourceOutput, statusCallback) {
+    this._statusCallback = statusCallback;
+    
     this.update(sourceOutput);
   }
   

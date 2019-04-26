@@ -34,6 +34,9 @@ export default class Renderer extends EventEmitter {
       if ('boardInfo' in message) {
         this.emit(RendererEvent.BOARD_INFO_UPDATE, message.boardInfo);
       }
+      if ('ioStatus' in message) {
+        this.emit(RendererEvent.IO_STATUS_UPDATE, message.ioStatus);
+      }
     }
   }
   
