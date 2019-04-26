@@ -13,7 +13,7 @@
     "start": "npx electron -r babel-register .",
     "package": "npm run build && npx electron-packager dist MyApp",
     "rebuild": "npx electron-rebuild",
-    "generate-screenshots": "npm start -- --screenshots ./dev/screenshots.json --new-project"
+    "generate-screenshots": "npm start -- --screenshots ./dev/screenshots.json --project ./dev/demo_project.json"
   },
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",

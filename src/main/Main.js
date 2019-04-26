@@ -15,7 +15,7 @@ import ScriptsManager from './data/ScriptsManager';
 import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
 import { updateBoardInfo } from '../common/js/store/actions/boardInfo';
 import Renderer from './process/Renderer';
-import { screenshotsFile } from './lib/commandLine';
+import { screenshotsFile, projectFile } from './lib/commandLine';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -54,18 +54,26 @@ export default class Main {
   }
   
   run = () => {
+    const project = projectFile();
+    if (project !== null) {
+      this.loadProject(project, false, false);
+      return;
+    }
+
     const configCurrentProject = readAppConfig('currentProjectFilePath');
     if (configCurrentProject) {
       this.loadProject(configCurrentProject);
     }
   }
   
-  loadProject = (path, init = false) => {
+  loadProject = (path, init = false, save = true) => {
     this.currentProjectFilePath = path;
     
-    const appConfig = readAppConfig();
-    set(appConfig, 'currentProjectFilePath', this.currentProjectFilePath);
-    writeAppConfig(appConfig);
+    if (save) {
+      const appConfig = readAppConfig();
+      set(appConfig, 'currentProjectFilePath', this.currentProjectFilePath);
+      writeAppConfig(appConfig);
+    }
     
     this.createRenderer();
     
