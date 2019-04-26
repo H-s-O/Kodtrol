@@ -73,31 +73,19 @@ export default class Store extends EventEmitter {
     );
     const previewScriptObserver = observer(
       (state) => {
-        const { previewScript, scripts } = state;
-        return {
-          previewScript,
-          scripts,
-        };
+        return state.previewScript;
       },
       this.onPreviewScript
     );
     const runTimelineObserver = observer(
       (state) => {
-        const { runTimeline, timelines } = state;
-        return {
-          runTimeline,
-          timelines,
-        };
+        return state.runTimeline;
       },
       this.onRunTimeline,
     );
     const runBoardObserver = observer(
       (state) => {
-        const { runBoard, boards } = state;
-        return {
-          runBoard,
-          boards,
-        };
+        return state.runBoard;
       },
       this.onRunBoard,
     );
