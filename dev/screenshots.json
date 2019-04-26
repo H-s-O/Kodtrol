@@ -4,6 +4,10 @@
         "file": "devices_browser.png"
     },
     {
+        "id": "devices-browser-add",
+        "file": "devices_browser_add.png"
+    },
+    {
         "id": "scripts-browser",
         "file": "scripts_browser.png"
     },

@@ -129,6 +129,7 @@ class DevicesBrowser extends PureComponent {
         headingContent={
           <div
             className="pull-right"
+            data-screenshot-id="devices-browser-add"
           >
             <Button
               bsSize="xsmall"
