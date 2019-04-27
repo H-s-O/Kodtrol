@@ -186,7 +186,7 @@ class TimelineItem extends PureComponent {
           [styles.simpleLightColor]: lightColor,
         })}
         style={{
-          left: percentString(inTime / layerDuration),
+          ...style,
           backgroundColor: color,
         }}
         onContextMenu={this.onContextMenuClick}
@@ -218,8 +218,7 @@ class TimelineItem extends PureComponent {
           [styles.lightColor]: lightColor,
         })}
         style={{
-          left: percentString(inTime / layerDuration),
-          width: percentString((outTime - inTime) / layerDuration),
+          ...style,
           backgroundColor: color,
         }}
         onContextMenu={this.onContextMenuClick}

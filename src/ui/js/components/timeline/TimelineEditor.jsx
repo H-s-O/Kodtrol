@@ -1,11 +1,10 @@
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { get, set, unset } from 'lodash';
+import { get } from 'lodash';
 import { Button, Glyphicon, SplitButton, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import path from 'path';
 
 import Panel from '../partials/Panel';
 import stopEvent from '../../lib/stopEvent';
@@ -16,9 +15,12 @@ import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineCurveModal from '../modals/TimelineCurveModal';
 import RecordBlockModal from '../modals/RecordBlockModal';
 import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
+import TimelineBlock from './TimelineBlock';
+import TimelineTrigger from './TimelineTrigger';
+import TimelineCurve from './TimelineCurve';
+import TimelineAudioTrack from './TimelineAudioTrack';
 import { saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
-import { importAudioFile } from '../../lib/messageBoxes';
 import { Provider } from './timelineEditorContext';
 import TimelineWrapper from './TimelineWrapper';
 
@@ -46,6 +48,7 @@ const defaultProps = {
 class TimelineEditor extends PureComponent {
   editorCallbacks = null;
   timelineWrapper = null;
+  layerEditor = null;
   state = {
     modalType: null,
     modalAction: null,
@@ -74,11 +77,6 @@ class TimelineEditor extends PureComponent {
       timelineCopyItem: this.onCopyItem,
       timelinePasteItem: this.onPasteItem,
       timelineCanPasteItem: this.canPasteItem,
-      timelineAddLayer: this.onAddLayer,
-      timelineMoveLayer: this.onMoveLayer,
-      timelineCanMoveLayerUp: this.canMoveLayerUp,
-      timelineCanMoveLayerDown: this.canMoveLayerDown,
-      timelineDeleteLayer: this.onDeleteLayer,
       timelineUpdatePosition: this.onTimelineUpdatePosition,
     };
   }
@@ -210,115 +208,13 @@ class TimelineEditor extends PureComponent {
   }
   
   onAddLayerAtTopClick = () => {
-    this.onAddLayer('max');
+    this.layerEditor.doAddLayer('max');
   }
   
   onAddLayerAtBottomClick = () => {
-    this.onAddLayer('min');
+    this.layerEditor.doAddLayer('min');
   }
 
-  onAddLayer = (index) => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
-
-    const newLayer = {
-      id: uniqid(),
-    };
-    
-    if (index === 'max') {
-      newLayer.order = layers.length;
-    } else if (index === 'min') {
-      newLayer.order = -0.5;
-    } else {
-      newLayer.order = index - 0.5;
-    }
-    
-    const newLayers = this.sortLayers([
-      ...layers,
-      newLayer,
-    ]);
-    const newTimelineData = {
-      layers: newLayers,
-    };
-    
-    this.doSave(newTimelineData);
-  }
-  
-  onMoveLayer = (layerId, offset) => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
-    
-    const layer = layers.find(({id}) => id === layerId);
-    
-    const newOrder = layer.order + (offset * 1.5);
-    // Guard
-    if (newOrder < -1 || newOrder > layers.length) {
-      return;
-    }
-    
-    const newLayers = this.sortLayers(layers.map((layer) => {
-      if (layer.id === layerId) {
-        return {
-          ...layer,
-          order: newOrder,
-        };
-      }
-      return layer;
-    }));
-    const newTimelineData = {
-      layers: newLayers,
-    };
-    
-    this.doSave(newTimelineData);
-  }
-  
-  canMoveLayerUp = (layerId) => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
-    
-    const layer = layers.find(({id}) => id === layerId);
-    
-    return layer.order < layers.length - 1;
-  }
-  
-  canMoveLayerDown = (layerId) => {
-    const { timelineData } = this.props;
-    const { layers } = timelineData;
-    
-    const layer = layers.find(({id}) => id === layerId);
-    
-    return layer.order > 0;
-  }
-  
-  onDeleteLayer = (layerId) => {
-    const { timelineData } = this.props;
-    const { layers, items } = timelineData;
-
-    const deletedLayer = layers.find(({id}) => id === layerId);
-    
-    const newLayers = this.sortLayers(layers.filter(({id}) => id !== layerId));
-    const newItems = items.filter(({layer}) => layer !== layerId);
-    const newTimelineData = {
-      layers: newLayers,
-      items: newItems,
-    };
-    
-    this.doSave(newTimelineData);
-  }
-  
-  sortLayers = (layers) => {
-    const sortedLayers = layers
-      .sort((a, b) => a.order < b.order ? -1 : 1)
-      .map((layer, index) => {
-        return {
-          ...layer,
-          order: index,
-        };
-      });
-      console.log(sortedLayers);
-    return sortedLayers;
-  }
-  
   
   getTimelinePositionFromEvent = (e, round = true) => {
     const percent = this.timelineWrapper.getTimelinePercentFromEvent(e);
@@ -457,35 +353,6 @@ class TimelineEditor extends PureComponent {
       modalAction: 'add',
     });
   }
-  
-  /*onAddAudioTrackClick = () => {
-    importAudioFile((file) => {
-      if (file) {
-        const { timelineData } = this.props;
-        const newData = {
-          ...timelineData,
-          layers: [
-            ...timelineData.layers,
-            [
-              {
-                id: uniqid(),
-                name: path.basename(file),
-                file,
-                inTime: 0,
-                outTime: 274000,
-                volume: 1,
-                color: "#000",
-              },
-            ],
-          ],
-        };
-        this.doSave(newData);
-      }
-    });
-  }*/
-  
-  
-
   
   
   
@@ -680,6 +547,28 @@ class TimelineEditor extends PureComponent {
       });
     }
   }
+
+  onPasteItemHere = (layerId, e) => {
+    const { timelinePasteItem, data } = this.props;
+    const { id } = data;
+    timelinePasteItem(id, '*', e);
+  }
+
+  onAddBlockHereClick = (layerId, e) => {
+    this.onAddItemAt(layerId, 'block', e);
+  }
+  
+  onAddTriggerHereClick = (layerId, e) => {
+    this.onAddItemAt(layerId, 'trigger', e);
+  }
+  
+  onAddCurveHereClick = (layerId, e) => {
+    this.onAddItemAt(layerId, 'curve', e);
+  }
+  
+  onAddAudioTrackHereClick = (layerId, e) => {
+    this.onAddItemAt(layerId, 'audioTrack', e);
+  }
   
   onAddItemAt = (layerId, type, e) => {
     const data = {
@@ -815,7 +704,7 @@ class TimelineEditor extends PureComponent {
       return null;
     }
     
-    const { playing, position } = timelineInfo;
+    const { playing } = timelineInfo;
     
     return (
       <ButtonGroup>
@@ -1010,24 +899,102 @@ class TimelineEditor extends PureComponent {
       </ButtonGroup>
     );
   }
+
+  renderItemComponent = (item) => {
+    let component = null;
+    if ('script' in item) {
+      component = TimelineBlock;
+    } else if ('trigger' in item) {
+      component = TimelineTrigger;
+    } else if ('curve' in item) {
+      component = TimelineCurve;
+    } else if ('file' in item) {
+      component = TimelineAudioTrack;
+    }
+    
+    if (component === null) {
+      return;
+    }
+
+    const { timelineData } = this.props;
+    const { duration } = timelineData;
+    const { inTime, outTime } = item;
+
+    const leftPercent = (inTime / duration);
+    const widthPercent = outTime ? ((outTime - inTime) / duration) : null;
+
+    const data = {
+      component,
+      widthPercent,
+      leftPercent,
+    };
+
+    return data;
+  }
+
+  renderLayerContextMenu = (baseTemplate, layerId, e) => {
+    const template = [
+      {
+        type: 'separator',
+      },
+      {
+        label: 'Paste item here',
+        click: () => this.onPasteItemHere(layerId, e),
+        enabled: this.canPasteItem('*'),
+      },
+      {
+        label: 'Add block here...',
+        click: () => this.onAddBlockHereClick(layerId, e),
+      },
+      {
+        label: 'Add trigger here...',
+        click: () => this.onAddTriggerHereClick(layerId, e),
+      },
+      {
+        label: 'Add curve here...',
+        click: () => this.onAddCurveHereClick(layerId, e),
+      },
+      {
+        label: 'Add audio track here...',
+        click: () => this.onAddAudioTrackHereClick(layerId, e),
+      },
+    ];
+
+    return [
+      ...baseTemplate,
+      ...template
+    ];
+  }
   
   setTimelineWrapperRef = (ref) => {
     this.timelineWrapper = ref;
+  }
+
+  setLayerEditorRef = (ref) => {
+    this.layerEditor = ref;
   }
   
   renderTimelineWrapper = (workingTimelineData) => {
     const { timelineInfo } = this.props;
     
     return (
-      <Provider
-        value={this.editorCallbacks}
+      <div
+        className={styles.timelineEditorContent}
       >
-        <TimelineWrapper
-          wrapperRef={this.setTimelineWrapperRef}
-          timelineData={workingTimelineData}
-          timelineInfo={timelineInfo}
-        />
-      </Provider>
+        <Provider
+          value={this.editorCallbacks}
+        >
+          <TimelineWrapper
+            ref={this.setTimelineWrapperRef}
+            layerEditorRef={this.setLayerEditorRef}
+            layerEditorRenderItemComponent={this.renderItemComponent}
+            layerEditorRenderLayerContextMenu={this.renderLayerContextMenu}
+            layerEditorOnChange={this.doSave}
+            timelineData={workingTimelineData}
+            timelineInfo={timelineInfo}
+          />
+        </Provider>
+      </div>
     );
   }
   

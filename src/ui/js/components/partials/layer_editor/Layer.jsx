@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { remote } from 'electron';
 
 import percentString from '../../../lib/percentString';
-import isFunction from '../../lib/isFunction';
-import { deleteWarning } from '../../lib/messageBoxes';
+import isFunction from '../../../lib/isFunction';
+import { deleteWarning } from '../../../lib/messageBoxes';
 
 import styles from '../../../../styles/components/layer_editor/layer.scss';
 
@@ -15,11 +15,9 @@ const propTypes = {
   renderLayerContextMenu: PropTypes.func,
   //
   editorDeleteLayer: PropTypes.func,
-  editorPasteItemHere: PropTypes.func,
   editorAddItemAt: PropTypes.func,
   editorAddLayer: PropTypes.func,
   editorMoveLayer: PropTypes.func,
-  editorCanPasteItem: PropTypes.func,
   editorCanMoveLayerUp: PropTypes.func,
   editorCanMoveLayerDown: PropTypes.func,
 };
@@ -51,20 +49,6 @@ class Layer extends PureComponent {
     editorDeleteLayer(id);
   }
   
-  onPasteItemHere = (e) => {
-    e.persist(); // needed so that it can be forwarded
-
-    const { editorPasteItemHere, data } = this.props;
-    const { id } = data;
-    editorPasteItemHere(id, '*', e);
-  }
-  
-  doAddItemAt = (type, e) => {
-    const { editorAddItemAt, data } = this.props;
-    const { id } = data;
-    editorAddItemAt(id, type, e);
-  }
-  
   onAddLayerAboveClick = () => {
     const { editorAddLayer, data } = this.props;
     const { order } = data;
@@ -92,10 +76,10 @@ class Layer extends PureComponent {
   onLayerContextMenu = (e) => {
     e.stopPropagation();
     e.preventDefault();
+    e.persist(); // needed so that it can be forwarded
     
     const {
       renderLayerContextMenu,
-      editorCanPasteItem,
       editorCanMoveLayerUp,
       editorCanMoveLayerDown,
       data,
@@ -132,18 +116,10 @@ class Layer extends PureComponent {
         label: 'Delete layer...',
         click: this.onDeleteLayerClick,
       },
-      {
-        type: 'separator',
-      },
-      {
-        label: 'Paste item here',
-        click: () => this.onPasteItemHere(e),
-        enabled: editorCanPasteItem('*'),
-      },
     ];
     
     if (isFunction(renderLayerContextMenu)) {
-      template = renderLayerContextMenu(template);
+      template = renderLayerContextMenu(template, id, e);
     }
     
     const menu = Menu.buildFromTemplate(template);
@@ -181,6 +157,8 @@ class Layer extends PureComponent {
         />
       );
     }
+
+    return null;
   }
 
   render = () => {

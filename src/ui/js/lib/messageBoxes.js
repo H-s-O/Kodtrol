@@ -5,7 +5,6 @@ import isFunction from './isFunction';
 const { dialog } = remote;
 
 export function deleteWarning(message, detail = null, callback) {
-  console.log(message, detail, callback);
   // Handle two arguments call
   if (isFunction(detail)) {
     callback = detail;

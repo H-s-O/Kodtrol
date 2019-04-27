@@ -1,23 +1,13 @@
 import React, { PureComponent } from 'react';
 
-import stopEvent from '../../lib/stopEvent';
 import percentString from '../../lib/percentString';
-import TimelineDisplay from './TimelineDisplay';
-import timelineConnect from './timelineConnect';
+import LayerEditor from '../partials/layer_editor/LayerEditor';
 
 import styles from '../../../styles/components/timeline/timelinewrapper.scss';
 
 class TimelineWrapper extends PureComponent {
   timelineContainer = null;
   timelineCursorTracker = null;
-  
-  constructor(props) {
-    super(props);
-    
-    // Homemade ref callback that bypasses the timelineConnect() wrapper
-    const { wrapperRef } = props;
-    wrapperRef(this);
-  }
   
   getTimelineScreenXFromEvent = (e) => {
     const { clientX } = e;
@@ -52,7 +42,10 @@ class TimelineWrapper extends PureComponent {
       this.timelineCursorTracker.style = `left:${cursorPos}px`;
     }
   }
-  
+
+  ////////////////////////////////////////////////////////////////
+  // RENDERS
+
   setTimelineCursorTrackerRef = (ref) => {
     this.timelineCursorTracker = ref;
   }
@@ -94,17 +87,33 @@ class TimelineWrapper extends PureComponent {
   }
   
   render = () => {
-    const { timelineData } = this.props;
-    
+    const { 
+      timelineData,
+      layerEditorOnChange,
+      layerEditorRef,
+      layerEditorRenderItemComponent,
+      layerEditorRenderLayerContextMenu,
+    } = this.props;
+    const { zoom, zoomVert, layers, items } = timelineData;
+
     return (
       <div
         ref={this.setTimelineContainerRef}
         className={styles.wrapper}
         onDoubleClick={this.onContainerDoubleClick}
         onMouseMove={this.onContainerMouseMove}
+        style={{
+          width: percentString(zoom),
+          height: percentString(zoomVert),
+        }}
       >
-        <TimelineDisplay
-          {...timelineData}
+        <LayerEditor
+          ref={layerEditorRef}
+          layers={layers}
+          items={items}
+          renderLayerContextMenu={layerEditorRenderLayerContextMenu}
+          renderItemComponent={layerEditorRenderItemComponent}
+          onChange={layerEditorOnChange}
         />
         { this.renderTimelineCursorTracker() }
         { this.renderTimelineTracker() }
@@ -113,4 +122,4 @@ class TimelineWrapper extends PureComponent {
   }
 }
 
-export default timelineConnect(TimelineWrapper);
+export default TimelineWrapper;

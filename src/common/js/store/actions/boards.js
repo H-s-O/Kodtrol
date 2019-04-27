@@ -30,9 +30,11 @@ export const unselectBoard = () => {
 
 export const createBoard = (data) => {
   const newData = {
-    ...data,
+    zoom: 1.0,
+    zoomVert: 1.0,
     items: [],
     layers: [],
+    ...data,
     id: uniqid(),
   };
   return {
