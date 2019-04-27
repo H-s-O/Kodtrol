@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { remote } from 'electron';
 
-import percentString from '../../../lib/percentString';
 import isFunction from '../../../lib/isFunction';
 import { deleteWarning } from '../../../lib/messageBoxes';
 
@@ -30,6 +29,9 @@ const defaultProps = {
 };
 
 class Layer extends PureComponent {
+  ///////////////////////////////////////////////////////
+  // EVENT HANDLERS
+
   onDeleteLayerClick = () => {
     const { data, items } = this.props;
     const { order } = data;
@@ -43,34 +45,20 @@ class Layer extends PureComponent {
     });
   }
   
-  doDeleteLayer = () => {
-    const { editorDeleteLayer, data } = this.props;
-    const { id } = data;
-    editorDeleteLayer(id);
-  }
-  
   onAddLayerAboveClick = () => {
-    const { editorAddLayer, data } = this.props;
-    const { order } = data;
-    editorAddLayer(order + 1);
+    this.doAddLayerAbove();
   }
   
   onAddLayerBelowClick = () => {
-    const { editorAddLayer, data } = this.props;
-    const { order } = data;
-    editorAddLayer(order);
+    this.doAddLayerBelow();
   }
   
   onMoveLayerUpClick = () => {
-    const { editorMoveLayer, data } = this.props;
-    const { id } = data;
-    editorMoveLayer(id, 1);
+    this.doMoveLayerUp();
   }
   
   onMoveLayerDownClick = () => {
-    const { editorMoveLayer, data } = this.props;
-    const { id } = data;
-    editorMoveLayer(id, -1);
+    this.doMoveLayerDown();
   }
   
   onLayerContextMenu = (e) => {
@@ -78,6 +66,43 @@ class Layer extends PureComponent {
     e.preventDefault();
     e.persist(); // needed so that it can be forwarded
     
+    this.doLayerContextMenu(e);
+  }
+
+  /////////////////////////////////////////////////////////
+  // ACTIONS
+
+  doDeleteLayer = () => {
+    const { editorDeleteLayer, data } = this.props;
+    const { id } = data;
+    editorDeleteLayer(id);
+  }
+
+  doAddLayerAbove = () => {
+    const { editorAddLayer, data } = this.props;
+    const { order } = data;
+    editorAddLayer(order + 1);
+  }
+  
+  doAddLayerBelow = () => {
+    const { editorAddLayer, data } = this.props;
+    const { order } = data;
+    editorAddLayer(order);
+  }
+  
+  doMoveLayerUp = () => {
+    const { editorMoveLayer, data } = this.props;
+    const { id } = data;
+    editorMoveLayer(id, 1);
+  }
+  
+  doMoveLayerDown = () => {
+    const { editorMoveLayer, data } = this.props;
+    const { id } = data;
+    editorMoveLayer(id, -1);
+  }
+  
+  doLayerContextMenu = (e) => {
     const {
       renderLayerContextMenu,
       editorCanMoveLayerUp,
@@ -128,32 +153,14 @@ class Layer extends PureComponent {
     });
   }
 
+  /////////////////////////////////////////////////////////
+  // RENDERS
+
   renderItem = (item, index, items) => {
     const { renderItemComponent } = this.props;
 
     if (isFunction(renderItemComponent)) {
       return renderItemComponent(item, index, items);
-
-      if (!result) {
-        return null;
-      }
-
-      const { 
-        component: ComponentClass,
-        leftPercent,
-        widthPercent
-      } = result;
-
-      const style = {
-        left: percentString(leftPercent),
-        width: percentString(widthPercent),
-      }
-
-      return (
-        <ComponentClass
-          
-        />
-      );
     }
 
     return null;

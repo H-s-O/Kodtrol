@@ -1,48 +1,44 @@
-import React, { PureComponent, Children } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Color from 'color';
 import classNames from 'classnames'
 import { remote } from 'electron';
 
 import { deleteWarning } from '../../lib/messageBoxes';
-import percentString from '../../lib/percentString';
-import boardConnect from './boardConnect';
+import isFunction from '../../lib/isFunction';
 
 import styles from '../../../styles/components/board/boarditem.scss';
 
 const propTypes = {
-  type: PropTypes.oneOf(['block']),
-  index: PropTypes.number,
-  typeLabel: PropTypes.string,
   data: PropTypes.shape({}),
-  layerDuration: PropTypes.number,
-  renderItem: PropTypes.func,
-  canCopyStartTime: PropTypes.bool,
-  canCopyEndTime: PropTypes.bool,
-  canPasteStartTime: PropTypes.bool,
-  canPasteEndTime: PropTypes.bool,
+  type: PropTypes.oneOf(['block']),
+  typeLabel: PropTypes.string,
+  active: PropTypes.bool,
   getItemLabel: PropTypes.func,
   getDialogLabel: PropTypes.func,
-  renderContent: PropTypes.func,
+  boardDeleteItem: PropTypes.func,
+  boardEditItem: PropTypes.func,
+  boardCopyItem: PropTypes.func,
+  boardPasteItem: PropTypes.func,
   boardItemMouseDown: PropTypes.func,
   boardItemMouseUp: PropTypes.func,
-  boardItemIsActive: PropTypes.func,
 };
 
 const defaultProps = {
   type: 'block',
   typeLabel: 'item',
-  canCopyStartTime: true,
-  canCopyEndTime: true,
-  canPasteStartTime: true,
-  canPasteEndTime: true,
+  active: false,
 };
 
 class BoardItem extends PureComponent {
+  //////////////////////////////////////////////////////////
+  // EVENT HANDLERS
+
   onDeleteItemClick = () => {
     const { getDialogLabel, data } = this.props;
     const { name } = data;
-    const label = getDialogLabel ? getDialogLabel() : name;
+    const label = isFunction(getDialogLabel) ? getDialogLabel() : name;
+
     deleteWarning(`Are you sure you want to delete "${label}" ?`, (result) => {
       if (result) {
         this.doDeleteItem();
@@ -50,128 +46,123 @@ class BoardItem extends PureComponent {
     });
   }
   
+  onEditItemClick = () => {
+    this.doEditItem();
+  }
+
+  onCopyItemClick = () => {
+    this.doCopyItem('*');
+  }
+  
+  onCopyItemTypeClick = () => {
+    this.doCopyItem('type');
+  }
+
+  onPasteItemTypeClick = () => {
+    this.doPasteItem('type');
+  }
+
+  onContextMenuClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    this.doContextMenu();
+  }
+
+  //////////////////////////////////////////////////////////
+  // ACTIONS
+  
+  onMouseDown = () => {
+    this.doMouseDown();
+  }
+  
+  onMouseUp = () => {
+    this.doMouseUp();
+  }
+
   doDeleteItem = () => {
     const { boardDeleteItem, data } = this.props;
     const { id } = data;
     boardDeleteItem(id);
   }
-  
-  onEditItemClick = () => {
+
+  doEditItem = () => {
     const { boardEditItem, data } = this.props;
     const { id } = data;
     boardEditItem(id);
   }
 
-  onCopyItemClick = () => {
-    this.doCopyItemClick('*');
-  }
-  
-  onCopyItemStartClick = () => {
-    this.doCopyItemClick('inTime');
-  }
-
-  onCopyItemEndClick = () => {
-    this.doCopyItemClick('outTime');
-  }
-
-  doCopyItemClick = (mode) => {
-    const { timelineCopyItem, data } = this.props;
+  doCopyItem = (mode) => {
+    const { boardCopyItem, data } = this.props;
     const { id } = data;
-    timelineCopyItem(id, mode);
+    boardCopyItem(id, mode);
   }
 
-  onPasteItemStartClick = () => {
-    this.doPasteItemClick('inTime');
-  }
-
-  onPasteItemEndClick = () => {
-    this.doPasteItemClick('outTime');
-  }
-
-  doPasteItemClick = (mode) => {
-    const { timelinePasteItem, data } = this.props;
+  doPasteItem = (mode) => {
+    const { boardPasteItem, data } = this.props;
     const { id } = data;
-    timelinePasteItem(id, mode);
+    boardPasteItem(id, mode);
   }
 
-  onContextMenuClick = (e) => {
-    console.log('on context menu click capture');
-    e.stopPropagation();
-    e.preventDefault();
-
-    const {
-      typeLabel,
-      canCopyStartTime,
-      canCopyEndTime,
-      canPasteStartTime,
-      canPasteEndTime,
-      boardCanPasteItem,
-    } = this.props;
-    const { Menu, MenuItem } = remote;
-
-    const menu = new Menu();
-    menu.append(new MenuItem({
-      label: `Edit ${typeLabel}...`,
-      click: this.onEditItemClick,
-    }));
-    menu.append(new MenuItem({
-      label: `Delete ${typeLabel}...`,
-      click: this.onDeleteItemClick,
-    }));
-    menu.append(new MenuItem({
-      type: 'separator',
-    }));
-    menu.append(new MenuItem({
-      label: `Copy ${typeLabel}`,
-      click: this.onCopyItemClick,
-    }));
-    if (canCopyStartTime) {
-      menu.append(new MenuItem({
-        label: `Copy ${typeLabel} start time`,
-        click: this.onCopyItemStartClick,
-      }));
-    }
-    if (canCopyEndTime) {
-      menu.append(new MenuItem({
-        label: `Copy ${typeLabel} end time`,
-        click: this.onCopyItemEndClick,
-      }));
-    }
-    if (canPasteStartTime) {
-      menu.append(new MenuItem({
-        label: `Paste time as ${typeLabel} start time`,
-        click: this.onPasteItemStartClick,
-        enabled: boardCanPasteItem('inTime'),
-      }));
-    }
-    if (canPasteEndTime) {
-      menu.append(new MenuItem({
-        label: `Paste time as ${typeLabel} end time`,
-        click: this.onPasteItemEndClick,
-        enabled: boardCanPasteItem('outTime'),
-      }));
-    }
-
-    menu.popup({
-      window: remote.getCurrentWindow(),
-    });
-  }
-  
-  onMouseDown = (e) => {
+  doMouseDown = () => {
     const { data, boardItemMouseDown } = this.props;
     const { id } = data;
     boardItemMouseDown(id);
   }
   
-  onMouseUp = (e) => {
+  doMouseUp = () => {
     const { data, boardItemMouseUp } = this.props;
     const { id } = data;
     boardItemMouseUp(id);
   }
+
+  doContextMenu = () => {
+    const {
+      typeLabel,
+      boardCanPasteItem,
+    } = this.props;
+    const { Menu } = remote;
+
+    const template = [
+      {
+        label: `Edit ${typeLabel}...`,
+        click: this.onEditItemClick,
+      },
+      {
+        label: `Delete ${typeLabel}...`,
+        click: this.onDeleteItemClick,
+      },
+      {
+        type: 'separator',
+      },
+      {
+        label: `Copy ${typeLabel}`,
+        click: this.onCopyItemClick,
+      },
+      {
+        label: `Copy ${typeLabel} type`,
+        click: this.onCopyItemTypeClick,
+      },
+      {
+        label: `Paste ${typeLabel} type`,
+        click: this.onPasteItemTypeClick,
+        enabled: boardCanPasteItem('type'),
+      },
+    ];
+    
+    const menu = Menu.buildFromTemplate(template);
+    menu.popup({
+      window: remote.getCurrentWindow(),
+    });
+  }
+
+  //////////////////////////////////////////////////////
+  // RENDERS
   
   renderBlockType = () => {
-    const { style, data, layerDuration, getItemLabel, renderContent, children, boardItemIsActive } = this.props;
-    const { inTime, outTime, color, name, id } = data;
+    const { style, data, getItemLabel, children, active } = this.props;
+    const { color, name } = data;
+
     const lightColor = Color(color).isLight();
     
     return (
@@ -181,8 +172,6 @@ class BoardItem extends PureComponent {
           [styles.lightColor]: lightColor,
         })}
         style={{
-          // left: percentString(inTime / layerDuration),
-          // width: percentString((outTime - inTime) / layerDuration),
           ...style,
           backgroundColor: color,
         }}
@@ -198,13 +187,13 @@ class BoardItem extends PureComponent {
               [styles.itemLabel]: true,
             })}
           >
-           { getItemLabel ? getItemLabel() : name }
+           { isFunction(getItemLabel) ? getItemLabel() : name }
           </div>
         </div>
         <div
           className={classNames({
             [styles.content]: true,
-            [styles.anim]: boardItemIsActive(id),
+            [styles.anim]: active,
           })}
         >
           { children }
@@ -222,4 +211,4 @@ class BoardItem extends PureComponent {
 BoardItem.propTypes = propTypes;
 BoardItem.defaultProps = defaultProps;
 
-export default boardConnect(BoardItem);
+export default BoardItem;

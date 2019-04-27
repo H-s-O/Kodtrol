@@ -5,6 +5,7 @@ import uniqid from 'uniqid';
 import Layer from './Layer';
 import percentString from '../../../lib/percentString';
 import isFunction from '../../../lib/isFunction';
+import orderSort from '../../../../../common/js/lib/orderSort';
 
 import styles from '../../../../styles/components/layer_editor/layereditor.scss';
 
@@ -23,8 +24,9 @@ const defaultProps = {
 };
 
 class LayerEditor extends PureComponent {
-  copyItemData = null;
-  
+  //////////////////////////////////////////////////////////////
+  // ACTIONS
+
   doUpdate = (data) => {
     const { onChange } = this.props;
     if (isFunction(onChange)) {
@@ -116,7 +118,7 @@ class LayerEditor extends PureComponent {
   
   sortLayers = (layers) => {
     const sortedLayers = layers
-      .sort((a, b) => a.order < b.order ? -1 : 1)
+      .sort(orderSort)
       .map((layer, index) => {
         return {
           ...layer,
@@ -162,7 +164,7 @@ class LayerEditor extends PureComponent {
   
   render = () => {
     const { layers } = this.props;
-    const sortedLayers = layers.sort((a, b) => a.order - b.order);
+    const sortedLayers = layers.sort(orderSort);
     
     return (
       <div

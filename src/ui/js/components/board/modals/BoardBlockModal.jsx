@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
+
 import BaseModal from '../../modals/BaseModal';
 
 export default function(props) {

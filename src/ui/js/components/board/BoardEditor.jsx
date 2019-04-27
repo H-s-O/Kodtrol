@@ -1,6 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Glyphicon, SplitButton, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, Glyphicon, ButtonGroup, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -12,7 +12,6 @@ import BoardBlockModal from './modals/BoardBlockModal';
 import BoardBlock from './BoardBlock';
 import { saveBoard, runBoard, stopBoard } from '../../../../common/js/store/actions/boards';
 import { updateBoardInfo, updateBoardInfoUser } from '../../../../common/js/store/actions/boardInfo';
-import { Provider } from './boardEditorContext';
 import BoardWrapper from './BoardWrapper';
 
 import styles from '../../../styles/components/board/boardeditor.scss';
@@ -35,7 +34,6 @@ const defaultProps = {
 };
 
 class BoardEditor extends PureComponent {
-  editorCallbacks = null;
   layerEditor = null;
   state = {
     modalType: null,
@@ -46,60 +44,100 @@ class BoardEditor extends PureComponent {
     
     boardDataTemp: null,
   };
-  
-  constructor(props) {
-    super(props);
-    
-    this.editorCallbacks = {
-      boardAddItemAt: this.onAddItemAt,
-      boardEditItem: this.onEditItem,
-      boardUpdateItem: this.onUpdateItem,
-      boardAdjustItem: this.onAdjustItem,
-      boardDeleteItem: this.onDeleteItem,
-      boardCopyItem: this.onCopyItem,
-      boardPasteItem: this.onPasteItem,
-      boardCanPasteItem: this.canPasteItem,
-      boardItemMouseDown: this.onItemMouseDown,
-      boardItemMouseUp: this.onItemMouseUp,
-      boardItemIsActive: this.itemIsActive,
-    };
+
+  ///////////////////////////////////////////////////////////////
+  // EVENT HANDLERS
+
+  onAddBlockClick = () => {
+    this.doAddItem('block', {
+      id: uniqid(), // generate new block id
+    });
+  }
+
+  onPasteItemHereClick = (layerId, e) => {
+    this.doPasteItem(layerId, '*', e);
   }
   
+  onAddBlockHereClick = (layerId, e) => {
+    this.doAddItemAt(layerId, 'block', e);
+  }
+
+  onAddLayerAtTopClick = () => {
+    this.layerEditor.doAddLayer('max');
+  }
+  
+  onAddLayerAtBottomClick = () => {
+    this.layerEditor.doAddLayer('min');
+  }
+
+  onZoomLevelClick = (level) => {
+    this.doSetZoomLevel(level);
+  }
+  
+  onZoomVertLevelClick = (level) => {
+    this.doSetZoomLevel(level, true);
+  }
+
+  onCopyItemClick = (itemId, mode) => {
+    this.doCopyItem(itemId, mode);
+  }
+  
+  onSaveClick = () => {
+    // ?!?!
+  }
+
+  /////////////////////////////////////////////////////////
+  // ACTIONS
+
+  itemIsActive = (id) => {
+    const { boardInfo } = this.props;
+    const { activeItems } = boardInfo;
+    return activeItems && id in activeItems;
+  }
+
   getItem = (itemId) => {
     const { boardData } = this.props;
     const { items } = boardData;
     return items.find(({id}) => id === itemId);
   }
   
-  getLayer = (layerId) => {
-    const { boardData } = this.props;
-    const { layers } = boardData;
-    return layers.find(({id}) => id === layerId);
-  }
-  
-  onUpdateItem = (itemId, data) => {
-    const { boardData } = this.props;
-    const { items } = boardData;
-    const itemData = this.getItem(itemId);
-    
-    const newItemData = {
-      ...itemData,
-      ...data,
-    };
-    const newItems = items.map((item) => {
-      if (item.id === itemId) {
-        return newItemData;
-      }
-      return item;
+  doAddItem = (type, baseData) => {
+    this.setState({
+      modalType: type,
+      modalValue: baseData,
+      modalAction: 'add',
     });
-    const newBoardData = {
-      items: newItems,
+  }
+
+  doAddItemAt = (layerId, type, e) => {
+    const data = {
+      layer: layerId,
+      id: uniqid(), // generate new item id
     };
     
-    this.doSave(newBoardData);
+    this.setState({
+      modalType: type,
+      modalValue: data,
+      modalAction: 'add',
+    });
   }
-  
-  onDeleteItem = (itemId) => {
+
+  doCopyItem = (itemId, mode) => {
+    const item = this.getItem(itemId);
+    
+    let itemData;
+    if (mode === '*') {
+      itemData = item;
+    } else {
+      itemData = item[mode];
+    }
+    
+    this.setState({
+      copyItemData: itemData,
+    });
+  }
+
+  doDeleteItem = (itemId) => {
     const { boardData } = this.props;
     const { items } = boardData;
 
@@ -110,8 +148,8 @@ class BoardEditor extends PureComponent {
     
     this.doSave(newBoardData);
   }
-  
-  onEditItem = (itemId) => {
+
+  doEditItem = (itemId) => {
     const itemData = this.getItem(itemId);
     
     let type;
@@ -128,7 +166,7 @@ class BoardEditor extends PureComponent {
     });
   }
   
-  onItemModalSuccess = (itemData) => {
+  itemModalSuccess = (itemData) => {
     const { boardData } = this.props;
     const { items } = boardData;
     
@@ -168,71 +206,12 @@ class BoardEditor extends PureComponent {
     });
   }
   
-  onItemModalCancel = () => {
+  itemModalCancel = () => {
     // Hide modal
     this.setState({
       modalType: null,
       modalAction: null,
       modalValue: null,
-    });
-  }
-  
-  onAddLayerAtTopClick = () => {
-    this.layerEditor.doAddLayer('max');
-  }
-  
-  onAddLayerAtBottomClick = () => {
-    this.layerEditor.doAddLayer('min');
-  }
-
-  onSaveClick = () => {
-    // const { boardData, doSaveBoard } = this.props;
-    // doSaveBoard(boardData);
-  }
-  
-  
-  onAddBlockClick = () => {
-    this.doAddItem('block', {
-      id: uniqid(), // generate new block id
-    });
-  }
-
-  onPasteItemHere = (e) => {
-    const { boardPasteItem, data } = this.props;
-    const { id } = data;
-    boardPasteItem(id, '*', e);
-  }
-  
-  onAddBlockHereClick = (e) => {
-    this.doAddItemAt('block', e);
-  }
-  
-  doAddItemAt = (type, e) => {
-    const { boardAddItemAt, data } = this.props;
-    const { id } = data;
-    boardAddItemAt(id, type, e);
-  }
-  
-  doAddItem = (type, baseData) => {
-    this.setState({
-      modalType: type,
-      modalValue: baseData,
-      modalAction: 'add',
-    });
-  }
-
-  onCopyItem = (itemId, mode) => {
-    const item = this.getItem(itemId);
-    
-    let itemData;
-    if (mode === '*') {
-      itemData = item;
-    } else {
-      itemData = item[mode];
-    }
-
-    this.setState({
-      copyItemData: itemData,
     });
   }
   
@@ -242,13 +221,13 @@ class BoardEditor extends PureComponent {
       return false;
     } else if (mode === '*' && typeof copyItemData === 'object') {
       return true;
-    } else if (mode !== '*' && typeof copyItemData === 'number') {
+    } else if (mode !== '*' && typeof copyItemData === 'string') {
       return true;
     }
     return false;
   }
 
-  onPasteItem = (itemId, mode, e = null) => {
+  doPasteItem = (itemId, mode, e = null) => {
     const { copyItemData } = this.state;
     
     if (copyItemData !== null) {
@@ -298,42 +277,22 @@ class BoardEditor extends PureComponent {
           return item;
         });
       }
-      const newTimelineData = {
+      const newBoardData = {
         ...boardData,
         items: newItems,
       };
 
-      this.doSave(newTimelineData);
+      this.doSave(newBoardData);
 
       this.setState({
         copyItemData: null,
       });
     }
   }
-  
-  onAddItemAt = (layerId, type, e) => {
-    const data = {
-      layer: layerId,
-      id: uniqid(), // generate new item id
-    };
-    
-    this.setState({
-      modalType: type,
-      modalValue: data,
-      modalAction: 'add',
-    });
-  }
 
-  onZoomLevelClick = (level) => {
+  doSetZoomLevel = (level, vertical = false) => {
     const data = {
-      zoom: level,
-    };
-    this.doSave(data);
-  }
-  
-  onZoomVertLevelClick = (level) => {
-    const data = {
-      zoomVert: level,
+      [vertical ? 'zoomVert' : 'zoom']: level,
     };
     this.doSave(data);
   }
@@ -343,10 +302,7 @@ class BoardEditor extends PureComponent {
     doSaveBoard(currentBoard, boardData);
   }
   
-  ////////////////////////////////////////////////////////////////////////////
-  // BOARD INFO
-  
-  onItemMouseDown = (id) => {
+  doItemMouseDown = (id) => {
     const item = this.getItem(id);
     const { type } = item;
     const { boardInfo } = this.props;
@@ -358,29 +314,26 @@ class BoardEditor extends PureComponent {
     if (type === 'toggle' && activeItems && id in activeItems) {
       delete newItems[id];
     }
+
     this.doUpdateInfo({
       activeItems: newItems
     });
   }
   
-  onItemMouseUp = (id) => {
+  doItemMouseUp = (id) => {
     const item = this.getItem(id);
     const { type } = item;
+
     if (type === 'trigger_once') {
       const { boardInfo } = this.props;
       const { activeItems } = boardInfo;
       const newItems = { ...activeItems };
       delete newItems[id];
+
       this.doUpdateInfo({
         activeItems: newItems
       });
     }
-  }
-  
-  itemIsActive = (id) => {
-    const { boardInfo } = this.props;
-    const { activeItems } = boardInfo;
-    return activeItems && id in activeItems;
   }
   
   doUpdateInfo = (boardInfo) => {
@@ -402,50 +355,6 @@ class BoardEditor extends PureComponent {
     );
   }
   
-  renderBoardControls = () => {
-    const { boardInfo, runBoard } = this.props;
-    if (!boardInfo) {
-      return null;
-    }
-    
-    const { playing } = boardInfo;
-    
-    return (
-      <ButtonGroup>
-        <Button
-          disabled={runBoard === null}
-          bsSize="xsmall"
-          onClick={this.onTimelineRewindClick}
-        >
-          <Glyphicon
-            glyph="step-backward"
-          />
-        </Button>
-        { !playing ? (
-          <Button
-            disabled={runBoard === null}
-            bsSize="xsmall"
-            onClick={this.onTimelinePlayClick}
-          >
-            <Glyphicon
-              glyph="play"
-            />
-          </Button>
-        ) : (
-          <Button
-            disabled={runBoard === null}
-            bsSize="xsmall"
-            onClick={this.onTimelinePauseClick}
-          >
-            <Glyphicon
-              glyph="pause"
-            />
-          </Button>
-        )}
-      </ButtonGroup>
-    );
-  }
-
   renderAddItems = () => {
     const { boardData } = this.props;
     const { items, layers } = boardData;
@@ -579,23 +488,31 @@ class BoardEditor extends PureComponent {
           left: percentString(leftPercent),
           width: percentString(widthPercent),
         }}
+        active={this.itemIsActive(item.id)}
+        boardDeleteItem={this.doDeleteItem}
+        boardEditItem={this.doEditItem}
+        boardCopyItem={this.doCopyItem}
+        boardPasteItem={this.doPasteItem}
+        boardItemMouseDown={this.doItemMouseDown}
+        boardItemMouseUp={this.doItemMouseUp}
+        boardCanPasteItem={this.canPasteItem}
       />
     );
   }
 
-  renderLayerContextMenu = (currentTemplate, e) => {
+  renderLayerContextMenu = (currentTemplate, layerId, e) => {
     const template = [
       {
         type: 'separator',
       },
       {
         label: 'Paste item here',
-        click: () => this.onPasteItemHere(e),
+        click: () => this.onPasteItemHereClick(layerId, e),
         enabled: this.canPasteItem('*'),
       },
       {
         label: 'Add block...',
-        click: () => this.onAddBlockHereClick(e),
+        click: () => this.onAddBlockHereClick(layerId, e),
       },
     ];
 
@@ -614,17 +531,13 @@ class BoardEditor extends PureComponent {
       <div
         className={styles.boardEditorContent}
       >
-        <Provider
-          value={this.editorCallbacks}
-        >
-          <BoardWrapper
-            layerEditorRef={this.setLayerEditorRef}
-            layerEditorRenderItemComponent={this.renderItemComponent}
-            layerEditorRenderLayerContextMenu={this.renderLayerContextMenu}
-            layerEditorOnChange={this.doSave}
-            boardData={workingBoardData}
-          />
-        </Provider>
+        <BoardWrapper
+          layerEditorRef={this.setLayerEditorRef}
+          layerEditorRenderItemComponent={this.renderItemComponent}
+          layerEditorRenderLayerContextMenu={this.renderLayerContextMenu}
+          layerEditorOnChange={this.doSave}
+          boardData={workingBoardData}
+        />
       </div>
     );
   }
@@ -640,8 +553,8 @@ class BoardEditor extends PureComponent {
           initialValue={modalValue}
           show={modalType === 'block' && modalAction !== 'record'}
           title={modalAction === 'add' ? 'Add block' : 'Edit block'}
-          onCancel={this.onItemModalCancel}
-          onSuccess={this.onItemModalSuccess}
+          onCancel={this.itemModalCancel}
+          onSuccess={this.itemModalSuccess}
           scripts={scripts}
           layers={layers}
         />
@@ -659,14 +572,13 @@ class BoardEditor extends PureComponent {
         title="Board editor"
         className={styles.fullHeight}
         headingContent={
-          workingBoardData && (
+          workingBoardData ? (
             <ButtonToolbar>
               { this.renderSave() }
-              { this.renderBoardControls() }
               { this.renderAddItems() }
               { this.renderZoomControls() }
             </ButtonToolbar>
-          )
+          ) : null
         }
       >
         { workingBoardData ? this.renderBoardWrapper(workingBoardData) : null }
