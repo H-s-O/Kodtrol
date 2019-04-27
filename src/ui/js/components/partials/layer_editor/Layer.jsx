@@ -132,7 +132,7 @@ class Layer extends PureComponent {
     const { renderItemComponent } = this.props;
 
     if (isFunction(renderItemComponent)) {
-      const result = renderItemComponent(item, index, items);
+      return renderItemComponent(item, index, items);
 
       if (!result) {
         return null;
@@ -151,9 +151,7 @@ class Layer extends PureComponent {
 
       return (
         <ComponentClass
-          key={`item-${index}`}
-          data={item}
-          style={style}
+          
         />
       );
     }

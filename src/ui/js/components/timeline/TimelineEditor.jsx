@@ -549,9 +549,7 @@ class TimelineEditor extends PureComponent {
   }
 
   onPasteItemHere = (layerId, e) => {
-    const { timelinePasteItem, data } = this.props;
-    const { id } = data;
-    timelinePasteItem(id, '*', e);
+    //this.onPasteItem(layerId, '*', e); // @TODO
   }
 
   onAddBlockHereClick = (layerId, e) => {
@@ -900,20 +898,20 @@ class TimelineEditor extends PureComponent {
     );
   }
 
-  renderItemComponent = (item) => {
-    let component = null;
+  renderItemComponent = (item, index, items) => {
+    let ComponentClass = null;
     if ('script' in item) {
-      component = TimelineBlock;
+      ComponentClass = TimelineBlock;
     } else if ('trigger' in item) {
-      component = TimelineTrigger;
+      ComponentClass = TimelineTrigger;
     } else if ('curve' in item) {
-      component = TimelineCurve;
+      ComponentClass = TimelineCurve;
     } else if ('file' in item) {
-      component = TimelineAudioTrack;
+      ComponentClass = TimelineAudioTrack;
     }
     
-    if (component === null) {
-      return;
+    if (ComponentClass === null) {
+      return null;
     }
 
     const { timelineData } = this.props;
@@ -923,13 +921,16 @@ class TimelineEditor extends PureComponent {
     const leftPercent = (inTime / duration);
     const widthPercent = outTime ? ((outTime - inTime) / duration) : null;
 
-    const data = {
-      component,
-      widthPercent,
-      leftPercent,
-    };
-
-    return data;
+    return (
+      <ComponentClass
+        key={`item-${index}`}
+        data={item}
+        style={{
+          left: percentString(leftPercent),
+          width: percentString(widthPercent),
+        }}
+      />
+    );
   }
 
   renderLayerContextMenu = (baseTemplate, layerId, e) => {
