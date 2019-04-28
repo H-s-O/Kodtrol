@@ -1,23 +1,32 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 
-import stopEvent from '../../lib/stopEvent';
 import percentString from '../../lib/percentString';
-import TimelineDisplay from './TimelineDisplay';
-import timelineConnect from './timelineConnect';
+import LayerEditor from '../partials/layer_editor/LayerEditor';
 
 import styles from '../../../styles/components/timeline/timelinewrapper.scss';
+
+const propTypes = {
+  timelineUpdatePosition: PropTypes.func,
+};
 
 class TimelineWrapper extends PureComponent {
   timelineContainer = null;
   timelineCursorTracker = null;
-  
-  constructor(props) {
-    super(props);
-    
-    // Homemade ref callback that bypasses the timelineConnect() wrapper
-    const { wrapperRef } = props;
-    wrapperRef(this);
+
+  ///////////////////////////////////////////////////////////////
+  // EVENT HANDLERS
+
+  onContainerDoubleClick = (e) => {
+    this.doUpdateTimelinePosition(e);
   }
+  
+  onContainerMouseMove = (e) => {
+    this.doUpdateTimelineCursor(e);
+  }
+
+  //////////////////////////////////////////////////////////////
+  // ACTIONS
   
   getTimelineScreenXFromEvent = (e) => {
     const { clientX } = e;
@@ -29,9 +38,6 @@ class TimelineWrapper extends PureComponent {
   }
   
   getTimelinePercentFromEvent = (e) => {
-    const { timelineData } = this.props;
-    const { zoom } = timelineData;
-    
     const { clientX } = e;
     const { left } = this.timelineContainer.getBoundingClientRect();
     const { scrollLeft, scrollWidth } = this.timelineContainer;
@@ -39,13 +45,13 @@ class TimelineWrapper extends PureComponent {
     const percent = (clientX - left + scrollLeft) / scrollWidth;
     return percent;
   }
-  
-  onContainerDoubleClick = (e) => {
+
+  doUpdateTimelinePosition = (e) => {
     const { timelineUpdatePosition } = this.props;
     timelineUpdatePosition(e);
   }
-  
-  onContainerMouseMove = (e) => {
+
+  doUpdateTimelineCursor = (e) => {
     const { timelineData } = this.props;
     if (timelineData) {
       const cursorPos = this.getTimelineScreenXFromEvent(e);
@@ -53,6 +59,9 @@ class TimelineWrapper extends PureComponent {
     }
   }
   
+  ////////////////////////////////////////////////////////////////
+  // RENDERS
+
   setTimelineCursorTrackerRef = (ref) => {
     this.timelineCursorTracker = ref;
   }
@@ -70,9 +79,9 @@ class TimelineWrapper extends PureComponent {
   renderTimelineTracker = () => {
     const { timelineInfo, timelineData } = this.props;
     const { position } = timelineInfo;
-    const { duration, zoom } = timelineData;
+    const { duration } = timelineData;
     
-    const left = percentString((position / duration) * zoom);
+    const left = percentString(position / duration);
     
     return (
       <div
@@ -94,17 +103,33 @@ class TimelineWrapper extends PureComponent {
   }
   
   render = () => {
-    const { timelineData } = this.props;
-    
+    const { 
+      timelineData,
+      layerEditorOnChange,
+      layerEditorRef,
+      layerEditorRenderItemComponent,
+      layerEditorRenderLayerContextMenu,
+    } = this.props;
+    const { zoom, zoomVert, layers, items } = timelineData;
+
     return (
       <div
         ref={this.setTimelineContainerRef}
         className={styles.wrapper}
         onDoubleClick={this.onContainerDoubleClick}
         onMouseMove={this.onContainerMouseMove}
+        style={{
+          width: percentString(zoom),
+          height: percentString(zoomVert),
+        }}
       >
-        <TimelineDisplay
-          {...timelineData}
+        <LayerEditor
+          ref={layerEditorRef}
+          layers={layers}
+          items={items}
+          renderLayerContextMenu={layerEditorRenderLayerContextMenu}
+          renderItemComponent={layerEditorRenderItemComponent}
+          onChange={layerEditorOnChange}
         />
         { this.renderTimelineCursorTracker() }
         { this.renderTimelineTracker() }
@@ -113,4 +138,6 @@ class TimelineWrapper extends PureComponent {
   }
 }
 
-export default timelineConnect(TimelineWrapper);
+TimelineWrapper.propTypes = propTypes;
+
+export default TimelineWrapper;

@@ -1,20 +1,18 @@
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { get, set, unset } from 'lodash';
-import { Button, Glyphicon, SplitButton, Label, ButtonGroup, ButtonToolbar, FormControl, Form, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, Glyphicon, ButtonGroup, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
 import uniqid from 'uniqid';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import path from 'path';
 
 import Panel from '../partials/Panel';
 import stopEvent from '../../lib/stopEvent';
 import percentString from '../../lib/percentString';
 import BoardBlockModal from './modals/BoardBlockModal';
-import { saveBoard, runBoard, stopBoard } from '../../../../common/js/store/actions/boards';
+import BoardBlock from './BoardBlock';
+import { saveBoard } from '../../../../common/js/store/actions/boards';
 import { updateBoardInfo, updateBoardInfoUser } from '../../../../common/js/store/actions/boardInfo';
-import { Provider } from './boardEditorContext';
-import BoardDisplay from './BoardDisplay';
+import BoardWrapper from './BoardWrapper';
 
 import styles from '../../../styles/components/board/boardeditor.scss';
 
@@ -25,8 +23,6 @@ const propTypes = {
   doUpdateBoardInfo: PropTypes.func.isRequired,
   doUpdateBoardInfoUser: PropTypes.func.isRequired,
   doSaveBoard: PropTypes.func.isRequired,
-  doRunBoard: PropTypes.func.isRequired,
-  doStopRunBoard: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -36,8 +32,7 @@ const defaultProps = {
 };
 
 class BoardEditor extends PureComponent {
-  editorCallbacks = null;
-  timelineWrapper = null;
+  layerEditor = null;
   state = {
     modalType: null,
     modalAction: null,
@@ -47,62 +42,100 @@ class BoardEditor extends PureComponent {
     
     boardDataTemp: null,
   };
-  
-  constructor(props) {
-    super(props);
-    
-    this.editorCallbacks = {
-      boardAddItemAt: this.onAddItemAt,
-      boardEditItem: this.onEditItem,
-      boardUpdateItem: this.onUpdateItem,
-      boardAdjustItem: this.onAdjustItem,
-      boardDeleteItem: this.onDeleteItem,
-      boardCopyItem: this.onCopyItem,
-      boardPasteItem: this.onPasteItem,
-      boardCanPasteItem: this.canPasteItem,
-      boardAddLayer: this.onAddLayer,
-      boardDeleteLayer: this.onDeleteLayer,
-      boardItemMouseDown: this.onItemMouseDown,
-      boardItemMouseUp: this.onItemMouseUp,
-      boardItemIsActive: this.itemIsActive,
-    };
+
+  ///////////////////////////////////////////////////////////////
+  // EVENT HANDLERS
+
+  onAddBlockClick = () => {
+    this.doAddItem('block', {
+      id: uniqid(), // generate new block id
+    });
+  }
+
+  onPasteItemHereClick = (layerId, e) => {
+    this.doPasteItem(layerId, '*', e);
   }
   
+  onAddBlockHereClick = (layerId, e) => {
+    this.doAddItemAt(layerId, 'block', e);
+  }
+
+  onAddLayerAtTopClick = () => {
+    this.layerEditor.doAddLayer('max');
+  }
+  
+  onAddLayerAtBottomClick = () => {
+    this.layerEditor.doAddLayer('min');
+  }
+
+  onZoomLevelClick = (level) => {
+    this.doSetZoomLevel(level);
+  }
+  
+  onZoomVertLevelClick = (level) => {
+    this.doSetZoomLevel(level, true);
+  }
+
+  onCopyItemClick = (itemId, mode) => {
+    this.doCopyItem(itemId, mode);
+  }
+  
+  onSaveClick = () => {
+    // ?!?!
+  }
+
+  /////////////////////////////////////////////////////////
+  // ACTIONS
+
+  itemIsActive = (id) => {
+    const { boardInfo } = this.props;
+    const { activeItems } = boardInfo;
+    return activeItems && id in activeItems;
+  }
+
   getItem = (itemId) => {
     const { boardData } = this.props;
     const { items } = boardData;
     return items.find(({id}) => id === itemId);
   }
   
-  getLayer = (layerId) => {
-    const { boardData } = this.props;
-    const { layers } = boardData;
-    return layers.find(({id}) => id === layerId);
-  }
-  
-  onUpdateItem = (itemId, data) => {
-    const { boardData } = this.props;
-    const { items } = boardData;
-    const itemData = this.getItem(itemId);
-    
-    const newItemData = {
-      ...itemData,
-      ...data,
-    };
-    const newItems = items.map((item) => {
-      if (item.id === itemId) {
-        return newItemData;
-      }
-      return item;
+  doAddItem = (type, baseData) => {
+    this.setState({
+      modalType: type,
+      modalValue: baseData,
+      modalAction: 'add',
     });
-    const newBoardData = {
-      items: newItems,
+  }
+
+  doAddItemAt = (layerId, type, e) => {
+    const data = {
+      layer: layerId,
+      id: uniqid(), // generate new item id
     };
     
-    this.doSave(newBoardData);
+    this.setState({
+      modalType: type,
+      modalValue: data,
+      modalAction: 'add',
+    });
   }
-  
-  onDeleteItem = (itemId) => {
+
+  doCopyItem = (itemId, mode) => {
+    const item = this.getItem(itemId);
+    
+    let itemData;
+    if (mode === '*') {
+      itemData = item;
+    } else {
+      itemData = item[mode];
+    }
+    
+    this.setState({
+      copyItemData: itemData,
+    });
+  }
+
+  doDeleteItem = (itemId) => {
     const { boardData } = this.props;
     const { items } = boardData;
 
@@ -113,8 +146,8 @@ class BoardEditor extends PureComponent {
     
     this.doSave(newBoardData);
   }
-  
-  onEditItem = (itemId) => {
+
+  doEditItem = (itemId) => {
     const itemData = this.getItem(itemId);
     
     let type;
@@ -131,7 +164,7 @@ class BoardEditor extends PureComponent {
     });
   }
   
-  onItemModalSuccess = (itemData) => {
+  itemModalSuccess = (itemData) => {
     const { boardData } = this.props;
     const { items } = boardData;
     
@@ -163,128 +196,15 @@ class BoardEditor extends PureComponent {
     // Save timeline
     this.doSave(newBoardData);
 
+    this.itemModalCancel();
+  }
+  
+  itemModalCancel = () => {
     // Hide modal
     this.setState({
       modalType: null,
       modalAction: null,
       modalValue: null,
-    });
-  }
-  
-  onItemModalCancel = () => {
-    // Hide modal
-    this.setState({
-      modalType: null,
-      modalAction: null,
-      modalValue: null,
-    });
-  }
-  
-  onAddLayerAtTopClick = () => {
-    this.onAddLayer('max');
-  }
-  
-  onAddLayerAtBottomClick = () => {
-    this.onAddLayer('min');
-  }
-
-  onAddLayer = (index) => {
-    const { boardData } = this.props;
-    const { layers } = boardData;
-
-    const newLayer = {
-      id: uniqid(),
-    };
-    
-    if (index === 'max') {
-      const max = layers.reduce((carry, {order}) => order > carry ? order : carry, 0);
-      newLayer.order = max + 1;
-    } else if (index === 'min') {
-      newLayer.order = 0;
-    } else {
-      newLayer.order = index;
-    }
-    
-    const newLayers = [
-      ...layers.map((layer) => {
-        if (layer.order >= newLayer.order) {
-          // adjust order
-          return {
-            ...layer,
-            order: layer.order + 1,
-          };
-        }
-        return layer;
-      }),
-      newLayer,
-    ];
-    const newBoardData = {
-      layers: newLayers,
-    };
-    
-    this.doSave(newBoardData);
-  }
-  
-  onDeleteLayer = (layerId) => {
-    const { boardData } = this.props;
-    const { layers, items } = boardData;
-
-    const deletedLayer = layers.find(({id}) => id === layerId);
-    
-    const newLayers = layers
-      .filter(({id}) => id !== layerId)
-      .map((layer) => {
-        if (layer.order >= deletedLayer.order) {
-          // adjust order
-          return {
-            ...layer,
-            order: layer.order - 1,
-          };
-        }
-        return layer;
-      });
-    const newItems = items.filter(({layer}) => layer !== layerId);
-    const newBoardData = {
-      layers: newLayers,
-      items: newItems,
-    };
-    
-    this.doSave(newBoardData);
-  }
-  
-
-  onSaveClick = () => {
-    // const { boardData, doSaveBoard } = this.props;
-    // doSaveBoard(boardData);
-  }
-  
-  
-  onAddBlockClick = () => {
-    this.doAddItem('block', {
-      id: uniqid(), // generate new block id
-    });
-  }
-  
-  doAddItem = (type, baseData) => {
-    this.setState({
-      modalType: type,
-      modalValue: baseData,
-      modalAction: 'add',
-    });
-  }
-
-  onCopyItem = (itemId, mode) => {
-    const item = this.getItem(itemId);
-    
-    let itemData;
-    if (mode === '*') {
-      itemData = item;
-    } else {
-      itemData = item[mode];
-    }
-
-    this.setState({
-      copyItemData: itemData,
     });
   }
   
@@ -294,98 +214,71 @@ class BoardEditor extends PureComponent {
       return false;
     } else if (mode === '*' && typeof copyItemData === 'object') {
       return true;
-    } else if (mode !== '*' && typeof copyItemData === 'number') {
+    } else if (mode !== '*' && typeof copyItemData === 'string') {
       return true;
     }
     return false;
   }
 
-  onPasteItem = (itemId, mode, e = null) => {
+  // @TODO clean
+  doPasteItem = (layerOrItemId, mode, e = null) => {
     const { copyItemData } = this.state;
     
     if (copyItemData !== null) {
       const { boardData } = this.props;
-      const { items, duration } = boardData;
+      const { items } = boardData;
       
       let newItem;
       let newItems;
       if (mode === '*') {
-        const { inTime, outTime } = copyItemData;
-        let newInTime = this.getTimelinePositionFromEvent(e);
-        if (newInTime < 0) {
-          newInTime = 0;
-        } else if (newInTime > duration) {
-          newInTime = duration;
-        }
         newItem = {
           ...copyItemData,
           id: uniqid(), // override with new id
-          layer: itemId,
-          inTime: newInTime,
-        }
-        if ('outTime' in copyItemData) {
-          const diffTime = outTime - inTime;
-          let newOutTime = newInTime + diffTime;
-          if (newOutTime < 0) {
-            newOutTime = 0;
-          } else if (newOutTime > duration) {
-            newOutTime = duration;
-          }
-          newItem.outTime = newOutTime;
+          layer: layerOrItemId,
         }
         newItems = [
           ...items,
           newItem,
         ];
       } else {
-        const item = this.getItem(itemId);
+        const item = this.getItem(layerOrItemId);
         newItem = {
           ...item,
           [mode]: copyItemData,
         };
         newItems = items.map((item) => {
-          if (item.id === itemId) {
+          if (item.id === layerOrItemId) {
             return newItem;
           }
           return item;
         });
       }
-      const newTimelineData = {
+      const newBoardData = {
         ...boardData,
         items: newItems,
       };
 
-      this.doSave(newTimelineData);
+      this.doSave(newBoardData);
 
       this.setState({
         copyItemData: null,
       });
     }
   }
-  
-  onAddItemAt = (layerId, type, e) => {
-    const data = {
-      layer: layerId,
-      id: uniqid(), // generate new item id
-    };
-    
-    this.setState({
-      modalType: type,
-      modalValue: data,
-      modalAction: 'add',
-    });
-  }
 
+  doSetZoomLevel = (level, vertical = false) => {
+    const data = {
+      [vertical ? 'zoomVert' : 'zoom']: level,
+    };
+    this.doSave(data);
+  }
 
   doSave = (boardData) => {
     const { doSaveBoard, currentBoard } = this.props;
     doSaveBoard(currentBoard, boardData);
   }
   
-  ////////////////////////////////////////////////////////////////////////////
-  // BOARD INFO
-  
-  onItemMouseDown = (id) => {
+  doItemMouseDown = (id) => {
     const item = this.getItem(id);
     const { type } = item;
     const { boardInfo } = this.props;
@@ -397,30 +290,26 @@ class BoardEditor extends PureComponent {
     if (type === 'toggle' && activeItems && id in activeItems) {
       delete newItems[id];
     }
+
     this.doUpdateInfo({
       activeItems: newItems
     });
   }
   
-  onItemMouseUp = (id) => {
+  doItemMouseUp = (id) => {
     const item = this.getItem(id);
     const { type } = item;
+
     if (type === 'trigger_once') {
       const { boardInfo } = this.props;
       const { activeItems } = boardInfo;
       const newItems = { ...activeItems };
       delete newItems[id];
+
       this.doUpdateInfo({
         activeItems: newItems
       });
     }
-  }
-  
-  itemIsActive = (id) => {
-    const item = this.getItem(id);
-    const { boardInfo } = this.props;
-    const { activeItems } = boardInfo;
-    return activeItems && id in activeItems;
   }
   
   doUpdateInfo = (boardInfo) => {
@@ -442,50 +331,6 @@ class BoardEditor extends PureComponent {
     );
   }
   
-  renderBoardControls = () => {
-    const { timelineInfo, runTimeline } = this.props;
-    if (!timelineInfo) {
-      return null;
-    }
-    
-    const { playing, position } = timelineInfo;
-    
-    return (
-      <ButtonGroup>
-        <Button
-          disabled={runTimeline === null}
-          bsSize="xsmall"
-          onClick={this.onTimelineRewindClick}
-        >
-          <Glyphicon
-            glyph="step-backward"
-          />
-        </Button>
-        { !playing ? (
-          <Button
-            disabled={runTimeline === null}
-            bsSize="xsmall"
-            onClick={this.onTimelinePlayClick}
-          >
-            <Glyphicon
-              glyph="play"
-            />
-          </Button>
-        ) : (
-          <Button
-            disabled={runTimeline === null}
-            bsSize="xsmall"
-            onClick={this.onTimelinePauseClick}
-          >
-            <Glyphicon
-              glyph="pause"
-            />
-          </Button>
-        )}
-      </ButtonGroup>
-    );
-  }
-
   renderAddItems = () => {
     const { boardData } = this.props;
     const { items, layers } = boardData;
@@ -536,18 +381,141 @@ class BoardEditor extends PureComponent {
     );
   }
 
-  renderBoardDisplay = (workingBoardData) => {
-    const { boardInfo } = this.props;
+  renderZoomControls = () => {
+    const levels = [1, 1.5, 3, 6, 8, 10];
+    const { boardData } = this.props;
+    const { zoom, zoomVert } = boardData;
     
     return (
-      <Provider
-        value={this.editorCallbacks}
+      <ButtonGroup>
+        <DropdownButton
+          id="board-zoom-menu"
+          title={(
+            <Fragment>
+              <Glyphicon
+                glyph="search"
+                />
+              <Glyphicon
+                glyph="resize-horizontal"
+                />
+            </Fragment>
+          )}
+          bsSize="xsmall"
+          onClick={stopEvent}
+          >
+          { levels.map((level) => (
+            <MenuItem
+              key={`zoom-level-${level}`}
+              onSelect={() => this.onZoomLevelClick(level)}
+              active={level == zoom}
+              >
+              { percentString(level, true) }
+            </MenuItem>
+          )) }
+        </DropdownButton>
+        <DropdownButton
+          id="board-zoom-vert-menu"
+          title={(
+            <Fragment>
+              <Glyphicon
+                glyph="search"
+                />
+              <Glyphicon
+                glyph="resize-vertical"
+                />
+            </Fragment>
+          )}
+          bsSize="xsmall"
+          onClick={stopEvent}
+          >
+          { levels.map((level) => (
+            <MenuItem
+              key={`zoom-vert-level-${level}`}
+              onSelect={() => this.onZoomVertLevelClick(level)}
+              active={level == zoomVert}
+              >
+              { percentString(level, true) }
+            </MenuItem>
+          )) }
+        </DropdownButton>
+      </ButtonGroup>
+    );
+  }
+
+  renderItemComponent = (item, index, items) => {
+    let ComponentClass = null;
+    if ('script' in item) {
+      ComponentClass = BoardBlock;
+    }
+    
+    if (ComponentClass === null) {
+      return null;
+    }
+    
+    const itemsCount = Math.max(4, items.length);
+    const widthPercent = (1 / itemsCount) * 0.95;
+    const leftPercent = ((index * widthPercent) * 1.05);
+    
+    return (
+      <ComponentClass
+        key={`item-${index}`}
+        data={item}
+        style={{
+          left: percentString(leftPercent),
+          width: percentString(widthPercent),
+        }}
+        active={this.itemIsActive(item.id)}
+        boardDeleteItem={this.doDeleteItem}
+        boardEditItem={this.doEditItem}
+        boardCopyItem={this.doCopyItem}
+        boardPasteItem={this.doPasteItem}
+        boardItemMouseDown={this.doItemMouseDown}
+        boardItemMouseUp={this.doItemMouseUp}
+        boardCanPasteItem={this.canPasteItem}
+      />
+    );
+  }
+
+  renderLayerContextMenu = (baseTemplate, layerId, e) => {
+    const template = [
+      {
+        type: 'separator',
+      },
+      {
+        label: 'Paste item here',
+        click: () => this.onPasteItemHereClick(layerId, e),
+        enabled: this.canPasteItem('*'),
+      },
+      {
+        label: 'Add block...',
+        click: () => this.onAddBlockHereClick(layerId, e),
+      },
+    ];
+
+    return [
+      ...baseTemplate,
+      ...template,
+    ];
+  }
+
+  setLayerEditorRef = (ref) => {
+    this.layerEditor = ref;
+  }
+
+  renderBoardWrapper = (workingBoardData, workingBoardInfo) => {
+    return (
+      <div
+        className={styles.boardEditorContent}
       >
-        <BoardDisplay
-          {...workingBoardData}
-          boardInfo={boardInfo}
+        <BoardWrapper
+          layerEditorRef={this.setLayerEditorRef}
+          boardData={workingBoardData}
+          boardInfo={workingBoardInfo}
+          layerEditorRenderItemComponent={this.renderItemComponent}
+          layerEditorRenderLayerContextMenu={this.renderLayerContextMenu}
+          layerEditorOnChange={this.doSave}
         />
-      </Provider>
+      </div>
     );
   }
   
@@ -562,8 +530,8 @@ class BoardEditor extends PureComponent {
           initialValue={modalValue}
           show={modalType === 'block' && modalAction !== 'record'}
           title={modalAction === 'add' ? 'Add block' : 'Edit block'}
-          onCancel={this.onItemModalCancel}
-          onSuccess={this.onItemModalSuccess}
+          onCancel={this.itemModalCancel}
+          onSuccess={this.itemModalSuccess}
           scripts={scripts}
           layers={layers}
         />
@@ -572,7 +540,7 @@ class BoardEditor extends PureComponent {
   }
 
   render = () => {
-    const { boardData } = this.props;
+    const { boardData, boardInfo } = this.props;
     const { boardDataTemp } = this.state;
     const workingBoardData = boardDataTemp || boardData;
 
@@ -581,16 +549,16 @@ class BoardEditor extends PureComponent {
         title="Board editor"
         className={styles.fullHeight}
         headingContent={
-          workingBoardData && (
+          workingBoardData ? (
             <ButtonToolbar>
               { this.renderSave() }
-              { this.renderBoardControls() }
               { this.renderAddItems() }
+              { this.renderZoomControls() }
             </ButtonToolbar>
-          )
+          ) : null
         }
       >
-        { workingBoardData ? this.renderBoardDisplay(workingBoardData) : null }
+        { workingBoardData ? this.renderBoardWrapper(workingBoardData, boardInfo) : null }
         { workingBoardData ? this.renderItemModals() : null }
       </Panel>
     );
@@ -623,8 +591,6 @@ const mapDispatchToProps = (dispatch) => {
     doUpdateBoardInfo: (data) => dispatch(updateBoardInfo(data)),
     doUpdateBoardInfoUser: (data) => dispatch(updateBoardInfoUser(data)),
     doSaveBoard: (id, data) => dispatch(saveBoard(id, data)),
-    doRunBoard: (id) => dispatch(runBoard(id)),
-    doStopRunBoard: () => dispatch(stopBoard()),
   };
 };
 
