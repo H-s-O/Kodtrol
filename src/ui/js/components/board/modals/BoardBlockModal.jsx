@@ -18,7 +18,7 @@ export default function(props) {
         })),
         types: [
           { value: 'trigger_once', label: 'Trigger once' },
-          { value: 'trigger_mult', label: 'Trigger multiple' },
+          //{ value: 'trigger_mult', label: 'Trigger multiple' }, unsupported for now
           { value: 'toggle', label: 'Toggle' },
         ],
       }}
