@@ -520,7 +520,7 @@ class BoardEditor extends PureComponent {
     this.layerEditor = ref;
   }
 
-  renderBoardWrapper = (workingBoardData) => {
+  renderBoardWrapper = (workingBoardData, workingBoardInfo) => {
     return (
       <div
         className={styles.boardEditorContent}
@@ -528,6 +528,7 @@ class BoardEditor extends PureComponent {
         <BoardWrapper
           layerEditorRef={this.setLayerEditorRef}
           boardData={workingBoardData}
+          boardInfo={workingBoardInfo}
           layerEditorRenderItemComponent={this.renderItemComponent}
           layerEditorRenderLayerContextMenu={this.renderLayerContextMenu}
           layerEditorOnChange={this.doSave}
@@ -557,7 +558,7 @@ class BoardEditor extends PureComponent {
   }
 
   render = () => {
-    const { boardData } = this.props;
+    const { boardData, boardInfo } = this.props;
     const { boardDataTemp } = this.state;
     const workingBoardData = boardDataTemp || boardData;
 
@@ -575,7 +576,7 @@ class BoardEditor extends PureComponent {
           ) : null
         }
       >
-        { workingBoardData ? this.renderBoardWrapper(workingBoardData) : null }
+        { workingBoardData ? this.renderBoardWrapper(workingBoardData, boardInfo) : null }
         { workingBoardData ? this.renderItemModals() : null }
       </Panel>
     );

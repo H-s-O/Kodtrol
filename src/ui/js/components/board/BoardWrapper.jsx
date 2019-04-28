@@ -9,6 +9,7 @@ class BoardWrapper extends PureComponent {
   render = () => {
     const { 
       boardData,
+      boardInfo,
       layerEditorOnChange,
       layerEditorRef,
       layerEditorRenderItemComponent,
@@ -31,6 +32,7 @@ class BoardWrapper extends PureComponent {
           renderLayerContextMenu={layerEditorRenderLayerContextMenu}
           renderItemComponent={layerEditorRenderItemComponent}
           onChange={layerEditorOnChange}
+          boardInfo={boardInfo} // not actually used, but triggers a re-render of the board when boardInfo changes
         />
       </div>
     );
