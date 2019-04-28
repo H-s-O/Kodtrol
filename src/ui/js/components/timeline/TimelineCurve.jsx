@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { PureComponent } from 'react';
 import classNames from 'classnames'
 import Color from 'color';
 import uniqid from 'uniqid';
@@ -7,7 +7,6 @@ import percentString from '../../lib/percentString';
 import stopEvent from '../../lib/stopEvent';
 import parseCurve from '../../../../common/js/lib/parseCurve';
 import TimelineItem from './TimelineItem';
-import timelineConnect from './timelineConnect';
 
 import styles from '../../../styles/components/timeline/timelinecurve.scss';
 
@@ -174,4 +173,4 @@ class TimelineCurve extends PureComponent {
   }
 }
 
-export default timelineConnect(TimelineCurve);
+export default TimelineCurve;

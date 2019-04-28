@@ -10,18 +10,19 @@ import isFunction from '../../lib/isFunction';
 import styles from '../../../styles/components/board/boarditem.scss';
 
 const propTypes = {
-  data: PropTypes.shape({}),
+  data: PropTypes.shape({}).isRequired,
+  boardDeleteItem: PropTypes.func.isRequired,
+  boardEditItem: PropTypes.func.isRequired,
+  boardCopyItem: PropTypes.func.isRequired,
+  boardPasteItem: PropTypes.func.isRequired,
+  boardItemMouseDown: PropTypes.func.isRequired,
+  boardItemMouseUp: PropTypes.func.isRequired,
+  //
+  getItemLabel: PropTypes.func,
+  getDialogLabel: PropTypes.func,
   type: PropTypes.oneOf(['block']),
   typeLabel: PropTypes.string,
   active: PropTypes.bool,
-  getItemLabel: PropTypes.func,
-  getDialogLabel: PropTypes.func,
-  boardDeleteItem: PropTypes.func,
-  boardEditItem: PropTypes.func,
-  boardCopyItem: PropTypes.func,
-  boardPasteItem: PropTypes.func,
-  boardItemMouseDown: PropTypes.func,
-  boardItemMouseUp: PropTypes.func,
 };
 
 const defaultProps = {

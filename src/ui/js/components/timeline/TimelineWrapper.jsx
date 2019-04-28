@@ -1,13 +1,32 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 
 import percentString from '../../lib/percentString';
 import LayerEditor from '../partials/layer_editor/LayerEditor';
 
 import styles from '../../../styles/components/timeline/timelinewrapper.scss';
 
+const propTypes = {
+  timelineUpdatePosition: PropTypes.func,
+};
+
 class TimelineWrapper extends PureComponent {
   timelineContainer = null;
   timelineCursorTracker = null;
+
+  ///////////////////////////////////////////////////////////////
+  // EVENT HANDLERS
+
+  onContainerDoubleClick = (e) => {
+    this.doUpdateTimelinePosition(e);
+  }
+  
+  onContainerMouseMove = (e) => {
+    this.doUpdateTimelineCursor(e);
+  }
+
+  //////////////////////////////////////////////////////////////
+  // ACTIONS
   
   getTimelineScreenXFromEvent = (e) => {
     const { clientX } = e;
@@ -19,9 +38,6 @@ class TimelineWrapper extends PureComponent {
   }
   
   getTimelinePercentFromEvent = (e) => {
-    const { timelineData } = this.props;
-    const { zoom } = timelineData;
-    
     const { clientX } = e;
     const { left } = this.timelineContainer.getBoundingClientRect();
     const { scrollLeft, scrollWidth } = this.timelineContainer;
@@ -29,20 +45,20 @@ class TimelineWrapper extends PureComponent {
     const percent = (clientX - left + scrollLeft) / scrollWidth;
     return percent;
   }
-  
-  onContainerDoubleClick = (e) => {
+
+  doUpdateTimelinePosition = (e) => {
     const { timelineUpdatePosition } = this.props;
     timelineUpdatePosition(e);
   }
-  
-  onContainerMouseMove = (e) => {
+
+  doUpdateTimelineCursor = (e) => {
     const { timelineData } = this.props;
     if (timelineData) {
       const cursorPos = this.getTimelineScreenXFromEvent(e);
       this.timelineCursorTracker.style = `left:${cursorPos}px`;
     }
   }
-
+  
   ////////////////////////////////////////////////////////////////
   // RENDERS
 
@@ -121,5 +137,7 @@ class TimelineWrapper extends PureComponent {
     );
   }
 }
+
+TimelineWrapper.propTypes = propTypes;
 
 export default TimelineWrapper;

@@ -10,7 +10,7 @@ import stopEvent from '../../lib/stopEvent';
 import percentString from '../../lib/percentString';
 import BoardBlockModal from './modals/BoardBlockModal';
 import BoardBlock from './BoardBlock';
-import { saveBoard, runBoard, stopBoard } from '../../../../common/js/store/actions/boards';
+import { saveBoard } from '../../../../common/js/store/actions/boards';
 import { updateBoardInfo, updateBoardInfoUser } from '../../../../common/js/store/actions/boardInfo';
 import BoardWrapper from './BoardWrapper';
 
@@ -23,8 +23,6 @@ const propTypes = {
   doUpdateBoardInfo: PropTypes.func.isRequired,
   doUpdateBoardInfoUser: PropTypes.func.isRequired,
   doSaveBoard: PropTypes.func.isRequired,
-  doRunBoard: PropTypes.func.isRequired,
-  doStopRunBoard: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -198,12 +196,7 @@ class BoardEditor extends PureComponent {
     // Save timeline
     this.doSave(newBoardData);
 
-    // Hide modal
-    this.setState({
-      modalType: null,
-      modalAction: null,
-      modalValue: null,
-    });
+    this.itemModalCancel();
   }
   
   itemModalCancel = () => {
@@ -227,6 +220,7 @@ class BoardEditor extends PureComponent {
     return false;
   }
 
+  // @TODO clean
   doPasteItem = (itemId, mode, e = null) => {
     const { copyItemData } = this.state;
     
@@ -500,7 +494,7 @@ class BoardEditor extends PureComponent {
     );
   }
 
-  renderLayerContextMenu = (currentTemplate, layerId, e) => {
+  renderLayerContextMenu = (baseTemplate, layerId, e) => {
     const template = [
       {
         type: 'separator',
@@ -517,7 +511,7 @@ class BoardEditor extends PureComponent {
     ];
 
     return [
-      ...currentTemplate,
+      ...baseTemplate,
       ...template,
     ];
   }
@@ -533,10 +527,10 @@ class BoardEditor extends PureComponent {
       >
         <BoardWrapper
           layerEditorRef={this.setLayerEditorRef}
+          boardData={workingBoardData}
           layerEditorRenderItemComponent={this.renderItemComponent}
           layerEditorRenderLayerContextMenu={this.renderLayerContextMenu}
           layerEditorOnChange={this.doSave}
-          boardData={workingBoardData}
         />
       </div>
     );
@@ -614,8 +608,6 @@ const mapDispatchToProps = (dispatch) => {
     doUpdateBoardInfo: (data) => dispatch(updateBoardInfo(data)),
     doUpdateBoardInfoUser: (data) => dispatch(updateBoardInfoUser(data)),
     doSaveBoard: (id, data) => dispatch(saveBoard(id, data)),
-    doRunBoard: (id) => dispatch(runBoard(id)),
-    doStopRunBoard: () => dispatch(stopBoard()),
   };
 };
 

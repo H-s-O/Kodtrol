@@ -5,25 +5,26 @@ import classNames from 'classnames'
 import { remote } from 'electron';
 
 import { deleteWarning } from '../../lib/messageBoxes';
-import percentString from '../../lib/percentString';
-import timelineConnect from './timelineConnect';
+import isFunction from '../../lib/isFunction';
 
 import styles from '../../../styles/components/timeline/timelineitem.scss';
 
 const propTypes = {
+  data: PropTypes.shape({}).isRequired,
+  timelineDeleteItem: PropTypes.func.isRequired,
+  timelineEditItem: PropTypes.func.isRequired,
+  timelineCopyItem: PropTypes.func.isRequired,
+  timelinePasteItem: PropTypes.func.isRequired,
+  timelineAdjustItem: PropTypes.func.isRequired,
+  //
+  getItemLabel: PropTypes.func,
+  getDialogLabel: PropTypes.func,
   type: PropTypes.oneOf(['block', 'simple']),
-  index: PropTypes.number,
   typeLabel: PropTypes.string,
-  data: PropTypes.shape({}),
-  layerDuration: PropTypes.number,
-  renderItem: PropTypes.func,
   canCopyStartTime: PropTypes.bool,
   canCopyEndTime: PropTypes.bool,
   canPasteStartTime: PropTypes.bool,
   canPasteEndTime: PropTypes.bool,
-  getItemLabel: PropTypes.func,
-  getDialogLabel: PropTypes.func,
-  renderContent: PropTypes.func,
 };
 
 const defaultProps = {
@@ -36,41 +37,79 @@ const defaultProps = {
 };
 
 class TimelineItem extends PureComponent {
+  ////////////////////////////////////////////////////////////////
+  // EVENT HANDLERS
+
   onDeleteItemClick = () => {
-    const { getDialogLabel, data } = this.props;
+    const { getDialogLabel, data, typeLabel } = this.props;
     const { name } = data;
-    const label = getDialogLabel ? getDialogLabel() : name;
-    deleteWarning(`Are you sure you want to delete "${label}" ?`, (result) => {
+    const label = isFunction(getDialogLabel) ? getDialogLabel() : name;
+    
+    deleteWarning(`Are you sure you want to delete the ${typeLabel} "${label}"?`, (result) => {
       if (result) {
         this.doDeleteItem();
       }
     });
   }
   
+  onEditItemClick = () => {
+    this.doEditItem();
+  }
+
+  onStartAnchorDown = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    this.doDragAnchorDown('inTime');
+  }
+
+  onEndAnchorDown = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    this.doDragAnchorDown('outTime');
+  }
+
+  onCopyItemClick = () => {
+    this.doCopyItem('*');
+  }
+  
+  onCopyItemStartClick = () => {
+    this.doCopyItem('inTime');
+  }
+
+  onCopyItemEndClick = () => {
+    this.doCopyItem('outTime');
+  }
+
+  onPasteItemStartClick = () => {
+    this.doPasteItem('inTime');
+  }
+
+  onPasteItemEndClick = () => {
+    this.doPasteItem('outTime');
+  }
+
+  onContextMenuClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    this.doContextMenu();
+  }
+
+  /////////////////////////////////////////////////////////
+  // ACTIONS
+
   doDeleteItem = () => {
     const { timelineDeleteItem, data } = this.props;
     const { id } = data;
     timelineDeleteItem(id);
   }
-  
-  onEditItemClick = () => {
+
+  doEditItem = () => {
     const { timelineEditItem, data } = this.props;
     const { id } = data;
     timelineEditItem(id);
-  }
-
-  onStartAnchorDown = (e) => {
-    console.log('anchor start down');
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('inTime');
-  }
-
-  onEndAnchorDown = (e) => {
-    console.log('anchor end down');
-    e.stopPropagation();
-    e.preventDefault();
-    this.doDragAnchorDown('outTime');
   }
 
   doDragAnchorDown = (mode) => {
@@ -79,40 +118,19 @@ class TimelineItem extends PureComponent {
     timelineAdjustItem(id, mode);
   }
 
-  onCopyItemClick = () => {
-    this.doCopyItemClick('*');
-  }
-  
-  onCopyItemStartClick = () => {
-    this.doCopyItemClick('inTime');
-  }
-
-  onCopyItemEndClick = () => {
-    this.doCopyItemClick('outTime');
-  }
-
-  doCopyItemClick = (mode) => {
+  doCopyItem = (mode) => {
     const { timelineCopyItem, data } = this.props;
     const { id } = data;
     timelineCopyItem(id, mode);
   }
 
-  onPasteItemStartClick = () => {
-    this.doPasteItemClick('inTime');
-  }
-
-  onPasteItemEndClick = () => {
-    this.doPasteItemClick('outTime');
-  }
-
-  doPasteItemClick = (mode) => {
+  doPasteItem = (mode) => {
     const { timelinePasteItem, data } = this.props;
     const { id } = data;
     timelinePasteItem(id, mode);
   }
 
   onContextMenuClick = (e) => {
-    console.log('on context menu click capture');
     e.stopPropagation();
     e.preventDefault();
 
@@ -124,59 +142,65 @@ class TimelineItem extends PureComponent {
       canPasteEndTime,
       timelineCanPasteItem,
     } = this.props;
-    const { Menu, MenuItem } = remote;
+    const { Menu } = remote;
 
-    const menu = new Menu();
-    menu.append(new MenuItem({
-      label: `Edit ${typeLabel}...`,
-      click: this.onEditItemClick,
-    }));
-    menu.append(new MenuItem({
-      label: `Delete ${typeLabel}...`,
-      click: this.onDeleteItemClick,
-    }));
-    menu.append(new MenuItem({
-      type: 'separator',
-    }));
-    menu.append(new MenuItem({
-      label: `Copy ${typeLabel}`,
-      click: this.onCopyItemClick,
-    }));
+    const template = [
+      {
+        label: `Edit ${typeLabel}...`,
+        click: this.onEditItemClick,
+      },
+      {
+        label: `Delete ${typeLabel}...`,
+        click: this.onDeleteItemClick,
+      },
+      {
+        type: 'separator',
+      },
+      {
+        label: `Copy ${typeLabel}`,
+        click: this.onCopyItemClick,
+      },
+    ];
     if (canCopyStartTime) {
-      menu.append(new MenuItem({
+      template.push({
         label: `Copy ${typeLabel} start time`,
         click: this.onCopyItemStartClick,
-      }));
+      });
     }
     if (canCopyEndTime) {
-      menu.append(new MenuItem({
+      template.push({
         label: `Copy ${typeLabel} end time`,
         click: this.onCopyItemEndClick,
-      }));
+      });
     }
     if (canPasteStartTime) {
-      menu.append(new MenuItem({
+      template.push({
         label: `Paste time as ${typeLabel} start time`,
         click: this.onPasteItemStartClick,
         enabled: timelineCanPasteItem('inTime'),
-      }));
+      });
     }
     if (canPasteEndTime) {
-      menu.append(new MenuItem({
+      template.push({
         label: `Paste time as ${typeLabel} end time`,
         click: this.onPasteItemEndClick,
         enabled: timelineCanPasteItem('outTime'),
-      }));
+      });
     }
 
+    const menu = Menu.buildFromTemplate(template);
     menu.popup({
       window: remote.getCurrentWindow(),
     });
   }
+
+  /////////////////////////////////////////////////////////
+  // RENDERS
   
   renderSimpleType = () => {
-    const { style, data, layerDuration, getItemLabel, renderContent, children } = this.props;
-    const { inTime, outTime, color, name } = data;
+    const { style, data, getItemLabel } = this.props;
+    const { color, name } = data;
+
     const lightColor = Color(color).isLight();
     
     return (
@@ -200,15 +224,16 @@ class TimelineItem extends PureComponent {
             backgroundColor: color,
           }}
         >
-          { getItemLabel ? getItemLabel() : name }
+          { isFunction(getItemLabel) ? getItemLabel() : name }
         </div>
       </div>
     );
   }
   
   renderBlockType = () => {
-    const { style, data, layerDuration, getItemLabel, renderContent, children } = this.props;
-    const { inTime, outTime, color, name } = data;
+    const { style, data, getItemLabel, children } = this.props;
+    const { color, name } = data;
+    
     const lightColor = Color(color).isLight();
     
     return (
@@ -246,7 +271,7 @@ class TimelineItem extends PureComponent {
               [styles.itemLabel]: true,
             })}
           >
-           { getItemLabel ? getItemLabel() : name }
+           { isFunction(getItemLabel) ? getItemLabel() : name }
          </div>
           <div
             className={classNames({
@@ -284,4 +309,4 @@ class TimelineItem extends PureComponent {
 TimelineItem.propTypes = propTypes;
 TimelineItem.defaultProps = defaultProps;
 
-export default timelineConnect(TimelineItem);
+export default TimelineItem;

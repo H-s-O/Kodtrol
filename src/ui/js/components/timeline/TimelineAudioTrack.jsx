@@ -68,6 +68,7 @@ class TimelineAudioTrack extends PureComponent {
     
     const { data } = this.props;
     const { color } = data;
+    
     const lightColor = Color(color).isLight();
     
     return (
