@@ -79,9 +79,9 @@ class TimelineWrapper extends PureComponent {
   renderTimelineTracker = () => {
     const { timelineInfo, timelineData } = this.props;
     const { position } = timelineInfo;
-    const { duration, zoom } = timelineData;
+    const { duration } = timelineData;
     
-    const left = percentString((position / duration) * zoom);
+    const left = percentString(position / duration);
     
     return (
       <div
