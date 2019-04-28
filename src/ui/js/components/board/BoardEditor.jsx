@@ -221,51 +221,33 @@ class BoardEditor extends PureComponent {
   }
 
   // @TODO clean
-  doPasteItem = (itemId, mode, e = null) => {
+  doPasteItem = (layerOrItemId, mode, e = null) => {
     const { copyItemData } = this.state;
     
     if (copyItemData !== null) {
       const { boardData } = this.props;
-      const { items, duration } = boardData;
+      const { items } = boardData;
       
       let newItem;
       let newItems;
       if (mode === '*') {
-        const { inTime, outTime } = copyItemData;
-        let newInTime = this.getTimelinePositionFromEvent(e);
-        if (newInTime < 0) {
-          newInTime = 0;
-        } else if (newInTime > duration) {
-          newInTime = duration;
-        }
         newItem = {
           ...copyItemData,
           id: uniqid(), // override with new id
-          layer: itemId,
-          inTime: newInTime,
-        }
-        if ('outTime' in copyItemData) {
-          const diffTime = outTime - inTime;
-          let newOutTime = newInTime + diffTime;
-          if (newOutTime < 0) {
-            newOutTime = 0;
-          } else if (newOutTime > duration) {
-            newOutTime = duration;
-          }
-          newItem.outTime = newOutTime;
+          layer: layerOrItemId,
         }
         newItems = [
           ...items,
           newItem,
         ];
       } else {
-        const item = this.getItem(itemId);
+        const item = this.getItem(layerOrItemId);
         newItem = {
           ...item,
           [mode]: copyItemData,
         };
         newItems = items.map((item) => {
-          if (item.id === itemId) {
+          if (item.id === layerOrItemId) {
             return newItem;
           }
           return item;
