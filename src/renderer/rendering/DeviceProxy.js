@@ -47,8 +47,8 @@ export default class DeviceProxy extends AbstractProxy {
     return this.setVar(name, func(this.getVar(name)));
   }
   
-  setChannelFromVar = (channel, varName) => {
-    return this.setChannel(channel, this.getVar(varName));
+  setChannelFromVar = (channel, varName = null) => {
+    return this.setChannel(channel, this.getVar(varName !== null ? varName : channel));
   }
   
   destroy = () => {
