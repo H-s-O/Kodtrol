@@ -28,14 +28,18 @@ export default class Renderer extends EventEmitter {
   
   onMessage = (message) => {
     if (message) {
-      if ('timelineInfo' in message) {
-        this.emit(RendererEvent.TIMELINE_INFO_UPDATE, message.timelineInfo);
-      }
-      if ('boardInfo' in message) {
-        this.emit(RendererEvent.BOARD_INFO_UPDATE, message.boardInfo);
-      }
-      if ('ioStatus' in message) {
-        this.emit(RendererEvent.IO_STATUS_UPDATE, message.ioStatus);
+      if (message === 'ready') {
+        this.emit(RendererEvent.READY);
+      } else {
+        if ('timelineInfo' in message) {
+          this.emit(RendererEvent.TIMELINE_INFO_UPDATE, message.timelineInfo);
+        }
+        if ('boardInfo' in message) {
+          this.emit(RendererEvent.BOARD_INFO_UPDATE, message.boardInfo);
+        }
+        if ('ioStatus' in message) {
+          this.emit(RendererEvent.IO_STATUS_UPDATE, message.ioStatus);
+        }
       }
     }
   }

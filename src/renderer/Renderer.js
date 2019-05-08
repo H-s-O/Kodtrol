@@ -41,6 +41,8 @@ export default class Renderer {
     
     process.on('exit', this.onExit);
     process.on('message', this.onMessage);
+
+    this.send('ready');
   }
   
   onExit = () => {

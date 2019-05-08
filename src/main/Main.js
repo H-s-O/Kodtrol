@@ -76,8 +76,6 @@ export default class Main {
       writeAppConfig(appConfig);
     }
     
-    this.createRenderer();
-    
     if (init) {
       this.createStore();
     } else {
@@ -85,6 +83,7 @@ export default class Main {
       this.createStore(data);
     }
     
+    this.createRenderer();
     this.createMainWindow();
   }
   
@@ -102,15 +101,6 @@ export default class Main {
     this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
     this.store.on(StoreEvent.BOARD_INFO_USER_CHANGED, this.onBoardInfoUserChanged);
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
-    
-    // Force an initial update
-    // @TODO somehow trigger directly in the store ?
-    this.onOutputsChanged();
-    this.onInputsChanged();
-    this.onDevicesChanged();
-    this.onScriptsChanged();
-    this.onTimelinesChanged();
-    this.onBoardsChanged();
   }
   
   destroyStore = () => {
@@ -278,6 +268,7 @@ export default class Main {
   
   createRenderer = () => {
     this.renderer = new Renderer();
+    this.renderer.on(RendererEvent.READY, this.onRendererReady);
     this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
     this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
     this.renderer.on(RendererEvent.IO_STATUS_UPDATE, this.onRendererIOStatusUpdate);
@@ -289,6 +280,16 @@ export default class Main {
       this.renderer.destroy();
       this.renderer = null;
     }
+  }
+
+  onRendererReady = () => {
+    // Force an initial data update to the renderer
+    this.onOutputsChanged();
+    this.onInputsChanged();
+    this.onDevicesChanged();
+    this.onScriptsChanged();
+    this.onTimelinesChanged();
+    this.onBoardsChanged();
   }
   
   onRendererTimelineInfoUpdate = (info) => {
