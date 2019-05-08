@@ -50,6 +50,9 @@ export const readAppConfig = (path) => {
     }
     return config;
   } catch (err) {
+    if (typeof path !== 'undefined') {
+      return null;
+    }
     return {};
   }
 }
