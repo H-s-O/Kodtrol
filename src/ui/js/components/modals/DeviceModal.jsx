@@ -7,6 +7,7 @@ export default function(props) {
   return (
     <BaseModal
       {...otherProps}
+      dialogClassName="device-modal"
       relatedData={{
         outputs: outputs.map(({id, name}) => ({
           value: id,

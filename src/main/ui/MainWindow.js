@@ -71,19 +71,27 @@ export default class MainWindow extends EventEmitter {
     this.emit(MainWindowEvent.CLOSED);
   }
 
-  capture = async (id, callback) => {
+  capture = async (selector, callback) => {
     if (this.contents) {
       const js = `
         (function() {
-          let b = document.querySelector('*[data-screenshot-id="${id}"]').getBoundingClientRect();
-          return {
-            x: b.x,
-            y: b.y,
-            width: b.width,
-            height: b.height
-          };
+          try {
+            let b = document.querySelector('${selector}').getBoundingClientRect();
+            return {
+              x: b.x,
+              y: b.y,
+              width: b.width,
+              height: b.height
+            };
+          } catch (e) {
+            return e.message;
+          }
         })()`;
       const bounds = await this.contents.executeJavaScript(js);
+      if (typeof bounds === 'string') {
+        callback(bounds);
+        return;
+      }
       // We need to rounds values, otherwise get a runtime error:
       // "Error processing argument at index 0, conversion failure from #<Object>"
       const roundedBounds = {
@@ -92,7 +100,9 @@ export default class MainWindow extends EventEmitter {
         width: Math.round(bounds.width),
         height: Math.round(bounds.height),
       };
-      this.contents.capturePage(roundedBounds, callback)
+      this.contents.capturePage(roundedBounds, (image) => {
+        callback(null, image);
+      })
     }
   }
   

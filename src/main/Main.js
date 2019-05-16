@@ -261,7 +261,7 @@ export default class Main {
     // Check if we are in the "generate screenshots" mode
     const screenshots = screenshotsFile();
     if (screenshots !== null) {
-      const data = readJson(screenshots);
+      const { default: data } = require(screenshots);
       this.generateScreenshots(data);
     }
   }
@@ -416,16 +416,38 @@ export default class Main {
     const dir = './dev/screenshots/';
     ensureDir(dir);
 
-    data.forEach(async ({id, file}) => {
-      await new Promise((resolve, reject) => {
-        this.mainWindow.capture(id,  (image) => {
-          const pngData = image.toPNG();
-          const filePath = join(dir, file);
-          writeFile(filePath, pngData);
-          console.info(`Generated screenshot for ${id} to file ${filePath}`);
-          resolve();
+    data.forEach(async ({selector, file, dispatchIn, dispatchOut}) => {
+      try {
+        if (dispatchIn) {
+          await new Promise((resolve, reject) => {
+            this.store.dispatch(dispatchIn);
+            setTimeout(resolve, 1500);
+          });
+        }
+
+        await new Promise((resolve, reject) => {
+          this.mainWindow.capture(selector,  (err, image) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            const pngData = image.toPNG();
+            const filePath = join(dir, file);
+            writeFile(filePath, pngData);
+            console.info(`Generated screenshot for ${selector} to file ${filePath}`);
+            resolve();
+          });
         });
-      });
+
+        if (dispatchOut) {
+          await new Promise((resolve, reject) => {
+            this.store.dispatch(dispatchOut);
+            setTimeout(resolve, 1500);
+          });
+        }
+      } catch (e) {
+        console.error(`Error while generating screenshot for ${selector} : ${e}`);
+      }
     });
   }
 }
