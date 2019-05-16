@@ -14,13 +14,17 @@
     "timelines": [
         {
             "id": "A",
-            "name": "Demo timeline 1"
+            "name": "Demo timeline 1",
+            "items": [],
+            "layers": []
         }
     ],
     "boards": [
         {
             "id": "A",
-            "name": "Demo boards 1"
+            "name": "Demo boards 1",
+            "items": [],
+            "layers": []
         }
     ]
 }

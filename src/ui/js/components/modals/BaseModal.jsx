@@ -212,7 +212,7 @@ class BaseModal extends Component {
   } 
 
   render = () => {
-    const { show, title, fields, successLabel, cancelLabel, onCancel } = this.props;
+    const { show, title, fields, successLabel, cancelLabel, onCancel, dialogClassName } = this.props;
 
     return (
       <Modal
@@ -220,6 +220,7 @@ class BaseModal extends Component {
         onEnter={this.onEnter}
         onHide={onCancel}
         backdrop="static"
+        dialogClassName={dialogClassName}
         keyboard
       >
       <Modal.Header
