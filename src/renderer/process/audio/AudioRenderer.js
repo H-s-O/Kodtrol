@@ -13,12 +13,16 @@ export default class AudioRenderer {
     
     app.on('ready', this.onReady);
     app.on('window-all-closed', this.onWindowAllClosed);
-    // app.on('will-quit', this.onWillQuit);
     
-    process.on('exit', this.onExit);
+    process.on('SIGTERM', this.onSigTerm);
     
     process.stdin.setEncoding('utf8');
     process.stdin.on('data', this.onData);
+  }
+
+  onSigTerm = () => {
+    this.destroyAudioWindow();
+    process.exit();
   }
   
   onReady = () => {
@@ -57,9 +61,5 @@ export default class AudioRenderer {
     if (this.ready) {
       this.contents.send('data', chunk);
     }
-  }
-  
-  onExit = () => {
-    this.destroyAudioWindow();
   }
 }

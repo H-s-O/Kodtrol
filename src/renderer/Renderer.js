@@ -39,19 +39,24 @@ export default class Renderer {
       getMedia: this.getMedia,
     }
     
-    process.on('exit', this.onExit);
+    process.on('SIGTERM', this.onSigTerm);
     process.on('message', this.onMessage);
 
     this.send('ready');
   }
   
-  onExit = () => {
+  onSigTerm = () => {
     this.destroy();
+    process.exit();
   }
   
   destroy = () => {
-    Object.values(this.inputs).forEach((input) => input.destroy());
-    Object.values(this.outputs).forEach((output) => output.destroy());
+    if (this.inputs) {
+      Object.values(this.inputs).forEach((input) => input.destroy());
+    }
+    if (this.outputs) {
+      Object.values(this.outputs).forEach((output) => output.destroy());
+    }
     
     this.inputs = null;
     this.outputs = null;
