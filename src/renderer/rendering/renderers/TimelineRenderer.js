@@ -278,8 +278,8 @@ export default class TimelineRenderer {
     }
   }
 
-  beat = (beat, delta) => {
-    const currentTime = this._currentTime + delta;
+  beat = (delta) => {
+    const currentTime = this._currentTime;
     
     const timeItems = this.getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
@@ -294,7 +294,7 @@ export default class TimelineRenderer {
         currentTime >= block.inTime
         && currentTime <= block.outTime
       ) {
-        block.instance.beat(beat, currentTime);
+        block.instance.beat(delta);
       }
     }
   }

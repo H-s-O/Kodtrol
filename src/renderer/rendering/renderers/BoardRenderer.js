@@ -109,7 +109,7 @@ export default class BoardRenderer {
     // }
   }
 
-  beat = (beat, delta) => {
+  beat = (delta) => {
     const boardItems = this.getBoardActiveItems();
     if (boardItems === null) {
       return;
@@ -119,7 +119,7 @@ export default class BoardRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      block.instance.beat(beat);
+      block.instance.beat(delta);
     }
   }
   

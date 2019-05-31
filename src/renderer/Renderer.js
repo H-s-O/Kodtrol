@@ -400,6 +400,30 @@ export default class Renderer {
     
     this.outputAll();
   }
+
+  tickerBeat = (delta) => {
+    if (this.currentScript) {
+      this.currentScript.beat(delta);
+    }
+    if (this.currentTimeline) {
+      this.currentTimeline.beat(delta);
+    }
+    if (this.currentBoard) {
+      this.currentBoard.beat(delta);
+    }
+  }
+  
+  onInput = (type, data) => {
+    if (this.currentScript) {
+      this.currentScript.input(type, data);
+    }
+    if (this.currentTimeline) {
+      this.currentTimeline.input(type, data);
+    }
+    if (this.currentBoard) {
+      this.currentBoard.input(type, data);
+    }
+  }
   
   resetAll = () => {
     this.resetDevices();
@@ -418,29 +442,5 @@ export default class Renderer {
     Object.values(this.devices).forEach((device) => device.sendDataToOutput());
     Object.values(this.medias).forEach((media) => media.sendDataToOutput());
     Object.values(this.outputs).forEach((output) => output.flush());
-  }
-  
-  tickerBeat = (beat, delta) => {
-    if (this.currentScript) {
-      this.currentScript.beat(beat, delta);
-    }
-    if (this.currentTimeline) {
-      this.currentTimeline.beat(beat, delta);
-    }
-    if (this.currentBoard) {
-      this.currentBoard.beat(beat, delta);
-    }
-  }
-  
-  onInput = (type, data) => {
-    if (this.currentScript) {
-      this.currentScript.input(type, data);
-    }
-    if (this.currentTimeline) {
-      this.currentTimeline.input(type, data);
-    }
-    if (this.currentBoard) {
-      this.currentBoard.input(type, data);
-    }
   }
 }
