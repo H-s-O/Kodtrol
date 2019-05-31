@@ -169,7 +169,7 @@ export default class Renderer {
         ...arr,
         ...medias.map((media) => ({
           ...media,
-          output: audioOutput.id,
+          output: audioOutput ? audioOutput.id : null,
         })),
       ]
     }, []);
