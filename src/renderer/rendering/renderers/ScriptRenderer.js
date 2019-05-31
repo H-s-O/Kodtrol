@@ -40,6 +40,10 @@ export default class ScriptRenderer {
   get script() {
     return this._script;
   }
+
+  tick = (delta) => {
+    // @TODO
+  }
   
   render = (delta, blockInfo = {}, triggerData = {}, curveData = {}) => {
     const script = this._script;

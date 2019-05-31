@@ -86,6 +86,10 @@ export default class BoardRenderer {
   setActiveItems = (activeItems) => {
     this._activeItems = activeItems;
   }
+
+  tick = (delta) => {
+   // @TODO
+  }
   
   render = (delta) => {
     const boardItems = this.getBoardActiveItems();
