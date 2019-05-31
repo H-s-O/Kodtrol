@@ -27,7 +27,7 @@ export default class Renderer {
   ticker = null;
   playing = false;
   providers = null;
-  renderDelay = (1 / 40) * 1000;
+  renderDelay = (1 / 40) * 1000; // @TODO configurable?
   lastTime = 0;
   
   constructor() {
@@ -309,7 +309,7 @@ export default class Renderer {
     
     if (this.currentScript || this.currentTimeline || this.currentBoard) {
       if (!this.ticker) {
-        this.ticker = new Ticker(this.tick, this.tickerFrame, this.tickerBeat, tempo || 120);
+        this.ticker = new Ticker(this.tickHandler);
         if (start) {
           this.ticker.start();
         }
@@ -378,9 +378,15 @@ export default class Renderer {
     process.send(data);
   }
 
-  tick = (delta) => {
+  tickHandler = (delta) => {
+    if (this.currentScript) {
+      this.currentScript.tick(delta);
+    }
     if (this.currentTimeline) {
       this.currentTimeline.tick(delta);
+    }
+    if (this.currentBoard) {
+      this.currentBoard.tick(delta);
     }
     
     if (this.lastTime >= this.renderDelay || delta === 0) { // delta === 0 is initial tick
@@ -417,18 +423,6 @@ export default class Renderer {
     }
     
     this.outputAll();
-  }
-
-  tickerBeat = (delta) => {
-    // if (this.currentScript) {
-    //   this.currentScript.beat(delta);
-    // }
-    // if (this.currentTimeline) {
-    //   this.currentTimeline.beat(delta);
-    // }
-    // if (this.currentBoard) {
-    //   this.currentBoard.beat(delta);
-    // }
   }
   
   onInput = (type, data) => {

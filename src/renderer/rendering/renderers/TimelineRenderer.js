@@ -187,7 +187,14 @@ export default class TimelineRenderer {
   tick = (delta) => {
     this._currentTime += delta;
 
-    this.beat(delta);
+    const beatLength = ((1000 * 60) / this._timeline.tempo) / 24.0; 
+    const beatPos = Math.round(this._currentTime / beatLength);
+    // console.log(this._timeline.tempo, beatPos);
+    
+    if (beatPos !== this._currentBeatPos) {
+      this.beat(delta);
+      this._currentBeatPos = beatPos;
+    }
   }
   
   render = (delta) => {
@@ -292,17 +299,8 @@ export default class TimelineRenderer {
     if (timeItems === null) {
       return;
     }
-
-    const beatLength = ((1000 * 60) / this._timeline.tempo) / 24.0; 
-    const beatPos = Math.round(currentTime / beatLength);
-    // console.log(this._timeline.tempo, beatPos);
     
-    if (beatPos === this._currentBeatPos) {
-      // Do not trigger beat hook more than once
-      return;
-    }
-
-    this._currentBeatPos = beatPos;
+    const currentBeat = this._currentBeatPos;
 
     const blocks = timeItems[2];
     const blockCount = blocks.length;
@@ -312,7 +310,7 @@ export default class TimelineRenderer {
         currentTime >= block.inTime
         && currentTime <= block.outTime
       ) {
-        block.instance.beat(beatPos);
+        block.instance.beat(currentBeat);
       }
     }
   }

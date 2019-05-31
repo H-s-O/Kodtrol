@@ -112,11 +112,16 @@ export default class ScriptRenderer {
   }
 
   beat = (beatPos) => {
-    // this._localBeat += delta;
+    this._localBeat++;
+
     // Beat
     if (this._script.hasBeat) {
+      const beatObj = { 
+        localBeat: this._localBeat,
+        globalBeat: beatPos,
+      };
       try {
-        const data = this._script.scriptInstance.beat(this._devices, beatPos, this._scriptData);
+        const data = this._script.scriptInstance.beat(this._devices, beatObj, this._scriptData);
         if (data) {
           this._scriptData = data;
         }
