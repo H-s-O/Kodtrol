@@ -21,7 +21,6 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
-    "artnet": "^1.4.0",
     "audio-waveform-svg-path": "^1.0.2",
     "auto-bind-inheritance": "^1.0.6",
     "bootstrap": "^3.3.7",
