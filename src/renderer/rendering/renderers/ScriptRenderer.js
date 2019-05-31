@@ -113,7 +113,7 @@ export default class ScriptRenderer {
 
   beat = (delta) => {
     this._localBeat += delta;
-    
+    console.log(delta, this._localBeat);
     // Beat
     if (this._script.hasBeat) {
       const beatObject = {
