@@ -8,6 +8,7 @@ export default class TimelineRenderer {
   _providers = null;
   _timeline = null;
   _currentTime = 0;
+  _currentBeatPos = 0;
   _blocks = null;
   _triggers = null;
   _curves = null;
@@ -182,9 +183,15 @@ export default class TimelineRenderer {
     // Stop all medias
     Object.values(this._audios).forEach(({instance}) => instance.stop());
   }
+
+  tick = (delta) => {
+    this._currentTime += delta;
+
+    this.beat(delta);
+  }
   
   render = (delta) => {
-    this._currentTime += delta;
+    // this._currentTime += delta;
     
     const currentTime = this._currentTime;
     if (currentTime >= this._timeline.outTime) {
@@ -285,7 +292,18 @@ export default class TimelineRenderer {
     if (timeItems === null) {
       return;
     }
+
+    const beatLength = ((1000 * 60) / this._timeline.tempo) / 24.0; 
+    const beatPos = Math.round(currentTime / beatLength);
+    // console.log(this._timeline.tempo, beatPos);
     
+    if (beatPos === this._currentBeatPos) {
+      // Do not trigger beat hook more than once
+      return;
+    }
+
+    this._currentBeatPos = beatPos;
+
     const blocks = timeItems[2];
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
@@ -294,7 +312,7 @@ export default class TimelineRenderer {
         currentTime >= block.inTime
         && currentTime <= block.outTime
       ) {
-        block.instance.beat(delta);
+        block.instance.beat(beatPos);
       }
     }
   }

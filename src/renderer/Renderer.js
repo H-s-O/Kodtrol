@@ -27,6 +27,8 @@ export default class Renderer {
   ticker = null;
   playing = false;
   providers = null;
+  renderDelay = (1 / 40) * 1000;
+  lastTime = 0;
   
   constructor() {
     this.providers = {
@@ -302,10 +304,12 @@ export default class Renderer {
       this.ticker.destroy();
       this.ticker = null;
     }
+
+    this.lastTime = 0;
     
     if (this.currentScript || this.currentTimeline || this.currentBoard) {
       if (!this.ticker) {
-        this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo || 120);
+        this.ticker = new Ticker(this.tick, this.tickerFrame, this.tickerBeat, tempo || 120);
         if (start) {
           this.ticker.start();
         }
@@ -373,6 +377,20 @@ export default class Renderer {
   send = (data) => {
     process.send(data);
   }
+
+  tick = (delta) => {
+    if (this.currentTimeline) {
+      this.currentTimeline.tick(delta);
+    }
+    
+    if (this.lastTime >= this.renderDelay || delta === 0) { // delta === 0 is initial tick
+      const diff = this.lastTime - this.renderDelay;
+      this.tickerFrame(diff);
+      this.lastTime = 0;
+    }
+
+    this.lastTime += delta;
+  }
   
   tickerFrame = (delta) => {
     this.resetDevices();
@@ -402,15 +420,15 @@ export default class Renderer {
   }
 
   tickerBeat = (delta) => {
-    if (this.currentScript) {
-      this.currentScript.beat(delta);
-    }
-    if (this.currentTimeline) {
-      this.currentTimeline.beat(delta);
-    }
-    if (this.currentBoard) {
-      this.currentBoard.beat(delta);
-    }
+    // if (this.currentScript) {
+    //   this.currentScript.beat(delta);
+    // }
+    // if (this.currentTimeline) {
+    //   this.currentTimeline.beat(delta);
+    // }
+    // if (this.currentBoard) {
+    //   this.currentBoard.beat(delta);
+    // }
   }
   
   onInput = (type, data) => {
