@@ -1,44 +1,25 @@
 import React, { PureComponent } from 'react';
-import { set } from 'lodash';
-import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, Form, Col, Table, InputGroup } from 'react-bootstrap';
+import { Button, FormControl, InputGroup } from 'react-bootstrap';
 
 import { importAudioFile } from '../../../lib/messageBoxes';
 
 class FileField extends PureComponent {
-  state = {
-    value: null,
-  };
-  
-  constructor(props) {
-    super(props);
-    
-    const { defaultValue } = props;
-    if (defaultValue) {
-      this.state = {
-        value: defaultValue,
-      };
-    }
-  }
-  
   onSelectClick = () => {
     const files = importAudioFile();
     if (files && files.length) {
-      this.doChange(files[0]);
+      this.onFieldChange(files[0]);
     }
   }
   
-  doChange = (value) => {
-    this.setState({
-      value,
-    });
-    
+  onFieldChange = (value) => {
     const { onChange } = this.props;
     onChange(value);
   }
   
   render = () => {
-    const { value } = this.state;
-    
+    const { value, defaultValue } = this.props;
+    const finalValue = value || defaultValue ? value || defaultValue : '';
+console.log(value, defaultValue);
     return (
       <InputGroup>
         <InputGroup.Button>
@@ -52,7 +33,7 @@ class FileField extends PureComponent {
         <FormControl
           readOnly
           type="text"
-          value={value}
+          value={finalValue}
         />
       </InputGroup>
     );

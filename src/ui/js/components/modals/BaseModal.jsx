@@ -169,11 +169,9 @@ class BaseModal extends Component {
     
     if (type === 'file') {
       return (
-        <FormControl
-          type="file"
-          className="form-control"
-          onChange={this.onFieldChange}
-          placeholder={fieldInitialValue}
+        <FileField
+          onChange={(value) => this.onCustomFieldChange(field, value)}
+          defaultValue={fieldInitialValue}
         />
       );
     }
