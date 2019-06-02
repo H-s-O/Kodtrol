@@ -28,7 +28,7 @@ export default class Renderer {
   playing = false;
   providers = null;
   renderDelay = (1 / 40) * 1000; // @TODO configurable?
-  lastTime = 0;
+  frameTime = 0;
   
   constructor() {
     this.providers = {
@@ -305,7 +305,7 @@ export default class Renderer {
       this.ticker = null;
     }
 
-    this.lastTime = 0;
+    this.frameTime = 0;
     
     if (this.currentScript || this.currentTimeline || this.currentBoard) {
       if (!this.ticker) {
@@ -389,13 +389,13 @@ export default class Renderer {
       this.currentBoard.tick(delta);
     }
     
-    if (this.lastTime >= this.renderDelay || delta === 0) { // delta === 0 is initial tick
-      const diff = this.lastTime - this.renderDelay;
+    if (this.frameTime >= this.renderDelay || delta === 0) { // delta === 0 is initial tick
+      const diff = this.frameTime - this.renderDelay;
       this.tickerFrame(diff);
-      this.lastTime = 0;
+      this.frameTime = 0;
     }
 
-    this.lastTime += delta;
+    this.frameTime += delta;
   }
   
   tickerFrame = (delta) => {

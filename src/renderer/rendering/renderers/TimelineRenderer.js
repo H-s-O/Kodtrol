@@ -2,6 +2,7 @@ import ScriptRenderer from './ScriptRenderer';
 import TriggerRenderer from './TriggerRenderer';
 import CurveRenderer from './CurveRenderer';
 import AudioRenderer from './AudioRenderer';
+import timeToQuarter from '../../lib/timeToQuarter';
 
 export default class TimelineRenderer {
   _rendererType = 'timeline';
@@ -187,19 +188,15 @@ export default class TimelineRenderer {
   tick = (delta) => {
     this._currentTime += delta;
 
-    const beatLength = ((1000 * 60) / this._timeline.tempo) / 24.0; 
-    const beatPos = Math.round(this._currentTime / beatLength);
-    // console.log(this._timeline.tempo, beatPos);
+    const beatPos = timeToQuarter(this._currentTime, this._timeline.tempo);
     
     if (beatPos !== this._currentBeatPos) {
-      this.beat(delta);
+      this.beat(beatPos);
       this._currentBeatPos = beatPos;
     }
   }
   
   render = (delta) => {
-    // this._currentTime += delta;
-    
     const currentTime = this._currentTime;
     if (currentTime >= this._timeline.outTime) {
       this._currentTime = this.timeline.outTime;
@@ -292,15 +289,15 @@ export default class TimelineRenderer {
     }
   }
 
-  beat = (delta) => {
+  beat = (beatPos) => {
     const currentTime = this._currentTime;
     
     const timeItems = this.getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       return;
     }
-    
-    const currentBeat = this._currentBeatPos;
+
+    const timelineTempo = this._timeline.tempo; 
 
     const blocks = timeItems[2];
     const blockCount = blocks.length;
@@ -310,7 +307,7 @@ export default class TimelineRenderer {
         currentTime >= block.inTime
         && currentTime <= block.outTime
       ) {
-        block.instance.beat(currentBeat);
+        block.instance.beat(beatPos, currentTime - block.inTime, timelineTempo);
       }
     }
   }
