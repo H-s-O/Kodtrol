@@ -1,3 +1,5 @@
+import timeToQuarter from '../../lib/timeToQuarter';
+
 export default class ScriptRenderer {
   _rendererType = 'script';
   _providers = null;
@@ -6,7 +8,8 @@ export default class ScriptRenderer {
   _standalone = true;
   _setuped = false;
   _started = false;
-  _localBeat = 0;
+  _currentBeatPos = 0;
+  _currentTime = 0;
   _scriptData = {};
   
   constructor(providers, scriptId, standalone = true) {
@@ -30,7 +33,8 @@ export default class ScriptRenderer {
     this._scriptData = {};
     this._setuped = false;
     this._started = false;
-    this._localBeat = 0;
+    this._currentBeatPos = 0;
+    this._currentTime = 0;
   }
   
   get rendererType() {
@@ -39,6 +43,19 @@ export default class ScriptRenderer {
   
   get script() {
     return this._script;
+  }
+
+  tick = (delta) => {
+    if (this._standalone) {
+      this._currentTime += delta;
+      
+      const beatPos = timeToQuarter(this._currentTime, this._script.tempo);
+      
+      if (beatPos !== this._currentBeatPos) {
+        this.beat(beatPos);
+        this._currentBeatPos = beatPos;
+      }
+    }
   }
   
   render = (delta, blockInfo = {}, triggerData = {}, curveData = {}) => {
@@ -111,17 +128,21 @@ export default class ScriptRenderer {
     }
   }
 
-  beat = (beat, delta) => {
-    this._localBeat++;
-    
+  beat = (beatPos, parentTime = null, parentTempo = null) => {
     // Beat
     if (this._script.hasBeat) {
-      const beatObject = {
-        localBeat: this._localBeat,
-        globalBeat: beat,
+      let localBeat;
+      if (this._standalone) {
+        localBeat = beatPos;         
+      } else {
+        localBeat = timeToQuarter(parentTime, parentTempo);
+      }
+      const beatInfo = { 
+        localBeat,
+        globalBeat: beatPos,
       };
       try {
-        const data = this._script.scriptInstance.beat(this._devices, beatObject, this._scriptData);
+        const data = this._script.scriptInstance.beat(this._devices, beatInfo, this._scriptData);
         if (data) {
           this._scriptData = data;
         }

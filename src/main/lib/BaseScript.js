@@ -63,8 +63,11 @@ export default {
     } while (!predicate(value));
     return value;
   },
-  _isBeatDivision(beat, division) {
-    return (beat > 0 && beat % division === 0);
+  _isBeatDivision(beat, division, allowFirst = false) {
+    if (allowFirst) {
+      return (beat === 1 || beat % division === 0);
+    }
+    return (beat > 1 && beat % division === 0);
   },
   _step(value, step = 1) {
     return (Math.round(value / step) * step);

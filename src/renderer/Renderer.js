@@ -27,6 +27,8 @@ export default class Renderer {
   ticker = null;
   playing = false;
   providers = null;
+  renderDelay = (1 / 40) * 1000; // @TODO configurable?
+  frameTime = 0;
   
   constructor() {
     this.providers = {
@@ -302,10 +304,12 @@ export default class Renderer {
       this.ticker.destroy();
       this.ticker = null;
     }
+
+    this.frameTime = 0;
     
     if (this.currentScript || this.currentTimeline || this.currentBoard) {
       if (!this.ticker) {
-        this.ticker = new Ticker(this.tickerFrame, this.tickerBeat, tempo || 120);
+        this.ticker = new Ticker(this.tickHandler);
         if (start) {
           this.ticker.start();
         }
@@ -373,6 +377,26 @@ export default class Renderer {
   send = (data) => {
     process.send(data);
   }
+
+  tickHandler = (delta) => {
+    if (this.currentScript) {
+      this.currentScript.tick(delta);
+    }
+    if (this.currentTimeline) {
+      this.currentTimeline.tick(delta);
+    }
+    if (this.currentBoard) {
+      this.currentBoard.tick(delta);
+    }
+    
+    if (this.frameTime >= this.renderDelay || delta === 0) { // delta === 0 is initial tick
+      const diff = this.frameTime - this.renderDelay;
+      this.tickerFrame(diff);
+      this.frameTime = 0;
+    }
+
+    this.frameTime += delta;
+  }
   
   tickerFrame = (delta) => {
     this.resetDevices();
@@ -401,6 +425,18 @@ export default class Renderer {
     this.outputAll();
   }
   
+  onInput = (type, data) => {
+    if (this.currentScript) {
+      this.currentScript.input(type, data);
+    }
+    if (this.currentTimeline) {
+      this.currentTimeline.input(type, data);
+    }
+    if (this.currentBoard) {
+      this.currentBoard.input(type, data);
+    }
+  }
+  
   resetAll = () => {
     this.resetDevices();
     this.resetMedias();
@@ -418,29 +454,5 @@ export default class Renderer {
     Object.values(this.devices).forEach((device) => device.sendDataToOutput());
     Object.values(this.medias).forEach((media) => media.sendDataToOutput());
     Object.values(this.outputs).forEach((output) => output.flush());
-  }
-  
-  tickerBeat = (beat, delta) => {
-    if (this.currentScript) {
-      this.currentScript.beat(beat, delta);
-    }
-    if (this.currentTimeline) {
-      this.currentTimeline.beat(beat, delta);
-    }
-    if (this.currentBoard) {
-      this.currentBoard.beat(beat, delta);
-    }
-  }
-  
-  onInput = (type, data) => {
-    if (this.currentScript) {
-      this.currentScript.input(type, data);
-    }
-    if (this.currentTimeline) {
-      this.currentTimeline.input(type, data);
-    }
-    if (this.currentBoard) {
-      this.currentBoard.input(type, data);
-    }
   }
 }

@@ -1,5 +1,6 @@
 import ScriptRenderer from './ScriptRenderer';
 // import AudioRenderer from './AudioRenderer';
+import timeToQuarter from '../../lib/timeToQuarter';
 
 export default class BoardRenderer {
   _rendererType = 'board';
@@ -9,6 +10,8 @@ export default class BoardRenderer {
   _audios = null;
   _activeItems = {};
   _itemsMap = null;
+  _currentTime = 0;
+  _currentBeatPos = 0;
   
   constructor(providers, boardId) {
     this._providers = providers;
@@ -86,6 +89,17 @@ export default class BoardRenderer {
   setActiveItems = (activeItems) => {
     this._activeItems = activeItems;
   }
+
+  tick = (delta) => {
+    this._currentTime += delta;
+
+    const beatPos = timeToQuarter(this._currentTime, this._board.tempo);
+    
+    if (beatPos !== this._currentBeatPos) {
+      this.beat(beatPos);
+      this._currentBeatPos = beatPos;
+    }
+  }
   
   render = (delta) => {
     const boardItems = this.getBoardActiveItems();
@@ -109,17 +123,20 @@ export default class BoardRenderer {
     // }
   }
 
-  beat = (beat, delta) => {
+  beat = (beatPos) => {
     const boardItems = this.getBoardActiveItems();
     if (boardItems === null) {
       return;
     }
-    
+
+    const boardTempo = this._board.tempo;
+    const currentTime = this._currentTime;
+
     const blocks = boardItems[0];
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      block.instance.beat(beat);
+      block.instance.beat(beatPos, currentTime, boardTempo);
     }
   }
   
