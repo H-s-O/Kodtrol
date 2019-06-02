@@ -28,8 +28,8 @@ There is no executable build yet. Still an Electron noob. See "Local development
   quoted.~
 - Sluggish UI modals when running a timeline or board.
   - **Workaround:** pause the timeline / un-arm the board that is currently running.
-- Scripts `beat()` hooks are falling off-tempo when using a Art-Net output.
-  - **Workaround:** use a non-Art-Net output. (This issue will be promptly addressed.)
+- ~Scripts `beat()` hooks are falling off-tempo when using a Art-Net output.~
+  - ~**Workaround:** use a non-Art-Net output. (This issue will be promptly addressed.)~
 - ~Cannot un-arm a board.~
   - ~**Workaround:** quit and relaunch the app. (Will require a UI change on how arming/un-arming is handled.)~
 - ~Inputs/outputs crash after saving the configuration if they did not change.~
