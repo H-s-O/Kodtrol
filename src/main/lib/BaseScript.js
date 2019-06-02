@@ -63,7 +63,10 @@ export default {
     } while (!predicate(value));
     return value;
   },
-  _isBeatDivision(beat, division) {
+  _isBeatDivision(beat, division, allowFirst = false) {
+    if (allowFirst) {
+      return beat % division === 0;
+    }
     return (beat > 0 && beat % division === 0);
   },
   _step(value, step = 1) {
