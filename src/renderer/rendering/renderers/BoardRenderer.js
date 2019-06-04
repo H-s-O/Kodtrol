@@ -11,7 +11,7 @@ export default class BoardRenderer {
   _activeItems = {};
   _itemsMap = null;
   _currentTime = 0;
-  _currentBeatPos = 0;
+  _currentBeatPos = -1;
   
   constructor(providers, boardId) {
     this._providers = providers;
