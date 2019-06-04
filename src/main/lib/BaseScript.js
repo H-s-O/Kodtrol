@@ -65,7 +65,7 @@ export default {
   },
   _isBeatDivision(beat, division, allowFirst = false) {
     if (allowFirst) {
-      return (beat === 1 || beat % division === 0);
+      return (beat <= 1 || beat % division === 0);
     }
     return (beat > 1 && beat % division === 0);
   },

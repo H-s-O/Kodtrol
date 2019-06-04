@@ -8,7 +8,7 @@ export default class ScriptRenderer {
   _standalone = true;
   _setuped = false;
   _started = false;
-  _currentBeatPos = 0;
+  _currentBeatPos = -1;
   _currentTime = 0;
   _scriptData = {};
   
@@ -33,7 +33,7 @@ export default class ScriptRenderer {
     this._scriptData = {};
     this._setuped = false;
     this._started = false;
-    this._currentBeatPos = 0;
+    this._currentBeatPos = -1;
     this._currentTime = 0;
   }
   

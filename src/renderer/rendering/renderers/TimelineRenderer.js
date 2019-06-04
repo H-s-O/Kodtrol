@@ -9,7 +9,7 @@ export default class TimelineRenderer {
   _providers = null;
   _timeline = null;
   _currentTime = 0;
-  _currentBeatPos = 0;
+  _currentBeatPos = -1;
   _blocks = null;
   _triggers = null;
   _curves = null;
