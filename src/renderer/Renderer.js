@@ -1,6 +1,6 @@
 import Ticker from './lib/Ticker';
-import ScriptRenderer from './rendering/renderers/ScriptRenderer';
-import TimelineRenderer from './rendering/renderers/TimelineRenderer';
+import ScriptRenderer from './rendering/renderers/items/ScriptRenderer';
+import TimelineRenderer from './rendering/renderers/root/RootTimelineRenderer';
 import BoardRenderer from './rendering/renderers/BoardRenderer';
 import Media from './rendering/Media';
 import MediaProxy from './rendering/MediaProxy';
@@ -402,10 +402,10 @@ export default class Renderer {
     this.resetDevices();
     
     if (this.currentScript) {
-      this.currentScript.render(delta);
+      this.currentScript.frame(delta);
     }
     if (this.currentTimeline) {
-      this.currentTimeline.render(delta);
+      this.currentTimeline.frame(delta);
       this.send({
         timelineInfo: {
           position: this.currentTimeline.currentTime,
@@ -414,7 +414,7 @@ export default class Renderer {
       });
     }
     if (this.currentBoard) {
-      this.currentBoard.render(delta);
+      this.currentBoard.frame(delta);
       this.send({
         boardInfo: {
           activeItems: this.currentBoard.activeItems,

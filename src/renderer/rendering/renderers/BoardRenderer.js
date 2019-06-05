@@ -1,4 +1,4 @@
-import ScriptRenderer from './ScriptRenderer';
+import ScriptRenderer from './items/ScriptRenderer';
 // import AudioRenderer from './AudioRenderer';
 import timeToQuarter from '../../lib/timeToQuarter';
 

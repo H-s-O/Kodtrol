@@ -1,15 +1,11 @@
-import ScriptRenderer from './ScriptRenderer';
-import TriggerRenderer from './TriggerRenderer';
-import CurveRenderer from './CurveRenderer';
-import AudioRenderer from './AudioRenderer';
-import timeToQuarter from '../../lib/timeToQuarter';
+import BaseRootRenderer from '../root/BaseRootRenderer';
+import ScriptRenderer from '../items/ScriptRenderer';
+import TriggerRenderer from '../items/TriggerRenderer';
+import CurveRenderer from '../items/CurveRenderer';
+import AudioRenderer from '../items/AudioRenderer';
 
-export default class TimelineRenderer {
-  _rendererType = 'timeline';
-  _providers = null;
+export default class TimelineRenderer extends BaseRootRenderer {
   _timeline = null;
-  _currentTime = 0;
-  _currentBeatPos = -1;
   _blocks = null;
   _triggers = null;
   _curves = null;
@@ -19,13 +15,14 @@ export default class TimelineRenderer {
   _endCallback = null;
   
   constructor(providers, timelineId, endCallback) {
-    this._providers = providers;
+    super(providers);
+
     this._endCallback = endCallback;
 
-    this.setTimelineAndItems(timelineId);
+    this._setTimelineAndItems(timelineId);
   }
   
-  setTimelineAndItems = (timelineId) => {
+  _setTimelineAndItems = (timelineId) => {
     this._timeline = this._providers.getTimeline(timelineId);
     
     // "Prepare" data
@@ -156,20 +153,13 @@ export default class TimelineRenderer {
     this._timeMap = timeMap;
   }
   
-  get rendererType() {
-    return this._rendererType;
-  }
-  
   get timeline() {
     return this._timeline;
-  }
-  
-  get currentTime() {
-    return this._currentTime;
   }
 
   setPosition = (position) => {
     this._currentTime = position;
+    this._currentBeatPos = -1;
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
@@ -185,18 +175,11 @@ export default class TimelineRenderer {
     Object.values(this._audios).forEach(({instance}) => instance.stop());
   }
 
-  tick = (delta) => {
-    this._currentTime += delta;
-
-    const beatPos = timeToQuarter(this._currentTime, this._timeline.tempo);
-    
-    if (beatPos !== this._currentBeatPos) {
-      this.beat(beatPos);
-      this._currentBeatPos = beatPos;
-    }
+  _getRenderingTempo = () => {
+    return this._timeline.tempo;
   }
   
-  render = (delta) => {
+  render = () => {
     const currentTime = this._currentTime;
     if (currentTime >= this._timeline.outTime) {
       this._currentTime = this.timeline.outTime;
@@ -204,7 +187,7 @@ export default class TimelineRenderer {
       return;
     }
     
-    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       // Nothing to render
       return;
@@ -292,7 +275,7 @@ export default class TimelineRenderer {
   beat = (beatPos) => {
     const currentTime = this._currentTime;
     
-    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       return;
     }
@@ -315,7 +298,7 @@ export default class TimelineRenderer {
   input = (type, data) => {
     const currentTime = this._currentTime;
     
-    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       return;
     }
@@ -333,7 +316,7 @@ export default class TimelineRenderer {
     }
   }
   
-  getTimelineItemsAtTime = (time) => {
+  _getTimelineItemsAtTime = (time) => {
     const timeMap = this._timeMap;
     const timeDivisor = this._timeDivisor;
     const timeIndex = (time / timeDivisor) >> 0;

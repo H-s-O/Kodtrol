@@ -1,25 +1,22 @@
-import timeToQuarter from '../../lib/timeToQuarter';
+import timeToQuarter from '../../../lib/timeToQuarter';
 
 export default class ScriptRenderer {
-  _rendererType = 'script';
   _providers = null;
   _script = null;
   _devices = null;
   _standalone = true;
   _setuped = false;
   _started = false;
-  _currentBeatPos = -1;
-  _currentTime = 0;
   _scriptData = {};
   
   constructor(providers, scriptId, standalone = true) {
     this._providers = providers;
     this._standalone = standalone;
     
-    this.setScriptAndDevices(scriptId);
+    this._setScriptAndDevices(scriptId);
   }
   
-  setScriptAndDevices = (scriptId) => {
+  _setScriptAndDevices = (scriptId) => {
     this._script = this._providers.getScript(scriptId);
     this._devices = this._providers.getDevices(this._script.devices);
   }
@@ -36,29 +33,27 @@ export default class ScriptRenderer {
     this._currentBeatPos = -1;
     this._currentTime = 0;
   }
-  
-  get rendererType() {
-    return this._rendererType;
-  }
-  
-  get script() {
-    return this._script;
-  }
 
-  tick = (delta) => {
-    if (this._standalone) {
-      this._currentTime += delta;
-      
-      const beatPos = timeToQuarter(this._currentTime, this._script.tempo);
-      
-      if (beatPos !== this._currentBeatPos) {
-        this.beat(beatPos);
-        this._currentBeatPos = beatPos;
+  _start = () => {
+    if (!this._started) {
+      if (this._script.hasStart) {
+        try {
+          const data = this._script.scriptInstance.start(this._devices);
+          if (typeof data !== 'undefined') {
+            this._scriptData = data;
+          }
+        } catch (err) {
+          console.error(err);
+        }
       }
+      this._started = true;
     }
   }
   
-  render = (delta, blockInfo = {}, triggerData = {}, curveData = {}) => {
+  render = (delta, info = {}, triggerData = {}, curveData = {}) => {
+    this._start();
+
+
     const script = this._script;
            
     // Standalone setup
@@ -78,7 +73,7 @@ export default class ScriptRenderer {
     // In-timeline setup
     else {
       // If in setup period
-      const early = blockInfo.blockPercent < 0;
+      const early = info.blockPercent < 0;
       // If has setup
       if (script.hasSetup && (early || !this._setuped)) {
         try {
@@ -101,25 +96,13 @@ export default class ScriptRenderer {
     }
   
     // Start
-    if (!this._started) {
-      if (script.hasStart) {
-        try {
-          const data = script.scriptInstance.start(this._devices, this._scriptData, triggerData, curveData);
-          if (data) {
-            this._scriptData = data;
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      this._started = true;
-    }
+    
 
     // Frame
     if (script.hasFrame) {
       try {
-        const data = script.scriptInstance.frame(this._devices, this._scriptData, blockInfo, triggerData, curveData);
-        if (data) {
+        const data = script.scriptInstance.frame(this._devices, this._scriptData, info, triggerData, curveData);
+        if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
       } catch (err) {
@@ -129,8 +112,9 @@ export default class ScriptRenderer {
   }
 
   beat = (beatPos, parentTime = null, parentTempo = null) => {
-    // Beat
     if (this._script.hasBeat) {
+      this._start();
+
       let localBeat;
       if (this._standalone) {
         localBeat = beatPos;         
@@ -141,9 +125,10 @@ export default class ScriptRenderer {
         localBeat,
         globalBeat: beatPos,
       };
+
       try {
         const data = this._script.scriptInstance.beat(this._devices, beatInfo, this._scriptData);
-        if (data) {
+        if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
       } catch (err) {
@@ -153,11 +138,12 @@ export default class ScriptRenderer {
   }
   
   input = (type, inputData) => {
-    // Input
     if (this._script.hasInput) {
+      this._start();
+
       try {
         const data = this._script.scriptInstance.input(this._devices, type, inputData, this._scriptData);
-        if (data) {
+        if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
       } catch (err) {
