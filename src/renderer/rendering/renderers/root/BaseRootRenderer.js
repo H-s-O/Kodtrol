@@ -4,11 +4,8 @@ export default class BaseRootRenderer {
     _providers = null;
     _currentTime = 0;
     _currentBeatPos = -1;
-    _beatExecQueue = null;
-    _frameExecQueue = null;
-    _inputExecQueue = null;
 
-    constructor(provider) {
+    constructor(providers) {
         this._providers = providers;
     }
 
@@ -23,64 +20,28 @@ export default class BaseRootRenderer {
         
         if (beatPos !== this._currentBeatPos) {
             this._currentBeatPos = beatPos;
-            this._beatExecQueue = [];
-            this.prepareBeat(beatPos);
-            this.runBeat();
+            this._runBeat(beatPos);
         }
     }
 
     frame = () => {
-        this._frameExecQueue = [];
-        this._prepareFrame(this._currentTime);
-        this._runFrame();
-    }
-
-    _prepareFrame = () => {
-        // implement in subclass
-    }
-
-    _addToFrameQueue = (func) => {
-        this._frameExecQueue.push(func);
-    }
-    
-    _runFrame = () => {
-        for (let f of this._frameExecQueue) {
-            f();
-        }
-    }
-
-    _prepareBeat = (beatPos) => {
-        // implement in subclass
-    }
-
-    _addToBeatQueue = (func) => {
-        this._beatExecQueue.push(func);
-    }
-
-    _runBeat = () => {
-        for (let f of this._beatExecQueue) {
-            f();
-        }
+        this._runFrame(this._currentTime);
     }
 
     input = (type, data) => {
-        this._inputExecQueue = [];
-        this._prepareInput(type, data);
-        this._runInput();
+        this._runInput(type, data);
     }
-
-    _prepareInput = (type, data) => {
+    
+    _runFrame = (frameTime) => {
         // implement in subclass
     }
 
-    _addToInputQueue = (func) => {
-        this._inputExecQueue.push(func);
+    _runBeat = (beatPos) => {
+        // implement in subclass
     }
 
-    _runInput = () => {
-        for (let f of this._inputExecQueue) {
-            f();
-        }
+    _runInput = (type, data) => {
+        // implement in subclass
     }
 
     _getRenderingTempo = () => {
@@ -89,8 +50,5 @@ export default class BaseRootRenderer {
 
     destroy = () => {
         this._providers = null;
-        this._beatExecQueue = null;
-        this._frameExecQueue = null;
-        this._inputExecQueue = null;
     }
 }

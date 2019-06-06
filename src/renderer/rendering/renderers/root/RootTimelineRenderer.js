@@ -4,7 +4,7 @@ import TriggerRenderer from '../items/TriggerRenderer';
 import CurveRenderer from '../items/CurveRenderer';
 import AudioRenderer from '../items/AudioRenderer';
 
-export default class TimelineRenderer extends BaseRootRenderer {
+export default class RootTimelineRenderer extends BaseRootRenderer {
   _timeline = null;
   _blocks = null;
   _triggers = null;
@@ -179,10 +179,10 @@ export default class TimelineRenderer extends BaseRootRenderer {
     return this._timeline.tempo;
   }
   
-  render = () => {
+  _runFrame = (frameTime) => {
     const currentTime = this._currentTime;
     if (currentTime >= this._timeline.outTime) {
-      this._currentTime = this.timeline.outTime;
+      this._currentTime = this._timeline.outTime;
       this._endCallback();
       return;
     }
@@ -202,7 +202,7 @@ export default class TimelineRenderer extends BaseRootRenderer {
         currentTime >= trigger.inTime
         && !trigger.instance.triggered
       ) {
-        const data = trigger.instance.render();
+        trigger.instance.render();
         
         triggerData[trigger.trigger] = true;
       }
@@ -236,8 +236,8 @@ export default class TimelineRenderer extends BaseRootRenderer {
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
       if (
-        currentTime >= block.inTime - 500 // @TODO config script setup delay
-        && currentTime <= block.outTime
+        currentTime >= block.inTime - 500 // @TODO config script leadIn time
+        && currentTime <= block.outTime + 500 // @TODO config script leadOut time
       ) {
         const { inTime, outTime } = block;
         const blockInfo = {
@@ -272,7 +272,7 @@ export default class TimelineRenderer extends BaseRootRenderer {
     }
   }
 
-  beat = (beatPos) => {
+  _runBeat = (beatPos) => {
     const currentTime = this._currentTime;
     
     const timeItems = this._getTimelineItemsAtTime(currentTime);
@@ -295,7 +295,7 @@ export default class TimelineRenderer extends BaseRootRenderer {
     }
   }
   
-  input = (type, data) => {
+  _runInput = (type, data) => {
     const currentTime = this._currentTime;
     
     const timeItems = this._getTimelineItemsAtTime(currentTime);

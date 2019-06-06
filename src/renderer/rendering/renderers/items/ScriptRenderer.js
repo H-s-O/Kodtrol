@@ -43,7 +43,7 @@ export default class ScriptRenderer {
             this._scriptData = data;
           }
         } catch (err) {
-          console.error(err);
+          console.error(err); // @TODO feedback to UI
         }
       }
       this._started = true;
@@ -53,62 +53,37 @@ export default class ScriptRenderer {
   render = (delta, info = {}, triggerData = {}, curveData = {}) => {
     this._start();
 
-
     const script = this._script;
-           
-    // Standalone setup
-    if (this._standalone) {
-      if (script.hasSetup && !this._setuped) {
-        try {
-          const data = script.scriptInstance.setup(this._devices, this._scriptData);
-          if (data) {
-            this._scriptData = data;
-          }
-        } catch (err) {
-          console.error(err);
-        }
-        this._setuped = true;
-      }
-    }
-    // In-timeline setup
-    else {
-      // If in setup period
-      const early = info.blockPercent < 0;
-      // If has setup
-      if (script.hasSetup && (early || !this._setuped)) {
-        try {
-          const data = script.scriptInstance.setup(this._devices, this._scriptData);
-          if (data) {
-            this._scriptData = data;
-          }
-        } catch (err) {
-          console.error(err);
-        }
-        this._setuped = true;
-        if (early) {
-          return;
-        }
-      } 
-      // Has no setup, but we need to stop early
-      else if (!script.hasSetup && early) {
-        return;
-      }
-    }
-  
-    // Start
-    
+    const blockPercent = 'blockPercent' in info ? info.blockPercent : null;
 
-    // Frame
-    if (script.hasFrame) {
+    if (script.hasLeadInFrame && blockPercent !== null && blockPercent < 0) {
+      try {
+        const data = script.scriptInstance.leadInFrame(this._devices, this._scriptData, info, triggerData, curveData);
+        if (typeof data !== 'undefined') {
+          this._scriptData = data;
+        }
+      } catch (err) {
+        console.error(err); // @TODO feedback to UI
+      }
+    } else if (script.hasLeadOutFrame && blockPercent !== null && blockPercent > 1) {
+      try {
+        const data = script.scriptInstance.leadOutFrame(this._devices, this._scriptData, info, triggerData, curveData);
+        if (typeof data !== 'undefined') {
+          this._scriptData = data;
+        }
+      } catch (err) {
+        console.error(err); // @TODO feedback to UI
+      }
+    } else if (script.hasFrame && (blockPercent === null || (blockPercent >= 0 && blockPercent <= 1))) {
       try {
         const data = script.scriptInstance.frame(this._devices, this._scriptData, info, triggerData, curveData);
         if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
       } catch (err) {
-        console.error(err);
+        console.error(err); // @TODO feedback to UI
       }
-    }
+    } 
   }
 
   beat = (beatPos, parentTime = null, parentTempo = null) => {
@@ -132,7 +107,7 @@ export default class ScriptRenderer {
           this._scriptData = data;
         }
       } catch (err) {
-        console.error(err);
+        console.error(err); // @TODO feedback to UI
       }
     }
   }
@@ -147,7 +122,7 @@ export default class ScriptRenderer {
           this._scriptData = data;
         }
       } catch (err) {
-        console.error(err);
+        console.error(err); // @TODO feedback to UI
       }
     }
   }
