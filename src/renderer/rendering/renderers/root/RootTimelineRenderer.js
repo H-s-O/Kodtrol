@@ -3,6 +3,7 @@ import ScriptRenderer from '../items/ScriptRenderer';
 import TriggerRenderer from '../items/TriggerRenderer';
 import CurveRenderer from '../items/CurveRenderer';
 import AudioRenderer from '../items/AudioRenderer';
+import timeToQuarter from '../../../lib/timeToQuarter';
 
 export default class RootTimelineRenderer extends BaseRootRenderer {
   _timeline = null;
@@ -280,7 +281,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       return;
     }
 
-    const timelineTempo = this._timeline.tempo; 
+    const tempo = this._getRenderingTempo();
 
     const blocks = timeItems[2];
     const blockCount = blocks.length;
@@ -290,7 +291,8 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         currentTime >= block.inTime
         && currentTime <= block.outTime
       ) {
-        block.instance.beat(beatPos, currentTime - block.inTime, timelineTempo);
+        const localBeatPos = timeToQuarter(currentTime - block.inTime, tempo);
+        block.instance.beat(beatPos, localBeatPos);
       }
     }
   }
@@ -357,5 +359,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this._triggers = null;
     this._curves = null;
     this._audios = null;
+
+    // super.destroy(); // @TODO needs babel update
   }
 }

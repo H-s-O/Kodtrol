@@ -4,14 +4,11 @@ export default class ScriptRenderer {
   _providers = null;
   _script = null;
   _devices = null;
-  _standalone = true;
-  _setuped = false;
   _started = false;
   _scriptData = {};
   
-  constructor(providers, scriptId, standalone = true) {
+  constructor(providers, scriptId) {
     this._providers = providers;
-    this._standalone = standalone;
     
     this._setScriptAndDevices(scriptId);
   }
@@ -19,6 +16,10 @@ export default class ScriptRenderer {
   _setScriptAndDevices = (scriptId) => {
     this._script = this._providers.getScript(scriptId);
     this._devices = this._providers.getDevices(this._script.devices);
+  }
+
+  get script() {
+    return this._script;
   }
   
   reset = () => {
@@ -28,7 +29,6 @@ export default class ScriptRenderer {
     });
     
     this._scriptData = {};
-    this._setuped = false;
     this._started = false;
     this._currentBeatPos = -1;
     this._currentTime = 0;
@@ -86,15 +86,15 @@ export default class ScriptRenderer {
     } 
   }
 
-  beat = (beatPos, parentTime = null, parentTempo = null) => {
+  beat = (beatPos, localBeatPos = null) => {
     if (this._script.hasBeat) {
       this._start();
 
       let localBeat;
-      if (this._standalone) {
-        localBeat = beatPos;         
+      if (localBeatPos !== null) {
+        localBeat = localBeatPos;         
       } else {
-        localBeat = timeToQuarter(parentTime, parentTempo);
+        localBeat = beatPos;
       }
       const beatInfo = { 
         localBeat,

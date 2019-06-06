@@ -1,7 +1,7 @@
 import Ticker from './lib/Ticker';
-import ScriptRenderer from './rendering/renderers/items/ScriptRenderer';
-import TimelineRenderer from './rendering/renderers/root/RootTimelineRenderer';
-import BoardRenderer from './rendering/renderers/BoardRenderer';
+import RootScriptRenderer from './rendering/renderers/root/RootScriptRenderer';
+import RootTimelineRenderer from './rendering/renderers/root/RootTimelineRenderer';
+import RootBoardRenderer from './rendering/renderers/root/RootBoardRenderer';
 import Media from './rendering/Media';
 import MediaProxy from './rendering/MediaProxy';
 import Device from './rendering/Device';
@@ -243,13 +243,11 @@ export default class Renderer {
     this.resetAll();
     
     if (id !== null) {
-      const renderer = new ScriptRenderer(this.providers, id);
-      
+      const renderer = new RootScriptRenderer(this.providers, id);
       this.currentScript = renderer;
-      this.updateTicker(renderer.script.tempo);
-    } else {
-      this.updateTicker();
     }
+
+    this.updateTicker();
     
     console.log('RENDERER previewScript', id);
   }
@@ -265,13 +263,11 @@ export default class Renderer {
     this.resetAll();
     
     if (id !== null) {
-      const renderer = new TimelineRenderer(this.providers, id, this.onTimelineEnded);
-      
+      const renderer = new RootTimelineRenderer(this.providers, id, this.onTimelineEnded);
       this.currentTimeline = renderer;
-      this.updateTicker(renderer.timeline.tempo, false);
-    } else {
-      this.updateTicker(null, false);
     }
+
+    this.updateTicker(false);
     
     console.log('RENDERER runTimeline', id);
   }
@@ -287,19 +283,16 @@ export default class Renderer {
     this.resetAll();
     
     if (id !== null) {
-      const renderer = new BoardRenderer(this.providers, id);
-      
+      const renderer = new RootBoardRenderer(this.providers, id);
       this.currentBoard = renderer;
-      this.updateTicker(renderer.board.tempo);
-    } else {
-      this.updateTicker(null, false);
     }
+
+    this.updateTicker();
     
     console.log('RENDERER runBoard', id);
   }
   
-  updateTicker = (tempo = null, start = true) => {
-    console.log('===tempo', tempo);
+  updateTicker = (start = true) => {
     if (this.ticker) {
       this.ticker.destroy();
       this.ticker = null;
