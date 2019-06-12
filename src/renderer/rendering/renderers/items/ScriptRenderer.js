@@ -9,7 +9,7 @@ export default class ScriptRenderer {
   
   constructor(providers, scriptId) {
     this._providers = providers;
-    
+
     this._setScriptAndDevices(scriptId);
   }
   

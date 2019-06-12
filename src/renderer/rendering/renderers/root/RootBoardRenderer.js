@@ -40,6 +40,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
           [block.id]: {
             ...block,
             instance: new ScriptRenderer(this._providers, block.script),
+            localBeatPos: -1,
           },
         };
       }, {});
@@ -123,7 +124,10 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
       const localBeatPos = timeToQuarter(currentTime, tempo);
-      block.instance.beat(beatPos, localBeatPos);
+      if (localBeatPos !== block.localBeatPos) {
+        block.instance.beat(beatPos, localBeatPos);
+        block.localBeatPos = localBeatPos;
+      }
     }
   }
   

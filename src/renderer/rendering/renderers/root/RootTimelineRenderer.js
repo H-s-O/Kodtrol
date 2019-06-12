@@ -47,6 +47,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           [block.id]: {
             ...block,
             instance: new ScriptRenderer(this._providers, block.script),
+            localBeatPos: -1,
           },
         };
       }, {});
@@ -292,7 +293,10 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         && currentTime <= block.outTime
       ) {
         const localBeatPos = timeToQuarter(currentTime - block.inTime, tempo);
-        block.instance.beat(beatPos, localBeatPos);
+        if (localBeatPos !== block.localBeatPos) {
+          block.instance.beat(beatPos, localBeatPos);
+          block.localBeatPos = localBeatPos;
+        }
       }
     }
   }
