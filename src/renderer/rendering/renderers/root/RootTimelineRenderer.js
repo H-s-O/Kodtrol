@@ -46,7 +46,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           ...obj,
           [block.id]: {
             ...block,
-            instance: new ScriptRenderer(this._providers, block.script, false),
+            instance: new ScriptRenderer(this._providers, block.script),
           },
         };
       }, {});

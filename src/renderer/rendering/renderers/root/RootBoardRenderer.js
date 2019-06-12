@@ -122,7 +122,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      const localBeatPos = timeToQuarter(currentTime / tempo);
+      const localBeatPos = timeToQuarter(currentTime, tempo);
       block.instance.beat(beatPos, localBeatPos);
     }
   }
