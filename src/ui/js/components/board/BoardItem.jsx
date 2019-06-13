@@ -17,6 +17,9 @@ const propTypes = {
   boardPasteItem: PropTypes.func.isRequired,
   boardItemMouseDown: PropTypes.func.isRequired,
   boardItemMouseUp: PropTypes.func.isRequired,
+  layerEditorCanChangeItemLayerUp: PropTypes.func.isRequired,
+  layerEditorCanChangeItemLayerDown: PropTypes.func.isRequired,
+  layerEditorChangeItemLayer: PropTypes.func.isRequired,
   //
   getItemLabel: PropTypes.func,
   getDialogLabel: PropTypes.func,
@@ -61,6 +64,14 @@ class BoardItem extends PureComponent {
 
   onPasteItemTypeClick = () => {
     this.doPasteItem('type');
+  }
+
+  onChangeItemLayerUp = () => {
+    this.doChangeLayerUp();
+  }
+  
+  onChangeItemLayerDown = () => {
+    this.doChangeLayerDown();
   }
 
   onContextMenuClick = (e) => {
@@ -117,14 +128,43 @@ class BoardItem extends PureComponent {
     boardItemMouseUp(id);
   }
 
+  doChangeLayerUp = () => {
+    const { layerEditorChangeItemLayer, data } = this.props;
+    const { id } = data;
+    layerEditorChangeItemLayer(id, 1);
+  }
+  
+  doChangeLayerDown = () => {
+    const { layerEditorChangeItemLayer, data } = this.props;
+    const { id } = data;
+    layerEditorChangeItemLayer(id, -1);
+  }
+
   doContextMenu = () => {
     const {
       typeLabel,
       boardCanPasteItem,
+      layerEditorCanChangeItemLayerUp,
+      layerEditorCanChangeItemLayerDown,
+      data,
     } = this.props;
+    const { id } = data;
     const { Menu } = remote;
 
     const template = [
+      {
+        label: 'Move to layer above',
+        click: this.onChangeItemLayerUp,
+        enabled: layerEditorCanChangeItemLayerUp(id),
+      },
+      {
+        label: 'Move to layer below',
+        click: this.onChangeItemLayerDown,
+        enabled: layerEditorCanChangeItemLayerDown(id),
+      },
+      {
+        type: 'separator',
+      },
       {
         label: `Edit ${typeLabel}...`,
         click: this.onEditItemClick,
