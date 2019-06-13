@@ -12,6 +12,7 @@ const propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape({})),
   renderItemComponent: PropTypes.func,
   renderLayerContextMenu: PropTypes.func,
+  editorChangeItemLayer: PropTypes.func.isRequired,
   //
   editorDeleteLayer: PropTypes.func,
   editorAddItemAt: PropTypes.func,
@@ -19,6 +20,8 @@ const propTypes = {
   editorMoveLayer: PropTypes.func,
   editorCanMoveLayerUp: PropTypes.func,
   editorCanMoveLayerDown: PropTypes.func,
+  editorCanChangeItemLayerUp: PropTypes.func,
+  editorCanChangeItemLayerDown: PropTypes.func,
 };
 
 const defaultProps = {
@@ -157,10 +160,21 @@ class Layer extends PureComponent {
   // RENDERS
 
   renderItem = (item, index, items) => {
-    const { renderItemComponent } = this.props;
+    const {
+      renderItemComponent,
+      editorCanChangeItemLayerUp,
+      editorCanChangeItemLayerDown,
+      editorChangeItemLayer,
+    } = this.props;
+
+    const callbacks = {
+      layerEditorCanChangeItemLayerUp: editorCanChangeItemLayerUp,
+      layerEditorCanChangeItemLayerDown: editorCanChangeItemLayerDown,
+      layerEditorChangeItemLayer: editorChangeItemLayer,
+    };
 
     if (isFunction(renderItemComponent)) {
-      return renderItemComponent(item, index, items);
+      return renderItemComponent(item, index, items, callbacks);
     }
 
     return null;

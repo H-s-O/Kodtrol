@@ -129,6 +129,57 @@ class LayerEditor extends PureComponent {
     return sortedLayers;
   }
 
+  canChangeItemLayerUp = (itemId) => {
+    const { layers, items } = this.props;
+    
+    const item = items.find(({id}) => id === itemId);
+    const layerId = item.layer;
+    const layer = layers.find(({id}) => id === layerId);
+    
+    return layer.order < layers.length - 1;
+  }
+  
+  canChangeItemLayerDown = (itemId) => {
+    const { layers, items } = this.props;
+    
+    const item = items.find(({id}) => id === itemId);
+    const layerId = item.layer;
+    const layer = layers.find(({id}) => id === layerId);
+    
+    return layer.order > 0;
+  }
+
+  doChangeItemLayer = (itemId, offset) => {
+    const { layers, items } = this.props;
+    
+    const item = items.find(({id}) => id === itemId);
+    const layerId = item.layer;
+    const layer = layers.find(({id}) => id === layerId);
+    
+    const newOrder = layer.order + offset;
+    // Guard
+    if (newOrder < 0 || newOrder >= layers.length) {
+      return;
+    }
+
+    const newLayer = layers.find(({order}) => order === newOrder);
+    
+    const newItems = items.map((item) => {
+      if (item.id === itemId) {
+        return {
+          ...item,
+          layer: newLayer.id,
+        };
+      }
+      return item;
+    });
+    const newData = {
+      items: newItems,
+    };
+    
+    this.doUpdate(newData);
+  }
+
   /////////////////////////////////////////////////////
   // RENDERS
 
@@ -158,6 +209,9 @@ class LayerEditor extends PureComponent {
         editorDeleteLayer={this.doDeleteLayer}
         editorCanMoveLayerUp={this.canMoveLayerUp}
         editorCanMoveLayerDown={this.canMoveLayerDown}
+        editorChangeItemLayer={this.doChangeItemLayer}
+        editorCanChangeItemLayerUp={this.canChangeItemLayerUp}
+        editorCanChangeItemLayerDown={this.canChangeItemLayerDown}
       />
     );
   }

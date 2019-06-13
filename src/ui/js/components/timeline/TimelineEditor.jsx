@@ -875,7 +875,7 @@ class TimelineEditor extends PureComponent {
     );
   }
 
-  renderItemComponent = (item, index, items) => {
+  renderItemComponent = (item, index, items, layerEditorCallbacks) => {
     let ComponentClass = null;
     if ('script' in item) {
       ComponentClass = TimelineBlock;
@@ -913,6 +913,7 @@ class TimelineEditor extends PureComponent {
         timelineUpdateItem={this.doUpdateItem}
         timelineAdjustItem={this.doAdjustItem}
         timelineCanPasteItem={this.canPasteItem}
+        {...layerEditorCallbacks}
       />
     );
   }

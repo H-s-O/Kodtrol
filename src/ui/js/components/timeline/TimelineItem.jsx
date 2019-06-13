@@ -16,6 +16,9 @@ const propTypes = {
   timelineCopyItem: PropTypes.func.isRequired,
   timelinePasteItem: PropTypes.func.isRequired,
   timelineAdjustItem: PropTypes.func.isRequired,
+  layerEditorCanChangeItemLayerUp: PropTypes.func.isRequired,
+  layerEditorCanChangeItemLayerDown: PropTypes.func.isRequired,
+  layerEditorChangeItemLayer: PropTypes.func.isRequired,
   //
   getItemLabel: PropTypes.func,
   getDialogLabel: PropTypes.func,
@@ -90,6 +93,14 @@ class TimelineItem extends PureComponent {
     this.doPasteItem('outTime');
   }
 
+  onChangeItemLayerUp = () => {
+    this.doChangeLayerUp();
+  }
+  
+  onChangeItemLayerDown = () => {
+    this.doChangeLayerDown();
+  }
+
   onContextMenuClick = (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -130,6 +141,18 @@ class TimelineItem extends PureComponent {
     timelinePasteItem(id, mode);
   }
 
+  doChangeLayerUp = () => {
+    const { layerEditorChangeItemLayer, data } = this.props;
+    const { id } = data;
+    layerEditorChangeItemLayer(id, 1);
+  }
+  
+  doChangeLayerDown = () => {
+    const { layerEditorChangeItemLayer, data } = this.props;
+    const { id } = data;
+    layerEditorChangeItemLayer(id, -1);
+  }
+
   onContextMenuClick = (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -141,10 +164,27 @@ class TimelineItem extends PureComponent {
       canPasteStartTime,
       canPasteEndTime,
       timelineCanPasteItem,
+      layerEditorCanChangeItemLayerUp,
+      layerEditorCanChangeItemLayerDown,
+      data,
     } = this.props;
+    const { id } = data;
     const { Menu } = remote;
 
     const template = [
+      {
+        label: 'Move to layer above',
+        click: this.onChangeItemLayerUp,
+        enabled: layerEditorCanChangeItemLayerUp(id),
+      },
+      {
+        label: 'Move to layer below',
+        click: this.onChangeItemLayerDown,
+        enabled: layerEditorCanChangeItemLayerDown(id),
+      },
+      {
+        type: 'separator',
+      },
       {
         label: `Edit ${typeLabel}...`,
         click: this.onEditItemClick,

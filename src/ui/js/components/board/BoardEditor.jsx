@@ -442,7 +442,7 @@ class BoardEditor extends PureComponent {
     );
   }
 
-  renderItemComponent = (item, index, items) => {
+  renderItemComponent = (item, index, items, layerEditorCallbacks) => {
     let ComponentClass = null;
     if ('script' in item) {
       ComponentClass = BoardBlock;
@@ -472,6 +472,7 @@ class BoardEditor extends PureComponent {
         boardItemMouseDown={this.doItemMouseDown}
         boardItemMouseUp={this.doItemMouseUp}
         boardCanPasteItem={this.canPasteItem}
+        {...layerEditorCallbacks}
       />
     );
   }
