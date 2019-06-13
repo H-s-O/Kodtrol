@@ -107,8 +107,8 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           // divisions, which will lessen the chance of being missed when there's lag
           trueOutTime = inTime + divisor;
         } else if (typeof script !== 'undefined') {
-          trueInTime = inTime - 500;// @TODO config script setup delay
-          trueOutTime = outTime;
+          trueInTime = inTime - 500; // @TODO config script leadIn delay
+          trueOutTime = outTime + 500; // @TODO config script leadOut delay
         } else {
           trueInTime = inTime;
           trueOutTime = outTime;
@@ -242,13 +242,21 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         && currentTime <= block.outTime + 500 // @TODO config script leadOut time
       ) {
         const { inTime, outTime } = block;
+        let blockPercent;
+        if (currentTime < inTime) {
+          blockPercent = ((currentTime - inTime + 500) / 500) - 1;
+        } else if (currentTime > outTime) {
+          blockPercent = ((currentTime - outTime + 500) / 500);
+        } else {
+          blockPercent = ((currentTime - inTime) / (outTime - inTime));
+        }
         const blockInfo = {
           inTime,
           outTime,
           currentTime,
-          blockPercent: ((currentTime - inTime) / (outTime - inTime)),
+          blockPercent,
         };
-        
+
         block.instance.render(currentTime, blockInfo, triggerData, curveData);
       }
     }
