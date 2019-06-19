@@ -45,7 +45,7 @@ export default class Renderer extends EventEmitter {
   }
   
   send = (data) => {
-    if (this.childProcess) {
+    if (this.childProcess && this.childProcess.connected) {
       this.childProcess.send(data);
     }
   }
