@@ -11,7 +11,7 @@ export default class Ticker {
     if (!this.running) {
       this.lastTime = Date.now();
       this.tick(); // initial tick
-      this.interval = setInterval(this.tick, 5); // @TODO faster/slower?
+      this.interval = setInterval(this.tick, 0);
     }
   }
   
