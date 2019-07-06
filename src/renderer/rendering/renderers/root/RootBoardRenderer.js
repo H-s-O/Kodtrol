@@ -1,7 +1,7 @@
 import BaseRootRenderer from './BaseRootRenderer';
 import ScriptRenderer from '../items/ScriptRenderer';
 // import AudioRenderer from '../items/AudioRenderer';
-import timeToQuarter from '../../../lib/timeToQuarter';
+import timeToPPQ from '../../../lib/timeToPPQ';
 
 export default class RootBoardRenderer extends BaseRootRenderer {
   _board = null;
@@ -123,7 +123,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      const localBeatPos = timeToQuarter(currentTime, tempo);
+      const localBeatPos = timeToPPQ(currentTime, tempo);
       if (localBeatPos !== block.localBeatPos) {
         block.instance.beat(beatPos, localBeatPos);
         block.localBeatPos = localBeatPos;

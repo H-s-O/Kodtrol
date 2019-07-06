@@ -1,6 +1,6 @@
 import BaseRootRenderer from './BaseRootRenderer';
 import ScriptRenderer from '../items/ScriptRenderer';
-import timeToQuarter from '../../../lib/timeToQuarter';
+import timeToPPQ from '../../../lib/timeToPPQ';
 
 export default class RootScriptRenderer extends BaseRootRenderer {
     _instance = null;
@@ -28,7 +28,7 @@ export default class RootScriptRenderer extends BaseRootRenderer {
     }
 
     _runBeat = (beatPos) => {
-        const localBeatPos = timeToQuarter(this._currentTime, this._getRenderingTempo());
+        const localBeatPos = timeToPPQ(this._currentTime, this._getRenderingTempo());
         this._instance.beat(beatPos, localBeatPos);
     }
 

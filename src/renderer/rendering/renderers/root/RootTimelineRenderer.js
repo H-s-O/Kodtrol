@@ -3,7 +3,7 @@ import ScriptRenderer from '../items/ScriptRenderer';
 import TriggerRenderer from '../items/TriggerRenderer';
 import CurveRenderer from '../items/CurveRenderer';
 import AudioRenderer from '../items/AudioRenderer';
-import timeToQuarter from '../../../lib/timeToQuarter';
+import timeToPPQ from '../../../lib/timeToPPQ';
 
 export default class RootTimelineRenderer extends BaseRootRenderer {
   _timeline = null;
@@ -300,7 +300,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         currentTime >= block.inTime
         && currentTime <= block.outTime
       ) {
-        const localBeatPos = timeToQuarter(currentTime - block.inTime, tempo);
+        const localBeatPos = timeToPPQ(currentTime - block.inTime, tempo);
         if (localBeatPos !== block.localBeatPos) {
           block.instance.beat(beatPos, localBeatPos);
           block.localBeatPos = localBeatPos;

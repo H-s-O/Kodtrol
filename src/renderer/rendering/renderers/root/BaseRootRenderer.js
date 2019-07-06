@@ -1,4 +1,4 @@
-import timeToQuarter from '../../../lib/timeToQuarter';
+import timeToPPQ from '../../../lib/timeToPPQ';
 
 export default class BaseRootRenderer {
     _providers = null;
@@ -16,11 +16,21 @@ export default class BaseRootRenderer {
     tick = (delta) => {
         this._currentTime += delta;
 
-        const beatPos = timeToQuarter(this._currentTime, this._getRenderingTempo());
+        const beatPos = timeToPPQ(this._currentTime, this._getRenderingTempo());
         
         if (beatPos !== this._currentBeatPos) {
+            if (this._currentBeatPos === -1) {
+                this._runBeat(beatPos);
+            } else {
+                // Loop the difference between two positions; will act
+                // as catch-up in case some lag occurs
+                const diff = beatPos - this._currentBeatPos;
+                for (let i = 0; i < diff; i++) {
+                    this._runBeat(this._currentBeatPos + diff);
+                }
+            }
+            
             this._currentBeatPos = beatPos;
-            this._runBeat(beatPos);
         }
     }
 

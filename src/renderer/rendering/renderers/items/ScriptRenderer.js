@@ -1,5 +1,3 @@
-import timeToQuarter from '../../../lib/timeToQuarter';
-
 export default class ScriptRenderer {
   _providers = null;
   _script = null;
