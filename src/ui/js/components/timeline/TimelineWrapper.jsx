@@ -14,10 +14,14 @@ class TimelineWrapper extends PureComponent {
   timelineContainer = null;
   timelineCursorTracker = null;
 
-  componentDidUpdate = () => {
+  componentDidUpdate = (prevProps, prevState) => {
     // Hide and reset the position of the timeline tracker, which
     // prevents the wrapper from overflowing after a zoom change
-    this.timelineCursorTracker.style = 'left:0px;visibility:hidden;';
+    const { timelineData: prevTimelineData } = prevProps;
+    const { timelineData: currentTimelineData } = this.props;
+    if (prevTimelineData.zoom !== currentTimelineData.zoom) {
+      this.timelineCursorTracker.style = 'left:0px;visibility:hidden;';
+    }
   }
 
   ///////////////////////////////////////////////////////////////
