@@ -22,6 +22,7 @@ import TimelineAudioTrack from './TimelineAudioTrack';
 import { saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
 import TimelineWrapper from './TimelineWrapper';
+import focusIsGlobal from '../../lib/focusIsGlobal';
 
 import styles from '../../../styles/components/timeline/timelineeditor.scss';
 
@@ -76,10 +77,14 @@ class TimelineEditor extends PureComponent {
   // EVENT HANDLERS
 
   onKeyDown = (e) => {
-    if (e.key === 't') {
-      this.doAddTrigger();
-    } else if (e.key === ' ') {
-      this.doTogglePlayPause();
+    if (focusIsGlobal()) {
+      if (e.key === 't') {
+        this.doAddTrigger();
+      } else if (e.key === 'r') {
+        this.doTimelineRewind();
+      } else if (e.key === ' ') {
+        this.doTogglePlayPause();
+      }
     }
   }
 
