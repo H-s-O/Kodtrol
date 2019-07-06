@@ -25,9 +25,24 @@ const defaultProps = {
 };
 
 class ScriptEditor extends PureComponent {
+  aceEditorRef = null;
   state = {
     editorValue: null,
   };
+
+  componentDidMount = () => {
+    // @see https://github.com/ajaxorg/ace/issues/1754#issuecomment-31983278
+    if (this.aceEditorRef.editor.session.$worker) {
+      this.aceEditorRef.editor.session.$worker.send("changeOptions", [{
+        node: true,
+        asi: true,
+      }]);
+    }
+  }
+
+  setAceEditorRef = (ref) => {
+    this.aceEditorRef = ref;
+  }
 
   onEditorChange = (value, evt) => {
     this.setState({
@@ -87,6 +102,7 @@ class ScriptEditor extends PureComponent {
       >
         { value !== null ? (
           <AceEditor
+            ref={this.setAceEditorRef}
             value={editorValue || value}
             onChange={this.onEditorChange}
             fontSize={12}
