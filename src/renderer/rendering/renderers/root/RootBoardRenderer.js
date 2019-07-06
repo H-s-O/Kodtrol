@@ -1,25 +1,22 @@
-import ScriptRenderer from './ScriptRenderer';
-// import AudioRenderer from './AudioRenderer';
-import timeToQuarter from '../../lib/timeToQuarter';
+import BaseRootRenderer from './BaseRootRenderer';
+import ScriptRenderer from '../items/ScriptRenderer';
+// import AudioRenderer from '../items/AudioRenderer';
+import timeToPPQ from '../../../lib/timeToPPQ';
 
-export default class BoardRenderer {
-  _rendererType = 'board';
-  _providers = null;
+export default class RootBoardRenderer extends BaseRootRenderer {
   _board = null;
   _blocks = null;
   _audios = null;
   _activeItems = {};
   _itemsMap = null;
-  _currentTime = 0;
-  _currentBeatPos = -1;
   
   constructor(providers, boardId) {
-    this._providers = providers;
+    super(providers);
     
-    this.setBoardAndItems(boardId);
+    this._setBoardAndItems(boardId);
   }
   
-  setBoardAndItems = (boardId) => {
+  _setBoardAndItems = (boardId) => {
     this._board = this._providers.getBoard(boardId);
     
     // "Prepare" data
@@ -30,12 +27,10 @@ export default class BoardRenderer {
       }
     }, {});
     
-    // Extract timeline items
+    // Extract board items
     const boardItems = this._board.items.sort((a, b) => {
       return layersById[a.layer].order - layersById[b.layer].order;
     });
-    
-    
     
     this._blocks = boardItems
       .filter((item) => 'script' in item)
@@ -45,6 +40,7 @@ export default class BoardRenderer {
           [block.id]: {
             ...block,
             instance: new ScriptRenderer(this._providers, block.script),
+            localBeatPos: -1,
           },
         };
       }, {});
@@ -74,10 +70,6 @@ export default class BoardRenderer {
     this._itemsMap = itemsMap;
   }
   
-  get rendererType() {
-    return this._rendererType;
-  }
-  
   get board() {
     return this._board;
   }
@@ -86,33 +78,28 @@ export default class BoardRenderer {
     return this._activeItems;
   }
 
+  _getRenderingTempo = () => {
+    return this._board.tempo;
+  }
+
   setActiveItems = (activeItems) => {
     this._activeItems = activeItems;
   }
 
-  tick = (delta) => {
-    this._currentTime += delta;
-
-    const beatPos = timeToQuarter(this._currentTime, this._board.tempo);
-    
-    if (beatPos !== this._currentBeatPos) {
-      this.beat(beatPos);
-      this._currentBeatPos = beatPos;
-    }
-  }
-  
-  render = (delta) => {
-    const boardItems = this.getBoardActiveItems();
+  _runFrame = (frameTime) => {
+    const boardItems = this._getBoardActiveItems();
     if (boardItems === null) {
       // Nothing to render
       return;
     }
 
+    const currentTime = this._currentTime;
+
     const blocks = boardItems[0];
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      block.instance.render(delta);
+      block.instance.render(currentTime);
     }
     
     // const medias = boardItems[1];
@@ -123,25 +110,29 @@ export default class BoardRenderer {
     // }
   }
 
-  beat = (beatPos) => {
-    const boardItems = this.getBoardActiveItems();
+  _runBeat = (beatPos) => {
+    const boardItems = this._getBoardActiveItems();
     if (boardItems === null) {
       return;
     }
 
-    const boardTempo = this._board.tempo;
+    const tempo = this._getRenderingTempo();
     const currentTime = this._currentTime;
 
     const blocks = boardItems[0];
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      block.instance.beat(beatPos, currentTime, boardTempo);
+      const localBeatPos = timeToPPQ(currentTime, tempo);
+      if (localBeatPos !== block.localBeatPos) {
+        block.instance.beat(beatPos, localBeatPos);
+        block.localBeatPos = localBeatPos;
+      }
     }
   }
   
-  input = (type, data) => {
-    const boardItems = this.getBoardActiveItems();
+  _runInput = (type, data) => {
+    const boardItems = this._getBoardActiveItems();
     if (boardItems === null) {
       return;
     }
@@ -154,7 +145,7 @@ export default class BoardRenderer {
     }
   }
   
-  getBoardActiveItems = () => {
+  _getBoardActiveItems = () => {
     const activeItems = this._activeItems;
     const itemsMap = this._itemsMap;
     const items = [
@@ -163,11 +154,6 @@ export default class BoardRenderer {
     ];
     return items;
   }
-
-  // restartTimeline = () => {
-  //   this.resetBlocks();
-  //   // this.resetAudios();
-  // }
 
   resetBlocks = () => {
     Object.values(this._blocks).forEach((block) => block.instance.reset());
@@ -182,5 +168,7 @@ export default class BoardRenderer {
 
     this._blocks = null;
     // this._audios = null;
+
+    // super.destroy(); // @TODO needs babel update
   }
 }

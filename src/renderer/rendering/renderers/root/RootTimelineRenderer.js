@@ -1,15 +1,12 @@
-import ScriptRenderer from './ScriptRenderer';
-import TriggerRenderer from './TriggerRenderer';
-import CurveRenderer from './CurveRenderer';
-import AudioRenderer from './AudioRenderer';
-import timeToQuarter from '../../lib/timeToQuarter';
+import BaseRootRenderer from '../root/BaseRootRenderer';
+import ScriptRenderer from '../items/ScriptRenderer';
+import TriggerRenderer from '../items/TriggerRenderer';
+import CurveRenderer from '../items/CurveRenderer';
+import AudioRenderer from '../items/AudioRenderer';
+import timeToPPQ from '../../../lib/timeToPPQ';
 
-export default class TimelineRenderer {
-  _rendererType = 'timeline';
-  _providers = null;
+export default class RootTimelineRenderer extends BaseRootRenderer {
   _timeline = null;
-  _currentTime = 0;
-  _currentBeatPos = -1;
   _blocks = null;
   _triggers = null;
   _curves = null;
@@ -19,13 +16,14 @@ export default class TimelineRenderer {
   _endCallback = null;
   
   constructor(providers, timelineId, endCallback) {
-    this._providers = providers;
+    super(providers);
+
     this._endCallback = endCallback;
 
-    this.setTimelineAndItems(timelineId);
+    this._setTimelineAndItems(timelineId);
   }
   
-  setTimelineAndItems = (timelineId) => {
+  _setTimelineAndItems = (timelineId) => {
     this._timeline = this._providers.getTimeline(timelineId);
     
     // "Prepare" data
@@ -48,7 +46,8 @@ export default class TimelineRenderer {
           ...obj,
           [block.id]: {
             ...block,
-            instance: new ScriptRenderer(this._providers, block.script, false),
+            instance: new ScriptRenderer(this._providers, block.script),
+            localBeatPos: -1,
           },
         };
       }, {});
@@ -108,8 +107,8 @@ export default class TimelineRenderer {
           // divisions, which will lessen the chance of being missed when there's lag
           trueOutTime = inTime + divisor;
         } else if (typeof script !== 'undefined') {
-          trueInTime = inTime - 500;// @TODO config script setup delay
-          trueOutTime = outTime;
+          trueInTime = inTime - 500; // @TODO config script leadIn delay
+          trueOutTime = outTime + 500; // @TODO config script leadOut delay
         } else {
           trueInTime = inTime;
           trueOutTime = outTime;
@@ -156,20 +155,13 @@ export default class TimelineRenderer {
     this._timeMap = timeMap;
   }
   
-  get rendererType() {
-    return this._rendererType;
-  }
-  
   get timeline() {
     return this._timeline;
-  }
-  
-  get currentTime() {
-    return this._currentTime;
   }
 
   setPosition = (position) => {
     this._currentTime = position;
+    this._currentBeatPos = -1;
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
@@ -185,26 +177,19 @@ export default class TimelineRenderer {
     Object.values(this._audios).forEach(({instance}) => instance.stop());
   }
 
-  tick = (delta) => {
-    this._currentTime += delta;
-
-    const beatPos = timeToQuarter(this._currentTime, this._timeline.tempo);
-    
-    if (beatPos !== this._currentBeatPos) {
-      this.beat(beatPos);
-      this._currentBeatPos = beatPos;
-    }
+  _getRenderingTempo = () => {
+    return this._timeline.tempo;
   }
   
-  render = (delta) => {
+  _runFrame = (frameTime) => {
     const currentTime = this._currentTime;
     if (currentTime >= this._timeline.outTime) {
-      this._currentTime = this.timeline.outTime;
+      this._currentTime = this._timeline.outTime;
       this._endCallback();
       return;
     }
     
-    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       // Nothing to render
       return;
@@ -219,7 +204,7 @@ export default class TimelineRenderer {
         currentTime >= trigger.inTime
         && !trigger.instance.triggered
       ) {
-        const data = trigger.instance.render();
+        trigger.instance.render();
         
         triggerData[trigger.trigger] = true;
       }
@@ -253,17 +238,25 @@ export default class TimelineRenderer {
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
       if (
-        currentTime >= block.inTime - 500 // @TODO config script setup delay
-        && currentTime <= block.outTime
+        currentTime >= block.inTime - 500 // @TODO config script leadIn time
+        && currentTime <= block.outTime + 500 // @TODO config script leadOut time
       ) {
         const { inTime, outTime } = block;
+        let blockPercent;
+        if (currentTime < inTime) {
+          blockPercent = ((currentTime - inTime + 500) / 500) - 1;
+        } else if (currentTime > outTime) {
+          blockPercent = ((currentTime - outTime + 500) / 500);
+        } else {
+          blockPercent = ((currentTime - inTime) / (outTime - inTime));
+        }
         const blockInfo = {
           inTime,
           outTime,
           currentTime,
-          blockPercent: ((currentTime - inTime) / (outTime - inTime)),
+          blockPercent,
         };
-        
+
         block.instance.render(currentTime, blockInfo, triggerData, curveData);
       }
     }
@@ -289,15 +282,15 @@ export default class TimelineRenderer {
     }
   }
 
-  beat = (beatPos) => {
+  _runBeat = (beatPos) => {
     const currentTime = this._currentTime;
     
-    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       return;
     }
 
-    const timelineTempo = this._timeline.tempo; 
+    const tempo = this._getRenderingTempo();
 
     const blocks = timeItems[2];
     const blockCount = blocks.length;
@@ -307,15 +300,19 @@ export default class TimelineRenderer {
         currentTime >= block.inTime
         && currentTime <= block.outTime
       ) {
-        block.instance.beat(beatPos, currentTime - block.inTime, timelineTempo);
+        const localBeatPos = timeToPPQ(currentTime - block.inTime, tempo);
+        if (localBeatPos !== block.localBeatPos) {
+          block.instance.beat(beatPos, localBeatPos);
+          block.localBeatPos = localBeatPos;
+        }
       }
     }
   }
   
-  input = (type, data) => {
+  _runInput = (type, data) => {
     const currentTime = this._currentTime;
     
-    const timeItems = this.getTimelineItemsAtTime(currentTime);
+    const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       return;
     }
@@ -333,7 +330,7 @@ export default class TimelineRenderer {
     }
   }
   
-  getTimelineItemsAtTime = (time) => {
+  _getTimelineItemsAtTime = (time) => {
     const timeMap = this._timeMap;
     const timeDivisor = this._timeDivisor;
     const timeIndex = (time / timeDivisor) >> 0;
@@ -374,5 +371,7 @@ export default class TimelineRenderer {
     this._triggers = null;
     this._curves = null;
     this._audios = null;
+
+    // super.destroy(); // @TODO needs babel update
   }
 }

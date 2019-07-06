@@ -5,9 +5,10 @@ export default class Script {
   _tempo = 0;
   _devices = [];
   _scriptInstance = null;
-  _hasSetup = false;
   _hasStart = false;
+  _hasLeadInFrame = false;
   _hasFrame = false;
+  _hasLeadOutFrame = false;
   _hasBeat = false;
   _hasInput = false;
   _hash = null;
@@ -51,9 +52,10 @@ export default class Script {
       const scriptInstance = new (require(scriptPath))();
       
       this._scriptInstance = scriptInstance;
-      this._hasSetup = typeof scriptInstance.setup === 'function';
       this._hasStart = typeof scriptInstance.start === 'function';
+      this._hasLeadInFrame = typeof scriptInstance.leadInFrame === 'function';
       this._hasFrame = typeof scriptInstance.frame === 'function';
+      this._hasLeadOutFrame = typeof scriptInstance.leadOutFrame === 'function';
       this._hasBeat = typeof scriptInstance.beat === 'function';
       this._hasInput = typeof scriptInstance.input === 'function';
     } catch (e) {
@@ -77,16 +79,20 @@ export default class Script {
     return this._devices;
   }
   
-  get hasSetup() {
-    return this._hasSetup;
-  }
-  
   get hasStart() {
     return this._hasStart;
   }
   
+  get hasLeadInFrame() {
+    return this._hasLeadInFrame;
+  }
+  
   get hasFrame() {
     return this._hasFrame;
+  }
+  
+  get hasLeadOutFrame() {
+    return this._hasLeadOutFrame;
   }
   
   get hasBeat() {
