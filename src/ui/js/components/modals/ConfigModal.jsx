@@ -309,7 +309,7 @@ class ConfigModal extends Component {
                   { value: 'dmxking-utra-dmx-pro', label: 'DMXKing Ultra DMX pro' },
                 ]} />
                 <HelpBlock>
-                  { this.renderOutputTypeHelp(extraData.subType) }
+                  { this.renderDmxOutputTypeHelp(extraData.subType) }
                 </HelpBlock>
               </Col>
             </FormGroup>
@@ -351,7 +351,7 @@ class ConfigModal extends Component {
     );
   }
   
-  renderOutputTypeHelp = (subType) => {
+  renderDmxOutputTypeHelp = (subType) => {
     switch (subType) {
       case 'bbdmx':
         return (<Fragment>For a <a href="#" onClick={() => openExternalUrl('https://github.com/boxysean/beaglebone-DMX')}>BeagleBone-DMX</a> interface</Fragment>);
@@ -484,7 +484,7 @@ class ConfigModal extends Component {
               <Col md={10}>
                 <NumberField value={extraData.port || ''} onChange={(value) => this.updateInput(id, 'extraData.port', value)} />
                 <HelpBlock>
-                  { this.renderInputAddressAndPortHelp(extraData.port) }
+                  { this.renderOscInputAddressAndPortHelp(extraData.port) }
                 </HelpBlock>
               </Col>
             </FormGroup>
@@ -494,7 +494,7 @@ class ConfigModal extends Component {
     );
   }
   
-  renderInputAddressAndPortHelp = (port) => {
+  renderOscInputAddressAndPortHelp = (port) => {
     const fullAddress = `[local ip/hostname here]:${port}`;
     return `This input will be reachable at ${fullAddress}`;
   }
