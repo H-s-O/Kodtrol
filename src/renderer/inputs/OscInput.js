@@ -1,12 +1,14 @@
-import moscow from 'moscow';
+import { UDPPort, TCPSocketPort } from 'osc';
 
 export default class OscInput {
   server = null;
   messageCallback = null;
   port = null;
+  protocol = null
   
-  constructor(messageCallback, port) {
+  constructor(messageCallback, protocol, port) {
     this.messageCallback = messageCallback;
+    this.protocol = protocol;
     this.port = port;
     
     this.create();
@@ -14,9 +16,21 @@ export default class OscInput {
   
   create = () => {
     try {
-      this.server = moscow.createServer(this.port, 'udp');
-      this.server.on('message', this.onMessage);
-      this.server.start();
+      if (this.protocol === 'tcp') {
+        this.server = new TCPSocketPort({
+          localAddress: '0.0.0.0',
+          localPort: this.port,
+          metadata: true,
+        })
+      } else if (this.protocol === 'udp') {
+        this.server = new UDPPort({
+          localAddress: '0.0.0.0',
+          localPort: this.port,
+          metadata: true,
+        })
+      }
+      this.server.on('osc', this.onOSC);
+      this.server.open();
       console.log('OSC input');
     } catch (e) {
       console.error(e);
@@ -25,18 +39,14 @@ export default class OscInput {
     }
   }
   
-  onMessage = (address, args) => {
-    const obj = {
-      address,
-      args,
-    };
-    
-    this.messageCallback(obj);
+  onOSC = (packet, info) => {
+    this.messageCallback(packet);
   }
   
   destroy = () => {
     if (this.server) {
-      this.server.stop(() => {}); // moscow Server expects a callback
+      this.server.removeAllListeners();
+      this.server.close();
     }
     this.server = null;
   }

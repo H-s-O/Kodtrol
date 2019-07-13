@@ -468,6 +468,17 @@ class ConfigModal extends Component {
           <Fragment>
             <FormGroup>
               <Col md={2} componentClass={ControlLabel}>
+                Protocol
+              </Col>
+              <Col md={10}>
+                <SelectField value={extraData.subType || ''} onChange={(value) => this.updateInput(id, 'extraData.subType', value)} options={[
+                  { value: 'tcp', label: 'TCP Socket' },
+                  { value: 'udp', label: 'UDP' },
+                ]} />
+              </Col>
+            </FormGroup>
+            <FormGroup>
+              <Col md={2} componentClass={ControlLabel}>
                 Port
               </Col>
               <Col md={10}>

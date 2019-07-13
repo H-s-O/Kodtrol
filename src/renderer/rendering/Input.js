@@ -44,8 +44,8 @@ export default class Input {
     if (type === 'midi') {
       input = new MidiInput(this.inputMessageCallback);
     } else if (type === 'osc') {
-      const { port } = extraData;
-      input = new OscInput(this.inputMessageCallback, port);
+      const { port, subType } = extraData;
+      input = new OscInput(this.inputMessageCallback, subType, port);
     }
 
     this._input = input;
