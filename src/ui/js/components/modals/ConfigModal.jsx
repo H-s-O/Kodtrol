@@ -223,7 +223,7 @@ class ConfigModal extends Component {
               value={outputs.map(({id, name}) => ({
                 id,
                 label: name || '(unamed)',
-                icon: 'log-in',
+                icon: 'log-out',
                 active: id === currentOutput,
               }))}
               onClickItem={this.onSelectOutput}
