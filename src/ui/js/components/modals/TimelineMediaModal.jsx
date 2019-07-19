@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import BaseModal from './BaseModal';
 
 export default function(props) {
-  const { layers, ...otherProps } = props;
+  const { layers, medias, ...otherProps } = props;
   return (
     <BaseModal
       {...otherProps}
@@ -10,6 +10,10 @@ export default function(props) {
         layers: layers.map(({id, order}) => ({
           value: id,
           label: order + 1,
+        })),
+        medias: medias.map(({id, name}) => ({
+          value: id,
+          label: name,
         })),
       }}
       fields={[
@@ -19,15 +23,10 @@ export default function(props) {
           type: 'text',
         },
         {
-          label: 'File',
-          field: 'file',
-          type: 'file',
-        },
-        {
-          label: 'Layer',
-          field: 'layer',
+          label: 'Media',
+          field: 'media',
           type: 'select',
-          from: 'layers',
+          from: 'medias',
         },
         {
           label: 'In time',

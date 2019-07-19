@@ -14,11 +14,11 @@ import RecordTriggerModal from '../modals/RecordTriggerModal';
 import TimelineBlockModal from '../modals/TimelineBlockModal';
 import TimelineCurveModal from '../modals/TimelineCurveModal';
 import RecordBlockModal from '../modals/RecordBlockModal';
-import TimelineAudioTrackModal from '../modals/TimelineAudioTrackModal';
+import TimelineMediaModal from '../modals/TimelineMediaModal';
 import TimelineBlock from './TimelineBlock';
 import TimelineTrigger from './TimelineTrigger';
 import TimelineCurve from './TimelineCurve';
-import TimelineAudioTrack from './TimelineAudioTrack';
+import TimelineMedia from './TimelineMedia';
 import { saveTimeline, runTimeline, stopTimeline } from '../../../../common/js/store/actions/timelines';
 import { updateTimelineInfo, updateTimelineInfoUser } from '../../../../common/js/store/actions/timelineInfo';
 import TimelineWrapper from './TimelineWrapper';
@@ -123,9 +123,9 @@ class TimelineEditor extends PureComponent {
     });
   }
   
-  onAddAudioTrackClick = () => {
-    this.doAddItem('audioTrack', {
-      id: uniqid(), // generate new audio track id
+  onAddMediaClick = () => {
+    this.doAddItem('media', {
+      id: uniqid(), // generate new media id
       volume: 1,
     });
   }
@@ -146,8 +146,8 @@ class TimelineEditor extends PureComponent {
     this.doAddItemAt(layerId, 'curve', e);
   }
   
-  onAddAudioTrackHereClick = (layerId, e) => {
-    this.doAddItemAt(layerId, 'audioTrack', e);
+  onAddMediaHereClick = (layerId, e) => {
+    this.doAddItemAt(layerId, 'media', e);
   }
 
   onSaveClick = () => {
@@ -210,12 +210,12 @@ class TimelineEditor extends PureComponent {
       inTime: this.getTimelinePositionFromEvent(e),
     };
     
-    if (type === 'block' || type === 'curve' || type === 'audioTrack') {
+    if (type === 'block' || type === 'curve' || type === 'media') {
       const { timelineData } = this.props;
       const timelineDuration = get(timelineData, 'duration');
       data.outTime = Math.min(data.inTime + 10000, timelineDuration);
     }
-    if (type === 'audioTrack') {
+    if (type === 'media') {
       data.volume = 1;
     }
     if (type === 'curve') {
@@ -363,8 +363,8 @@ class TimelineEditor extends PureComponent {
       type = 'trigger';
     } else if ('curve' in itemData) {
       type = 'curve';
-    } else if ('file' in itemData) {
-      type = 'audioTrack';
+    } else if ('media' in itemData) {
+      type = 'media';
     }
     
     this.setState({
@@ -781,10 +781,10 @@ class TimelineEditor extends PureComponent {
           Add curve...
         </MenuItem>
         <MenuItem
-          onSelect={this.onAddAudioTrackClick}
+          onSelect={this.onAddMediaClick}
           disabled={!canAddItems}
         >
-          Add audio track...
+          Add media...
         </MenuItem>
       </DropdownButton>
     );
@@ -882,14 +882,19 @@ class TimelineEditor extends PureComponent {
 
   renderItemComponent = (item, index, items, layerEditorCallbacks) => {
     let ComponentClass = null;
+    let componentProps = null;
     if ('script' in item) {
       ComponentClass = TimelineBlock;
     } else if ('trigger' in item) {
       ComponentClass = TimelineTrigger;
     } else if ('curve' in item) {
       ComponentClass = TimelineCurve;
-    } else if ('file' in item) {
-      ComponentClass = TimelineAudioTrack;
+    } else if ('media' in item) {
+      const { medias } = this.props;
+      ComponentClass = TimelineMedia;
+      componentProps = {
+        medias,
+      };
     }
     
     if (ComponentClass === null) {
@@ -907,6 +912,7 @@ class TimelineEditor extends PureComponent {
       <ComponentClass
         key={`item-${index}`}
         data={item}
+        {...componentProps}
         style={{
           left: percentString(leftPercent),
           width: widthPercent !== null ? percentString(widthPercent) : undefined,
@@ -946,8 +952,8 @@ class TimelineEditor extends PureComponent {
         click: () => this.onAddCurveHereClick(layerId, e),
       },
       {
-        label: 'Add audio track here...',
-        click: () => this.onAddAudioTrackHereClick(layerId, e),
+        label: 'Add media here...',
+        click: () => this.onAddMediaHereClick(layerId, e),
       },
     ];
 
@@ -987,7 +993,7 @@ class TimelineEditor extends PureComponent {
   }
   
   renderItemModals = () => {
-    const { timelineData, scripts } = this.props;
+    const { timelineData, scripts, medias } = this.props;
     const { modalType, modalValue, modalAction } = this.state;
     const { layers } = timelineData;
     
@@ -1027,13 +1033,14 @@ class TimelineEditor extends PureComponent {
           onSuccess={this.recordModalSuccess}
           layers={layers}
         />
-        <TimelineAudioTrackModal
+        <TimelineMediaModal
           initialValue={modalValue}
-          show={modalType === 'audioTrack'}
-          title={modalAction === 'add' ? 'Add audio track' : 'Edit audio track'}
+          show={modalType === 'media'}
+          title={modalAction === 'add' ? 'Add media' : 'Edit media'}
           onCancel={this.itemModalCancel}
           onSuccess={this.itemModalSuccess}
           layers={layers}
+          medias={medias}
         />
         <TimelineCurveModal
           initialValue={modalValue}
@@ -1095,6 +1102,7 @@ const mapStateToProps = (state) => {
     currentTimeline: state.currentTimeline,
     timelineData: timelineDataSelector(state),
     scripts: state.scripts,
+    medias: state.medias,
     timelineInfo: state.timelineInfo,
     runTimeline: state.runTimeline,
   };

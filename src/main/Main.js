@@ -93,6 +93,7 @@ export default class Main {
     this.store.on(StoreEvent.INPUTS_CHANGED, this.onInputsChanged);
     this.store.on(StoreEvent.DEVICES_CHANGED, this.onDevicesChanged);
     this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
+    this.store.on(StoreEvent.MEDIAS_CHANGED, this.onMediasChanged);
     this.store.on(StoreEvent.TIMELINES_CHANGED, this.onTimelinesChanged);
     this.store.on(StoreEvent.BOARDS_CHANGED, this.onBoardsChanged);
     this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
@@ -152,6 +153,17 @@ export default class Main {
       console.log('updateScripts');
       this.renderer.send({
         updateScripts: scripts,
+      });
+    }
+  }
+  
+  onMediasChanged = () => {
+    const { medias } = this.store.state;
+    
+    if (this.renderer) {
+      console.log('updateMedias');
+      this.renderer.send({
+        updateMedias: medias,
       });
     }
   }
@@ -288,6 +300,7 @@ export default class Main {
     this.onInputsChanged();
     this.onDevicesChanged();
     this.onScriptsChanged();
+    this.onMediasChanged();
     this.onTimelinesChanged();
     this.onBoardsChanged();
   }
@@ -359,6 +372,7 @@ export default class Main {
       'fileVersion',
       'devices',
       'scripts',
+      'medias',
       'timelines',
       'boards',
       'outputs',
