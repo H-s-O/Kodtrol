@@ -9,6 +9,7 @@ export default class Media {
   _output = null;
   _providers = null;
   _hash = null;
+  _duration = 0;
   
   constructor(providers, sourceMedia) {
     this._providers = providers;
@@ -22,11 +23,13 @@ export default class Media {
       file,
       output,
       hash,
+      duration,
     } = sourceMedia;
     
     this._id = id;
     this._file = file;
     this._hash = hash;
+    this._duration = duration;
     
     this.setOutput(output);
   }
@@ -45,6 +48,10 @@ export default class Media {
   
   get file() {
     return this._file;
+  }
+
+  get duration () {
+    return this._duration;
   }
   
   get outputData() {
@@ -129,5 +136,6 @@ export default class Media {
     this._output = null;
     this._providers = null;
     this._hash = null;
+    this._duration = null;
   }
 }
