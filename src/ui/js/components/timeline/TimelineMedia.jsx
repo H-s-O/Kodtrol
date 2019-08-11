@@ -7,7 +7,7 @@ import TimelineItem from './TimelineItem';
 
 import styles from '../../../styles/components/timeline/timelineaudiotrack.scss';
 
-class TimelineAudioTrack extends PureComponent {
+class TimelineMedia extends PureComponent {
   trackWaveform = null;
   state = {
     trackWaveformData: null,
@@ -15,9 +15,19 @@ class TimelineAudioTrack extends PureComponent {
   };
   
   componentDidMount = () => {
-    const { data } = this.props;
-    const { file } = data;
-    
+    const { data, medias } = this.props;
+    const { media: mediaId } = data;
+    if (!mediaId) {
+      return;
+    }
+
+    const media = medias.find(({id}) => id === mediaId);
+    if (!media) {
+      return;
+    }
+
+    const { file } = media;
+
     this.trackWaveform = new AudioSVGWaveform({
       url: `file://${file}`,
     });
@@ -93,7 +103,7 @@ class TimelineAudioTrack extends PureComponent {
     return (
       <TimelineItem
         {...this.props}
-        typeLabel='audio track'
+        typeLabel='media'
         getItemLabel={this.generateLabel}
         canPasteStartTime={false}
         canPasteEndTime={false}
@@ -104,4 +114,4 @@ class TimelineAudioTrack extends PureComponent {
   }
 }
 
-export default TimelineAudioTrack;
+export default TimelineMedia;

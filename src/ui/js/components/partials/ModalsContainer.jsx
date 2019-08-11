@@ -4,12 +4,14 @@ import { connect } from 'react-redux';
 import { saveOutputs } from '../../../../common/js/store/actions/outputs';
 import { saveInputs } from '../../../../common/js/store/actions/inputs';
 import { createDevice, saveDevice } from '../../../../common/js/store/actions/devices';
+import { createMedia, saveMedia } from '../../../../common/js/store/actions/medias';
 import { createScript, saveScript } from '../../../../common/js/store/actions/scripts';
 import { createTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
 import { createBoard, saveBoard } from '../../../../common/js/store/actions/boards';
-import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal, updateConfigModal } from '../../../../common/js/store/actions/modals';
+import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal, updateConfigModal, updateMediaModal } from '../../../../common/js/store/actions/modals';
 import DeviceModal from '../modals/DeviceModal';
 import ScriptModal from '../modals/ScriptModal';
+import MediaModal from '../modals/MediaModal';
 import TimelineModal from '../modals/TimelineModal';
 import BoardModal from '../modals/BoardModal';
 import ConfigModal from '../modals/ConfigModal';
@@ -59,6 +61,29 @@ class ModalsContainer extends PureComponent {
     }
     
     doCancelScriptModal();
+  }
+
+  onMediaModalCancel = () => {
+    const { doCancelMediaModal } = this.props;
+    doCancelMediaModal();
+  }
+
+  onMediaModalSuccess = (data) => {
+    const {
+      mediaModalAction,
+      doCreateMedia,
+      doSaveMedia,
+      doCancelMediaModal,
+    } = this.props;
+    
+    if (mediaModalAction === 'add' || mediaModalAction === 'duplicate') {
+      doCreateMedia(data);
+    } else if (mediaModalAction === 'edit') {
+      const { id, ...mediaData } = data;
+      doSaveMedia(id, mediaData);
+    }
+    
+    doCancelMediaModal();
   }
   
   onTimelineModalCancel = () => {
@@ -168,6 +193,28 @@ class ModalsContainer extends PureComponent {
     );
   }
   
+  renderMediaModal = () => {
+    const { mediaModalAction, mediaModalValue, outputs } = this.props;
+    const title = {
+      add: 'Add media',
+      edit: 'Edit media',
+      duplicate: 'Duplicate media',
+      null: null,
+    }[mediaModalAction];
+    
+    return (
+      <MediaModal
+        initialValue={mediaModalValue}
+        show={!!mediaModalAction}
+        title={title}
+        onCancel={this.onMediaModalCancel}
+        onSuccess={this.onMediaModalSuccess}
+        outputs={outputs}
+      />
+    );
+  }
+  
+
   renderTimelineModal = () => {
     const { timelineModalAction, timelineModalValue } = this.props;
     const title = {
@@ -227,6 +274,7 @@ class ModalsContainer extends PureComponent {
       <div>
         { this.renderDeviceModal() }
         { this.renderScriptModal() }
+        { this.renderMediaModal() }
         { this.renderTimelineModal() }
         { this.renderBoardModal() }
         { this.renderConfigModal() }
@@ -241,6 +289,8 @@ const mapStateToProps = ({modals, devices, outputs, inputs}) => {
     deviceModalValue,
     scriptModalAction,
     scriptModalValue,
+    mediaModalAction,
+    mediaModalValue,
     timelineModalAction,
     timelineModalValue,
     boardModalAction,
@@ -253,6 +303,8 @@ const mapStateToProps = ({modals, devices, outputs, inputs}) => {
     deviceModalValue,
     scriptModalAction,
     scriptModalValue,
+    mediaModalAction,
+    mediaModalValue,
     timelineModalAction,
     timelineModalValue,
     boardModalAction,
@@ -272,6 +324,9 @@ const mapDispatchToProps = (dispatch) => {
     doCreateScript: (data) => dispatch(createScript(data)),
     doSaveScript: (id, data) => dispatch(saveScript(id, data)),
     doCancelScriptModal: () => dispatch(updateScriptModal()),
+    doCreateMedia: (data) => dispatch(createMedia(data)),
+    doSaveMedia: (id, data) => dispatch(saveMedia(id, data)),
+    doCancelMediaModal: () => dispatch(updateMediaModal()),
     doCreateTimeline: (data) => dispatch(createTimeline(data)),
     doSaveTimeline: (id, data) => dispatch(saveTimeline(id, data)),
     doCancelTimelineModal: () => dispatch(updateTimelineModal()),

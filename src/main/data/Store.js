@@ -59,6 +59,12 @@ export default class Store extends EventEmitter {
       },
       this.onScriptsChange
     );
+    const mediasObserver = observer(
+      (state) => {
+        return state.medias;
+      },
+      this.onMediasChange
+    );
     const timelinesObserver = observer(
       (state) => {
         return state.timelines;
@@ -144,6 +150,10 @@ export default class Store extends EventEmitter {
   
   onScriptsChange = (dispatch, current, previous) => {
     this.emit(StoreEvent.SCRIPTS_CHANGED);
+  }
+  
+  onMediasChange = (dispatch, current, previous) => {
+    this.emit(StoreEvent.MEDIAS_CHANGED);
   }
   
   onTimelinesChange = (dispatch, current, previous) => {

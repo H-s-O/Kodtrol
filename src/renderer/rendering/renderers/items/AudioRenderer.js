@@ -13,13 +13,13 @@ export default class AudioRenderer {
   constructor(providers, sourceAudio) {
     this._providers = providers;
     
-    const { id, volume, inTime, outTime } = sourceAudio;
+    const { id, volume, inTime, outTime, media } = sourceAudio;
     
     this.id = id;
     this.volume = Number(volume);
     this.duration = Number(outTime) - Number(inTime);
     
-    this.setMedia(id);
+    this.setMedia(media);
   }
   
   setMedia = (mediaId) => {
@@ -32,14 +32,14 @@ export default class AudioRenderer {
   }
   
   render = (delta, blockInfo) => {
-    const { audioPercent } = blockInfo;
+    const { mediaPercent } = blockInfo;
     if (!this.started) {
       this.streamId = uniqid();
     }
     
     this.started = true;
-    
-    const position = audioPercent * this.duration;
+
+    const position = mediaPercent * this.duration;
     const volume = this.volume;
     
     this._media.setActive(true);

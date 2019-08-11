@@ -4,6 +4,7 @@ export { default as currentScript } from './currentScript';
 export { default as currentBoard } from './currentBoard';
 export { default as devices } from './devices';
 export { default as scripts } from './scripts';
+export { default as medias } from './medias';
 export { default as timelineInfo } from './timelineInfo';
 export { default as timelineInfoUser } from './timelineInfoUser';
 export { default as boardInfo } from './boardInfo';

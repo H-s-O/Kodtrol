@@ -10,7 +10,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
   _blocks = null;
   _triggers = null;
   _curves = null;
-  _audios = null;
+  _medias = null;
   _timeMap = null;
   _timeDivisor = 1000;
   _endCallback = null;
@@ -52,14 +52,14 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         };
       }, {});
       
-    this._audios = timelineItems
-      .filter((item) => 'file' in item)
-      .reduce((obj, audio) => {
+    this._medias = timelineItems
+      .filter((item) => 'media' in item)
+      .reduce((obj, media) => {
         return {
           ...obj,
-          [audio.id]: {
-            ...audio,
-            instance: new AudioRenderer(this._providers, audio),
+          [media.id]: {
+            ...media,
+            instance: new AudioRenderer(this._providers, media),
           },
         };
       }, {});
@@ -98,7 +98,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       const end = t + divisor - 1;
       for (let i = 0; i < itemsCount; i++) {
         const item = timelineItems[i];
-        const { id, inTime, outTime, script, file, trigger, curve } = item;
+        const { id, inTime, outTime, script, media, trigger, curve } = item;
         let trueInTime, trueOutTime;
         if (typeof trigger !== 'undefined') {
           trueInTime = inTime;
@@ -121,7 +121,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           let addIndex = null;
           if (typeof script !== 'undefined') {
             addIndex = 2;
-          } else if (typeof file !== 'undefined') {
+          } else if (typeof media !== 'undefined') {
             addIndex = 3;
           } else if (typeof trigger !== 'undefined') {
             addIndex = 0;
@@ -138,19 +138,9 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
               ];
             }
             timeMap[timeIndex][addIndex].push(id);
-            // timeMap[timeIndex][addIndex].push(item);
           }
         }
       }
-      /*if (timeMap[timeIndex]) {
-        for (let sub = 0; sub < 4; sub++) {
-          const subArr = timeMap[timeIndex][sub].sort((a, b) => a.inTime - b.inTime); // sort by inTime
-          const subItemsCount = subArr.length;
-          for (let ii = 0; ii < subItemsCount; ii++) {
-            subArr[ii] = subArr[ii].id; // "map"
-          }
-        }
-      }*/
     }
     this._timeMap = timeMap;
   }
@@ -165,7 +155,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
-    this.resetAudios()
+    this.resetMedias()
   }
   
   notifyPlay = () => {
@@ -174,7 +164,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
   
   notifyStop = () => {
     // Stop all medias
-    Object.values(this._audios).forEach(({instance}) => instance.stop());
+    Object.values(this._medias).forEach(({instance}) => instance.stop());
   }
 
   _getRenderingTempo = () => {
@@ -264,17 +254,17 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     const medias = timeItems[3];
     const mediaCount = medias.length;
     for (let i = 0; i < mediaCount; i++) {
-      const media = this._audios[medias[i]];
+      const media = this._medias[medias[i]];
       if (
         currentTime >= media.inTime
         && currentTime <= media.outTime
       ) {
-        const { id, inTime, outTime } = media;
+        const { inTime, outTime } = media;
         const mediaInfo = {
           inTime,
           outTime,
           currentTime,
-          audioPercent: ((currentTime - inTime) / (outTime - inTime)),
+          mediaPercent: ((currentTime - inTime) / (outTime - inTime)),
         };
         
         media.instance.render(currentTime, mediaInfo);
@@ -344,7 +334,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
-    this.resetAudios();
+    this.resetMedias();
   }
 
   resetBlocks = () => {
@@ -359,8 +349,8 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     Object.values(this._curves).forEach((curve) => curve.instance.reset());
   }
 
-  resetAudios = () => {
-    Object.values(this._audios).forEach((audio) => audio.instance.reset());
+  resetMedias = () => {
+    Object.values(this._medias).forEach((media) => media.instance.reset());
   }
 
   destroy = () => {
@@ -370,7 +360,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this._blocks = null;
     this._triggers = null;
     this._curves = null;
-    this._audios = null;
+    this._medias = null;
 
     // super.destroy(); // @TODO needs babel update
   }

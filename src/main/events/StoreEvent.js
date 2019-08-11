@@ -2,6 +2,7 @@ export const OUTPUTS_CHANGED = 'outputs_changed';
 export const INPUTS_CHANGED = 'inputs_changed';
 export const DEVICES_CHANGED = 'devices_changed';
 export const SCRIPTS_CHANGED = 'scripts_changed';
+export const MEDIAS_CHANGED = 'medias_changed';
 export const TIMELINES_CHANGED = 'timelines_changed';
 export const BOARDS_CHANGED = 'boards_changed';
 export const PREVIEW_SCRIPT = 'preview_script';
