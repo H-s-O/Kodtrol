@@ -22,7 +22,7 @@ const propTypes = {
   relatedData: PropTypes.shape({}),
   onSuccess: PropTypes.func,
   onCancel: PropTypes.func,
-  onChange: PropTypes.func,
+  valueFilter: PropTypes.func,
 };
 
 const defaultProps = {
@@ -34,7 +34,7 @@ const defaultProps = {
   relatedData: null,
   onSuccess: null,
   onCancel: null,
-  onChange: null,
+  valueFilter: null,
 };
 
 class BaseModal extends Component {
@@ -74,57 +74,27 @@ class BaseModal extends Component {
     }
   }
 
-  onFieldChange = (e) => {
-    const fieldName = e.target.id;
-    const fieldValue = e.target.value;
+  onFieldChange = (fieldName, fieldValue) => {
     const { value } = this.state;
     const newValue = {
       ...value,
       [fieldName]: fieldValue,
     };
 
-    this.setState({
-      value: newValue,
-    });
-
-    const { onChange } = this.props;
-    if (isFunction(onChange)) {
-      onChange(newValue);
+    const { valueFilter } = this.props;
+    if (isFunction(valueFilter)) {
+      valueFilter(newValue, this.afterValueFilter);
+    } else {
+      this.setState({
+        value: newValue,
+      });
     }
   }
 
-  onCustomFieldChange = (fieldName, fieldValue) => {
-    const { value } = this.state;
-    const newValue = {
-      ...value,
-      [fieldName]: fieldValue,
-    };
-
+  afterValueFilter = (data) => {
     this.setState({
-      value: newValue,
+      value: data,
     });
-
-    const { onChange } = this.props;
-    if (isFunction(onChange)) {
-      onChange(newValue);
-    }
-  }
-
-  onColorChange = (fieldName, fieldValue) => {
-    const { value } = this.state;
-    const newValue = {
-      ...value,
-      [fieldName]: fieldValue.hex,
-    };
-
-    this.setState({
-      value: newValue,
-    });
-
-    const { onChange } = this.props;
-    if (isFunction(onChange)) {
-      onChange(newValue);
-    }
   }
 
   onCancelClick = () => {
@@ -167,16 +137,17 @@ class BaseModal extends Component {
 
   renderFieldContent = (fieldInfo) => {
     const { initialValue, relatedData } = this.props;
+    const { value: formValue } = this.state;
     const { field, type, from, readOnly } = fieldInfo;
-    const fieldInitialValue = get(initialValue, field);
+    const fieldValue = get(formValue, field, get(initialValue, field));
 
     if (type === 'select') {
       const fieldRelatedData = get(relatedData, from || field, []);
 
       return (
         <SelectField
-          onChange={(value) => this.onCustomFieldChange(field, value)}
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
           options={fieldRelatedData}
           disabled={readOnly}
         />
@@ -186,8 +157,8 @@ class BaseModal extends Component {
     if (type === 'color') {
       return (
         <ColorField
-          value={fieldInitialValue}
-          onChange={(value) => this.onCustomFieldChange(field, value)}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
           disabled={readOnly}
         />
       );
@@ -196,8 +167,8 @@ class BaseModal extends Component {
     if (type === 'file') {
       return (
         <FileField
-          onChange={(value) => this.onCustomFieldChange(field, value)}
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
           disabled={readOnly}
         />
       );
@@ -206,8 +177,8 @@ class BaseModal extends Component {
     if (type === 'number') {
       return (
         <NumberField
-          onChange={(value) => this.onCustomFieldChange(field, value)}
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
           disabled={readOnly}
         />
       );
@@ -216,8 +187,8 @@ class BaseModal extends Component {
     if (type === 'text') {
       return (
         <TextField
-          onChange={(value) => this.onCustomFieldChange(field, value)}
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
           disabled={readOnly}
         />
       );
@@ -226,7 +197,7 @@ class BaseModal extends Component {
     if (type === 'static') {
       return (
         <StaticField
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
         />
       );
     }
@@ -239,8 +210,8 @@ class BaseModal extends Component {
     }
     return (
       <CustomComponent
-        onChange={(value) => this.onCustomFieldChange(field, value)}
-        defaultValue={fieldInitialValue}
+        value={fieldValue}
+        onChange={(value) => this.onFieldChange(field, value)}
         disabled={readOnly}
         {...related}
       />

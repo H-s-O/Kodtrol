@@ -2,7 +2,7 @@ import React from 'react';
 import BaseModal from './BaseModal';
 import ChannelsTableField from './fields/ChannelsTableField';
 
-export default function(props) {
+export default function DeviceModal(props) {
   const { outputs, ...otherProps } = props;
   return (
     <BaseModal

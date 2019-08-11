@@ -2,7 +2,7 @@ import React from 'react';
 import BaseModal from './BaseModal';
 import DevicesTableField from './fields/DevicesTableField';
 
-export default function(props) {
+export default function ScriptModal(props) {
   const { devices, ...otherProps } = props;
   return (
     <BaseModal

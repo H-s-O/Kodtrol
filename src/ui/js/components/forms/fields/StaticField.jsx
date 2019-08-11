@@ -2,17 +2,13 @@ import React, { PureComponent } from 'react';
 import { FormControl } from 'react-bootstrap';
 
 export default class StaticField extends PureComponent {
-  onFieldChange = (e) => {
-    const { onChange } = this.props;
-    const value = e.target.value;
-    onChange(value);
-  }
-  
   render = () => {
-    const {defaultValue} = this.props;
+    const { value } = this.props;
+    const finalValue = value ? value : '';
+
     return (
       <FormControl.Static>
-          { defaultValue }
+        {finalValue}
       </FormControl.Static>
     );
   }

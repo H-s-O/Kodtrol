@@ -7,11 +7,15 @@ export default class NumberField extends PureComponent {
     const { onChange } = this.props;
     onChange(Number(value)); // cast to Number
   }
-  
+
   render = () => {
+    const { value, ...otherProps } = this.props;
+    const finalValue = value ? value : '0';
+
     return (
       <TextField
-        {...this.props}
+        {...otherProps}
+        value={finalValue}
         type="number"
         onChange={this.onFieldChange}
       />

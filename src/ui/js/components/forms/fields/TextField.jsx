@@ -9,10 +9,14 @@ export default class TextField extends PureComponent {
   }
   
   render = () => {
+    const { value, ...otherProps } = this.props;
+    const finalValue = value ? value : '';
+
     return (
       <FormControl
         type="text"
-        {...this.props}
+        {...otherProps}
+        value={finalValue}
         onChange={this.onFieldChange}
       />
     );

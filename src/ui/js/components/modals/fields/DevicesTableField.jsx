@@ -12,10 +12,10 @@ class DeviceTableField extends PureComponent {
   constructor(props) {
     super(props);
     
-    const { defaultValue } = props;
-    if (defaultValue) {
+    const { value } = props;
+    if (value) {
       this.state = {
-        value: defaultValue,
+        value: value,
       };
     }
   }

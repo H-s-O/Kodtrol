@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import BaseModal from './BaseModal';
 
-export default function(props) {
+export default function TimelineCurveModal(props) {
   const { layers, ...otherProps } = props;
   return (
     <BaseModal

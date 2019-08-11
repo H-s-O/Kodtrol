@@ -7,19 +7,20 @@ class FileField extends PureComponent {
   onSelectClick = () => {
     const files = importAudioFile();
     if (files && files.length) {
-      this.onFieldChange(files[0]);
+      const [firstFile] = files;
+      this.onFieldChange(firstFile);
     }
   }
-  
+
   onFieldChange = (value) => {
     const { onChange } = this.props;
     onChange(value);
   }
-  
+
   render = () => {
-    const { value, defaultValue } = this.props;
-    const finalValue = value || defaultValue ? value || defaultValue : '';
-console.log(value, defaultValue);
+    const { value } = this.props;
+    const finalValue = value  ? value : '';
+
     return (
       <InputGroup>
         <InputGroup.Button>

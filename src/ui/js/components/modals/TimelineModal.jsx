@@ -1,7 +1,7 @@
 import React from 'react';
 import BaseModal from './BaseModal';
 
-export default function(props) {
+export default function TimelineModal(props) {
   return (
     <BaseModal
       {...props}

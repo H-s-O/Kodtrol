@@ -7,11 +7,11 @@ export default class ColorField extends PureComponent {
     const { hex } = value;
     onChange(hex);
   }
-  
+
   render = () => {
-    const { value, defaultValue, ...otherProps} = this.props;
-    const finalValue = value || defaultValue ? (value || defaultValue).toUpperCase() : '';
-    
+    const { value, ...otherProps } = this.props;
+    const finalValue = value ? value.toUpperCase() : '';
+
     return (
       <GithubPicker
         triangle="hide"
