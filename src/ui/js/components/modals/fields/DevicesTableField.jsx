@@ -93,7 +93,7 @@ class DeviceTableField extends PureComponent {
               <td>
                 <SelectField
                   bsSize="small"
-                  value={id || ""}
+                  value={id}
                   onChange={(value) => this.onDeviceChange(value, index)}
                   options={devices.map(({id, name}) => ({
                     value: id,

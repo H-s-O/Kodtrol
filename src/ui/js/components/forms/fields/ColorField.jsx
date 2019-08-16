@@ -9,7 +9,7 @@ export default class ColorField extends PureComponent {
   }
 
   render = () => {
-    const { value, ...otherProps } = this.props;
+    const { value, onChange, ...otherProps } = this.props;
     const finalValue = value ? value.toUpperCase() : '';
 
     return (

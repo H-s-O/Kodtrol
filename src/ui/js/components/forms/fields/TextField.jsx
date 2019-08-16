@@ -4,8 +4,8 @@ import { FormControl } from 'react-bootstrap';
 export default class TextField extends PureComponent {
   onFieldChange = (e) => {
     const { onChange } = this.props;
-    const value = e.target.value;
-    onChange(value);
+    const newValue = e.target.value === '' ? null : e.target.value;
+    onChange(newValue);
   }
   
   render = () => {
@@ -14,8 +14,8 @@ export default class TextField extends PureComponent {
 
     return (
       <FormControl
-        type="text"
         {...otherProps}
+        type="text"
         value={finalValue}
         onChange={this.onFieldChange}
       />

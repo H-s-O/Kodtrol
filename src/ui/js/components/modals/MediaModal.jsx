@@ -34,7 +34,7 @@ export default class MediaModal extends PureComponent {
         dialogClassName="media-modal"
         valueFilter={this.modalValueFilter}
         relatedData={{
-          outputs: outputs.map(({ id, name }) => ({
+          outputs: outputs.filter(({type}) => type === 'audio').map(({ id, name }) => ({
             value: id,
             label: name,
           })),

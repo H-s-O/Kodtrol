@@ -138,7 +138,7 @@ class BaseModal extends Component {
   renderFieldContent = (fieldInfo) => {
     const { initialValue, relatedData } = this.props;
     const { value: formValue } = this.state;
-    const { field, type, from, readOnly } = fieldInfo;
+    const { field, type, from, readOnly, min, max, placeholder } = fieldInfo;
     const fieldValue = get(formValue, field, get(initialValue, field));
 
     if (type === 'select') {
@@ -180,6 +180,9 @@ class BaseModal extends Component {
           value={fieldValue}
           onChange={(value) => this.onFieldChange(field, value)}
           disabled={readOnly}
+          placeholder={placeholder}
+          min={min}
+          max={max}
         />
       );
     }
@@ -190,6 +193,7 @@ class BaseModal extends Component {
           value={fieldValue}
           onChange={(value) => this.onFieldChange(field, value)}
           disabled={readOnly}
+          placeholder={placeholder}
         />
       );
     }

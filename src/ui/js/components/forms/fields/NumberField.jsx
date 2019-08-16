@@ -1,22 +1,22 @@
 import React, { PureComponent } from 'react';
-
-import TextField from './TextField';
+import { FormControl } from 'react-bootstrap'
 
 export default class NumberField extends PureComponent {
-  onFieldChange = (value) => {
+  onFieldChange = (e) => {
     const { onChange } = this.props;
-    onChange(Number(value)); // cast to Number
+    const newValue = e.target.value === '' ? null : Number(e.target.value); // cast to Number
+    onChange(newValue); 
   }
 
   render = () => {
     const { value, ...otherProps } = this.props;
-    const finalValue = value ? value : '0';
+    const finalValue = value === 0 ? '0' : value || '';
 
     return (
-      <TextField
+      <FormControl
         {...otherProps}
-        value={finalValue}
         type="number"
+        value={finalValue}
         onChange={this.onFieldChange}
       />
     );

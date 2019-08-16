@@ -3,6 +3,8 @@ import { Button, FormControl, InputGroup } from 'react-bootstrap';
 
 import { importAudioFile } from '../../../lib/messageBoxes';
 
+import styles from '../../../../styles/components/forms/fields/filefield.scss'
+
 class FileField extends PureComponent {
   onSelectClick = () => {
     const files = importAudioFile();
@@ -19,23 +21,22 @@ class FileField extends PureComponent {
 
   render = () => {
     const { value } = this.props;
-    const finalValue = value  ? value : '';
+    const finalValue = value ? value : '';
 
     return (
       <InputGroup>
         <InputGroup.Button>
           <Button
-            bsStyle="info"
             onClick={this.onSelectClick}
           >
             Select
           </Button>
         </InputGroup.Button>
-        <FormControl
-          readOnly
-          type="text"
-          value={finalValue}
-        />
+        <FormControl.Static
+          className={styles.fieldLabel}
+        >
+          {finalValue}
+        </FormControl.Static>
       </InputGroup>
     );
   }

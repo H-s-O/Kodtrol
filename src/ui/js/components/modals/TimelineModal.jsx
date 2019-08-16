@@ -1,4 +1,5 @@
 import React from 'react';
+
 import BaseModal from './BaseModal';
 
 export default function TimelineModal(props) {
@@ -15,21 +16,30 @@ export default function TimelineModal(props) {
           label: 'Tempo',
           field: 'tempo',
           type: 'number',
+          placeholder: '1 - 300',
+          min: 1,
+          max: 300,
         },
         {
           label: 'Duration',
           field: 'duration',
           type: 'number',
+          placeholder: '1 - ∞',
+          min: 1,
         },
         {
           label: 'In time',
           field: 'inTime',
           type: 'number',
+          placeholder: '0 - ∞',
+          min: 0,
         },
         {
           label: 'Out time',
           field: 'outTime',
           type: 'number',
+          placeholder: '1 - ∞',
+          min: 1,
         },
       ]}
     />

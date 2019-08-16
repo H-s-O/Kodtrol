@@ -9,7 +9,7 @@ export default function DeviceModal(props) {
       {...otherProps}
       dialogClassName="device-modal"
       relatedData={{
-        outputs: outputs.map(({id, name}) => ({
+        outputs: outputs.filter(({type}) => type !== 'audio').map(({id, name}) => ({
           value: id,
           label: name,
         })),
@@ -35,6 +35,9 @@ export default function DeviceModal(props) {
           label: 'Starting channel',
           field: 'startChannel',
           type: 'number',
+          placeholder: '1 - 512',
+          min: 1,
+          max: 512,
         },
         {
           label: 'Channels',

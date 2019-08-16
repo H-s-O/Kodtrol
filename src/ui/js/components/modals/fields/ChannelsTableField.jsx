@@ -98,7 +98,7 @@ class ChannelsTableField extends PureComponent {
                   placeholder="0 - 255"
                   min="0"
                   max="255"
-                  value={defaultValue || ""}
+                  value={defaultValue}
                   onChange={(value) => this.onChannelChange(value, index, 'defaultValue')}
                 />
               </td>
@@ -106,7 +106,7 @@ class ChannelsTableField extends PureComponent {
                 <TextField
                   bsSize="small"
                   placeholder="(none)"
-                  value={alias || ""}
+                  value={alias}
                   onChange={(value) => this.onChannelChange(value, index, 'alias')}
                 />
               </td>

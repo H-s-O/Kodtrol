@@ -20,6 +20,9 @@ export default function ScriptModal(props) {
           label: 'Preview tempo',
           field: 'previewTempo',
           type: 'number',
+          placeholder: '1 - 300',
+          min: 1,
+          max: 300,
         },
         {
           label: 'Associated devices',

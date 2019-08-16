@@ -15,6 +15,9 @@ export default function BoardModal(props) {
           label: 'Tempo',
           field: 'tempo',
           type: 'number',
+          placeholder: '1 - 300',
+          min: 1,
+          max: 300,
         },
       ]}
     />
