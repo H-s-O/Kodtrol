@@ -1,0 +1,9 @@
+.swatchesPickerAdjust {
+    & > div {
+        & > div {
+            & > div {
+                overflow-y: hidden !important;
+            }
+        }
+    }
+}
