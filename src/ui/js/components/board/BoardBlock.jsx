@@ -1,12 +1,16 @@
 import React, { PureComponent } from 'react';
+import { createSelector } from 'reselect';
+import { connect } from 'react-redux';
 
 import BoardItem from './BoardItem';
 
 class BoardBlock extends PureComponent {
   generateLabel = () => {
-    const { data } = this.props;
+    const { data, relatedScript } = this.props;
     const { type, name } = data;
-    
+    const scriptName = relatedScript ? relatedScript.name : null;
+    const finalName = name || scriptName;
+
     let typeLabel = null;
     switch (type) {
       case 'trigger_once':
@@ -20,15 +24,24 @@ class BoardBlock extends PureComponent {
         break;
     }
     
-    const label = `${name} [${typeLabel}]`;
+    const label = `${finalName} [${typeLabel}]`;
     
     return label;
   }
   
   render = () => {
+    const { relatedScript, data, ...otherProps } = this.props;
+    const blockName = data.name;
+    const scriptName = relatedScript ? relatedScript.name : null;
+    const finalName = blockName || scriptName;
+
     return (
       <BoardItem
-        {...this.props}
+        {...otherProps}
+        data={{
+          ...data,
+          name: finalName,
+        }}
         typeLabel='block'
         getItemLabel={this.generateLabel}
       />
@@ -36,4 +49,27 @@ class BoardBlock extends PureComponent {
   }
 }
 
-export default BoardBlock;
+const relatedScriptSelector = createSelector(
+  [
+    (state, props) => state.scripts,
+    (state, props) => props.data.script,
+  ],
+  (scripts, relatedScriptId) => {
+    if (!relatedScriptId) {
+      return null;
+    }
+    const script = scripts.find(({id}) => id === relatedScriptId);
+    if (!script) {
+      return null;
+    }
+    return script;
+  }
+);
+
+const mapStateToProps = (state, props) => {
+  return {
+    relatedScript: relatedScriptSelector(state, props),
+  };
+};
+
+export default connect(mapStateToProps)(BoardBlock);
