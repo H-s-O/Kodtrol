@@ -113,6 +113,7 @@ export default class Store extends EventEmitter {
       inputsObserver,
       devicesObserver,
       scriptsObserver,
+      mediasObserver,
       timelinesObserver,
       boardsObserver,
       previewScriptObserver,
