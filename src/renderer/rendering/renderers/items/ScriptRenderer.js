@@ -13,16 +13,24 @@ export default class ScriptRenderer {
   
   _setScriptAndDevices = (scriptId) => {
     this._script = this._providers.getScript(scriptId);
+    this._script.on('updated', this._onScriptUpdated);
+
     this._devices = this._providers.getDevices(this._script.devices);
   }
 
   get script() {
     return this._script;
   }
+
+  _onScriptUpdated = () => {
+    // Clear the started flag, so that we force a restart to
+    // handle possibly new content from start() hook
+    this._scriptData = {};
+    this._started = false;
+  }
   
   reset = () => {
     Object.values(this._devices).forEach((device) => {
-      // device.resetChannels();
       device.resetVars();
     });
     
@@ -126,6 +134,10 @@ export default class ScriptRenderer {
   }
 
   destroy = () => {
+    if (this._script) {
+      this._script.removeAllListeners();
+    }
+
     this._script = null;
     this._devices = null;
     this._scriptData = null;

@@ -25,7 +25,27 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
   
   _setTimelineAndItems = (timelineId) => {
     this._timeline = this._providers.getTimeline(timelineId);
+    this._timeline.on('updated', this._onTimelineUpdated);
+
+    this._build();
+  }
+
+  _onTimelineUpdated = () => {
+    // "Rebuild" timeline
     
+    Object.values(this._blocks).forEach((block) => block.instance.destroy());
+    Object.values(this._curves).forEach((curve) => curve.instance.destroy());
+
+    this._blocks = null;
+    this._triggers = null;
+    this._curves = null;
+    this._medias = null;
+    this._timeMap = null;
+
+    this._build();
+  }
+
+  _build = () => {
     // "Prepare" data
     const layersById = this._timeline.layers.reduce((obj, layer) => {
       return {
@@ -102,7 +122,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         let trueInTime, trueOutTime;
         if (typeof trigger !== 'undefined') {
           trueInTime = inTime;
-          // Fake a duration of at two divisions; this will
+          // Fake a duration of at least two divisions; this will
           // make triggers with inTime near the end of a division to span at least two
           // divisions, which will lessen the chance of being missed when there's lag
           trueOutTime = inTime + divisor;
@@ -354,6 +374,10 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
   }
 
   destroy = () => {
+    if (this._timeline) {
+      this._timeline.removeAllListeners();
+    }
+
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
     Object.values(this._curves).forEach((curve) => curve.instance.destroy());
 
@@ -361,6 +385,8 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this._triggers = null;
     this._curves = null;
     this._medias = null;
+    this._timeMap = null;
+    this._timeline = null;
 
     // super.destroy(); // @TODO needs babel update
   }

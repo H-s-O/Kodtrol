@@ -1,4 +1,6 @@
-export default class Timeline {
+import EventEmitter from 'events';
+
+export default class Timeline extends EventEmitter {
   _id = null;
   _tempo = 0;
   _duration = 0;
@@ -9,6 +11,7 @@ export default class Timeline {
   _hash = null;
   
   constructor(sourceTimeline) {
+    super();
     this.update(sourceTimeline);
   }
   
@@ -32,6 +35,8 @@ export default class Timeline {
     this._items = items;
     this._tempo = Number(tempo);
     this._hash = hash;
+
+    this.emit('updated');
   }
   
   get id() {

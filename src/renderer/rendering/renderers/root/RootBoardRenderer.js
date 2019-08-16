@@ -18,7 +18,23 @@ export default class RootBoardRenderer extends BaseRootRenderer {
   
   _setBoardAndItems = (boardId) => {
     this._board = this._providers.getBoard(boardId);
-    
+    this._board.on('updated', this._onBoardUpdated);
+
+    this._build();
+  }
+
+  _onBoardUpdated = () => {
+    // "Rebuild" board
+
+    Object.values(this._blocks).forEach((block) => block.instance.destroy());
+
+    this._blocks = null;
+    this._itemsMap = null;
+
+    this._build();
+  }
+
+  _build = () => {
     // "Prepare" data
     const layersById = this._board.layers.reduce((obj, layer) => {
       return {
@@ -164,10 +180,16 @@ export default class RootBoardRenderer extends BaseRootRenderer {
   // }
 
   destroy = () => {
+    if (this._board) {
+      this._board.removeAllListeners();
+    }
+    
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
 
     this._blocks = null;
     // this._audios = null;
+    this._itemsMap = null;
+    this._board = null;
 
     // super.destroy(); // @TODO needs babel update
   }
