@@ -18,11 +18,6 @@ export default function TimelineBlockModal(props) {
       }}
       fields={[
         {
-          label: 'Name',
-          field: 'name',
-          type: 'text',
-        },
-        {
           label: 'Script',
           field: 'script',
           type: 'select',
@@ -33,6 +28,12 @@ export default function TimelineBlockModal(props) {
           field: 'layer',
           type: 'select',
           from: 'layers',
+        },
+        {
+          label: 'Name',
+          field: 'name',
+          type: 'text',
+          placeholder: '(optional)'
         },
         {
           label: 'In time',

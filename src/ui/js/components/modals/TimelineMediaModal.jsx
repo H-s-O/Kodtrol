@@ -18,15 +18,22 @@ export default function TimelineMediaModal(props) {
       }}
       fields={[
         {
-          label: 'Name',
-          field: 'name',
-          type: 'text',
-        },
-        {
           label: 'Media',
           field: 'media',
           type: 'select',
           from: 'medias',
+        },
+        {
+          label: 'Layer',
+          field: 'layer',
+          type: 'select',
+          from: 'layers',
+        },
+        {
+          label: 'Name',
+          field: 'name',
+          type: 'text',
+          placeholder: '(optional)',
         },
         {
           label: 'In time',

@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import classNames from 'classnames'
 import Color from 'color';
 import AudioSVGWaveform from 'audio-waveform-svg-path';
+import { createSelector } from 'reselect';
+import { connect } from 'react-redux';
 
 import TimelineItem from './TimelineItem';
 
@@ -15,18 +17,12 @@ class TimelineMedia extends PureComponent {
   };
   
   componentDidMount = () => {
-    const { data, medias } = this.props;
-    const { media: mediaId } = data;
-    if (!mediaId) {
+    const { relatedMedia } = this.props;
+    if (!relatedMedia) {
       return;
     }
 
-    const media = medias.find(({id}) => id === mediaId);
-    if (!media) {
-      return;
-    }
-
-    const { file } = media;
+    const { file } = relatedMedia;
 
     this.trackWaveform = new AudioSVGWaveform({
       url: `file://${file}`,
@@ -62,10 +58,12 @@ class TimelineMedia extends PureComponent {
   }
   
   generateLabel = () => {
-    const { data } = this.props;
+    const { data, relatedMedia } = this.props;
     const { name, volume } = data;
-    
-    const label = `${name} [volume: ${volume}]`;
+    const mediaName = relatedMedia ? relatedMedia.name : null;
+    const finalName = name || mediaName;
+
+    const label = `${finalName} [volume: ${volume}]`;
     
     return label;
   }
@@ -100,9 +98,18 @@ class TimelineMedia extends PureComponent {
   }
 
   render = () => {
+    const { data, relatedMedia, ...otherProps } = this.props;
+    const blockName = data.name;
+    const mediaName = relatedMedia ? relatedMedia.name : null;
+    const finalName = blockName || mediaName;
+    
     return (
       <TimelineItem
-        {...this.props}
+        {...otherProps}
+        data={{
+          ...data,
+          name: finalName,
+        }}
         typeLabel='media'
         getItemLabel={this.generateLabel}
         canPasteStartTime={false}
@@ -114,4 +121,27 @@ class TimelineMedia extends PureComponent {
   }
 }
 
-export default TimelineMedia;
+const relatedMediaSelector = createSelector(
+  [
+    (state, props) => state.medias,
+    (state, props) => props.data.media,
+  ],
+  (medias, relatedMediaId) => {
+    if (!relatedMediaId) {
+      return null;
+    }
+    const media = medias.find(({id}) => id === relatedMediaId);
+    if (!media) {
+      return null;
+    }
+    return media;
+  }
+);
+
+const mapStateToProps = (state, props) => {
+  return {
+    relatedMedia: relatedMediaSelector(state, props),
+  };
+};
+
+export default connect(mapStateToProps)(TimelineMedia);

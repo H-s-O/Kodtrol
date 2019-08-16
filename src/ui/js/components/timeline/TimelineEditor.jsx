@@ -890,11 +890,7 @@ class TimelineEditor extends PureComponent {
     } else if ('curve' in item) {
       ComponentClass = TimelineCurve;
     } else if ('media' in item) {
-      const { medias } = this.props;
       ComponentClass = TimelineMedia;
-      componentProps = {
-        medias,
-      };
     }
     
     if (ComponentClass === null) {
