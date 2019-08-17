@@ -41,9 +41,21 @@ export default function TimelineBlockModal(props) {
           type: 'number',
         },
         {
+          label: 'Lead-in time',
+          field: 'leadInTime',
+          type: 'number',
+          placeholder: '(optional, default: 500)'
+        },
+        {
           label: 'Out time',
           field: 'outTime',
           type: 'number',
+        },
+        {
+          label: 'Lead-out time',
+          field: 'leadOutTime',
+          type: 'number',
+          placeholder: '(optional, default: 500)'
         },
         {
           label: 'Color',

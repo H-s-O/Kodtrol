@@ -118,7 +118,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       const end = t + divisor - 1;
       for (let i = 0; i < itemsCount; i++) {
         const item = timelineItems[i];
-        const { id, inTime, outTime, script, media, trigger, curve } = item;
+        const { id, inTime, outTime, script, media, trigger, curve, leadInTime, leadOutTime } = item;
         let trueInTime, trueOutTime;
         if (typeof trigger !== 'undefined') {
           trueInTime = inTime;
@@ -127,8 +127,10 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           // divisions, which will lessen the chance of being missed when there's lag
           trueOutTime = inTime + divisor;
         } else if (typeof script !== 'undefined') {
-          trueInTime = inTime - 500; // @TODO config script leadIn delay
-          trueOutTime = outTime + 500; // @TODO config script leadOut delay
+          const trueLeadInTime = leadInTime || 500;
+          const trueLeadOutTime = leadOutTime || 500;
+          trueInTime = inTime - trueLeadInTime;
+          trueOutTime = outTime + trueLeadOutTime;
         } else {
           trueInTime = inTime;
           trueOutTime = outTime;
@@ -247,16 +249,19 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
+      const { leadInTime, leadOutTime } = block;
+      const trueLeadInTime = leadInTime || 500;
+      const trueLeadOutTime = leadOutTime || 500;
       if (
-        currentTime >= block.inTime - 500 // @TODO config script leadIn time
-        && currentTime <= block.outTime + 500 // @TODO config script leadOut time
+        currentTime >= block.inTime - trueLeadInTime
+        && currentTime <= block.outTime + trueLeadOutTime
       ) {
         const { inTime, outTime } = block;
         let blockPercent;
         if (currentTime < inTime) {
-          blockPercent = ((currentTime - inTime + 500) / 500) - 1;
+          blockPercent = ((currentTime - inTime + trueLeadInTime) / trueLeadInTime) - 1;
         } else if (currentTime > outTime) {
-          blockPercent = ((currentTime - outTime + 500) / 500);
+          blockPercent = ((currentTime - outTime + trueLeadOutTime) / trueLeadOutTime);
         } else {
           blockPercent = ((currentTime - inTime) / (outTime - inTime));
         }
