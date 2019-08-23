@@ -1,6 +1,8 @@
+import EventEmitter from 'events';
+
 import { getCompiledScriptPath } from '../lib/fileSystem';
 
-export default class Script {
+export default class Script extends EventEmitter {
   _id = null;
   _tempo = 0;
   _devices = [];
@@ -14,6 +16,7 @@ export default class Script {
   _hash = null;
   
   constructor(sourceScript) {
+    super();
     this.update(sourceScript);
   }
   
@@ -31,6 +34,8 @@ export default class Script {
     
     this.setDevices(devices);
     this.setScriptInstanceAndFlags(id);
+
+    this.emit('updated');
   }
   
   setDevices = (devices) => {

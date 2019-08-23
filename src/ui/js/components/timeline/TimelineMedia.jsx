@@ -2,12 +2,14 @@ import React, { PureComponent } from 'react';
 import classNames from 'classnames'
 import Color from 'color';
 import AudioSVGWaveform from 'audio-waveform-svg-path';
+import { createSelector } from 'reselect';
+import { connect } from 'react-redux';
 
 import TimelineItem from './TimelineItem';
 
 import styles from '../../../styles/components/timeline/timelineaudiotrack.scss';
 
-class TimelineAudioTrack extends PureComponent {
+class TimelineMedia extends PureComponent {
   trackWaveform = null;
   state = {
     trackWaveformData: null,
@@ -15,9 +17,13 @@ class TimelineAudioTrack extends PureComponent {
   };
   
   componentDidMount = () => {
-    const { data } = this.props;
-    const { file } = data;
-    
+    const { relatedMedia } = this.props;
+    if (!relatedMedia) {
+      return;
+    }
+
+    const { file } = relatedMedia;
+
     this.trackWaveform = new AudioSVGWaveform({
       url: `file://${file}`,
     });
@@ -52,10 +58,12 @@ class TimelineAudioTrack extends PureComponent {
   }
   
   generateLabel = () => {
-    const { data } = this.props;
+    const { data, relatedMedia } = this.props;
     const { name, volume } = data;
-    
-    const label = `${name} [volume: ${volume}]`;
+    const mediaName = relatedMedia ? relatedMedia.name : null;
+    const finalName = name || mediaName;
+
+    const label = `${finalName} [volume: ${volume}]`;
     
     return label;
   }
@@ -90,10 +98,19 @@ class TimelineAudioTrack extends PureComponent {
   }
 
   render = () => {
+    const { data, relatedMedia, ...otherProps } = this.props;
+    const blockName = data.name;
+    const mediaName = relatedMedia ? relatedMedia.name : null;
+    const finalName = blockName || mediaName;
+    
     return (
       <TimelineItem
-        {...this.props}
-        typeLabel='audio track'
+        {...otherProps}
+        data={{
+          ...data,
+          name: finalName,
+        }}
+        typeLabel='media'
         getItemLabel={this.generateLabel}
         canPasteStartTime={false}
         canPasteEndTime={false}
@@ -104,4 +121,27 @@ class TimelineAudioTrack extends PureComponent {
   }
 }
 
-export default TimelineAudioTrack;
+const relatedMediaSelector = createSelector(
+  [
+    (state, props) => state.medias,
+    (state, props) => props.data.media,
+  ],
+  (medias, relatedMediaId) => {
+    if (!relatedMediaId) {
+      return null;
+    }
+    const media = medias.find(({id}) => id === relatedMediaId);
+    if (!media) {
+      return null;
+    }
+    return media;
+  }
+);
+
+const mapStateToProps = (state, props) => {
+  return {
+    relatedMedia: relatedMediaSelector(state, props),
+  };
+};
+
+export default connect(mapStateToProps)(TimelineMedia);

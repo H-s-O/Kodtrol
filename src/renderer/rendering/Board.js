@@ -1,4 +1,6 @@
-export default class Board {
+import EventEmitter from 'events';
+
+export default class Board extends EventEmitter {
   _id = null;
   _tempo = 0;
   _layers = [];
@@ -6,6 +8,7 @@ export default class Board {
   _hash = null;
   
   constructor(sourceBoard) {
+    super();
     this.update(sourceBoard);
   }
   
@@ -23,6 +26,8 @@ export default class Board {
     this._items = items;
     this._tempo = Number(tempo);
     this._hash = hash;
+
+    this.emit('updated');
   }
   
   get id() {

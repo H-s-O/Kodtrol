@@ -8,6 +8,7 @@ import DevicesBrowser from './components/partials/DevicesBrowser';
 import TimelinesBrowser from './components/partials/TimelinesBrowser';
 import TimelineEditor from './components/timeline/TimelineEditor';
 import BoardEditor from './components/board/BoardEditor';
+import MediasBrowser from './components/partials/MediasBrowser'
 import ModalsContainer from './components/partials/ModalsContainer';
 import Placeholder from './components/partials/Placeholder';
 import MainNav from './components/partials/MainNav';
@@ -46,9 +47,12 @@ export default connect(mapStateToProps)((props) => {
         </Row>
         <Row className={styles.bottomRow}>
           <Col md={2} className={styles.fullHeight}>
+            <MediasBrowser/>
+          </Col>
+          <Col md={2} className={styles.fullHeight}>
             <TimelinesBrowser/>
           </Col>
-          <Col md={10} className={styles.fullHeight}>
+          <Col md={8} className={styles.fullHeight}>
             { props.currentTimeline
               ? <TimelineEditor key={props.currentTimeline} />
               : props.currentBoard 

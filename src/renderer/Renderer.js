@@ -77,6 +77,9 @@ export default class Renderer {
     } else if ('updateScripts' in message) {
       const { updateScripts } = message;
       this.updateScripts(updateScripts);
+    } else if ('updateMedias' in message) {
+      const { updateMedias } = message;
+      this.updateMedias(updateMedias);
     } else if ('updateTimelines' in message) {
       const { updateTimelines } = message;
       this.updateTimelines(updateTimelines);
@@ -162,20 +165,6 @@ export default class Renderer {
       (timeline) => timeline.destroy()
     );
     // console.log('RENDERER updateTimelines', this.timelines);
-    
-    // temp patch to simulate future medias
-    const audioOutput = Object.values(this.outputs).find(({type}) => type === 'audio');
-    const medias = Object.values(this.timelines).reduce((arr, timeline) => {
-      const medias = timeline.items.filter(({file}) => !!file);
-      return [
-        ...arr,
-        ...medias.map((media) => ({
-          ...media,
-          output: audioOutput ? audioOutput.id : null,
-        })),
-      ]
-    }, []);
-    this.updateMedias(medias);
   }
   
   updateBoards = (data) => {
@@ -446,6 +435,7 @@ export default class Renderer {
   outputAll = () => {
     Object.values(this.devices).forEach((device) => device.sendDataToOutput());
     Object.values(this.medias).forEach((media) => media.sendDataToOutput());
+    
     Object.values(this.outputs).forEach((output) => output.flush());
   }
 }

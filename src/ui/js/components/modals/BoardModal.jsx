@@ -1,7 +1,7 @@
 import React from 'react';
 import BaseModal from './BaseModal';
 
-export default function(props) {
+export default function BoardModal(props) {
   return (
     <BaseModal
       {...props}
@@ -15,6 +15,9 @@ export default function(props) {
           label: 'Tempo',
           field: 'tempo',
           type: 'number',
+          placeholder: '1 - 300',
+          min: 1,
+          max: 300,
         },
       ]}
     />

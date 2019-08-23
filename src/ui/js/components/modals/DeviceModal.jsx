@@ -2,14 +2,14 @@ import React from 'react';
 import BaseModal from './BaseModal';
 import ChannelsTableField from './fields/ChannelsTableField';
 
-export default function(props) {
+export default function DeviceModal(props) {
   const { outputs, ...otherProps } = props;
   return (
     <BaseModal
       {...otherProps}
       dialogClassName="device-modal"
       relatedData={{
-        outputs: outputs.map(({id, name}) => ({
+        outputs: outputs.filter(({type}) => type !== 'audio').map(({id, name}) => ({
           value: id,
           label: name,
         })),
@@ -35,6 +35,9 @@ export default function(props) {
           label: 'Starting channel',
           field: 'startChannel',
           type: 'number',
+          placeholder: '1 - 512',
+          min: 1,
+          max: 512,
         },
         {
           label: 'Channels',

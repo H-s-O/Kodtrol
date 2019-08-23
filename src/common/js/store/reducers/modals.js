@@ -3,6 +3,8 @@ const defaultState = {
   deviceModalValue: null,
   scriptModalAction: null,
   scriptModalValue: null,
+  mediaModalAction: null,
+  mediaModalValue: null,
   timelineModalAction: null,
   timelineModalValue: null,
   boardModalAction: null,
@@ -28,6 +30,16 @@ export default (state = defaultState, {type, payload}) => {
         ...{
           scriptModalAction: payload.modalAction,
           scriptModalValue: payload.modalValue,
+        },
+      };
+      break;
+    
+    case 'UPDATE_MEDIA_MODAL':
+      return {
+        ...state,
+        ...{
+          mediaModalAction: payload.modalAction,
+          mediaModalValue: payload.modalValue,
         },
       };
       break;

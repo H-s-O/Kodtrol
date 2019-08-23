@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { get} from 'lodash';
+import { get } from 'lodash';
 import { Button, Glyphicon, Modal, FormGroup, FormControl, ControlLabel, Form, Col, Table } from 'react-bootstrap';
 import { GithubPicker } from 'react-color';
 
@@ -9,6 +9,7 @@ import NumberField from '../forms/fields/NumberField';
 import SelectField from '../forms/fields/SelectField';
 import ColorField from '../forms/fields/ColorField';
 import FileField from '../forms/fields/FileField';
+import StaticField from '../forms/fields/StaticField';
 import isFunction from '../../lib/isFunction';
 
 const propTypes = {
@@ -21,6 +22,7 @@ const propTypes = {
   relatedData: PropTypes.shape({}),
   onSuccess: PropTypes.func,
   onCancel: PropTypes.func,
+  valueFilter: PropTypes.func,
 };
 
 const defaultProps = {
@@ -32,16 +34,17 @@ const defaultProps = {
   relatedData: null,
   onSuccess: null,
   onCancel: null,
+  valueFilter: null,
 };
 
 class BaseModal extends Component {
   state = {
     value: {},
   };
-  
+
   constructor(props) {
     super(props);
-    
+
     const { initialValue } = props;
     if (initialValue) {
       this.state = {
@@ -71,35 +74,26 @@ class BaseModal extends Component {
     }
   }
 
-  onFieldChange = (e) => {
-    const fieldName = e.target.id;
-    const fieldValue = e.target.value;
+  onFieldChange = (fieldName, fieldValue) => {
     const { value } = this.state;
-    this.setState({
-      value: {
-        ...value,
-        [fieldName]: fieldValue,
-      },
-    });
-  }
-  
-  onCustomFieldChange = (fieldName, fieldValue) => {
-    const { value } = this.state;
-    this.setState({
-      value: {
-        ...value,
-        [fieldName]: fieldValue,
-      },
-    })
+    const newValue = {
+      ...value,
+      [fieldName]: fieldValue,
+    };
+
+    const { valueFilter } = this.props;
+    if (isFunction(valueFilter)) {
+      valueFilter(newValue, this.afterValueFilter);
+    } else {
+      this.setState({
+        value: newValue,
+      });
+    }
   }
 
-  onColorChange = (fieldName, fieldValue) => {
-    const { value } = this.state;
+  afterValueFilter = (data) => {
     this.setState({
-      value: {
-        ...value,
-        [fieldName]: fieldValue.hex,
-      },
+      value: data,
     });
   }
 
@@ -117,10 +111,10 @@ class BaseModal extends Component {
       onSuccess(value);
     }
   }
-  
+
   renderFieldGroup = (fieldInfo, index) => {
     const { label, field } = fieldInfo;
-    
+
     return (
       <FormGroup
         key={`formgroup-${index}`}
@@ -130,70 +124,88 @@ class BaseModal extends Component {
           componentClass={ControlLabel}
           sm={3}
         >
-          { label }
+          {label}
         </Col>
         <Col
           sm={9}
         >
-          { this.renderFieldContent(fieldInfo) }
+          {this.renderFieldContent(fieldInfo)}
         </Col>
       </FormGroup>
     );
   }
-  
+
   renderFieldContent = (fieldInfo) => {
     const { initialValue, relatedData } = this.props;
-    const { field, type, from } = fieldInfo;
-    const fieldInitialValue = get(initialValue, field);
-    
+    const { value: formValue } = this.state;
+    const { field, type, from, readOnly, min, max, placeholder } = fieldInfo;
+    const fieldValue = get(formValue, field, get(initialValue, field));
+
     if (type === 'select') {
       const fieldRelatedData = get(relatedData, from || field, []);
-      
+
       return (
         <SelectField
-          onChange={(value) => this.onCustomFieldChange(field, value)}
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
           options={fieldRelatedData}
+          disabled={readOnly}
         />
       );
     }
-    
+
     if (type === 'color') {
       return (
         <ColorField
-          value={fieldInitialValue}
-          onChange={(value) => this.onCustomFieldChange(field, value)}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
+          disabled={readOnly}
         />
       );
     }
-    
+
     if (type === 'file') {
       return (
         <FileField
-          onChange={(value) => this.onCustomFieldChange(field, value)}
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
+          disabled={readOnly}
         />
       );
     }
-    
+
     if (type === 'number') {
       return (
         <NumberField
-          onChange={(value) => this.onCustomFieldChange(field, value)}
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
+          disabled={readOnly}
+          placeholder={placeholder}
+          min={min}
+          max={max}
         />
       );
     }
-    
+
     if (type === 'text') {
       return (
         <TextField
-          onChange={(value) => this.onCustomFieldChange(field, value)}
-          defaultValue={fieldInitialValue}
+          value={fieldValue}
+          onChange={(value) => this.onFieldChange(field, value)}
+          disabled={readOnly}
+          placeholder={placeholder}
         />
       );
     }
-    
+
+    if (type === 'static') {
+      return (
+        <StaticField
+          value={fieldValue}
+        />
+      );
+    }
+
     // Custom field node
     const CustomComponent = type;
     const related = {};
@@ -202,12 +214,13 @@ class BaseModal extends Component {
     }
     return (
       <CustomComponent
-        onChange={(value) => this.onCustomFieldChange(field, value)}
-        defaultValue={fieldInitialValue}
+        value={fieldValue}
+        onChange={(value) => this.onFieldChange(field, value)}
+        disabled={readOnly}
         {...related}
       />
     );
-  } 
+  }
 
   render = () => {
     const { show, title, fields, successLabel, cancelLabel, onCancel, dialogClassName } = this.props;
@@ -221,32 +234,32 @@ class BaseModal extends Component {
         dialogClassName={dialogClassName}
         keyboard
       >
-      <Modal.Header
-        closeButton
-      >
-        <Modal.Title
+        <Modal.Header
+          closeButton
         >
-          { title }
-        </Modal.Title>
-      </Modal.Header>
+          <Modal.Title
+          >
+            {title}
+          </Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <Form
             horizontal
           >
-           { fields.map(this.renderFieldGroup) }
+            {fields.map(this.renderFieldGroup)}
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button
             onClick={this.onCancelClick}
           >
-            { cancelLabel }
+            {cancelLabel}
           </Button>
           <Button
             bsStyle="success"
             onClick={this.onSaveClick}
           >
-            { successLabel }
+            {successLabel}
           </Button>
         </Modal.Footer>
       </Modal>

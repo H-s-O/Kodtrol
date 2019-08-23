@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import BaseModal from './BaseModal';
 
-export default function(props) {
+export default function TimelineBlockModal(props) {
   const { scripts, layers, ...otherProps } = props;
   return (
     <BaseModal
@@ -18,11 +18,6 @@ export default function(props) {
       }}
       fields={[
         {
-          label: 'Name',
-          field: 'name',
-          type: 'text',
-        },
-        {
           label: 'Script',
           field: 'script',
           type: 'select',
@@ -35,14 +30,32 @@ export default function(props) {
           from: 'layers',
         },
         {
+          label: 'Name',
+          field: 'name',
+          type: 'text',
+          placeholder: '(optional)'
+        },
+        {
           label: 'In time',
           field: 'inTime',
           type: 'number',
         },
         {
+          label: 'Lead-in time',
+          field: 'leadInTime',
+          type: 'number',
+          placeholder: '(optional, default: 500)'
+        },
+        {
           label: 'Out time',
           field: 'outTime',
           type: 'number',
+        },
+        {
+          label: 'Lead-out time',
+          field: 'leadOutTime',
+          type: 'number',
+          placeholder: '(optional, default: 500)'
         },
         {
           label: 'Color',

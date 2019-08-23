@@ -12,10 +12,10 @@ class DeviceTableField extends PureComponent {
   constructor(props) {
     super(props);
     
-    const { defaultValue } = props;
-    if (defaultValue) {
+    const { value } = props;
+    if (value) {
       this.state = {
-        value: defaultValue,
+        value: value,
       };
     }
   }
@@ -93,7 +93,7 @@ class DeviceTableField extends PureComponent {
               <td>
                 <SelectField
                   bsSize="small"
-                  value={id || ""}
+                  value={id}
                   onChange={(value) => this.onDeviceChange(value, index)}
                   options={devices.map(({id, name}) => ({
                     value: id,

@@ -13,10 +13,10 @@ class ChannelsTableField extends PureComponent {
   constructor(props) {
     super(props);
     
-    const { defaultValue } = props;
-    if (defaultValue) {
+    const { value } = props;
+    if (value) {
       this.state = {
-        value: defaultValue,
+        value: value,
       };
     }
   }
@@ -98,7 +98,7 @@ class ChannelsTableField extends PureComponent {
                   placeholder="0 - 255"
                   min="0"
                   max="255"
-                  value={defaultValue || ""}
+                  value={defaultValue}
                   onChange={(value) => this.onChannelChange(value, index, 'defaultValue')}
                 />
               </td>
@@ -106,7 +106,7 @@ class ChannelsTableField extends PureComponent {
                 <TextField
                   bsSize="small"
                   placeholder="(none)"
-                  value={alias || ""}
+                  value={alias}
                   onChange={(value) => this.onChannelChange(value, index, 'alias')}
                 />
               </td>

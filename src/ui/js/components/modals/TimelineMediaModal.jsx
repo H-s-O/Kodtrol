@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import BaseModal from './BaseModal';
 
-export default function(props) {
-  const { layers, ...otherProps } = props;
+export default function TimelineMediaModal(props) {
+  const { layers, medias, ...otherProps } = props;
   return (
     <BaseModal
       {...otherProps}
@@ -11,23 +11,29 @@ export default function(props) {
           value: id,
           label: order + 1,
         })),
+        medias: medias.map(({id, name}) => ({
+          value: id,
+          label: name,
+        })),
       }}
       fields={[
         {
-          label: 'Name',
-          field: 'name',
-          type: 'text',
-        },
-        {
-          label: 'File',
-          field: 'file',
-          type: 'file',
+          label: 'Media',
+          field: 'media',
+          type: 'select',
+          from: 'medias',
         },
         {
           label: 'Layer',
           field: 'layer',
           type: 'select',
           from: 'layers',
+        },
+        {
+          label: 'Name',
+          field: 'name',
+          type: 'text',
+          placeholder: '(optional)',
         },
         {
           label: 'In time',
