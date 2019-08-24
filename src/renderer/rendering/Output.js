@@ -1,5 +1,6 @@
 import DmxOutput from '../outputs/DmxOutput';
 import ArtnetOutput from '../outputs/ArtnetOutput';
+import IldaOutput from '../outputs/IldaOutput';
 import AudioOutput from '../outputs/AudioOutput';
 
 export default class Output {
@@ -47,6 +48,9 @@ export default class Output {
     } else if (type === 'artnet') {
       const { address } = extraData;
       output = new ArtnetOutput(address);
+    } else if (type === 'ilda') {
+      const { subType, address } = extraData;
+      output = new IldaOutput(subType, address)
     } else if (type === 'audio') {
       const { device } = extraData;
       output = new AudioOutput(device);

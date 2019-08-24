@@ -13,6 +13,10 @@ export default function DeviceModal(props) {
           value: id,
           label: name,
         })),
+        types: [
+          { value: 'dmx', label: 'DMX' },
+          { value: 'ilda', label: 'ILDA' },
+        ],
       }}
       fields={[
         {
@@ -24,6 +28,12 @@ export default function DeviceModal(props) {
           label: 'Group(s)',
           field: 'groups',
           type: 'text',
+        },
+        {
+          label: 'Type',
+          field: 'type',
+          type: 'select',
+          from: 'types',
         },
         {
           label: 'Output to',

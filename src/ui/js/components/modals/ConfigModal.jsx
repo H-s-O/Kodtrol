@@ -287,8 +287,9 @@ class ConfigModal extends Component {
           </Col>
           <Col md={10}>
             <SelectField value={type || ''} onChange={(value) => this.updateOutput(id, 'type', value)} options={[
-              { value: 'dmx', label: 'DMX' },
+              { value: 'dmx', label: 'USB DMX' },
               { value: 'artnet', label: 'ArtNet' },
+              { value: 'ilda', label: 'ILDA' },
               { value: 'audio', label: 'Audio' },
             ]} />
           </Col>
@@ -333,6 +334,34 @@ class ConfigModal extends Component {
               </Col>
             </FormGroup>
           </Fragment>
+        ) : type === 'ilda' ? (
+          <Fragment>
+            <FormGroup>
+              <Col md={2} componentClass={ControlLabel}>
+                Driver
+              </Col>
+              <Col md={10}>
+                <SelectField value={extraData.subType || ''} onChange={(value) => this.updateOutput(id, 'extraData.subType', value)} options={[
+                  { value: 'ether-dream', label: 'Ether Dream' },
+                  { value: 'helios', label: 'Helios' },
+                  { value: 'laserdock', label: 'Laserdock' },
+                  { value: 'beyond', label: 'Pangolin Beyond' },
+                  { value: 'easylase', label: 'Easylase' },
+                ]} />
+                <HelpBlock>
+                  { this.renderIldaOutputTypeHelp(extraData.subType) }
+                </HelpBlock>
+              </Col>
+            </FormGroup>
+            <FormGroup>
+              <Col md={2} componentClass={ControlLabel}>
+                Address
+              </Col>
+              <Col md={10}>
+                <TextField value={extraData.address || ''} onChange={(value) => this.updateOutput(id, 'extraData.address', value)} />
+              </Col>
+            </FormGroup>
+          </Fragment>
         ) : type === 'audio' ? (
           <Fragment>
             <FormGroup>
@@ -367,6 +396,28 @@ class ConfigModal extends Component {
         break;
       case 'dmxking-utra-dmx-pro':
         return 'For the DMXKing Ultra DMX pro interface';
+        break;
+    }
+    
+    return null;
+  }
+  
+  renderIldaOutputTypeHelp = (subType) => {
+    switch (subType) {
+      case 'ether-dream':
+        return (<Fragment>For a <a href="#" onClick={() => openExternalUrl('https://ether-dream.com/')}>Ether Dream</a> DAC</Fragment>);
+        break;
+        case 'helios':
+        return (<Fragment>For a <a href="#" onClick={() => openExternalUrl('http://pages.bitlasers.com/helios/')}>Helios</a> DAC</Fragment>);
+        break;
+        case 'laserdock':
+        return (<Fragment>For a <a href="#" onClick={() => openExternalUrl('https://www.wickedlasers.com/laserdock')}>Laserdock</a> laser</Fragment>);
+        break;
+        case 'beyond':
+        return (<Fragment>For use with the <a href="#" onClick={() => openExternalUrl('https://pangolin.com/pages/beyond')}>Pangolin Beyond</a> software (Windows only)</Fragment>);
+        break;
+        case 'easylase':
+        return (<Fragment>For a <a href="#" onClick={() => openExternalUrl('http://www.jmlaser.com/EasyLase_D.htm')}>Easylase</a> DAC (Windows only)</Fragment>);
         break;
     }
     
