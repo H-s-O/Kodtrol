@@ -360,7 +360,7 @@ export default class Renderer {
     process.send(data);
   }
 
-  tickHandler = (delta) => {
+  tickHandler = (delta, initial = false) => {
     if (this.currentScript) {
       this.currentScript.tick(delta);
     }
@@ -371,7 +371,7 @@ export default class Renderer {
       this.currentBoard.tick(delta);
     }
     
-    if (this.frameTime >= this.renderDelay || delta === 0) { // delta === 0 is initial tick
+    if (this.frameTime >= this.renderDelay || initial) {
       const diff = this.frameTime - this.renderDelay;
       this.tickerFrame(diff);
       this.frameTime = 0;
