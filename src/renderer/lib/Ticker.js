@@ -10,7 +10,7 @@ export default class Ticker {
   start = () => {
     if (!this.running) {
       this.lastTime = Date.now();
-      this.tick(); // initial tick
+      this.tick(true); // initial tick
       this.interval = setInterval(this.tick, 0);
     }
   }
@@ -26,10 +26,10 @@ export default class Ticker {
     return this.interval !== null;
   }
   
-  tick = () => {
+  tick = (initial = false) => {
     const time = Date.now();
     const diff = time - this.lastTime;
-    this.tickCallback(diff);
+    this.tickCallback(diff, initial);
     this.lastTime = time;
   }
   
