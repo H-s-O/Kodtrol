@@ -127,8 +127,8 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           // divisions, which will lessen the chance of being missed when there's lag
           trueOutTime = inTime + divisor;
         } else if (typeof script !== 'undefined') {
-          const trueLeadInTime = leadInTime || 500;
-          const trueLeadOutTime = leadOutTime || 500;
+          const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : 500;
+          const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : 500;
           trueInTime = inTime - trueLeadInTime;
           trueOutTime = outTime + trueLeadOutTime;
         } else {
@@ -250,8 +250,8 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
       const { leadInTime, leadOutTime } = block;
-      const trueLeadInTime = leadInTime || 500;
-      const trueLeadOutTime = leadOutTime || 500;
+      const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : 500;
+      const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : 500;
       if (
         currentTime >= block.inTime - trueLeadInTime
         && currentTime <= block.outTime + trueLeadOutTime
