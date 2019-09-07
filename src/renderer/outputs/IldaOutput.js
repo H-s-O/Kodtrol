@@ -50,11 +50,11 @@ export default class IldaOutput {
   }
 
   destroy = () => {
-    if (this.scene) {
-      this.scene.stop();
-    }
     if (this.output) {
       this.output.stop();
+    }
+    if (this.scene) {
+      this.scene.stop();
     }
 
     this.output = null;
