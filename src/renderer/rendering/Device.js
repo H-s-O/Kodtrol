@@ -1,5 +1,6 @@
 import _camelCase from 'lodash/camelCase';
 import _upperFirst from 'lodash/upperFirst';
+import { Path, Rect, Line, Circle } from '@laser-dac/draw';
 
 export default class Device {
   _id = null;
@@ -13,7 +14,8 @@ export default class Device {
   _output = null;
   _providers = null;
   _hash = null;
-  
+  _objects = [];
+
   constructor(providers, sourceDevice) {
     this._providers = providers;
     
@@ -137,22 +139,33 @@ export default class Device {
     return this._hash;
   }
   
-  resetChannels = () => {
+  reset = () => {
     this._channels = {
       ...this._channelDefaults,
     };
+    // temp
+    this._objects = [];
   }
   
   sendDataToOutput = () => {
     if (this._output) {
-      const data = Object.entries(this._channels).reduce((obj, [channel, channelValue]) => {
-        return {
-          ...obj,
-          [this._startingChannel + Number(channel)]: channelValue,
+      // temp
+      if (this._type === 'dmx') {
+        const data = Object.entries(this._channels).reduce((obj, [channel, channelValue]) => {
+          return {
+            ...obj,
+            [this._startingChannel + Number(channel)]: channelValue,
+          };
+        }, {});
+        
+        this._output.buffer(data);
+      } else if (this._type === 'ilda') {
+        const data = {
+          [this._id]: this._objects,
         };
-      }, {});
-      
-      this._output.buffer(data);
+
+        this._output.buffer(data);
+      }
     }
   }
   
@@ -189,6 +202,26 @@ export default class Device {
   updateChannel = (channel, func) => {
     return this.setChannel(channel, func(this.getChannel(channel)));
   }
+
+  /////////////////////////////////////////////// temp
+
+  addPath = (data) => {
+    this._objects.push(new Path(data));
+  }
+
+  addRect = (data) => {
+    this._objects.push(new Rect(data));
+  }
+
+  addLine = (data) => {
+    this._objects.push(new Line(data));
+  }
+
+  addCircle = (data) => {
+    this._objects.push(new Circle(data));
+  }
+
+  ////////////////////////////////////////////////////
   
   destroy = () => {
     this._id = null;
@@ -202,5 +235,7 @@ export default class Device {
     this._output = null;
     this._providers = null;
     this._hash = null;
+    // temp
+    this._objects = null;
   }
 };

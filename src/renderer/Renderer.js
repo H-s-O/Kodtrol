@@ -425,11 +425,11 @@ export default class Renderer {
   }
   
   resetDevices = () => {
-    Object.values(this.devices).forEach((device) => device.resetChannels());
+    Object.values(this.devices).forEach((device) => device.reset());
   }
   
   resetMedias = () => {
-    Object.values(this.medias).forEach((media) => media.resetOutputData());
+    Object.values(this.medias).forEach((media) => media.reset());
   }
   
   outputAll = () => {

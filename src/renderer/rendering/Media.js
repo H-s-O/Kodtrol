@@ -77,11 +77,11 @@ export default class Media {
   }
   
   stop = () => {
-    this.resetOutputData();
+    this.reset();
     this.sendDataToOutput();
   }
   
-  resetOutputData = () => {
+  reset = () => {
     this._streamId = null;
     this._position = 0;
     this._active = false;
