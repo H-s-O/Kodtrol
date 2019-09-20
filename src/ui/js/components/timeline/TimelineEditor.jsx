@@ -57,6 +57,7 @@ class TimelineEditor extends PureComponent {
     adjustItemId: null,
     adjustItemMode: null,
     
+    copyItemMode: null,
     copyItemData: null,
     
     timelineDataTemp: null,
@@ -131,7 +132,7 @@ class TimelineEditor extends PureComponent {
   }
 
   onPasteItemHere = (layerId, e) => {
-    this.doPasteItem(layerId, '*', e);
+    this.doPasteItem(layerId, 'item', e);
   }
 
   onAddBlockHereClick = (layerId, e) => {
@@ -233,24 +234,29 @@ class TimelineEditor extends PureComponent {
     const item = this.getItem(itemId);
     
     let itemData;
-    if (mode === '*') {
-      itemData = item;
-    } else {
-      itemData = item[mode];
+    switch (mode) {
+      case 'item':          itemData = item; break;
+      case 'inTime':        itemData = item.inTime; break;
+      case 'outTime':       itemData = item.outTime; break;
+      case 'inAndOutTime':  itemData = { inTime: item.inTime, outTime: item.outTime }; break;
+      default: throw new Error(`Unknown copy mode "${mode}"`); break;
     }
 
     this.setState({
+      copyItemMode: mode,
       copyItemData: itemData,
     });
   }
   
   canPasteItem = (mode) => {
-    const { copyItemData } = this.state;
-    if (copyItemData === null) {
-      return false;
-    } else if (mode === '*' && typeof copyItemData === 'object') {
+    const { copyItemMode } = this.state;
+    if (mode === 'item' && copyItemMode === 'item') {
       return true;
-    } else if (mode !== '*' && typeof copyItemData === 'number') {
+    } else if (mode === 'inTime' && (copyItemMode === 'inTime' || copyItemMode === 'outTime')) {
+      return true;
+    } else if (mode === 'outTime' && (copyItemMode === 'inTime' || copyItemMode === 'outTime')) {
+      return true;
+    } else if (mode === 'inAndOutTime' && copyItemMode === 'inAndOutTime') {
       return true;
     }
     return false;
@@ -265,7 +271,7 @@ class TimelineEditor extends PureComponent {
       
       let newItem;
       let newItems;
-      if (mode === '*') {
+      if (mode === 'item') {
         const { inTime, outTime } = copyItemData;
         let newInTime = this.getTimelinePositionFromEvent(e);
         if (newInTime < 0) {
@@ -293,6 +299,18 @@ class TimelineEditor extends PureComponent {
           ...items,
           newItem,
         ];
+      } else if (mode === 'inAndOutTime') {
+        const item = this.getItem(itemId);
+        newItem = {
+          ...item,
+          ...copyItemData,
+        };
+        newItems = items.map((item) => {
+          if (item.id === itemId) {
+            return newItem;
+          }
+          return item;
+        });
       } else {
         const item = this.getItem(itemId);
         newItem = {
@@ -314,6 +332,7 @@ class TimelineEditor extends PureComponent {
       this.doSave(newTimelineData);
 
       this.setState({
+        copyItemMode: null,
         copyItemData: null,
       });
     }
@@ -933,7 +952,7 @@ class TimelineEditor extends PureComponent {
       {
         label: 'Paste item here',
         click: () => this.onPasteItemHere(layerId, e),
-        enabled: this.canPasteItem('*'),
+        enabled: this.canPasteItem('item'),
       },
       {
         label: 'Add block here...',

@@ -74,7 +74,7 @@ class TimelineItem extends PureComponent {
   }
 
   onCopyItemClick = () => {
-    this.doCopyItem('*');
+    this.doCopyItem('item');
   }
   
   onCopyItemStartClick = () => {
@@ -85,12 +85,20 @@ class TimelineItem extends PureComponent {
     this.doCopyItem('outTime');
   }
 
+  onCopyItemStartAndEndClick = () => {
+    this.doCopyItem('inAndOutTime');
+  }
+
   onPasteItemStartClick = () => {
     this.doPasteItem('inTime');
   }
 
   onPasteItemEndClick = () => {
     this.doPasteItem('outTime');
+  }
+
+  onPasteItemStartAndEndClick = () => {
+    this.doPasteItem('inAndOutTime');
   }
 
   onChangeItemLayerUp = () => {
@@ -213,6 +221,12 @@ class TimelineItem extends PureComponent {
         click: this.onCopyItemEndClick,
       });
     }
+    if (canCopyStartTime && canCopyEndTime) {
+      template.push({
+        label: `Copy ${typeLabel} start and end times`,
+        click: this.onCopyItemStartAndEndClick,
+      });
+    }
     if (canPasteStartTime) {
       template.push({
         label: `Paste time as ${typeLabel} start time`,
@@ -225,6 +239,13 @@ class TimelineItem extends PureComponent {
         label: `Paste time as ${typeLabel} end time`,
         click: this.onPasteItemEndClick,
         enabled: timelineCanPasteItem('outTime'),
+      });
+    }
+    if (canPasteStartTime && canPasteEndTime) {
+      template.push({
+        label: `Paste times as ${typeLabel} start and end times`,
+        click: this.onPasteItemStartAndEndClick,
+        enabled: timelineCanPasteItem('inAndOutTime'),
       });
     }
 
