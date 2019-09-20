@@ -23,6 +23,10 @@
       border-left-color: #000 !important;
     }
   }
+
+  &.highlight {
+    box-shadow: 0 0 0 2px #FFF;
+  }
   
   .header {
     width: 100%;
@@ -116,6 +120,10 @@
     color: #000 !important;
   }
   
+  &.simpleHighlight {
+    box-shadow: 0 0 0 1px #FFF;
+  }
+
   .labelFlag {
     position: absolute;
     left: 1px;
