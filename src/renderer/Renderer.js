@@ -4,14 +4,16 @@ import RootTimelineRenderer from './rendering/renderers/root/RootTimelineRendere
 import RootBoardRenderer from './rendering/renderers/root/RootBoardRenderer';
 import Media from './rendering/Media';
 import MediaProxy from './rendering/MediaProxy';
-import Device from './rendering/Device';
-import DeviceProxy from './rendering/DeviceProxy';
 import Script from './rendering/Script';
 import Timeline from './rendering/Timeline';
 import Board from './rendering/Board';
 import Output from './rendering/Output';
 import Input from './rendering/Input';
 import hashComparator from '../common/js/lib/hashComparator';
+import DmxDevice from './rendering/DmxDevice';
+import IldaDevice from './rendering/IldaDevice';
+import DmxDeviceProxy from './rendering/DmxDeviceProxy';
+import IldaDeviceProxy from './rendering/IldaDeviceProxy';
 
 export default class Renderer {
   outputs = {};
@@ -139,10 +141,18 @@ export default class Renderer {
     this.devices = hashComparator(
       data,
       this.devices,
-      (item) => new Device(this.providers, item),
+      (item) => {
+        if (item.type === 'dmx') {
+          return new DmxDevice(this.providers, item);
+        } else if (item.type === 'ilda') {
+          return new IldaDevice(this.providers, item);
+        }
+        throw new Error(`Unknown device type "${item.type}"`);
+      },
       (device, item) => device.update(item),
       (device) => device.destroy()
     );
+    // console.log('RENDERER updateDevices', this.devices);
   }
   
   updateScripts = (data) => {
@@ -213,12 +223,22 @@ export default class Renderer {
   
   getDevices = (devicesList) => {
     return devicesList.map((id) => {
-      return new DeviceProxy(this.devices[id]);
+      const device = this.devices[id];
+      if (device.type === 'dmx') {
+        return new DmxDeviceProxy(device);
+      } else if (device.type === 'ilda') {
+        return new IldaDeviceProxy(device);
+      }
+      return null;
     });
   }
   
   getMedia = (mediaId) => {
-    return new MediaProxy(this.medias[mediaId]);
+    const media = this.medias[mediaId];
+    if (media) {
+      return new MediaProxy(media);
+    }
+    return null;
   }
   
   previewScript = (id) => {
