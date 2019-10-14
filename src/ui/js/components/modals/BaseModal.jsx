@@ -138,7 +138,7 @@ class BaseModal extends Component {
   renderFieldContent = (fieldInfo) => {
     const { initialValue, relatedData } = this.props;
     const { value: formValue } = this.state;
-    const { field, type, from, readOnly, min, max, placeholder } = fieldInfo;
+    const { field, type, from, readOnly, min, max, placeholder, hideEmpty } = fieldInfo;
     const fieldValue = get(formValue, field, get(initialValue, field));
 
     if (type === 'select') {
@@ -150,6 +150,7 @@ class BaseModal extends Component {
           onChange={(value) => this.onFieldChange(field, value)}
           options={fieldRelatedData}
           disabled={readOnly}
+          hideEmpty={hideEmpty}
         />
       );
     }

@@ -9,6 +9,8 @@ const defaultState = {
   timelineModalValue: null,
   boardModalAction: null,
   boardModalValue: null,
+  importFromProjectModalAction: null,
+  importFromProjectModalValue: null,
   showConfigModal: false,
 };
 
@@ -60,6 +62,17 @@ export default (state = defaultState, {type, payload}) => {
         ...{
           boardModalAction: payload.modalAction,
           boardModalValue: payload.modalValue,
+        },
+      };
+      break;
+    
+    
+    case 'UPDATE_IMPORT_FROM_PROJECT_MODAL':
+      return {
+        ...state,
+        ...{
+          importFromProjectModalAction: payload.modalAction,
+          importFromProjectModalValue: payload.modalValue,
         },
       };
       break;

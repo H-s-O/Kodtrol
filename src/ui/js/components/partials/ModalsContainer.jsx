@@ -8,13 +8,14 @@ import { createMedia, saveMedia } from '../../../../common/js/store/actions/medi
 import { createScript, saveScript } from '../../../../common/js/store/actions/scripts';
 import { createTimeline, saveTimeline } from '../../../../common/js/store/actions/timelines';
 import { createBoard, saveBoard } from '../../../../common/js/store/actions/boards';
-import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal, updateConfigModal, updateMediaModal } from '../../../../common/js/store/actions/modals';
+import { updateDeviceModal, updateScriptModal, updateTimelineModal, updateBoardModal, updateConfigModal, updateMediaModal, updateImportFromProjectModal } from '../../../../common/js/store/actions/modals';
 import DeviceModal from '../modals/DeviceModal';
 import ScriptModal from '../modals/ScriptModal';
 import MediaModal from '../modals/MediaModal';
 import TimelineModal from '../modals/TimelineModal';
 import BoardModal from '../modals/BoardModal';
 import ConfigModal from '../modals/ConfigModal';
+import ImportFromProjectModal from '../modals/ImportFromProjectModal';
 
 class ModalsContainer extends PureComponent {
   onDeviceModalCancel = () => {
@@ -29,17 +30,17 @@ class ModalsContainer extends PureComponent {
       doSaveDevice,
       doCancelDeviceModal,
     } = this.props;
-    
+
     if (deviceModalAction === 'add' || deviceModalAction === 'duplicate') {
       doCreateDevice(data);
     } else if (deviceModalAction === 'edit') {
       const { id, ...deviceData } = data;
       doSaveDevice(id, deviceData);
     }
-    
+
     doCancelDeviceModal();
   }
-  
+
   onScriptModalCancel = () => {
     const { doCancelScriptModal } = this.props;
     doCancelScriptModal();
@@ -52,14 +53,14 @@ class ModalsContainer extends PureComponent {
       doSaveScript,
       doCancelScriptModal,
     } = this.props;
-    
+
     if (scriptModalAction === 'add' || scriptModalAction === 'duplicate') {
       doCreateScript(data);
     } else if (scriptModalAction === 'edit') {
       const { id, ...scriptData } = data;
       doSaveScript(id, scriptData);
     }
-    
+
     doCancelScriptModal();
   }
 
@@ -75,17 +76,17 @@ class ModalsContainer extends PureComponent {
       doSaveMedia,
       doCancelMediaModal,
     } = this.props;
-    
+
     if (mediaModalAction === 'add' || mediaModalAction === 'duplicate') {
       doCreateMedia(data);
     } else if (mediaModalAction === 'edit') {
       const { id, ...mediaData } = data;
       doSaveMedia(id, mediaData);
     }
-    
+
     doCancelMediaModal();
   }
-  
+
   onTimelineModalCancel = () => {
     const { doCancelTimelineModal } = this.props;
     doCancelTimelineModal();
@@ -98,17 +99,17 @@ class ModalsContainer extends PureComponent {
       doSaveTimeline,
       doCancelTimelineModal,
     } = this.props;
-    
+
     if (timelineModalAction === 'add' || timelineModalAction === 'duplicate') {
       doCreateTimeline(data);
     } else if (timelineModalAction === 'edit') {
       const { id, ...timelineData } = data;
       doSaveTimeline(id, timelineData);
     }
-    
+
     doCancelTimelineModal();
   }
-  
+
   onBoardModalCancel = () => {
     const { doCancelBoardModal } = this.props;
     doCancelBoardModal();
@@ -121,22 +122,42 @@ class ModalsContainer extends PureComponent {
       doSaveBoard,
       doCancelBoardModal,
     } = this.props;
-    
+
     if (boardModalAction === 'add' || boardModalAction === 'duplicate') {
       doCreateBoard(data);
     } else if (boardModalAction === 'edit') {
       const { id, ...boardData } = data;
       doSaveBoard(id, boardData);
     }
-    
+
     doCancelBoardModal();
   }
-  
+
+  onImportFromProjectModalCancel = () => {
+    const { doCancelImportFromProjectModal } = this.props;
+    doCancelImportFromProjectModal();
+  }
+
+  onImportFromProjectModalSuccess = (data) => {
+    const {
+      importFromProjectModalAction,
+      doImportDevice,
+      doCancelImportFromProjectModal,
+    } = this.props;
+
+    doCancelImportFromProjectModal();
+
+    if (importFromProjectModalAction === 'device' && data.device) {
+      const { id, hash, output, ...importData } = data.device;
+      doImportDevice(importData);
+    }
+  }
+
   onConfigModalCancel = () => {
     const { doCloseConfigModal } = this.props;
     doCloseConfigModal();
   }
-  
+
   onConfigModalSuccess = (data) => {
     const {
       doSaveOutputs,
@@ -144,13 +165,13 @@ class ModalsContainer extends PureComponent {
       doCloseConfigModal,
     } = this.props;
     const { outputs, inputs } = data;
-    
+
     doSaveOutputs(outputs);
     doSaveInputs(inputs);
-    
+
     doCloseConfigModal();
   }
-  
+
   renderDeviceModal = () => {
     const { deviceModalAction, deviceModalValue, outputs } = this.props;
     const title = {
@@ -159,7 +180,7 @@ class ModalsContainer extends PureComponent {
       duplicate: 'Duplicate device',
       null: null,
     }[deviceModalAction];
-    
+
     return (
       <DeviceModal
         initialValue={deviceModalValue}
@@ -171,7 +192,7 @@ class ModalsContainer extends PureComponent {
       />
     );
   }
-  
+
   renderScriptModal = () => {
     const { scriptModalAction, scriptModalValue, devices } = this.props;
     const title = {
@@ -180,7 +201,7 @@ class ModalsContainer extends PureComponent {
       duplicate: 'Duplicate script',
       null: null,
     }[scriptModalAction];
-    
+
     return (
       <ScriptModal
         initialValue={scriptModalValue}
@@ -192,7 +213,7 @@ class ModalsContainer extends PureComponent {
       />
     );
   }
-  
+
   renderMediaModal = () => {
     const { mediaModalAction, mediaModalValue, outputs } = this.props;
     const title = {
@@ -201,7 +222,7 @@ class ModalsContainer extends PureComponent {
       duplicate: 'Duplicate media',
       null: null,
     }[mediaModalAction];
-    
+
     return (
       <MediaModal
         initialValue={mediaModalValue}
@@ -213,7 +234,7 @@ class ModalsContainer extends PureComponent {
       />
     );
   }
-  
+
 
   renderTimelineModal = () => {
     const { timelineModalAction, timelineModalValue } = this.props;
@@ -223,7 +244,7 @@ class ModalsContainer extends PureComponent {
       duplicate: 'Duplicate timeline',
       null: null,
     }[timelineModalAction];
-    
+
     return (
       <TimelineModal
         initialValue={timelineModalValue}
@@ -234,7 +255,7 @@ class ModalsContainer extends PureComponent {
       />
     );
   }
-  
+
   renderBoardModal = () => {
     const { boardModalAction, boardModalValue } = this.props;
     const title = {
@@ -243,7 +264,7 @@ class ModalsContainer extends PureComponent {
       duplicate: 'Duplicate board',
       null: null,
     }[boardModalAction];
-    
+
     return (
       <BoardModal
         initialValue={boardModalValue}
@@ -254,10 +275,28 @@ class ModalsContainer extends PureComponent {
       />
     );
   }
-  
+
+  renderImportFromProjectModal = () => {
+    const { importFromProjectModalAction, importFromProjectModalValue } = this.props;
+    const title = {
+      device: 'Import device',
+      script: 'Import script',
+    }[importFromProjectModalAction];
+
+    return (
+      <ImportFromProjectModal
+        items={importFromProjectModalValue}
+        show={!!importFromProjectModalAction}
+        title={title}
+        onCancel={this.onImportFromProjectModalCancel}
+        onSuccess={this.onImportFromProjectModalSuccess}
+      />
+    );
+  }
+
   renderConfigModal = () => {
-    const { showConfigModal, outputs, inputs } = this.props;
-    
+    const { showConfigModal, outputs, inputs } = this.props;
+
     return (
       <ConfigModal
         show={showConfigModal}
@@ -268,48 +307,25 @@ class ModalsContainer extends PureComponent {
       />
     );
   }
-  
+
   render = () => {
     return (
       <div>
-        { this.renderDeviceModal() }
-        { this.renderScriptModal() }
-        { this.renderMediaModal() }
-        { this.renderTimelineModal() }
-        { this.renderBoardModal() }
-        { this.renderConfigModal() }
+        {this.renderDeviceModal()}
+        {this.renderScriptModal()}
+        {this.renderMediaModal()}
+        {this.renderTimelineModal()}
+        {this.renderBoardModal()}
+        {this.renderImportFromProjectModal()}
+        {this.renderConfigModal()}
       </div>
     )
   }
 }
 
-const mapStateToProps = ({modals, devices, outputs, inputs}) => {
-  const {
-    deviceModalAction,
-    deviceModalValue,
-    scriptModalAction,
-    scriptModalValue,
-    mediaModalAction,
-    mediaModalValue,
-    timelineModalAction,
-    timelineModalValue,
-    boardModalAction,
-    boardModalValue,
-    showConfigModal,
-  } = modals;
-
+const mapStateToProps = ({ modals, devices, outputs, inputs }) => {
   return {
-    deviceModalAction,
-    deviceModalValue,
-    scriptModalAction,
-    scriptModalValue,
-    mediaModalAction,
-    mediaModalValue,
-    timelineModalAction,
-    timelineModalValue,
-    boardModalAction,
-    boardModalValue,
-    showConfigModal,
+    ...modals,
     devices,
     outputs,
     inputs,
@@ -333,6 +349,8 @@ const mapDispatchToProps = (dispatch) => {
     doCreateBoard: (data) => dispatch(createBoard(data)),
     doSaveBoard: (id, data) => dispatch(saveBoard(id, data)),
     doCancelBoardModal: () => dispatch(updateBoardModal()),
+    doCancelImportFromProjectModal: () => dispatch(updateImportFromProjectModal()),
+    doImportDevice: (data) => dispatch(updateDeviceModal('add', data)),
     doSaveOutputs: (data) => dispatch(saveOutputs(data)),
     doSaveInputs: (data) => dispatch(saveInputs(data)),
     doCloseConfigModal: () => dispatch(updateConfigModal()),

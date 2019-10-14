@@ -72,3 +72,16 @@ export const updateConfigModal = (show = false, local = true) => {
     } : undefined,
   };
 };
+
+export const updateImportFromProjectModal = (modalAction = null, modalValue = null, local = true) => {
+  return {
+    type: 'UPDATE_IMPORT_FROM_PROJECT_MODAL',
+    payload: {
+      modalAction,
+      modalValue,
+    },
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+};
