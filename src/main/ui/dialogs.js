@@ -1,14 +1,14 @@
 import { dialog } from 'electron';
 
 export const createProjectDialog = () => {
-  const result = dialog.showSaveDialog({
+  const result = dialog.showSaveDialogSync({
     title: 'Create project',
   });
   return result || null;
 };
 
 export const openProjectDialog = () => {
-  const result = dialog.showOpenDialog({
+  const result = dialog.showOpenDialogSync({
     title: 'Open project',
     filters: [
       {
@@ -21,7 +21,7 @@ export const openProjectDialog = () => {
 };
 
 export const warnBeforeClosingProject = (win) => {
-  const result = dialog.showMessageBox(win, {
+  const result = dialog.showMessageBoxSync(win, {
     type: 'warning',
     buttons: [
       'Close', 'Cancel',

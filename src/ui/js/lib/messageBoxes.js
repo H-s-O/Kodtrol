@@ -5,14 +5,14 @@ import { PROJECT_FILE_EXTENSION } from '../../../common/js/constants/app';
 
 const { dialog } = remote;
 
-export function deleteWarning(message, detail = null, callback) {
+export function deleteWarning(message, detail = undefined, callback) {
   // Handle two arguments call
   if (isFunction(detail)) {
     callback = detail;
-    detail = null;
+    detail = undefined;
   }
   
-  dialog.showMessageBox(remote.getCurrentWindow(), {
+  dialog.showMessageBoxSync(remote.getCurrentWindow(), {
     type: 'warning',
     buttons: [
       'Delete', 'Cancel',
@@ -25,7 +25,7 @@ export function deleteWarning(message, detail = null, callback) {
 };
 
 export function importAudioFile() {
-  return dialog.showOpenDialog({
+  return dialog.showOpenDialogSync({
     title: 'Import audio file',
     filters: [
       {
@@ -37,7 +37,7 @@ export function importAudioFile() {
 }
 
 export function importProject() {
-  return dialog.showOpenDialog({
+  return dialog.showOpenDialogSync({
     title: 'Import project',
     filters: [
       {

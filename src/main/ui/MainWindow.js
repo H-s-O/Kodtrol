@@ -20,6 +20,7 @@ export default class MainWindow extends EventEmitter {
       backgroundColor: '#333',
       show: false,
       webPreferences: {
+        nodeIntegration: true,
         webSecurity: false, // Allows fetch() to use "file://" scheme
       }
     });

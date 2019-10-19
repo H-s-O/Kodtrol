@@ -37,6 +37,7 @@ export default class AudioRenderer {
     this.audioWindow = new BrowserWindow({
       show: false,
       webPreferences: {
+        nodeIntegration: true,
         webSecurity: false,
       },
     });

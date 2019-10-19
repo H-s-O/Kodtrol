@@ -18,7 +18,7 @@
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=12.0.0"
   },
   "dependencies": {
     "@laser-dac/core": "^0.4.1",
@@ -34,11 +34,11 @@
     "classnames": "^2.2.5",
     "color": "^3.0.0",
     "css-electron-reset": "^1.0.0",
-    "dmx": "^0.2.2",
+    "dmx": "git+https://git@github.com/node-dmx/dmx",
     "domready": "^1.0.8",
     "eases": "^1.0.8",
-    "electron": "^4.0.7",
-    "electron-redux": "^1.3.1",
+    "electron": "^6.0.12",
+    "electron-redux": "^1.4.0",
     "ffprobe": "^1.1.0",
     "ffprobe-static": "^3.0.0",
     "fs-extra": "^5.0.0",
@@ -46,8 +46,7 @@
     "howler": "^2.1.1",
     "jzz": "^0.7.0",
     "lodash": "^4.17.14",
-    "midi": "^0.9.5",
-    "midi-clock": "0.0.1",
+    "midi": "^1.0.0",
     "object-hash": "^1.3.1",
     "osc": "^2.3.1",
     "prop-types": "^15.6.0",
