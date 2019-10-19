@@ -1,11 +1,15 @@
 import JZZ from 'jzz';
 import midi from 'midi';
 
-export default class MidiInput {
+import AbstractInput from './AbstractInput';
+
+export default class MidiInput extends AbstractInput {
   input = null;
   messageCallback = null;
   
   constructor(messageCallback) {
+    super();
+
     this.messageCallback = messageCallback;
     
     this.create();
@@ -19,12 +23,16 @@ export default class MidiInput {
         // temp: open first available port
         console.log('midi ports', this.input.getPortCount());
         this.input.openPort(0);
+        this._setStatusConnected();
         // @TODO enable Active Sensing messages for device status detect ?
         // this.input.ignoreTypes(true, true, false);
+      } else {
+        this._setStatusDisconnected();
       }
       console.log('MIDI input');
     } catch (e) {
       console.error(e);
+      this._setStatusDisconnected();
       // Retry after delay
       setTimeout(this.create, 500);
     }

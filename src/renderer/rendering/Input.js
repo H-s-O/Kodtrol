@@ -3,17 +3,14 @@ import OscInput from '../inputs/OscInput';
 
 export default class Input {
   _id = null;
-  _status = 0;
   _type = null;
   _extraData = null;
   _input = null;
   _onInputCallback = null;
   _hash = null;
-  _statusCallback = null;
 
-  constructor(sourceInput, onInputCallback, statusCallback) {
+  constructor(sourceInput, onInputCallback) {
     this._onInputCallback = onInputCallback;
-    this._statusCallback = statusCallback;
     
     this.update(sourceInput, onInputCallback);
   }
@@ -55,8 +52,8 @@ export default class Input {
     return this._id;
   }
   
-  get status() {
-    return this._status;
+  get inputInstance() {
+    return this._input;
   }
   
   get type() {
@@ -79,7 +76,6 @@ export default class Input {
     }
 
     this._id = null;
-    this._status = null;
     this._type = null;
     this._extraData = null;
     this._input = null;

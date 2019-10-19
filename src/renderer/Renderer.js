@@ -31,6 +31,7 @@ export default class Renderer {
   providers = null;
   renderDelay = (1 / 40) * 1000; // @TODO configurable?
   frameTime = 0;
+  ioUpdateTimer = null;
   
   constructor() {
     this.providers = {
@@ -46,6 +47,8 @@ export default class Renderer {
     process.on('SIGTERM', this.onSigTerm);
     process.on('message', this.onMessage);
 
+    this.ioUpdateTimer = setInterval(this.updateIOStatus, 3000);
+
     this.send('ready');
   }
   
@@ -55,6 +58,9 @@ export default class Renderer {
   }
   
   destroy = () => {
+    if (this.ioUpdateTimer) {
+      clearInterval(this.ioUpdateTimer);
+    }
     if (this.inputs) {
       Object.values(this.inputs).forEach((input) => input.destroy());
     }
@@ -116,14 +122,7 @@ export default class Renderer {
     );
     // console.log('RENDERER updateOutputs', this.outputs);
 
-    // temp test
-    if (Object.keys(this.outputs).length) {
-      this.send({
-        ioStatus: {
-          [this.outputs[Object.keys(this.outputs)[0]].id]: 'activity', 
-        },
-      });
-    }
+    this.updateIOStatus();
   }
   
   updateInputs = (data) => {
@@ -374,6 +373,23 @@ export default class Renderer {
         'boardInfo': data
       });
     }
+  }
+
+  updateIOStatus = () => {
+    const ioStatus = {
+      ...Object.values(this.inputs).reduce((obj, input) => {
+        obj[input.id] = input.inputInstance.refreshAndGetStatus();
+        return obj;
+      }, {}),
+      ...Object.values(this.outputs).reduce((obj, output) => {
+        obj[output.id] = output.outputInstance.refreshAndGetStatus();
+        return obj;
+      }, {}),
+    }
+    // console.log('RENDERER updateIOStatus', ioStatus);
+    this.send({
+      ioStatus,
+    });
   }
   
   send = (data) => {

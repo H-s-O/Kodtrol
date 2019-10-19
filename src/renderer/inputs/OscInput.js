@@ -1,12 +1,16 @@
 import { UDPPort, TCPSocketPort } from 'osc';
 
-export default class OscInput {
+import AbstractInput from './AbstractInput';
+
+export default class OscInput extends AbstractInput {
   server = null;
   messageCallback = null;
   port = null;
   protocol = null
   
   constructor(messageCallback, protocol, port) {
+    super();
+
     this.messageCallback = messageCallback;
     this.protocol = protocol;
     this.port = port;
@@ -31,9 +35,12 @@ export default class OscInput {
       }
       this.server.on('osc', this.onOSC);
       this.server.open();
+
+      this._setStatusConnected();
       console.log('OSC input');
     } catch (e) {
       console.error(e);
+      this._setStatusDisconnected();
       // Retry after a delay
       setTimeout(this.create, 500);
     }

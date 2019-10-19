@@ -3,16 +3,16 @@ import { connect } from 'react-redux';
 import { Navbar, Nav, NavItem, Button, Glyphicon, Label } from 'react-bootstrap';
 
 import { updateConfigModal } from '../../../../common/js/store/actions/modals';
-import * as IOStatus from '../../../../common/js/data/IOStatus';
+import * as IOStatus from '../../../../common/js/constants/io';
 
 import styles from '../../../styles/components/partials/mainnav.scss';
 
 class MainNav extends PureComponent {
   getStatusStyle = (status) => {
     switch(status) {
-      case IOStatus.MISSING: return 'danger'; break;
-      case IOStatus.RUNNING: return 'success'; break;
-      case IOStatus.ACTIVITY: return 'info'; break;
+      case IOStatus.IO_DISCONNECTED: return 'danger'; break;
+      case IOStatus.IO_CONNECTED: return 'success'; break;
+      case IOStatus.IO_ACTIVITY: return 'info'; break;
       default: return 'default'; break;
     }
   }

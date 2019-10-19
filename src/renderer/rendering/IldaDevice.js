@@ -29,6 +29,7 @@ export default class IldaDevice extends AbstractDevice {
   }
   
   sendDataToOutput = () => {
+    // Guard
     if (this._output) {
       const data = {
         [this._id]: this._objects,

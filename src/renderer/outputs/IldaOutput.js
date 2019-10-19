@@ -2,11 +2,15 @@ import { DAC } from '@laser-dac/core';
 import { Scene, Rect } from '@laser-dac/draw';
 import { EtherDream } from '@laser-dac/ether-dream';
 
-export default class IldaOutput {
+import AbstractOutput from './AbstractOutput';
+
+export default class IldaOutput extends AbstractOutput {
   output = null;
   scene = null;
 
   constructor(driver, address) {
+    super();
+
     this.output = new DAC();
     switch (driver) {
       case 'ether-dream':
@@ -19,11 +23,34 @@ export default class IldaOutput {
     this.output.start().then(this.onOutputStarted);
   }
 
+  _refreshStatus = () => {
+    if (!this.output) {
+      this._setStatusInitial();
+      return;
+    }
+
+    // Kinda hackish, but the DAC lib does not explicitly expose this
+    if (this.output.devices
+      && this.output.devices.length
+      && this.output.devices[0].connection
+      && this.output.devices[0].connection.client
+      && this.output.devices[0].connection.client.remoteAddress) {
+      console.log(this.output.devices[0].connection.client.destroyed)
+      this._setStatusConnected();
+    } else {
+      this._setStatusDisconnected();
+    }
+  }
+
   onOutputStarted = (started) => {
     console.log('ILDA output', started)
     if (started) {
       this.scene = new Scene();
       this.output.stream(this.scene, 20000) // @TODO
+      
+      this._setStatusConnected();
+    } else {
+      this._setStatusDisconnected();
     }
   }
 

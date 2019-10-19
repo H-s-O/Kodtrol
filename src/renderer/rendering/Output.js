@@ -5,17 +5,13 @@ import AudioOutput from '../outputs/AudioOutput';
 
 export default class Output {
   _id = null;
-  _status = 0;
   _type = null;
   _extraData = null;
   _output = null;
   _bufferData = {};
   _hash = null;
-  _statusCallback = null;
 
-  constructor(sourceOutput, statusCallback) {
-    this._statusCallback = statusCallback;
-    
+  constructor(sourceOutput) {
     this.update(sourceOutput);
   }
   
@@ -63,8 +59,8 @@ export default class Output {
     return this._id;
   }
   
-  get status() {
-    return this._status;
+  get outputInstance() {
+    return this._output;
   }
   
   get type() {
@@ -96,7 +92,6 @@ export default class Output {
     }
     
     this._id = null;
-    this._status = null;
     this._type = null;
     this._extraData = null;
     this._output = null;
