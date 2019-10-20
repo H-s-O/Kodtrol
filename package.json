@@ -34,7 +34,7 @@
     "classnames": "^2.2.5",
     "color": "^3.0.0",
     "css-electron-reset": "^1.0.0",
-    "dmx": "git+https://git@github.com/node-dmx/dmx",
+    "dmx": "^0.2.3",
     "domready": "^1.0.8",
     "eases": "^1.0.8",
     "electron": "^6.0.12",
