@@ -2,6 +2,8 @@ import EventEmitter from 'events';
 import { app, Menu } from 'electron';
 
 import * as MainMenuEvent from '../events/MainMenuEvent';
+import openExternalFolder from '../../common/js/lib/openExternalFolder';
+import { getCompiledScriptsDir } from '../lib/fileSystem';
 
 export default class MainMenu extends EventEmitter {
   constructor() {
@@ -91,12 +93,23 @@ export default class MainMenu extends EventEmitter {
           {
             role: 'forcereload',
           },
+          {
+            type: 'separator',
+          },
+          {
+            label: 'Reveal compiled scripts dir',
+            click: this.onRevealCompiledScriptsDirClick,
+          }
         ],
       })
     }
     
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
+  }
+
+  onRevealCompiledScriptsDirClick = () => {
+    openExternalFolder(getCompiledScriptsDir());
   }
   
   onCreateProjectClick = () => {

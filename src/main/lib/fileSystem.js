@@ -1,10 +1,11 @@
-import { readJsonSync, writeJsonSync, ensureFileSync, ensureDirSync, writeFileSync } from 'fs-extra';
+import { readJsonSync, writeJsonSync, ensureFileSync, ensureDirSync, writeFileSync, readFileSync } from 'fs-extra';
 import { app } from 'electron';
 import path from 'path';
 import { get } from 'lodash';
 
 export {
   writeFileSync as writeFile,
+  readFileSync as readFile,
 };
 
 export const getAppConfigPath = () => {

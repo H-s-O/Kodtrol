@@ -1,6 +1,6 @@
-const APP_VERSION = process.env.npm_package_version;
+import appVersion from '../../lib/appVersion'
 
-export default (state = APP_VERSION, {type, payload}) => {
+export default (state = appVersion, {type, payload}) => {
   switch (type) {
     default:
       return state;

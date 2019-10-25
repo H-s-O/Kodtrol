@@ -3,7 +3,7 @@ import { get, set, pick } from 'lodash';
 import { join } from 'path';
 
 import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
-import { readAppConfig, writeAppConfig, createProject, writeJson, readJson, writeFile, ensureDir } from './lib/fileSystem';
+import { readAppConfig, writeAppConfig, createProject, writeJson, readJson, writeFile, ensureDir, getCompiledScriptsDir } from './lib/fileSystem';
 import MainWindow from './ui/MainWindow';
 import MainMenu from './ui/MainMenu';
 import * as MainWindowEvent from './events/MainWindowEvent';
@@ -11,12 +11,12 @@ import * as MainMenuEvent from './events/MainMenuEvent';
 import * as StoreEvent from './events/StoreEvent';
 import * as RendererEvent from './events/RendererEvent';
 import Store from './data/Store';
-import ScriptsManager from './data/ScriptsManager';
 import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
 import { updateBoardInfo } from '../common/js/store/actions/boardInfo';
 import { updateIOStatus } from '../common/js/store/actions/ioStatus';
 import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
+import compileScript from './lib/compileScript';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -26,34 +26,35 @@ export default class Main {
   renderer = null;
   expressApp = null;
   powerSaveBlockerId = null;
-  
+
   constructor() {
     app.on('ready', this.onReady);
     app.on('window-all-closed', this.onWindowAllClosed);
     app.on('will-quit', this.onWillQuit);
-    
-    ScriptsManager.init();
+
+    // Make sure the destination dir for compiled scripts exists
+    ensureDir(getCompiledScriptsDir());
   }
-  
+
   get hasProjectOpened() {
     return this.currentProjectFilePath !== null;
   }
-  
+
   onWindowAllClosed = () => {
     // Do nothing, keep the app alive
   }
-  
+
   onReady = () => {
     this.createMainMenu();
     this.run();
   }
-  
+
   onWillQuit = () => {
     // Better safe than sorry; destroy the renderer
     // on quit if it somehow survived
     this.destroyRenderer();
   }
-  
+
   run = () => {
     const project = projectFile();
     if (project !== null) {
@@ -66,27 +67,27 @@ export default class Main {
       this.loadProject(configCurrentProject);
     }
   }
-  
+
   loadProject = (path, init = false, save = true) => {
     this.currentProjectFilePath = path;
-    
+
     if (save) {
       const appConfig = readAppConfig();
       set(appConfig, 'currentProjectFilePath', this.currentProjectFilePath);
       writeAppConfig(appConfig);
     }
-    
+
     if (init) {
       this.createStore();
     } else {
       const data = readJson(this.currentProjectFilePath);
       this.createStore(data);
     }
-    
+
     this.createRenderer();
     this.createMainWindow();
   }
-  
+
   createStore = (initialData = null) => {
     this.store = new Store(initialData);
     this.store.on(StoreEvent.OUTPUTS_CHANGED, this.onOutputsChanged);
@@ -103,7 +104,7 @@ export default class Main {
     this.store.on(StoreEvent.BOARD_INFO_USER_CHANGED, this.onBoardInfoUserChanged);
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
   }
-  
+
   destroyStore = () => {
     if (this.store) {
       this.store.removeAllListeners();
@@ -111,10 +112,10 @@ export default class Main {
       this.store = null;
     }
   }
-  
+
   onOutputsChanged = () => {
     const { outputs } = this.store.state;
-    
+
     if (this.renderer) {
       console.log('updateOutputs');
       this.renderer.send({
@@ -122,10 +123,10 @@ export default class Main {
       });
     }
   }
-  
+
   onInputsChanged = () => {
     const { inputs } = this.store.state;
-    
+
     if (this.renderer) {
       console.log('updateInputs');
       this.renderer.send({
@@ -133,10 +134,10 @@ export default class Main {
       });
     }
   }
-  
+
   onDevicesChanged = () => {
     const { devices } = this.store.state;
-    
+
     if (this.renderer) {
       console.log('updateDevices');
       this.renderer.send({
@@ -144,11 +145,15 @@ export default class Main {
       });
     }
   }
-  
+
   onScriptsChanged = () => {
     const { scripts } = this.store.state;
-    ScriptsManager.compileScripts(scripts);
-    
+
+    scripts.forEach(script => {
+      console.info('Compiling script', script.id, script.name);
+      compileScript(script);
+    })
+
     if (this.renderer) {
       console.log('updateScripts');
       this.renderer.send({
@@ -156,10 +161,10 @@ export default class Main {
       });
     }
   }
-  
+
   onMediasChanged = () => {
     const { medias } = this.store.state;
-    
+
     if (this.renderer) {
       console.log('updateMedias');
       this.renderer.send({
@@ -167,10 +172,10 @@ export default class Main {
       });
     }
   }
-  
+
   onTimelinesChanged = () => {
     const { timelines } = this.store.state;
-    
+
     if (this.renderer) {
       console.log('updateTimelines');
       this.renderer.send({
@@ -178,10 +183,10 @@ export default class Main {
       });
     }
   }
-  
+
   onBoardsChanged = () => {
     const { boards } = this.store.state;
-    
+
     if (this.renderer) {
       console.log('updateBoards');
       this.renderer.send({
@@ -189,74 +194,74 @@ export default class Main {
       });
     }
   }
-  
+
   onContentSaved = () => {
     console.log('onContentSaved');
     this.saveProject();
   }
-  
+
   onPreviewScript = () => {
     const { previewScript } = this.store.state;
-    
+
     if (this.renderer) {
       this.renderer.send({
         previewScript,
       });
     }
-    
+
     this.updatePower();
   }
-  
+
   onRunTimeline = () => {
     const { runTimeline } = this.store.state;
-    
+
     if (this.renderer) {
       this.renderer.send({
         runTimeline,
       });
     }
-    
+
     this.updatePower();
   }
-  
+
   onRunBoard = () => {
     const { runBoard } = this.store.state;
-    
+
     if (this.renderer) {
       this.renderer.send({
         runBoard,
       });
     }
-    
+
     this.updatePower();
   }
-  
+
   onTimelineInfoUserChanged = () => {
     const { timelineInfoUser } = this.store.state;
-    
+
     if (this.renderer && timelineInfoUser !== null) {
       this.renderer.send({
         timelineInfoUser,
       });
     }
   }
-  
+
   onBoardInfoUserChanged = () => {
     const { boardInfoUser } = this.store.state;
-    
+
     if (this.renderer && boardInfoUser !== null) {
       this.renderer.send({
         boardInfoUser,
       });
     }
   }
-  
+
   createMainWindow = () => {
     this.mainWindow = new MainWindow(`${app.getName()} — ${this.currentProjectFilePath}`);
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
     this.mainWindow.on(MainWindowEvent.LOADED, this.onMainWindowLoaded);
   }
-  
+
   destroyMainWindow = () => {
     if (this.mainWindow) {
       this.mainWindow.removeAllListeners();
@@ -264,7 +269,7 @@ export default class Main {
       this.mainWindow = null;
     }
   }
-  
+
   onMainWindowClosing = () => {
     this.doCloseProjectWarn();
   }
@@ -277,7 +282,7 @@ export default class Main {
       this.generateScreenshots(data);
     }
   }
-  
+
   createRenderer = () => {
     this.renderer = new Renderer();
     this.renderer.on(RendererEvent.READY, this.onRendererReady);
@@ -285,7 +290,7 @@ export default class Main {
     this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
     this.renderer.on(RendererEvent.IO_STATUS_UPDATE, this.onRendererIOStatusUpdate);
   }
-  
+
   destroyRenderer = () => {
     if (this.renderer) {
       this.renderer.removeAllListeners();
@@ -304,11 +309,11 @@ export default class Main {
     this.onTimelinesChanged();
     this.onBoardsChanged();
   }
-  
+
   onRendererTimelineInfoUpdate = (info) => {
     this.store.dispatch(updateTimelineInfo(info));
   }
-  
+
   onRendererBoardInfoUpdate = (info) => {
     this.store.dispatch(updateBoardInfo(info));
   }
@@ -316,7 +321,7 @@ export default class Main {
   onRendererIOStatusUpdate = (status) => {
     this.store.dispatch(updateIOStatus(status));
   }
-  
+
   createMainMenu = () => {
     this.mainMenu = new MainMenu();
     this.mainMenu.on(MainMenuEvent.OPEN_PROJECT, this.onMainMenuOpenProject);
@@ -324,7 +329,7 @@ export default class Main {
     this.mainMenu.on(MainMenuEvent.SAVE_PROJECT, this.onMainMenuSaveProject);
     this.mainMenu.on(MainMenuEvent.CLOSE_PROJECT, this.onMainMenuCloseProject);
   }
-  
+
   onMainMenuOpenProject = () => {
     if (this.hasProjectOpened) {
       this.doCloseProjectWarn(this.selectProjectToOpen);
@@ -332,14 +337,14 @@ export default class Main {
       this.selectProjectToOpen();
     }
   }
-  
+
   selectProjectToOpen = () => {
     const projectPath = openProjectDialog();
     if (projectPath !== null) {
       this.loadProject(projectPath);
     }
   }
-  
+
   onMainMenuCreateProject = () => {
     if (this.hasProjectOpened) {
       this.doCloseProjectWarn(this.createProject);
@@ -347,25 +352,25 @@ export default class Main {
       this.createProject();
     }
   }
-  
+
   onMainMenuSaveProject = () => {
     this.saveProject();
   }
-  
+
   onMainMenuCloseProject = () => {
     this.doCloseProjectWarn();
   }
-  
+
   createProject = () => {
     const projectPath = createProjectDialog();
     if (projectPath !== null) {
       const finalPath = `${projectPath}.manuscrit`;
-      
+
       this.loadProject(finalPath, true);
       this.saveProject();
     }
   }
-  
+
   saveProject = () => {
     const state = this.store.state;
     writeJson(this.currentProjectFilePath, pick(state, [
@@ -379,7 +384,7 @@ export default class Main {
       'inputs',
     ]));
   }
-  
+
   doCloseProjectWarn = (next) => {
     if (this.hasProjectOpened) {
       const canClose = warnBeforeClosingProject(this.mainWindow.browserWindow);
@@ -395,19 +400,19 @@ export default class Main {
       }
     }
   }
-  
+
   closeProject = () => {
     this.destroyMainWindow();
     this.destroyStore();
     this.destroyRenderer();
-    
+
     const appConfig = readAppConfig();
     set(appConfig, 'currentProjectFilePath', null);
     writeAppConfig(appConfig);
-    
+
     this.currentProjectFilePath = null;
   }
-  
+
   updatePower = () => {
     const state = this.store.state;
     const shouldBlock = state.previewScript !== null || state.runTimeline !== null || state.runBoard !== null;
@@ -430,7 +435,7 @@ export default class Main {
     const dir = './dev/screenshots/';
     ensureDir(dir);
 
-    data.forEach(async ({selector, file, dispatchIn, dispatchOut}) => {
+    data.forEach(async ({ selector, file, dispatchIn, dispatchOut }) => {
       try {
         if (dispatchIn) {
           await new Promise((resolve, reject) => {
@@ -440,7 +445,7 @@ export default class Main {
         }
 
         await new Promise((resolve, reject) => {
-          this.mainWindow.capture(selector,  (err, image) => {
+          this.mainWindow.capture(selector, (err, image) => {
             if (err) {
               reject(err);
               return;
