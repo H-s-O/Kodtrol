@@ -1,6 +1,7 @@
 export default class ScriptRenderer {
   _providers = null;
   _script = null;
+  _scriptInstance = null;
   _devices = null;
   _started = false;
   _scriptData = {};
@@ -14,15 +15,23 @@ export default class ScriptRenderer {
   _setScriptAndDevices = (scriptId) => {
     this._script = this._providers.getScript(scriptId);
     this._script.on('updated', this._onScriptUpdated);
-
+    
+    this._reloadScriptInstance()
+    
     this._devices = this._providers.getDevices(this._script.devices);
   }
-
+  
   get script() {
     return this._script;
   }
 
+  _reloadScriptInstance = () => {
+    this._scriptInstance = this._script.getInstance();
+  }
+  
   _onScriptUpdated = () => {
+    this._reloadScriptInstance();
+    
     // Clear the started flag, so that we force a restart to
     // handle possibly new content from start() hook
     this._scriptData = {};
@@ -30,6 +39,8 @@ export default class ScriptRenderer {
   }
   
   reset = () => {
+    this._reloadScriptInstance();
+
     Object.values(this._devices).forEach((device) => {
       device.resetVars();
     });
@@ -44,7 +55,7 @@ export default class ScriptRenderer {
     if (!this._started) {
       if (this._script.hasStart) {
         try {
-          const data = this._script.scriptInstance.start(this._devices);
+          const data = this._scriptInstance.start(this._devices);
           if (typeof data !== 'undefined') {
             this._scriptData = data;
           }
@@ -64,7 +75,7 @@ export default class ScriptRenderer {
 
     if (script.hasLeadInFrame && blockPercent !== null && blockPercent < 0) {
       try {
-        const data = script.scriptInstance.leadInFrame(this._devices, this._scriptData, info, triggerData, curveData);
+        const data = this._scriptInstance.leadInFrame(this._devices, this._scriptData, info, triggerData, curveData);
         if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
@@ -73,7 +84,7 @@ export default class ScriptRenderer {
       }
     } else if (script.hasLeadOutFrame && blockPercent !== null && blockPercent > 1) {
       try {
-        const data = script.scriptInstance.leadOutFrame(this._devices, this._scriptData, info, triggerData, curveData);
+        const data = this._scriptInstance.leadOutFrame(this._devices, this._scriptData, info, triggerData, curveData);
         if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
@@ -82,7 +93,7 @@ export default class ScriptRenderer {
       }
     } else if (script.hasFrame && (blockPercent === null || (blockPercent >= 0 && blockPercent <= 1))) {
       try {
-        const data = script.scriptInstance.frame(this._devices, this._scriptData, info, triggerData, curveData);
+        const data = this._scriptInstance.frame(this._devices, this._scriptData, info, triggerData, curveData);
         if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
@@ -108,7 +119,7 @@ export default class ScriptRenderer {
       };
 
       try {
-        const data = this._script.scriptInstance.beat(this._devices, beatInfo, this._scriptData);
+        const data = this._scriptInstance.beat(this._devices, beatInfo, this._scriptData);
         if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
@@ -123,7 +134,7 @@ export default class ScriptRenderer {
       this._start();
 
       try {
-        const data = this._script.scriptInstance.input(this._devices, type, inputData, this._scriptData);
+        const data = this._scriptInstance.input(this._devices, type, inputData, this._scriptData);
         if (typeof data !== 'undefined') {
           this._scriptData = data;
         }
@@ -139,6 +150,7 @@ export default class ScriptRenderer {
     }
 
     this._script = null;
+    this._scriptInstance = null;
     this._devices = null;
     this._scriptData = null;
   }

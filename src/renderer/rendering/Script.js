@@ -6,7 +6,6 @@ export default class Script extends EventEmitter {
   _id = null;
   _tempo = 0;
   _devices = [];
-  _scriptInstance = null;
   _hasStart = false;
   _hasLeadInFrame = false;
   _hasFrame = false;
@@ -56,7 +55,6 @@ export default class Script extends EventEmitter {
     try {
       const scriptInstance = new (require(scriptPath))();
       
-      this._scriptInstance = scriptInstance;
       this._hasStart = typeof scriptInstance.start === 'function';
       this._hasLeadInFrame = typeof scriptInstance.leadInFrame === 'function';
       this._hasFrame = typeof scriptInstance.frame === 'function';
@@ -67,13 +65,15 @@ export default class Script extends EventEmitter {
       console.error(e);
     }
   }
+
+  getInstance = () => {
+    const scriptPath = getCompiledScriptPath(this._id);
+    const instance = new (require(scriptPath))();
+    return instance;
+  }
   
   get id() {
     return this._id;
-  }
-  
-  get scriptInstance() {
-    return this._scriptInstance;
   }
   
   get tempo() {
@@ -116,7 +116,6 @@ export default class Script extends EventEmitter {
     this._id = null;
     this._tempo = 0;
     this._devices = [];
-    this._scriptInstance = null;
     this._hasSetup = false;
     this._hasStart = false;
     this._hasFrame = false;
