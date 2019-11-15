@@ -10,7 +10,10 @@ export default class AudioRenderer {
     // this allows us to play audio normally
     // @see https://github.com/electron/electron/issues/13525#issuecomment-410923391
     app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
-    
+
+    // Do not show in macOS Dock
+    app.dock.hide()
+
     app.on('ready', this.onReady);
     app.on('window-all-closed', this.onWindowAllClosed);
     
@@ -36,6 +39,7 @@ export default class AudioRenderer {
   createAudioWindow = () => {
     this.audioWindow = new BrowserWindow({
       show: false,
+      skipTaskbar: true,
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false,
