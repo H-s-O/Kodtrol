@@ -57,7 +57,6 @@
     "react-color": "^2.17.0",
     "react-connect-context": "^1.1.0",
     "react-dom": "^16.5.2",
-    "react-draw": "^0.6.1",
     "react-redux": "^5.0.7",
     "react-split-pane": "^0.1.77",
     "react-splitter-layout": "^3.0.0",
