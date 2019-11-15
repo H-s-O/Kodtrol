@@ -6,24 +6,24 @@ $grid-gutter-width: 5px;
 @import "~bootswatch/slate/bootswatch";
 @import "~css-electron-reset/index.css";
 
-:global button, button:hover {
+button, button:hover {
   cursor: default !important;
 }
 
-:global .close {
+.close {
   color: #FFF !important;
   text-shadow: 0 1px 0 #000 !important;
 }
 
-:global ::-webkit-scrollbar {
+::-webkit-scrollbar {
   background: #333;
   width: 10px;
 }
-:global ::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background: #888;
 }
 
-:global #root {
+#root {
   height: 100vh;
   overflow: hidden;
 }
