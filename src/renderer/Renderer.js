@@ -436,6 +436,7 @@ export default class Renderer {
       this.send({
         boardInfo: {
           activeItems: this.currentBoard.activeItems,
+          itemsStatus: this.currentBoard.itemsStatus,
         },
       });
     }

@@ -6,6 +6,7 @@ import { remote } from 'electron';
 
 import { deleteWarning } from '../../lib/messageBoxes';
 import isFunction from '../../lib/isFunction';
+import blockPercentToOpacity from '../../lib/blockPercentToOpacity';
 
 import styles from '../../../styles/components/board/boarditem.scss';
 
@@ -26,12 +27,14 @@ const propTypes = {
   type: PropTypes.oneOf(['block']),
   typeLabel: PropTypes.string,
   active: PropTypes.bool,
+  status: PropTypes.number,
 };
 
 const defaultProps = {
   type: 'block',
   typeLabel: 'item',
   active: false,
+  status: null,
 };
 
 class BoardItem extends PureComponent {
@@ -201,7 +204,7 @@ class BoardItem extends PureComponent {
   // RENDERS
   
   renderBlockType = () => {
-    const { style, data, getItemLabel, children, active } = this.props;
+    const { style, data, getItemLabel, children, active, status } = this.props;
     const { color, name } = data;
 
     const lightColor = Color(color).isLight();
@@ -234,9 +237,17 @@ class BoardItem extends PureComponent {
         <div
           className={classNames({
             [styles.content]: true,
-            [styles.anim]: active,
           })}
-        >
+          >
+          <div
+            className={classNames({
+              [styles.anim]: status !== null,
+            })}
+            style={{
+              opacity: status !== null ? blockPercentToOpacity(status) : 1,
+            }}
+            >
+          </div>
           { children }
         </div>
       </div>

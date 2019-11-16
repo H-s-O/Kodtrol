@@ -93,6 +93,12 @@ class BoardEditor extends PureComponent {
     return activeItems && id in activeItems;
   }
 
+  getItemStatus = (id) => {
+    const { boardInfo } = this.props;
+    const { itemsStatus } = boardInfo;
+    return itemsStatus && id in itemsStatus ? itemsStatus[id] : null;
+  }
+
   getItem = (itemId) => {
     const { boardData } = this.props;
     const { items } = boardData;
@@ -465,6 +471,7 @@ class BoardEditor extends PureComponent {
           width: percentString(widthPercent),
         }}
         active={this.itemIsActive(item.id)}
+        status={this.getItemStatus(item.id)}
         boardDeleteItem={this.doDeleteItem}
         boardEditItem={this.doEditItem}
         boardCopyItem={this.doCopyItem}

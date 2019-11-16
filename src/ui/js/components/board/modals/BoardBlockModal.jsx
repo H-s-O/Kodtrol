@@ -48,6 +48,18 @@ export default function(props) {
           from: 'types',
         },
         {
+          label: 'Lead-in time',
+          field: 'leadInTime',
+          type: 'number',
+          placeholder: '(optional, default: 0)'
+        },
+        {
+          label: 'Lead-out time',
+          field: 'leadOutTime',
+          type: 'number',
+          placeholder: '(optional, default: 0)'
+        },
+        {
           label: 'Color',
           field: 'color',
           type: 'color',

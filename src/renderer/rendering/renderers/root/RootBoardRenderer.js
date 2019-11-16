@@ -57,6 +57,10 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             ...block,
             instance: new ScriptRenderer(this._providers, block.script),
             localBeatPos: -1,
+            inTime: null,
+            outTime: null,
+            blockPercent: null,
+            active: false,
           },
         };
       }, {});
@@ -69,6 +73,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
           [audio.id]: {
             ...audio,
             instance: new AudioRenderer(this._providers, audio),
+            active: false,
           },
         };
       }, {});
@@ -94,16 +99,44 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     return this._activeItems;
   }
 
+  get itemsStatus() {
+    const status = {};
+    if (this._blocks !== null) {
+      for (let id in this._blocks) {
+        const block = this._blocks[id];
+        if (block.blockPercent !== null) {
+          status[block.id] = block.blockPercent;
+        }
+      }
+    }
+    return status;
+  }
+
   _getRenderingTempo = () => {
     return this._board.tempo;
   }
 
   setActiveItems = (activeItems) => {
+    const currentTime = this._currentTime;
+
+    Object.entries(this._blocks).forEach(([id, block]) => {
+      if (id in activeItems) {
+        block.inTime = currentTime;
+        block.outTime = null;
+        block.blockPercent = null;
+        block.active = true;
+      } else {
+        if (block.active && block.outTime === null) {
+          block.outTime = currentTime;
+        }
+      }
+    });
+
     this._activeItems = activeItems;
   }
 
   _runFrame = (frameTime) => {
-    const boardItems = this._getBoardActiveItems();
+    const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       // Nothing to render
       return;
@@ -115,7 +148,32 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      block.instance.render(currentTime);
+      const { inTime, outTime, leadInTime, leadOutTime } = block;
+      const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : null;
+      const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : null;
+      let blockPercent;
+      if (trueLeadInTime !== null && inTime !== null && currentTime < (inTime + trueLeadInTime)) {
+        blockPercent = ((currentTime - inTime - trueLeadInTime) / trueLeadInTime);
+      } else if (trueLeadOutTime !== null && outTime !== null && currentTime > outTime) {
+        blockPercent = ((currentTime - outTime + trueLeadOutTime) / trueLeadOutTime);
+      } else {
+        blockPercent = 1;
+      }
+      if (blockPercent <= 2) {
+        const blockInfo = {
+          inTime,
+          outTime,
+          currentTime,
+          blockPercent,
+        };
+  
+        block.instance.render(currentTime, blockInfo);
+        
+        block.blockPercent = blockPercent;
+      } else {
+        block.active = false;
+        block.blockPercent = null;
+      }
     }
     
     // const medias = boardItems[1];
@@ -127,7 +185,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
   }
 
   _runBeat = (beatPos) => {
-    const boardItems = this._getBoardActiveItems();
+    const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       return;
     }
@@ -148,7 +206,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
   }
   
   _runInput = (type, data) => {
-    const boardItems = this._getBoardActiveItems();
+    const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       return;
     }
@@ -161,12 +219,11 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     }
   }
   
-  _getBoardActiveItems = () => {
-    const activeItems = this._activeItems;
+  _getBoardRunningItems = () => {
     const itemsMap = this._itemsMap;
     const items = [
-      itemsMap[0].filter((id) => id in activeItems),
-      itemsMap[1].filter((id) => id in activeItems),
+      itemsMap[0].filter((id) => this._blocks[id].active),
+      itemsMap[1].filter((id) => this._audios[id].active),
     ];
     return items;
   }
