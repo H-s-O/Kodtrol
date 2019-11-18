@@ -121,13 +121,20 @@ export default class RootBoardRenderer extends BaseRootRenderer {
 
     Object.entries(this._blocks).forEach(([id, block]) => {
       if (id in activeItems) {
-        block.inTime = currentTime;
-        block.outTime = null;
-        block.blockPercent = null;
-        block.active = true;
+        if (!block.active) {
+          block.inTime = currentTime;
+          block.outTime = null;
+          block.blockPercent = null;
+          block.active = true;
+        }
       } else {
-        if (block.active && block.outTime === null) {
-          block.outTime = currentTime;
+        if (block.active) {
+          if ((typeof block.leadOutTime !== 'undefined' && block.leadOutTime !== null) && block.outTime === null) {
+            block.outTime = currentTime;
+          } else {
+            block.active = false;
+            block.blockPercent = null;
+          }
         }
       }
     });
