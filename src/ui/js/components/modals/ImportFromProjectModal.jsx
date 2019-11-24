@@ -21,7 +21,6 @@ export default function ImportFromProjectModal(props) {
             field: 'device',
             type: 'select',
             from: 'items',
-            hideEmpty: true,
           },
         ]}
     />
