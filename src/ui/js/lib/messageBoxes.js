@@ -11,8 +11,8 @@ export function deleteWarning(message, detail = undefined, callback) {
     callback = detail;
     detail = undefined;
   }
-  
-  dialog.showMessageBoxSync(remote.getCurrentWindow(), {
+
+  const response = dialog.showMessageBoxSync(remote.getCurrentWindow(), {
     type: 'warning',
     buttons: [
       'Delete', 'Cancel',
@@ -21,7 +21,8 @@ export function deleteWarning(message, detail = undefined, callback) {
     cancelId: 1,
     message,
     detail,
-  }, (response) => callback(response === 0));
+  });
+  callback(response === 0)
 };
 
 export function importAudioFile() {
