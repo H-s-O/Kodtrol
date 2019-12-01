@@ -21,6 +21,10 @@ export default function(props) {
           //{ value: 'trigger_mult', label: 'Trigger multiple' }, unsupported for now
           { value: 'toggle', label: 'Toggle' },
         ],
+        triggers: [
+          { value: 'midi_cc', label: 'MIDI CC value 0/127'},
+          { value: 'midi_note', label: 'MIDI note on/off' },
+        ],
       }}
       fields={[
         {
@@ -46,6 +50,18 @@ export default function(props) {
           field: 'type',
           type: 'select',
           from: 'types',
+        },
+        {
+          label: 'External trigger',
+          field: 'trigger',
+          type: 'select',
+          from: 'triggers',
+        },
+        {
+          label: 'Trigger source',
+          field: 'triggerSource',
+          type: 'text',
+          placeholder: '(optional)',
         },
         {
           label: 'Lead-in time',

@@ -213,6 +213,33 @@ export default class RootBoardRenderer extends BaseRootRenderer {
   }
   
   _runInput = (type, data) => {
+    let change = false;
+    const updatedActiveItems = {...this._activeItems};
+    const triggerableItems = this._getBoardTriggerableItems();
+    const triggerableBlocks = triggerableItems[0];
+    const triggerableBlocksCount = triggerableBlocks.length;
+    if (triggerableBlocksCount > 0) {
+      for (let i = 0; i < triggerableBlocksCount; i++) {
+        const block = this._blocks[triggerableBlocks[i]];
+        // @TODO midi_note
+        if (block.trigger === 'midi_cc') {
+          if (data[1] === parseInt(block.triggerSource)) {
+            const on = data[2] === 127;
+            console.log(data[1], data[2], on);
+            if (on) {
+              updatedActiveItems[block.id] = true;
+            } else {
+              delete updatedActiveItems[block.id];
+            }
+            change = true
+          }
+        }
+      }
+    }
+    if (change) {
+      this.setActiveItems(updatedActiveItems);
+    }
+
     const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       return;
@@ -231,6 +258,14 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const items = [
       itemsMap[0].filter((id) => this._blocks[id].active),
       itemsMap[1].filter((id) => this._audios[id].active),
+    ];
+    return items;
+  }
+
+  _getBoardTriggerableItems = () => {
+    const itemsMap = this._itemsMap;
+    const items = [
+      itemsMap[0].filter((id) => !!this._blocks[id].trigger),
     ];
     return items;
   }
