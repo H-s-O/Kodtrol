@@ -60,15 +60,18 @@ class TimelineItem extends PureComponent {
   }
 
   onStartAnchorDown = (e) => {
+    // Ignore when related to onContextMenu
+    if (e.button !== 0) {
+      return;
+    }
+
     e.stopPropagation();
-    e.preventDefault();
 
     this.doDragAnchorDown('inTime');
   }
 
   onEndAnchorDown = (e) => {
     e.stopPropagation();
-    e.preventDefault();
 
     this.doDragAnchorDown('outTime');
   }
@@ -110,9 +113,6 @@ class TimelineItem extends PureComponent {
   }
 
   onContextMenuClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-
     this.doContextMenu();
   }
 
@@ -161,10 +161,7 @@ class TimelineItem extends PureComponent {
     layerEditorChangeItemLayer(id, -1);
   }
 
-  onContextMenuClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-
+  doContextMenu = () => {
     const {
       typeLabel,
       canCopyStartTime,

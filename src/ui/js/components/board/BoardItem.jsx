@@ -78,22 +78,28 @@ class BoardItem extends PureComponent {
   }
 
   onContextMenuClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-
     this.doContextMenu();
   }
-
-  //////////////////////////////////////////////////////////
-  // ACTIONS
   
-  onMouseDown = () => {
+  onMouseDown = (e) => {
+    // Ignore when related to onContextMenu
+    if (e.button !== 0) {
+      return;
+    }
+
+    e.stopPropagation();
+
     this.doMouseDown();
   }
   
   onMouseUp = () => {
+    e.stopPropagation();
+    
     this.doMouseUp();
   }
+
+  //////////////////////////////////////////////////////////
+  // ACTIONS
 
   doDeleteItem = () => {
     const { boardDeleteItem, data } = this.props;
