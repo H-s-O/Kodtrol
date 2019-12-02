@@ -87,14 +87,10 @@ class BoardItem extends PureComponent {
       return;
     }
 
-    e.stopPropagation();
-
     this.doMouseDown();
   }
   
   onMouseUp = () => {
-    e.stopPropagation();
-    
     this.doMouseUp();
   }
 
