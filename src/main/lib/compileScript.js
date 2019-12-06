@@ -16,9 +16,9 @@ export default ({ id, content }) => {
 
         const safeAppVersion = appVersion.replace(/\./g, '_');
         const wrapperName = `Script__${id}__${safeAppVersion}`;
-        const wrappedContent = `function ${wrapperName}(){\n${convertedContent}\n}`;
+        const wrappedContent = `function ${wrapperName}(){\n${helpers}\n${convertedContent}\n}`;
 
-        const finalContent = `${helpers}\nmodule.exports = ${wrappedContent}`;
+        const finalContent = `module.exports = ${wrappedContent}`;
         const finalPath = getCompiledScriptPath(id);
 
         writeFile(finalPath, finalContent);
