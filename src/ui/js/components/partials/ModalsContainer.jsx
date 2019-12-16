@@ -31,10 +31,16 @@ class ModalsContainer extends PureComponent {
       doCancelDeviceModal,
     } = this.props;
 
+    // Temp while a "tags" field type is made
+    const transformedData = {
+      ...data,
+      groups: data.groups.split(','),
+    };
+
     if (deviceModalAction === 'add' || deviceModalAction === 'duplicate') {
-      doCreateDevice(data);
+      doCreateDevice(transformedData);
     } else if (deviceModalAction === 'edit') {
-      const { id, ...deviceData } = data;
+      const { id, ...deviceData } = transformedData;
       doSaveDevice(id, deviceData);
     }
 
@@ -181,9 +187,15 @@ class ModalsContainer extends PureComponent {
       null: null,
     }[deviceModalAction];
 
+    // Temp while a "tags" field type is made
+    const transformedValue = deviceModalValue ? {
+      ...deviceModalValue,
+      groups: deviceModalValue.groups.join(','),
+    } : null;
+
     return (
       <DeviceModal
-        initialValue={deviceModalValue}
+        initialValue={transformedValue}
         show={!!deviceModalAction}
         title={title}
         onCancel={this.onDeviceModalCancel}

@@ -117,14 +117,16 @@ class DevicesBrowser extends PureComponent {
     }
 
     if (groups) {
-      tags.push(
-        <Label
-          key="tag2"
-          bsSize="xsmall"
-        >
-          {groups}
-        </Label>
-      );
+      groups.forEach((group) => {
+        tags.push(
+          <Label
+            key="tag2"
+            bsSize="xsmall"
+          >
+            {group}
+          </Label>
+        );
+      });
     }
 
     return tags;
