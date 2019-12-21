@@ -13,7 +13,8 @@ import resetTimelineInfo from '../../common/js/store/middlewares/resetTimelineIn
 import resetBoardInfoUser from '../../common/js/store/middlewares/resetBoardInfoUser';
 import resetBoardInfo from '../../common/js/store/middlewares/resetBoardInfo';
 
-import styles from '../styles/root.scss';
+// import styles from '../styles/root.scss';
+import '../styles/root2.scss';
 
 export default class Root extends PureComponent {
   store = null;

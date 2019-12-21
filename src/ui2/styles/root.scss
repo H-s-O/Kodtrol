@@ -1,0 +1,15 @@
+@import '../../../node_modules/@blueprintjs/core/lib/scss/variables';
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 5px;
+    background-color: $pt-dark-app-background-color;
+    overflow: hidden;
+}
+
+#root {
+    height: 100%;
+}

@@ -20,7 +20,7 @@ export default class Renderer extends EventEmitter {
       },
       execArgv: [
         '-r',
-        'babel-register',
+        '@babel/register',
       ],
     });
     this.childProcess.on('message', this.onMessage);

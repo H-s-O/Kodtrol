@@ -257,7 +257,7 @@ export default class Main {
   }
 
   createMainWindow = () => {
-    this.mainWindow = new MainWindow(`${app.getName()} — ${this.currentProjectFilePath}`);
+    this.mainWindow = new MainWindow(this.currentProjectFilePath);
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
     this.mainWindow.on(MainWindowEvent.LOADED, this.onMainWindowLoaded);
   }

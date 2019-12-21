@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
-import path from 'path';
+import { join } from 'path';
 import { BrowserWindow } from 'electron';
+import { Colors } from '@blueprintjs/core';
 
 import * as MainWindowEvent from '../events/MainWindowEvent';
 
@@ -17,7 +18,7 @@ export default class MainWindow extends EventEmitter {
       title,
       width: 1600,
       height: 900,
-      backgroundColor: '#333',
+      backgroundColor: Colors.DARK_GRAY3,
       show: false,
       webPreferences: {
         nodeIntegration: true,
@@ -31,14 +32,13 @@ export default class MainWindow extends EventEmitter {
     const isDev = true;
     if (isDev) {
       if (!MainWindow.__devToolsAdded) {
-        BrowserWindow.addDevToolsExtension(path.join(__dirname, '../../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/3.4.0_0'));
-        BrowserWindow.addDevToolsExtension(path.join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.15.3_0'));
+        BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/3.4.0_0'));
+        BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.15.3_0'));
         MainWindow.__devToolsAdded = true;
       }
-      this.win.loadURL('http://localhost:8080/ui/index.html');
-    } else {
-      // @TODO load built page
-    }
+    } 
+
+    this.win.loadFile(join(__dirname, '../../../build/ui/index.html'));
     
     this.contents = this.win.webContents;
     this.contents.once('did-finish-load', this.onFinishLoad);

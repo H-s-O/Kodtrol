@@ -1,6 +1,7 @@
-import React, { Fragment } from 'react';
-import { connect } from 'react-redux';
-import { Grid, Row, Col } from 'react-bootstrap';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Row, Col, Container } from 'react-bootstrap';
+import styled from 'styled-components';
 
 import ScriptEditor from './components/partials/ScriptEditor';
 import ScriptsBrowser from './components/partials/ScriptsBrowser';
@@ -23,45 +24,45 @@ const mapStateToProps = ({currentTimeline, currentScript, currentBoard}) => {
   };
 };
 
-export default connect(mapStateToProps)((props) => {
+export default connect(mapStateToProps)(function Main(props) {
   return (
-    <Fragment>
-      <Grid fluid>
+    <>
+      <Container>
         <Row className={styles.headerRow}>
           <Col md={12} className={styles.fullHeight}>
-            <MainNav/>
+            <MainNav />
           </Col>
         </Row>
         <Row className={styles.topRow}>
           <Col md={2} className={styles.fullHeight}>
-            <DevicesBrowser/>
+            <DevicesBrowser />
           </Col>
           <Col md={2} className={styles.fullHeight}>
-            <ScriptsBrowser/>
+            <ScriptsBrowser />
           </Col>
           <Col md={8} className={styles.fullHeight}>
-            { props.currentScript
+            {props.currentScript
               ? <ScriptEditor key={props.currentScript} />
-              : <Placeholder/> }
+              : <Placeholder />}
           </Col>
         </Row>
         <Row className={styles.bottomRow}>
           <Col md={2} className={styles.fullHeight}>
-            <MediasBrowser/>
+            <MediasBrowser />
           </Col>
           <Col md={2} className={styles.fullHeight}>
-            <TimelinesBrowser/>
+            <TimelinesBrowser />
           </Col>
           <Col md={8} className={styles.fullHeight}>
-            { props.currentTimeline
+            {props.currentTimeline
               ? <TimelineEditor key={props.currentTimeline} />
-              : props.currentBoard 
+              : props.currentBoard
                 ? <BoardEditor key={props.currentBoard} />
-                : <Placeholder/> }
+                : <Placeholder />}
           </Col>
         </Row>
-      </Grid>
-      <ModalsContainer/>
-    </Fragment>
+      </Container>
+      <ModalsContainer />
+    </>
   );
 });

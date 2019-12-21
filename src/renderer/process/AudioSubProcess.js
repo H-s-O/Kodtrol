@@ -15,7 +15,7 @@ export default class AudioSubProcess extends EventEmitter {
     
     this.childProcess = spawn(electron, [
       '-r',
-      'babel-register',
+      '@babel/register',
       processPath,
     ], {
       stdio: ['pipe', 'inherit', 'inherit'],
