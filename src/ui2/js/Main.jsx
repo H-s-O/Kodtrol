@@ -3,17 +3,20 @@ import styled from 'styled-components';
 
 import MainNav from './components/MainNav';
 import Browsers from './components/Browsers';
+import ScriptEditor from './components/scripts/ScriptEditor';
+import TimelineEditor from './components/timelines/TimelineEditor';
 
 const StyledContainer = styled.div`
   display: flex;
   flex-direction: column;
+  height: 100%;
 `
 
 const StyledTopRow = styled.div`
-  background-color: red;
 `
 
 const StyledBottomRow = styled.div`
+  display: flex;
   flex: 1;
   margin-top: 5px;
 `
@@ -21,12 +24,21 @@ const StyledBottomRow = styled.div`
 const StyledLeftCol = styled.div`
   width: 300px;
   margin-right: 5px;
-  background-color: black;
 `
 
 const StyledRightCol = styled.div`
+  display: flex;
+  flex-direction: column;
   flex: 1;
-  background-color: blue;
+`
+
+const StyledScriptsRow = styled.div`
+  height: 50%;
+  margin-bottom: 5px;
+  `
+
+const StyledTimelinesDashboardsRow = styled.div`
+  height: 50%;
 `
 
 export default function Main(props) {
@@ -40,7 +52,12 @@ export default function Main(props) {
           <Browsers />
         </StyledLeftCol>
         <StyledRightCol>
-
+          <StyledScriptsRow>
+            <ScriptEditor />
+          </StyledScriptsRow>
+          <StyledTimelinesDashboardsRow>
+            <TimelineEditor />
+          </StyledTimelinesDashboardsRow>
         </StyledRightCol>
       </StyledBottomRow>
     </StyledContainer>

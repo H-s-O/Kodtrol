@@ -40,12 +40,11 @@ const renderOutputs = (props) => {
   }
 
   return (
-    <Tag
-      minimal
-      intent="warning"
+    <span
+      className="bp3-text-muted"
     >
       No outputs
-    </Tag>
+    </span>
   );
 }
 
@@ -74,11 +73,11 @@ const renderInputs = (props) => {
   }
 
   return (
-    <Tag
-      minimal
+    <span
+      className="bp3-text-muted"
     >
       No inputs
-    </Tag>
+    </span>
   );
 }
 
