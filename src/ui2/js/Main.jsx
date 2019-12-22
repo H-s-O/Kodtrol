@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import MainNav from './components/MainNav';
 import Browsers from './components/Browsers';
-import ScriptEditor from './components/scripts/ScriptEditor';
+import ScriptsEditor from './components/scripts/ScriptsEditor';
 import TimelineEditor from './components/timelines/TimelineEditor';
 
 const StyledContainer = styled.div`
@@ -53,7 +53,7 @@ export default function Main(props) {
         </StyledLeftCol>
         <StyledRightCol>
           <StyledScriptsRow>
-            <ScriptEditor />
+            <ScriptsEditor />
           </StyledScriptsRow>
           <StyledTimelinesDashboardsRow>
             <TimelineEditor />

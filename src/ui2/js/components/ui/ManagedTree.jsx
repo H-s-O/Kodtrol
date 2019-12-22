@@ -3,10 +3,11 @@ import { Tree } from '@blueprintjs/core';
 
 export default class ManagedTree extends Component {
   render = () => {
-    const { contents } = this.props;
+    const { contents, ...otherProps } = this.props;
 
     return (
       <Tree
+        {...otherProps}
         contents={contents}
       />
     );

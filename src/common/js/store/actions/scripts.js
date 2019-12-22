@@ -7,37 +7,41 @@ const excludeHashProps = [
   'name',
 ];
 
-export const updateScripts = (scripts) => {
+export const UPDATE_SCRIPTS = 'update_scripts';
+export const updateScriptsAction = (scripts) => {
   return {
-    type: 'UPDATE_SCRIPTS',
+    type: UPDATE_SCRIPTS,
     payload: scripts,
   };
 };
 
-export const selectScript = (id) => {
+export const EDIT_SCRIPT = 'edit_script';
+export const editScriptAction = (id) => {
   return {
-    type: 'SELECT_SCRIPT',
+    type: EDIT_SCRIPT,
     payload: id,
   };
 };
 
-export const unselectScript = () => {
+export const CLOSE_SCRIPT = 'close_script';
+export const closeScriptAction = (id) => {
   return {
-    type: 'SELECT_SCRIPT',
-    payload: null,
+    type: CLOSE_SCRIPT,
+    payload: id,
   };
 };
 
-export const createScript = (data) => {
+export const CREATE_SCRIPT = 'create_script';
+export const createScriptAction = (data) => {
   const newData = {
     content: '',
-    previewTempo: 120,
+    previewTempo: null,
     devices: [],
     ...data,
     id: uniqid(),
   };
   return {
-    type: 'CREATE_SCRIPT',
+    type: CREATE_SCRIPT,
     payload: {
       ...newData,
       hash: hashDataObject(newData, excludeHashProps),
@@ -45,16 +49,18 @@ export const createScript = (data) => {
   };
 };
 
-export const deleteScript = (id) => {
+export const DELETE_SCRIPT = 'delete_script';
+export const deleteScriptAction = (id) => {
   return {
-    type: 'DELETE_SCRIPT',
+    type: DELETE_SCRIPT,
     payload: id,
   };
 };
 
-export const saveScript = (id, data) => {
+export const SAVE_SCRIPT = 'save_script';
+export const saveScriptAction = (id, data) => {
   return {
-    type: 'SAVE_SCRIPT',
+    type: SAVE_SCRIPT,
     payload: {
       id,
       data: {
@@ -65,16 +71,18 @@ export const saveScript = (id, data) => {
   };
 };
 
-export const previewScript = (id) => {
+export const RUN_SCRIPT = 'run_script';
+export const runScriptAction = (id) => {
   return {
-    type: 'PREVIEW_SCRIPT',
+    type: RUN_SCRIPT,
     payload: id,
   };
 };
 
-export const stopPreviewScript = () => {
+export const STOP_RUN_SCRIPT = 'stop_run_script';
+export const stopRunScriptAction = () => {
   return {
-    type: 'PREVIEW_SCRIPT',
+    type: STOP_RUN_SCRIPT,
     payload: null,
   };
 };

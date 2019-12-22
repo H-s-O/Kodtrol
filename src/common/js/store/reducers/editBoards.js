@@ -1,4 +1,6 @@
-export default (state = null, {type, payload}) => {
+const defaultState = [];
+
+export default (state = defaultState, {type, payload}) => {
   switch (type) {
     case 'SELECT_BOARD':
       return payload;

@@ -10,6 +10,10 @@ body {
     overflow: hidden;
 }
 
+*:focus {
+    outline: none;
+}
+
 #root {
     height: 100%;
 }
