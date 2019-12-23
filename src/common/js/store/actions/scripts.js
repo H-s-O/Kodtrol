@@ -79,10 +79,10 @@ export const runScriptAction = (id) => {
   };
 };
 
-export const STOP_RUN_SCRIPT = 'stop_run_script';
-export const stopRunScriptAction = () => {
+export const STOP_SCRIPT = 'stop_script';
+export const stopScriptAction = () => {
   return {
-    type: STOP_RUN_SCRIPT,
+    type: STOP_SCRIPT,
     payload: null,
   };
 };

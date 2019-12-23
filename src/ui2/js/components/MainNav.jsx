@@ -114,7 +114,7 @@ const renderCurrentScript = (props) => {
 }
 
 const renderCurrentTimeline = (props) => {
-  const { runTimeline } = props
+  const { runTimeline, timelinesNames } = props
 
   if (runTimeline) {
     return (
@@ -123,7 +123,7 @@ const renderCurrentTimeline = (props) => {
         intent={Intent.SUCCESS}
         icon={ICON_TIMELINE}
       >
-        {runTimeline}
+        {timelinesNames[runTimeline]}
       </Tag>
     )
   }
@@ -201,6 +201,14 @@ const scriptsNamesSelector = createSelector(
   }), {})
 )
 
+const timelinesNamesSelector = createSelector(
+  [(timelines) => timelines],
+  (timelines) => timelines.reduce((obj, { id, name }) => ({
+    ...obj,
+    [id]: name,
+  }), {})
+)
+
 const mapStateToProps = ({ outputs, inputs, ioStatus, runScript, runTimeline, runBoard, scripts, timelines, boards }) => ({
   outputs,
   inputs,
@@ -209,6 +217,7 @@ const mapStateToProps = ({ outputs, inputs, ioStatus, runScript, runTimeline, ru
   runTimeline,
   runBoard,
   scriptsNames: scriptsNamesSelector(scripts),
+  timelinesNames: timelinesNamesSelector(timelines),
 });
 
 const mapDispatchToProps = (dispatch) => ({

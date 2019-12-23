@@ -1,4 +1,4 @@
-import { RUN_SCRIPT, STOP_RUN_SCRIPT } from "../actions/scripts";
+import { RUN_SCRIPT, STOP_SCRIPT } from "../actions/scripts";
 
 const defaultState = null;
 
@@ -8,7 +8,7 @@ export default (state = defaultState, { type, payload }) => {
       return payload;
       break;
 
-    case STOP_RUN_SCRIPT:
+    case STOP_SCRIPT:
       return null;
       break;
 

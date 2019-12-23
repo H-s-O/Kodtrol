@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Icon, Button } from '@blueprintjs/core';
 
 import ManagedTree from '../ui/ManagedTree';
-import { editScriptAction, runScriptAction, stopRunScriptAction } from '../../../../common/js/store/actions/scripts';
+import { editScriptAction, runScriptAction, stopScriptAction } from '../../../../common/js/store/actions/scripts';
 
 const generateLabel = (id, name, props) => {
   const { runScript } = props;
@@ -12,20 +12,18 @@ const generateLabel = (id, name, props) => {
     <>
       {name}
       {id === runScript && (
-        <>
-          <Icon
-            style={{ marginLeft: '3px', display: 'inline-block' }}
-            icon="eye-open"
-            intent="success"
-          />
-        </>
+        <Icon
+          style={{ marginLeft: '3px', display: 'inline-block' }}
+          icon="eye-open"
+          intent="success"
+        />
       )}
     </>
   )
 }
 
 const generateActions = (id, props) => {
-  const { doRunScript, runScript, doStopRunScript } = props;
+  const { doRunScript, runScript, doStopScript } = props;
 
   if (id === runScript) {
     return (
@@ -37,7 +35,7 @@ const generateActions = (id, props) => {
         title="Stop running script"
         onClick={(e) => {
           e.stopPropagation();
-          doStopRunScript();
+          doStopScript();
         }}
       />
     )
@@ -82,7 +80,7 @@ const mapStateToProps = ({ scripts, runScript }) => ({
 const mapDispatchToProps = (dispatch) => ({
   doEditScript: (id) => dispatch(editScriptAction(id)),
   doRunScript: (id) => dispatch(runScriptAction(id)),
-  doStopRunScript: () => dispatch(stopRunScriptAction())
+  doStopScript: () => dispatch(stopScriptAction())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ScriptsBrowser);

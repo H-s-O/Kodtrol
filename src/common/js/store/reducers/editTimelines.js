@@ -1,15 +1,17 @@
+import { EDIT_TIMELINE, CLOSE_TIMELINE } from "../actions/timelines";
+
 const defaultState = [];
 
-export default (state = defaultState, {type, payload}) => {
+export default (state = defaultState, { type, payload }) => {
   switch (type) {
-    case 'SELECT_TIMELINE':
-      return payload;
+    case EDIT_TIMELINE:
+      return [...state, payload];
       break;
-      
-    case 'UPDATE_CURRENT_TIMELINE':
-      return payload;
+
+    case CLOSE_TIMELINE:
+      return state.filter((id) => id !== payload);
       break;
-      
+
     default:
       return state;
       break;
