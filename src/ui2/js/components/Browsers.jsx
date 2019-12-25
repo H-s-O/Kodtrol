@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 import { Tab, Icon, Button, ButtonGroup, Popover, Position, Menu } from '@blueprintjs/core';
 
 import DeviceBrowser from './devices/DevicesBrowser';
@@ -9,13 +10,25 @@ import TimelinesBrowser from './timelines/TimelinesBrowser';
 import FullHeightTabs from './ui/FullHeightTabs';
 import BoardsBrowser from './boards/BoardsBrowser';
 import { ICON_DEVICE, ICON_SCRIPT, ICON_MEDIA, ICON_TIMELINE, ICON_BOARD } from '../../../common/js/constants/icons';
+import { updateDeviceModal } from '../../../common/js/store/actions/modals';
 
-export default function Browsers(props) {
+const defaultTabId = 'devices';
+
+export default function Browsers() {
+  const [currentTabId, setCurrentTabId] = useState(defaultTabId);
+  const dispatch = useDispatch();
+  const onAddClickHandler = useCallback(() => {
+    if (currentTabId === 'devices') {
+      dispatch(updateDeviceModal('add', {}))
+    }
+  }, [currentTabId, dispatch]);
+
   return (
     <FullHeightCard>
       <FullHeightTabs
         id="browsers"
-        defaultSelectedTabId="devices"
+        defaultSelectedTabId={defaultTabId}
+        onChange={(newTabId) => setCurrentTabId(newTabId)}
       >
         <Tab
           id="devices"
@@ -72,6 +85,7 @@ export default function Browsers(props) {
           <Button
             small
             icon="plus"
+            onClick={onAddClickHandler}
           />
           <Popover
             position={Position.BOTTOM_RIGHT}

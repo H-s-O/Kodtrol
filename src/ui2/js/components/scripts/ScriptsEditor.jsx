@@ -1,6 +1,7 @@
 import React from 'react';
-import { Tab, Button, NonIdealState } from '@blueprintjs/core';
+import { Tab, Button, NonIdealState, Icon } from '@blueprintjs/core';
 import { connect } from 'react-redux';
+import styled from 'styled-components';
 
 import FullHeightCard from '../ui/FullHeightCard';
 import CodeEditor from './CodeEditor';
@@ -8,6 +9,14 @@ import FullHeightTabs from '../ui/FullHeightTabs';
 import { closeScriptAction } from '../../../../common/js/store/actions/scripts';
 import { createSelector } from 'reselect';
 import { ICON_SCRIPT } from '../../../../common/js/constants/icons';
+
+const StyledIcon = styled(Icon)`
+  margin-right: 3px;
+`;
+
+const StyledCloseButton = styled(Button)`
+  margin-left: 3px;
+`;
 
 function ScriptsEditor(props) {
   const { editScripts, scriptsNames, closeScript } = props;
@@ -25,12 +34,14 @@ function ScriptsEditor(props) {
               id={id}
               panel={<CodeEditor />}
             >
+              <StyledIcon
+                icon={ICON_SCRIPT}
+              />
               {scriptsNames[id]}
-              <Button
+              <StyledCloseButton
                 small
                 minimal
                 icon="small-cross"
-                style={{ marginLeft: '3px' }}
                 onClick={(e) => {
                   e.stopPropagation();
                   closeScript(id);

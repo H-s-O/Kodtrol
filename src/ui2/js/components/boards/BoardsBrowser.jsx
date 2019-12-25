@@ -1,24 +1,86 @@
 import React from 'react';
 import { connect } from "react-redux";
+import { Icon, Button } from '@blueprintjs/core';
 
 import ManagedTree from '../ui/ManagedTree';
+import { runBoardAction, stopBoardAction, editBoardAction } from '../../../../common/js/store/actions/boards';
+
+const generateLabel = (id, name, props) => {
+  const { runBoard } = props
+
+  return (
+    <>
+      {name}
+      {id === runBoard && (
+        <Icon
+          style={{ marginLeft: '3px', display: 'inline-block' }}
+          icon="eye-open"
+          intent="success"
+        />
+      )}
+    </>
+  )
+}
+
+const generateActions = (id, props) => {
+  const { doRunBoard, runBoard, doStopBoard } = props;
+
+  if (id === runBoard) {
+    return (
+      <Button
+        small
+        minimal
+        icon="eye-off"
+        intent="danger"
+        title="Stop running timeline"
+        onClick={(e) => {
+          e.stopPropagation();
+          doStopBoard();
+        }}
+      />
+    )
+  }
+
+  return (
+    <Button
+      small
+      minimal
+      icon="eye-open"
+      title="Run timeline"
+      onClick={(e) => {
+        e.stopPropagation();
+        doRunBoard(id);
+      }}
+    />
+  )
+}
 
 function BoardsBrowser(props) {
-  const { boards } = props;
+  const { boards, doEditBoard } = props;
   const contents = boards.map(({ id, name }) => ({
     id,
     key: id,
-    depth: 0,
-    label: name,
+    label: generateLabel(id, name, props),
+    secondaryLabel: generateActions(id, props),
   }));
 
   return (
     <ManagedTree
       contents={contents}
+      onNodeDoubleClick={({ id }) => doEditBoard(id)}
     />
   );
 }
 
-const mapStateToProps = ({ boards }) => ({ boards });
+const mapStateToProps = ({ boards, runBoard }) => ({
+  boards,
+  runBoard
+});
 
-export default connect(mapStateToProps)(BoardsBrowser);
+const mapDispatchToProps = (dispatch) => ({
+  doEditBoard: (id) => dispatch(editBoardAction(id)),
+  doRunBoard: (id) => dispatch(runBoardAction(id)),
+  doStopBoard: () => dispatch(stopBoardAction()),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(BoardsBrowser);

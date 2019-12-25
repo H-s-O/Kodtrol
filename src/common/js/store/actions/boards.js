@@ -7,38 +7,43 @@ const excludeHashProps = [
   'name',
 ];
 
-export const updateBoards = (boards) => {
+export const UPDATE_BOARDS = 'update_boards';
+export const updateBoardsAction = (boards) => {
   return {
-    type: 'UPDATE_BOARDS',
+    type: UPDATE_BOARDS,
     payload: boards,
   };
 };
 
-export const selectBoard = (id) => {
+export const EDIT_BOARD = 'edit_board';
+export const editBoardAction = (id) => {
   return {
-    type: 'SELECT_BOARD',
+    type: EDIT_BOARD,
     payload: id,
   };
 };
 
-export const unselectBoard = () => {
+export const CLOSE_BOARD = 'close_board';
+export const closeBoardAction = (id) => {
   return {
-    type: 'SELECT_BOARD',
-    payload: null,
+    type: CLOSE_BOARD,
+    payload: id,
   };
 };
 
-export const createBoard = (data) => {
+export const CREATE_BOARD = 'create_board';
+export const createBoardAction = (data) => {
   const newData = {
     zoom: 1.0,
     zoomVert: 1.0,
     items: [],
     layers: [],
+    tempo: null,
     ...data,
     id: uniqid(),
   };
   return {
-    type: 'CREATE_BOARD',
+    type: CREATE_BOARD,
     payload: {
       ...newData,
       hash: hashDataObject(newData, excludeHashProps),
@@ -46,16 +51,18 @@ export const createBoard = (data) => {
   };
 };
 
-export const deleteBoard = (id) => {
+export const DELETE_BOARD = 'delete_board';
+export const deleteBoardAction = (id) => {
   return {
-    type: 'DELETE_BOARD',
+    type: DELETE_BOARD,
     payload: id,
   };
 };
 
-export const saveBoard = (id, data) => {
+export const SAVE_BOARD = 'save_board';
+export const saveBoardAction = (id, data) => {
   return {
-    type: 'SAVE_BOARD',
+    type: SAVE_BOARD,
     payload: {
       id,
       data: {
@@ -66,16 +73,18 @@ export const saveBoard = (id, data) => {
   };
 };
 
-export const runBoard = (id) => {
+export const RUN_BOARD = 'run_board';
+export const runBoardAction = (id) => {
   return {
-    type: 'RUN_BOARD',
+    type: RUN_BOARD,
     payload: id,
   };
 };
 
-export const stopBoard = () => {
+export const STOP_BOARD = 'stop_board';
+export const stopBoardAction = () => {
   return {
-    type: 'RUN_BOARD',
+    type: STOP_BOARD,
     payload: null,
   };
 };

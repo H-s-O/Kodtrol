@@ -1,15 +1,17 @@
+import { EDIT_BOARD, CLOSE_BOARD } from "../actions/boards";
+
 const defaultState = [];
 
-export default (state = defaultState, {type, payload}) => {
+export default (state = defaultState, { type, payload }) => {
   switch (type) {
-    case 'SELECT_BOARD':
-      return payload;
+    case EDIT_BOARD:
+      return [...state, payload];
       break;
-      
-    case 'UPDATE_CURRENT_BOARD':
-      return payload;
+
+    case CLOSE_BOARD:
+      return state.filter((id) => id !== payload);
       break;
-      
+
     default:
       return state;
       break;
