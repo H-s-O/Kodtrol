@@ -47,3 +47,26 @@ export const saveDevice = (id, data) => {
     },
   };
 };
+
+export const CREATE_DEVICE_FOLDER = 'create_device_folder';
+export const createDeviceFolderAction = (data) => {
+  const newData = {
+    ...data,
+    id: uniqid(),
+  }
+  return {
+    type: CREATE_DEVICE_FOLDER,
+    payload: {
+      ...newData,
+      hash: hashDataObject(newData, excludeHashProps),
+    },
+  };
+}
+
+export const DELETE_DEVICE_FOLDER = 'delete_device_folder';
+export const deleteDeviceFolderAction = (id) => {
+  return {
+    type: DELETE_DEVICE_FOLDER,
+    payload: id,
+  };
+}

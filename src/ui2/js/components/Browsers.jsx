@@ -15,8 +15,9 @@ import { updateDeviceModal } from '../../../common/js/store/actions/modals';
 const defaultTabId = 'devices';
 
 export default function Browsers() {
-  const [currentTabId, setCurrentTabId] = useState(defaultTabId);
   const dispatch = useDispatch();
+  const [currentTabId, setCurrentTabId] = useState(defaultTabId);
+  
   const onAddClickHandler = useCallback(() => {
     if (currentTabId === 'devices') {
       dispatch(updateDeviceModal('add', {}))

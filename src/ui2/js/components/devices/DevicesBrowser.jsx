@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from "react-redux";
 import { Tag } from "@blueprintjs/core";
 
@@ -23,15 +23,23 @@ const generateTags = (groups) => {
 }
 
 function DevicesBrowser(props) {
-  const { devices } = props;
-  const contents = devices.map(({ id, name, groups }) => ({
-    id,
-    key: id,
-    depth: 0,
-    label: name,
-    // icon: 'music',
-    secondaryLabel: generateTags(groups),
-  }));
+  const { devices, devicesFolders } = props;
+  const contents = useMemo(() => [
+    ...devicesFolders.map(({ id, name }) => ({
+      id,
+      key: id,
+      label: name,
+      hasCaret: true,
+      isExpanded: false,
+      icon: 'folder-close',
+    })),
+    ...devices.map(({ id, name, groups }) => ({
+      id,
+      key: id,
+      label: name,
+      secondaryLabel: generateTags(groups),
+    }))
+  ], [devices, devicesFolders]);
 
   return (
     <ManagedTree
@@ -40,6 +48,6 @@ function DevicesBrowser(props) {
   );
 }
 
-const mapStateToProps = ({ devices }) => ({ devices });
+const mapStateToProps = ({ devices, devicesFolders }) => ({ devices, devicesFolders });
 
 export default connect(mapStateToProps)(DevicesBrowser);

@@ -1,15 +1,21 @@
-import React, { Component } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Tree } from '@blueprintjs/core';
 
-export default class ManagedTree extends Component {
-  render = () => {
-    const { contents, ...otherProps } = this.props;
+export default function ManagedTree(props) {
+  const { contents, ...otherProps } = props;
+  const [stateContents, setStateContents] = useState(contents);
 
-    return (
-      <Tree
-        {...otherProps}
-        contents={contents}
-      />
-    );
-  }
+  const nodeExpandHandler = useCallback((node) => {
+    node.isExpanded = true;
+    // setStateContents(stateContents)
+    console.log(node);
+  }, [stateContents]);
+
+  return (
+    <Tree
+      {...otherProps}
+      contents={stateContents}
+      onNodeExpand={nodeExpandHandler}
+    />
+  );
 }

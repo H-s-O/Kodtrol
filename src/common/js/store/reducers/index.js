@@ -1,8 +1,9 @@
 export { default as fileVersion } from './fileVersion';
+export { default as devices } from './devices';
+export { default as devicesFolders } from './devicesFolders';
 export { default as editTimelines } from './editTimelines';
 export { default as editScripts } from './editScripts';
 export { default as editBoards } from './editBoards';
-export { default as devices } from './devices';
 export { default as scripts } from './scripts';
 export { default as medias } from './medias';
 export { default as timelineInfo } from './timelineInfo';
