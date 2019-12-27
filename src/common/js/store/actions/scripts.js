@@ -86,3 +86,26 @@ export const stopScriptAction = () => {
     payload: null,
   };
 };
+
+export const CREATE_SCRIPT_FOLDER = 'create_script_folder';
+export const createScriptFolderAction = (data) => {
+  const newData = {
+    ...data,
+    id: uniqid(),
+  }
+  return {
+    type: CREATE_SCRIPT_FOLDER,
+    payload: {
+      ...newData,
+      hash: hashDataObject(newData, excludeHashProps),
+    },
+  };
+}
+
+export const DELETE_SCRIPT_FOLDER = 'delete_script_folder';
+export const deleteScriptFolderAction = (id) => {
+  return {
+    type: DELETE_SCRIPT_FOLDER,
+    payload: id,
+  };
+}

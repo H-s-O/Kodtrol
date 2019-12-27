@@ -57,7 +57,7 @@ const generateActions = (id, props) => {
 
 function TimelinesBrowser(props) {
   const { timelines, doEditTimeline } = props;
-  const contents = timelines.map(({ id, name }) => ({
+  const items = timelines.map(({ id, name }) => ({
     id,
     key: id,
     label: generateLabel(id, name, props),
@@ -66,8 +66,8 @@ function TimelinesBrowser(props) {
 
   return (
     <ManagedTree
-      contents={contents}
-      onNodeDoubleClick={({ id }) => doEditTimeline(id)}
+      items={items}
+      onNodeDoubleClick={({ id, hasCaret }) => !hasCaret && doEditTimeline(id)}
     />
   );
 }

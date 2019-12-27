@@ -56,24 +56,34 @@ const generateActions = (id, props) => {
 }
 
 function ScriptsBrowser(props) {
-  const { scripts, doEditScript } = props;
-  const contents = scripts.map(({ id, name }) => ({
+  const { scripts, scriptsFolders, doEditScript } = props;
+  const items = scripts.map(({ id, name }) => ({
     id,
     key: id,
     label: generateLabel(id, name, props),
     secondaryLabel: generateActions(id, props),
   }));
+  const folders = scriptsFolders.map(({ id, name }) => ({
+    id,
+    key: id,
+    label: name,
+    hasCaret: true,
+    isExpanded: false,
+    icon: 'folder-close'
+  }));
 
   return (
     <ManagedTree
-      contents={contents}
-      onNodeDoubleClick={({ id }) => doEditScript(id)}
+      items={items}
+      folders={folders}
+      onNodeDoubleClick={({ id, hasCaret }) => !hasCaret && doEditScript(id)}
     />
   );
 }
 
-const mapStateToProps = ({ scripts, runScript }) => ({
+const mapStateToProps = ({ scripts, scriptsFolders, runScript }) => ({
   scripts,
+  scriptsFolders,
   runScript
 });
 

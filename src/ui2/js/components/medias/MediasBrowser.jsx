@@ -5,7 +5,7 @@ import ManagedTree from '../ui/ManagedTree';
 
 function MediasBrowser(props) {
   const { medias } = props;
-  const contents = medias.map(({ id, name }) => ({
+  const items = medias.map(({ id, name }) => ({
     id,
     key: id,
     depth: 0,
@@ -14,7 +14,7 @@ function MediasBrowser(props) {
 
   return (
     <ManagedTree
-      contents={contents}
+      items={items}
     />
   );
 }

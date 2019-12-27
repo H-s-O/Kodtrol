@@ -5,6 +5,7 @@ export { default as editTimelines } from './editTimelines';
 export { default as editScripts } from './editScripts';
 export { default as editBoards } from './editBoards';
 export { default as scripts } from './scripts';
+export { default as scriptsFolders } from './scriptsFolders';
 export { default as medias } from './medias';
 export { default as timelineInfo } from './timelineInfo';
 export { default as timelineInfoUser } from './timelineInfoUser';

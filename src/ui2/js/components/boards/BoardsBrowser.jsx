@@ -57,7 +57,7 @@ const generateActions = (id, props) => {
 
 function BoardsBrowser(props) {
   const { boards, doEditBoard } = props;
-  const contents = boards.map(({ id, name }) => ({
+  const items = boards.map(({ id, name }) => ({
     id,
     key: id,
     label: generateLabel(id, name, props),
@@ -66,8 +66,8 @@ function BoardsBrowser(props) {
 
   return (
     <ManagedTree
-      contents={contents}
-      onNodeDoubleClick={({ id }) => doEditBoard(id)}
+      items={items}
+      onNodeDoubleClick={({ id, hasCaret }) => !hasCaret && doEditBoard(id)}
     />
   );
 }
