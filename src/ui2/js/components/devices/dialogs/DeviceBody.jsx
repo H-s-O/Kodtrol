@@ -12,19 +12,22 @@ const defaultValue = {
 
 export default function DeviceBody({ value = defaultValue }) {
   const { type, output } = value;
-  
+
   const outputs = useSelector((state) => state.outputs);
 
   return (
     <>
       <InlineFormGroup
         label="Name"
+        helperText={!name ? 'A device name is mandatory.' : undefined}
+        intent={!name ? Intent.DANGER : undefined}
       >
         <InputGroup
           name="name"
         />
       </InlineFormGroup>
       <InlineFormGroup
+        inline
         label="Type"
         helperText={!type ? 'A device type is mandatory.' : undefined}
         intent={!type ? Intent.DANGER : undefined}
@@ -57,10 +60,11 @@ export default function DeviceBody({ value = defaultValue }) {
         </HTMLSelect>
       </InlineFormGroup>
       <InlineFormGroup
-        label="Tags"
+        label="Groups"
+        helperText={<>Can be used in scripts with <code>hasGroup()</code>.</>}
       >
         <TagInput
-          name="tags"
+          name="groups"
           values={['tag1', 'tag2']}
         />
       </InlineFormGroup>

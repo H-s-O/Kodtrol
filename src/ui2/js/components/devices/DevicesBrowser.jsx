@@ -1,24 +1,31 @@
 import React from 'react';
 import { connect } from "react-redux";
-import { Tag } from "@blueprintjs/core";
+import { Tag, Button } from "@blueprintjs/core";
 
 import TagGroup from '../ui/TagGroup';
 import ManagedTree from '../ui/ManagedTree';
 
-const generateTags = (groups) => {
+const generateTagsAndActions = (groups) => {
   return (
-    <TagGroup>
-      {groups.map((group, index) => {
-        return (
-          <Tag
-            minimal
-            key={index}
-          >
-            {group}
-          </Tag>
-        );
-      })}
-    </TagGroup>
+    <>
+      <TagGroup>
+        {groups.map((group, index) => {
+          return (
+            <Tag
+              minimal
+              key={index}
+            >
+              {group}
+            </Tag>
+          );
+        })}
+      </TagGroup>
+      <Button
+        small
+        minimal
+        icon="eye-open"
+      />
+    </>
   );
 }
 
@@ -28,7 +35,7 @@ function DevicesBrowser(props) {
     id,
     key: id,
     label: name,
-    secondaryLabel: generateTags(groups),
+    secondaryLabel: generateTagsAndActions(groups),
   }));
   const folders = devicesFolders.map(({ id, name }) => ({
     id,

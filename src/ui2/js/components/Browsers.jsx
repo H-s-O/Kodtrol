@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
-import { Tab, Icon, Button, ButtonGroup, Popover, Position, Menu } from '@blueprintjs/core';
+import { useDispatch, useSelector } from 'react-redux';
+import { Tab, Icon, Button, ButtonGroup, Popover, Position, Menu, NonIdealState } from '@blueprintjs/core';
 
 import DeviceBrowser from './devices/DevicesBrowser';
 import FullHeightCard from './ui/FullHeightCard';
@@ -10,19 +10,30 @@ import TimelinesBrowser from './timelines/TimelinesBrowser';
 import FullHeightTabs from './ui/FullHeightTabs';
 import BoardsBrowser from './boards/BoardsBrowser';
 import { ICON_DEVICE, ICON_SCRIPT, ICON_MEDIA, ICON_TIMELINE, ICON_BOARD } from '../../../common/js/constants/icons';
-import { updateDeviceModal } from '../../../common/js/store/actions/modals';
+import { showAddDeviceDialogAction } from '../../../common/js/store/actions/dialogs';
 
 const defaultTabId = 'devices';
 
 export default function Browsers() {
+  const { devices, scripts, medias, timelines, boards } = useSelector((state) => ({
+    devices: state.devices.length,
+    scripts: state.scripts.length,
+    medias: state.medias.length,
+    timelines: state.timelines.length,
+    boards: state.boards.length,
+  }));
+
   const dispatch = useDispatch();
   const [currentTabId, setCurrentTabId] = useState(defaultTabId);
-  
-  const onAddClickHandler = useCallback(() => {
+
+  const addClickHandler = useCallback(() => {
     if (currentTabId === 'devices') {
-      dispatch(updateDeviceModal('add', {}))
+      dispatch(showAddDeviceDialogAction())
     }
   }, [currentTabId, dispatch]);
+  const addDeviceHandler = useCallback(() => {
+    dispatch(showAddDeviceDialogAction());
+  }, [dispatch]);
 
   return (
     <FullHeightCard>
@@ -33,7 +44,12 @@ export default function Browsers() {
       >
         <Tab
           id="devices"
-          panel={<DeviceBrowser />}
+          panel={devices ? <DeviceBrowser /> : <NonIdealState icon={ICON_DEVICE} description={
+            <>
+              No devices yet. Click <Icon icon="plus" /> to add one.
+            </>
+          } />
+          }
         >
           <Icon
             iconSize={Icon.SIZE_LARGE}
@@ -43,7 +59,12 @@ export default function Browsers() {
         </Tab>
         <Tab
           id="scripts"
-          panel={<ScriptsBrowser />}
+          panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} description={
+            <>
+              No scripts yet. Click <Icon icon="plus" /> to add one.
+              </>
+          } />
+          }
         >
           <Icon
             iconSize={Icon.SIZE_LARGE}
@@ -53,7 +74,12 @@ export default function Browsers() {
         </Tab>
         <Tab
           id="medias"
-          panel={<MediasBrowser />}
+          panel={medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} description={
+            <>
+              No medias yet. Click <Icon icon="plus" /> to add one.
+              </>
+          } />
+          }
         >
           <Icon
             iconSize={Icon.SIZE_LARGE}
@@ -63,7 +89,12 @@ export default function Browsers() {
         </Tab>
         <Tab
           id="timelines"
-          panel={<TimelinesBrowser />}
+          panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} description={
+            <>
+              No timelines yet. Click <Icon icon="plus" /> to add one.
+              </>
+          } />
+          }
         >
           <Icon
             iconSize={Icon.SIZE_LARGE}
@@ -73,7 +104,12 @@ export default function Browsers() {
         </Tab>
         <Tab
           id="boards"
-          panel={<BoardsBrowser />}
+          panel={boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} description={
+            <>
+              No boards yet. Click <Icon icon="plus" /> to add one.
+              </>
+          } />
+          }
         >
           <Icon
             iconSize={Icon.SIZE_LARGE}
@@ -86,13 +122,34 @@ export default function Browsers() {
           <Button
             small
             icon="plus"
-            onClick={onAddClickHandler}
+            onClick={addClickHandler}
           />
           <Popover
+            minimal
             position={Position.BOTTOM_RIGHT}
             content={
               <Menu>
-                <Menu.Item text="Allo" />
+                <Menu.Item
+                  text="Add Device"
+                  icon={ICON_DEVICE}
+                  onClick={addDeviceHandler}
+                />
+                <Menu.Item
+                  text="Add Script"
+                  icon={ICON_SCRIPT}
+                />
+                <Menu.Item
+                  text="Add Media"
+                  icon={ICON_MEDIA}
+                />
+                <Menu.Item
+                  text="Add Timeline"
+                  icon={ICON_TIMELINE}
+                />
+                <Menu.Item
+                  text="Add Board"
+                  icon={ICON_BOARD}
+                />
               </Menu>
             }
           >

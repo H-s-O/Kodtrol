@@ -20,3 +20,4 @@ export { default as boards } from './boards';
 export { default as outputs } from './outputs';
 export { default as inputs } from './inputs';
 export { default as ioStatus } from './ioStatus';
+export { default as dialogs } from './dialogs';
