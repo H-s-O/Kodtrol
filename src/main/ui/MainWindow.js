@@ -32,8 +32,8 @@ export default class MainWindow extends EventEmitter {
     const isDev = true;
     if (isDev) {
       if (!MainWindow.__devToolsAdded) {
-        BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/3.4.0_0'));
-        BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.15.3_0'));
+        BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/4.2.1_0'));
+        BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'));
         MainWindow.__devToolsAdded = true;
       }
     } 
