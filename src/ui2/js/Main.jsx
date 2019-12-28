@@ -5,6 +5,7 @@ import MainNav from './components/MainNav';
 import Browsers from './components/Browsers';
 import ScriptsEditor from './components/scripts/ScriptsEditor';
 import TimelineEditor from './components/timelines/TimelineEditor';
+import DialogsContainer from './components/DialogsContainer';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -43,23 +44,26 @@ const StyledTimelinesDashboardsRow = styled.div`
 
 export default function Main(props) {
   return (
-    <StyledContainer>
-      <StyledTopRow>
-        <MainNav />
-      </StyledTopRow>
-      <StyledBottomRow>
-        <StyledLeftCol>
-          <Browsers />
-        </StyledLeftCol>
-        <StyledRightCol>
-          <StyledScriptsRow>
-            <ScriptsEditor />
-          </StyledScriptsRow>
-          <StyledTimelinesDashboardsRow>
-            <TimelineEditor />
-          </StyledTimelinesDashboardsRow>
-        </StyledRightCol>
-      </StyledBottomRow>
-    </StyledContainer>
+    <>
+      <StyledContainer>
+        <StyledTopRow>
+          <MainNav />
+        </StyledTopRow>
+        <StyledBottomRow>
+          <StyledLeftCol>
+            <Browsers />
+          </StyledLeftCol>
+          <StyledRightCol>
+            <StyledScriptsRow>
+              <ScriptsEditor />
+            </StyledScriptsRow>
+            <StyledTimelinesDashboardsRow>
+              <TimelineEditor />
+            </StyledTimelinesDashboardsRow>
+          </StyledRightCol>
+        </StyledBottomRow>
+      </StyledContainer>
+      <DialogsContainer />
+    </>
   );
 }
