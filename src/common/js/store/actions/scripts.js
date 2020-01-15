@@ -16,12 +16,35 @@ export const updateScriptsAction = (scripts) => {
 };
 
 export const EDIT_SCRIPT = 'edit_script';
-export const editScriptAction = (id) => {
+export const editScriptAction = (id, content) => {
   return {
     type: EDIT_SCRIPT,
-    payload: id,
+    payload: {
+      id,
+      content,
+      changed: false,
+    },
   };
 };
+
+export const UPDATE_EDITED_SCRIPT = 'updated_edited_script';
+export const updateEditedScriptAction = (id, content) => {
+  return {
+    type: UPDATE_EDITED_SCRIPT,
+    payload: {
+      id,
+      content,
+    },
+  };
+}
+
+export const SAVE_EDITED_SCRIPT = 'save_edited_script';
+export const saveEditedScriptAction = (id) => {
+  return {
+    type: SAVE_EDITED_SCRIPT,
+    payload: id,
+  };
+}
 
 export const CLOSE_SCRIPT = 'close_script';
 export const closeScriptAction = (id) => {

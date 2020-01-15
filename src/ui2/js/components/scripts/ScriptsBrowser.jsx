@@ -76,7 +76,12 @@ function ScriptsBrowser(props) {
     <ManagedTree
       items={items}
       folders={folders}
-      onNodeDoubleClick={({ id, hasCaret }) => !hasCaret && doEditScript(id)}
+      onNodeDoubleClick={({ id, hasCaret }) => {
+        if (!hasCaret) {
+          const { content } = scripts.find((script) => script.id === id);
+          doEditScript(id, content)
+        }
+      }}
     />
   );
 }
@@ -88,7 +93,7 @@ const mapStateToProps = ({ scripts, scriptsFolders, runScript }) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  doEditScript: (id) => dispatch(editScriptAction(id)),
+  doEditScript: (id, content) => dispatch(editScriptAction(id, content)),
   doRunScript: (id) => dispatch(runScriptAction(id)),
   doStopScript: () => dispatch(stopScriptAction())
 });

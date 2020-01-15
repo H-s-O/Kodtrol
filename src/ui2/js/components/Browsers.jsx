@@ -23,9 +23,9 @@ export default function Browsers() {
     boards: state.boards.length,
   }));
 
-  const dispatch = useDispatch();
   const [currentTabId, setCurrentTabId] = useState(defaultTabId);
-
+  
+  const dispatch = useDispatch();
   const addClickHandler = useCallback(() => {
     if (currentTabId === 'devices') {
       dispatch(showAddDeviceDialogAction())
@@ -39,7 +39,7 @@ export default function Browsers() {
     <FullHeightCard>
       <FullHeightTabs
         id="browsers"
-        defaultSelectedTabId={defaultTabId}
+        selectedTabId={currentTabId}
         onChange={(newTabId) => setCurrentTabId(newTabId)}
       >
         <Tab

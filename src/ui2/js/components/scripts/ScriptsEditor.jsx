@@ -1,12 +1,12 @@
-import React from 'react';
-import { Tab, Button, NonIdealState, Icon } from '@blueprintjs/core';
-import { connect } from 'react-redux';
+import React, { useState, useCallback } from 'react';
+import { Tab, Button, NonIdealState, Icon, Intent } from '@blueprintjs/core';
+import { connect, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import FullHeightCard from '../ui/FullHeightCard';
-import CodeEditor from './CodeEditor';
+import ScriptEditor from './ScriptEditor';
 import FullHeightTabs from '../ui/FullHeightTabs';
-import { closeScriptAction } from '../../../../common/js/store/actions/scripts';
+import { closeScriptAction, saveEditedScriptAction } from '../../../../common/js/store/actions/scripts';
 import { createSelector } from 'reselect';
 import { ICON_SCRIPT } from '../../../../common/js/constants/icons';
 
@@ -18,34 +18,59 @@ const StyledCloseButton = styled(Button)`
   margin-left: 3px;
 `;
 
-function ScriptsEditor(props) {
-  const { editScripts, scriptsNames, closeScript } = props;
-  const defaultTab = editScripts[0];
+const TabLabel = ({ id, changed, scriptsNames, closeScript }) => {
+  return (
+    <>
+      <StyledIcon
+        icon={ICON_SCRIPT}
+        intent={changed ? Intent.WARNING : undefined}
+      />
+      {scriptsNames[id]}
+      <StyledCloseButton
+        small
+        minimal
+        icon="small-cross"
+        onClick={(e) => {
+          e.stopPropagation();
+          closeScript(id);
+        }}
+      />
+    </>
+  );
+}
+
+function ScriptsEditor({ editScripts, scriptsNames, closeScript }) {
+  const defaultTabId = editScripts.length ? editScripts[0].id : null;
+
+  const [currentTabId, setCurrentTabId] = useState(defaultTabId);
+
+  const dispatch = useDispatch();
+  const saveHandler = useCallback(() => {
+    dispatch(saveEditedScriptAction(currentTabId));
+  }, [dispatch, currentTabId]);
 
   return (
     <FullHeightCard>
       {editScripts && editScripts.length ? (
         <FullHeightTabs
-          defaultSelectedTabId={defaultTab}
+          selectedTabId={currentTabId}
+          onChange={(newTabId) => setCurrentTabId(newTabId)}
         >
-          {editScripts.map((id) => (
+          {editScripts.map(({ id, changed }) => (
             <Tab
               key={id}
               id={id}
-              panel={<CodeEditor />}
+              panel={(
+                <ScriptEditor
+                  id={id}
+                />
+              )}
             >
-              <StyledIcon
-                icon={ICON_SCRIPT}
-              />
-              {scriptsNames[id]}
-              <StyledCloseButton
-                small
-                minimal
-                icon="small-cross"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  closeScript(id);
-                }}
+              <TabLabel
+                id={id}
+                changed={changed}
+                scriptsNames={scriptsNames}
+                closeScript={closeScript}
               />
             </Tab>
           ))}
@@ -53,6 +78,7 @@ function ScriptsEditor(props) {
           <Button
             small
             icon="settings"
+            onClick={saveHandler}
           />
         </FullHeightTabs>
       ) : (
