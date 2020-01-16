@@ -7,18 +7,30 @@ import DialogBody from '../../ui/DialogBody';
 import DialogFooter from '../../ui/DialogFooter';
 import DeviceBody from './DeviceBody';
 import DialogFooterActions from '../../ui/DialogFooterActions';
-import { hideAddDeviceDialogAction } from '../../../../../common/js/store/actions/dialogs';
+import { hideAddDeviceDialogAction, updateAddDeviceDialogAction } from '../../../../../common/js/store/actions/dialogs';
 import CustomDialog from '../../ui/CustomDialog';
+
+const defaultValue = {
+  name: null,
+  type: null,
+  output: null,
+  groups: [],
+};
 
 export default function AddDeviceDialog() {
   const dialogs = useSelector((state) => state.dialogs);
   const { addDeviceDialogOpened, addDeviceDialogValue } = dialogs;
 
-  const dispatch = useDispatch();
+  const bodyValue = addDeviceDialogValue || defaultValue;
+  const bodyValid = bodyValue.name && bodyValue.type;
 
+  const dispatch = useDispatch();
   const closeHandler = useCallback(() => {
     dispatch(hideAddDeviceDialogAction());
   }, [dispatch]);
+  const changeHandler = useCallback((value, field) => {
+    dispatch(updateAddDeviceDialogAction({ ...bodyValue, [field]: value }))
+  }, [dispatch, bodyValue]);
 
   return (
     <CustomDialog
@@ -29,7 +41,8 @@ export default function AddDeviceDialog() {
     >
       <DialogBody>
         <DeviceBody
-          value={undefined}
+          value={bodyValue}
+          onChange={changeHandler}
         />
       </DialogBody>
       <DialogFooter>
@@ -41,7 +54,7 @@ export default function AddDeviceDialog() {
           </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled
+            disabled={!bodyValid}
           >
             Add
           </Button>

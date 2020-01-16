@@ -17,3 +17,14 @@ export const hideAddDeviceDialogAction = (local = true) => {
     } : undefined,
   };
 }
+
+export const UPDATE_ADD_DEVICE_DIALOG = 'update_add_device_dialog';
+export const updateAddDeviceDialogAction = (value, local = true) => {
+  return {
+    type: UPDATE_ADD_DEVICE_DIALOG,
+    payload: value,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}

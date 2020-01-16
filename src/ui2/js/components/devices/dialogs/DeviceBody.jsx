@@ -1,19 +1,34 @@
 import React from 'react';
-import { InputGroup, TagInput, HTMLSelect, Intent } from "@blueprintjs/core";
+import { Intent } from "@blueprintjs/core";
 import { useSelector } from 'react-redux';
 
 import InlineFormGroup from '../../ui/InlineFormGroup';
+import TextInput from '../../ui/inputs/TextInput';
+import SelectInput from '../../ui/inputs/SelectInput';
+import TagsInput from '../../ui/inputs/TagsInput';
+import { useMemo } from 'react';
 
-const defaultValue = {
-  name: null,
-  type: null,
-  output: null,
-};
-
-export default function DeviceBody({ value = defaultValue }) {
-  const { type, output } = value;
+export default function DeviceBody({ value, onChange }) {
+  const {
+    name,
+    type,
+    output,
+    groups,
+  } = value;
 
   const outputs = useSelector((state) => state.outputs);
+  const availableOutputs = useMemo(() => {
+    if (!type) {
+      return []
+    }
+    return outputs.filter((output) => {
+      if (type === 'dmx') {
+        return output.type === 'dmx' || output.type === 'artnet';
+      } else if (type === 'ilda') {
+        return output.type === 'ilda';
+      }
+    })
+  }, [outputs, type]);
 
   return (
     <>
@@ -22,8 +37,10 @@ export default function DeviceBody({ value = defaultValue }) {
         helperText={!name ? 'A device name is mandatory.' : undefined}
         intent={!name ? Intent.DANGER : undefined}
       >
-        <InputGroup
+        <TextInput
           name="name"
+          value={name}
+          onChange={onChange}
         />
       </InlineFormGroup>
       <InlineFormGroup
@@ -32,24 +49,29 @@ export default function DeviceBody({ value = defaultValue }) {
         helperText={!type ? 'A device type is mandatory.' : undefined}
         intent={!type ? Intent.DANGER : undefined}
       >
-        <HTMLSelect
+        <SelectInput
           name="type"
+          value={type}
+          onChange={onChange}
         >
           <option value="null">--</option>
           <option value="dmx">DMX</option>
           <option value="ilda">ILDA</option>
-        </HTMLSelect>
+        </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
         label="Output"
-        helperText={!output ? 'If not set, the device can still be used in scripts, but no data will be sent.' : undefined}
+        helperText={!output ? 'If not set, the device can still be used in scripts, but it will not send data.' : undefined}
         intent={!output ? Intent.WARNING : undefined}
       >
-        <HTMLSelect
+        <SelectInput
           name="output"
+          value={output}
+          onChange={onChange}
+          disabled={!type}
         >
           <option value="null">--</option>
-          {outputs.map(({ id, name }) => (
+          {availableOutputs.map(({ id, name }) => (
             <option
               key={id}
               value={id}
@@ -57,15 +79,17 @@ export default function DeviceBody({ value = defaultValue }) {
               {name}
             </option>
           ))}
-        </HTMLSelect>
+        </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
         label="Groups"
         helperText={<>Can be used in scripts with <code>hasGroup()</code>.</>}
       >
-        <TagInput
+        <TagsInput
           name="groups"
-          values={['tag1', 'tag2']}
+          value={groups}
+          onChange={onChange}
+          placeholder="Separate groups with commas"
         />
       </InlineFormGroup>
     </>
