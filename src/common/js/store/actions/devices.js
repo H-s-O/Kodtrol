@@ -52,6 +52,22 @@ export const saveDeviceAction = (id, data) => {
   };
 };
 
+export const RUN_DEVICE = 'run_device';
+export const runDeviceAction = (id) => {
+  return {
+    type: RUN_DEVICE,
+    payload: id,
+  };
+};
+
+export const STOP_DEVICE = 'stop_device';
+export const stopDeviceAction = () => {
+  return {
+    type: STOP_DEVICE,
+  };
+};
+
+
 export const CREATE_DEVICE_FOLDER = 'create_device_folder';
 export const createDeviceFolderAction = (data) => {
   const newData = {

@@ -58,8 +58,9 @@ export const CREATE_SCRIPT = 'create_script';
 export const createScriptAction = (data) => {
   const newData = {
     content: '',
-    previewTempo: null,
+    tempo: null,
     devices: [],
+    devicesGroups: [],
     ...data,
     id: uniqid(),
   };
@@ -106,7 +107,6 @@ export const STOP_SCRIPT = 'stop_script';
 export const stopScriptAction = () => {
   return {
     type: STOP_SCRIPT,
-    payload: null,
   };
 };
 

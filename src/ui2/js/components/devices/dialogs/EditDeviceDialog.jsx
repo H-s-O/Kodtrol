@@ -7,9 +7,9 @@ import DialogBody from '../../ui/DialogBody';
 import DialogFooter from '../../ui/DialogFooter';
 import DeviceBody from './DeviceBody';
 import DialogFooterActions from '../../ui/DialogFooterActions';
-import { hideAddDeviceDialogAction, updateAddDeviceDialogAction } from '../../../../../common/js/store/actions/dialogs';
+import { hideEditDeviceDialogAction, updateEditDeviceDialogAction } from '../../../../../common/js/store/actions/dialogs';
 import CustomDialog from '../../ui/CustomDialog';
-import { createDeviceAction } from '../../../../../common/js/store/actions/devices';
+import { saveDeviceAction } from '../../../../../common/js/store/actions/devices';
 import deviceValidator from '../../../../../common/js/validators/deviceValidator';
 
 const defaultValue = {
@@ -19,29 +19,29 @@ const defaultValue = {
   tags: [],
 };
 
-export default function AddDeviceDialog() {
-  const addDeviceDialogOpened = useSelector((state) => state.dialogs.addDeviceDialogOpened);
-  const addDeviceDialogValue = useSelector((state) => state.dialogs.addDeviceDialogValue);
+export default function EditDeviceDialog() {
+  const editDeviceDialogOpened = useSelector((state) => state.dialogs.editDeviceDialogOpened);
+  const editDeviceDialogValue = useSelector((state) => state.dialogs.editDeviceDialogValue);
 
-  const bodyValue = addDeviceDialogValue || defaultValue;
+  const bodyValue = editDeviceDialogValue || defaultValue;
   const bodyValid = deviceValidator(bodyValue);
 
   const dispatch = useDispatch();
   const closeHandler = useCallback(() => {
-    dispatch(hideAddDeviceDialogAction());
+    dispatch(hideEditDeviceDialogAction());
   }, [dispatch]);
   const successHandler = useCallback(() => {
-    dispatch(createDeviceAction(bodyValue));
-    dispatch(hideAddDeviceDialogAction());
+    dispatch(saveDeviceAction(bodyValue.id, bodyValue));
+    dispatch(hideEditDeviceDialogAction());
   }, [dispatch, bodyValue]);
   const changeHandler = useCallback((value, field) => {
-    dispatch(updateAddDeviceDialogAction({ ...bodyValue, [field]: value }))
+    dispatch(updateEditDeviceDialogAction({ ...bodyValue, [field]: value }))
   }, [dispatch, bodyValue]);
 
   return (
     <CustomDialog
-      isOpen={addDeviceDialogOpened}
-      title="Add Device"
+      isOpen={editDeviceDialogOpened}
+      title="Edit Device"
       icon={ICON_DEVICE}
       onClose={closeHandler}
     >
@@ -63,7 +63,7 @@ export default function AddDeviceDialog() {
             disabled={!bodyValid}
             onClick={successHandler}
           >
-            Add
+            Save
           </Button>
         </DialogFooterActions>
       </DialogFooter>

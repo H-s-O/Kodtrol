@@ -2,51 +2,51 @@ import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { ICON_DEVICE } from '../../../../../common/js/constants/icons';
+import { ICON_SCRIPT } from '../../../../../common/js/constants/icons';
 import DialogBody from '../../ui/DialogBody';
 import DialogFooter from '../../ui/DialogFooter';
-import DeviceBody from './DeviceBody';
+import ScriptBody from './ScriptBody';
 import DialogFooterActions from '../../ui/DialogFooterActions';
-import { hideAddDeviceDialogAction, updateAddDeviceDialogAction } from '../../../../../common/js/store/actions/dialogs';
+import { hideAddScriptDialogAction, updateAddScriptDialogAction } from '../../../../../common/js/store/actions/dialogs';
 import CustomDialog from '../../ui/CustomDialog';
-import { createDeviceAction } from '../../../../../common/js/store/actions/devices';
-import deviceValidator from '../../../../../common/js/validators/deviceValidator';
+import { createScriptAction } from '../../../../../common/js/store/actions/scripts';
+import scriptValidator from '../../../../../common/js/validators/scriptValidator';
 
 const defaultValue = {
   name: null,
-  type: null,
-  output: null,
-  tags: [],
+  tempo: null,
+  devices: [],
+  devicesGroups: [],
 };
 
-export default function AddDeviceDialog() {
-  const addDeviceDialogOpened = useSelector((state) => state.dialogs.addDeviceDialogOpened);
-  const addDeviceDialogValue = useSelector((state) => state.dialogs.addDeviceDialogValue);
+export default function AddScriptDialog() {
+  const addScriptDialogOpened = useSelector((state) => state.dialogs.addScriptDialogOpened);
+  const addScriptDialogValue = useSelector((state) => state.dialogs.addScriptDialogValue);
 
-  const bodyValue = addDeviceDialogValue || defaultValue;
-  const bodyValid = deviceValidator(bodyValue);
+  const bodyValue = addScriptDialogValue || defaultValue;
+  const bodyValid = scriptValidator(bodyValue);
 
   const dispatch = useDispatch();
   const closeHandler = useCallback(() => {
-    dispatch(hideAddDeviceDialogAction());
+    dispatch(hideAddScriptDialogAction());
   }, [dispatch]);
   const successHandler = useCallback(() => {
-    dispatch(createDeviceAction(bodyValue));
-    dispatch(hideAddDeviceDialogAction());
+    dispatch(createScriptAction(bodyValue));
+    dispatch(hideAddScriptDialogAction());
   }, [dispatch, bodyValue]);
   const changeHandler = useCallback((value, field) => {
-    dispatch(updateAddDeviceDialogAction({ ...bodyValue, [field]: value }))
+    dispatch(updateAddScriptDialogAction({ ...bodyValue, [field]: value }))
   }, [dispatch, bodyValue]);
 
   return (
     <CustomDialog
-      isOpen={addDeviceDialogOpened}
-      title="Add Device"
-      icon={ICON_DEVICE}
+      isOpen={addScriptDialogOpened}
+      title="Add Script"
+      icon={ICON_SCRIPT}
       onClose={closeHandler}
     >
       <DialogBody>
-        <DeviceBody
+        <ScriptBody
           value={bodyValue}
           onChange={changeHandler}
         />

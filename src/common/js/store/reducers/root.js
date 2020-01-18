@@ -15,6 +15,7 @@ import boardInfo from './boardInfo';
 import boardInfoUser from './boardInfoUser';
 import timelines from './timelines';
 import modals from './modals';
+import runDevice from './runDevice';
 import runScript from './runScript';
 import runTimeline from './runTimeline';
 import runBoard from './runBoard';
@@ -32,6 +33,7 @@ const standardReducers = combineReducers({
   ioStatus,
   devices,
   devicesFolders,
+  runDevice,
   scripts,
   scriptsFolders,
   editScripts,

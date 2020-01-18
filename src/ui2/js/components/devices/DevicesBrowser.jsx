@@ -1,11 +1,38 @@
-import React from 'react';
-import { connect } from "react-redux";
-import { Tag, Button } from "@blueprintjs/core";
+import React, { useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Tag, Button, Intent, Icon } from '@blueprintjs/core';
 
 import TagGroup from '../ui/TagGroup';
 import ManagedTree from '../ui/ManagedTree';
+import { showEditDeviceDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { runDeviceAction, stopDeviceAction } from '../../../../common/js/store/actions/devices';
 
-const generateTagsAndActions = (tags) => {
+const DeviceLabel = ({ name, running }) => {
+  return (
+    <>
+      {name}
+      {running && (
+        <Icon
+          style={{ marginLeft: '3px', display: 'inline-block' }}
+          icon="eye-open"
+          intent={Intent.SUCCESS}
+        />
+      )}
+    </>
+  );
+}
+
+const DeviceSecondaryLabel = ({ id, tags, running }) => {
+  const dispatch = useDispatch();
+  const runHandler = useCallback((e) => {
+    e.stopPropagation();
+    dispatch(runDeviceAction(id));
+  }, [dispatch, id]);
+  const stopHandler = useCallback((e) => {
+    e.stopPropagation();
+    dispatch(stopDeviceAction());
+  }, [dispatch]);
+
   return (
     <>
       <TagGroup>
@@ -20,23 +47,59 @@ const generateTagsAndActions = (tags) => {
           );
         })}
       </TagGroup>
-      <Button
-        small
-        minimal
-        icon="eye-open"
-      />
+      {!running ? (
+        <Button
+          small
+          minimal
+          icon="eye-open"
+          onClick={runHandler}
+        />
+      ) : (
+          <Button
+            small
+            minimal
+            icon="eye-off"
+            intent={Intent.DANGER}
+            onClick={stopHandler}
+          />
+        )}
     </>
   );
 }
 
-function DevicesBrowser(props) {
-  const { devices, devicesFolders } = props;
-  const items = devices.map(({ id, name, tags }) => ({
-    id,
-    key: id,
-    label: name,
-    secondaryLabel: generateTagsAndActions(tags),
-  }));
+export default function DevicesBrowser() {
+  const devices = useSelector((state) => state.devices);
+  const devicesFolders = useSelector((state) => state.devicesFolders);
+  const runDevice = useSelector((state) => state.runDevice);
+
+  const dispatch = useDispatch();
+  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
+    if (!hasCaret) {
+      const device = devices.find((device) => device.id === id);
+      dispatch(showEditDeviceDialogAction(device));
+    }
+  }, [dispatch, devices]);
+
+  const items = devices.map(({ id, name, tags }) => {
+    const running = id === runDevice;
+    return {
+      id,
+      key: id,
+      label: (
+        <DeviceLabel
+          name={name}
+          running={running}
+        />
+      ),
+      secondaryLabel: (
+        <DeviceSecondaryLabel
+          id={id}
+          tags={tags}
+          running={running}
+        />
+      ),
+    }
+  });
   const folders = devicesFolders.map(({ id, name }) => ({
     id,
     key: id,
@@ -50,10 +113,7 @@ function DevicesBrowser(props) {
     <ManagedTree
       items={items}
       folders={folders}
+      onNodeDoubleClick={nodeDoubleClickHandler}
     />
   );
 }
-
-const mapStateToProps = ({ devices, devicesFolders }) => ({ devices, devicesFolders });
-
-export default connect(mapStateToProps)(DevicesBrowser);

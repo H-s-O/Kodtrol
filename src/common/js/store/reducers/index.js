@@ -13,6 +13,7 @@ export { default as boardInfo } from './boardInfo';
 export { default as boardInfoUser } from './boardInfoUser';
 export { default as timelines } from './timelines';
 export { default as modals } from './modals';
+export { default as runDevice } from './runDevice';
 export { default as runScript } from './runScript';
 export { default as runTimeline } from './runTimeline';
 export { default as runBoard } from './runBoard';
