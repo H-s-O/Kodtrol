@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Intent } from "@blueprintjs/core";
 import { useSelector } from 'react-redux';
 
@@ -6,7 +6,6 @@ import InlineFormGroup from '../../ui/InlineFormGroup';
 import TextInput from '../../ui/inputs/TextInput';
 import SelectInput from '../../ui/inputs/SelectInput';
 import TagsInput from '../../ui/inputs/TagsInput';
-import { useMemo } from 'react';
 import DmxChannelsInput from '../../ui/inputs/DmxChannelsInput';
 import CustomDivider from '../../ui/CustomDivider';
 import NumberInput from '../../ui/inputs/NumberInput';
@@ -123,6 +122,18 @@ export default function DeviceBody({ value, onChange }) {
               name="channels"
               value={channels}
               onChange={onChange}
+            />
+          </InlineFormGroup>
+        </>
+      )}
+      {type === 'ilda' && (
+        <>
+          <InlineFormGroup
+            label="KPPS"
+            helperText="Laser scan speed, in thousands of points per second."
+          >
+            <NumberInput
+              min={0}
             />
           </InlineFormGroup>
         </>
