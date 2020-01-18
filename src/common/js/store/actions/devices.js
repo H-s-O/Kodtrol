@@ -7,20 +7,22 @@ const excludeHashProps = [
   'name',
 ];
 
-export const updateDevices = (devices) => {
+export const UPDATE_DEVICES = 'update_devices';
+export const updateDevicesAction = (devices) => {
   return {
-    type: 'UPDATE_DEVICES',
+    type: UPDATE_DEVICES,
     payload: devices,
   };
 };
 
-export const createDevice = (data) => {
+export const CREATE_DEVICE = 'create_device';
+export const createDeviceAction = (data) => {
   const newData = {
     ...data,
     id: uniqid(),
   }
   return {
-    type: 'CREATE_DEVICE',
+    type: CREATE_DEVICE,
     payload: {
       ...newData,
       hash: hashDataObject(newData, excludeHashProps),
@@ -28,16 +30,18 @@ export const createDevice = (data) => {
   };
 };
 
-export const deleteDevice = (id) => {
+export const DELETE_DEVICE = 'delete_device';
+export const deleteDeviceAction = (id) => {
   return {
-    type: 'DELETE_DEVICE',
+    type: DELETE_DEVICE,
     payload: id,
   };
 };
 
-export const saveDevice = (id, data) => {
+export const SAVE_DEVICE = 'save_device';
+export const saveDeviceAction = (id, data) => {
   return {
-    type: 'SAVE_DEVICE',
+    type: SAVE_DEVICE,
     payload: {
       id,
       data: {

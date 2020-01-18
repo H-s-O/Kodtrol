@@ -15,9 +15,10 @@ export default function DeviceBody({ value, onChange }) {
     name,
     type,
     output,
-    groups,
-    startingChannel,
+    tags,
+    address,
     channels,
+    scanSpeed,
   } = value;
 
   const outputs = useSelector((state) => state.outputs);
@@ -85,14 +86,14 @@ export default function DeviceBody({ value, onChange }) {
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
-        label="Groups"
-        helperText={<>Can be used in scripts with <code>hasGroup()</code>.</>}
+        label="Tags"
+        helperText={<>Can be used in scripts with <code>hasTag()</code>.</>}
       >
         <TagsInput
-          name="groups"
-          value={groups}
+          name="tags"
+          value={tags}
           onChange={onChange}
-          placeholder="Separate groups with commas"
+          placeholder="Separate tags with commas"
         />
       </InlineFormGroup>
       {type && (
@@ -103,14 +104,14 @@ export default function DeviceBody({ value, onChange }) {
           <InlineFormGroup
             label="Address"
             minWidth={60}
-            helperText={!startingChannel ? 'A DMX address is mandatory.' : undefined}
-            intent={!startingChannel ? Intent.DANGER : undefined}
+            helperText={!address ? 'A DMX address is mandatory.' : undefined}
+            intent={!address ? Intent.DANGER : undefined}
           >
             <NumberInput
-              name="startingChannel"
+              name="address"
               min={1}
               max={512}
-              value={startingChannel}
+              value={address}
               onChange={onChange}
             />
           </InlineFormGroup>
@@ -133,7 +134,10 @@ export default function DeviceBody({ value, onChange }) {
             helperText="Laser scan speed, in thousands of points per second."
           >
             <NumberInput
+              name="scanSpeed"
               min={0}
+              value={scanSpeed}
+              onChange={onChange}
             />
           </InlineFormGroup>
         </>

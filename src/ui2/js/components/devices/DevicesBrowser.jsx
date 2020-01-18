@@ -5,17 +5,17 @@ import { Tag, Button } from "@blueprintjs/core";
 import TagGroup from '../ui/TagGroup';
 import ManagedTree from '../ui/ManagedTree';
 
-const generateTagsAndActions = (groups) => {
+const generateTagsAndActions = (tags) => {
   return (
     <>
       <TagGroup>
-        {groups.map((group, index) => {
+        {tags.map((tag, index) => {
           return (
             <Tag
               minimal
               key={index}
             >
-              {group}
+              {tag}
             </Tag>
           );
         })}
@@ -31,11 +31,11 @@ const generateTagsAndActions = (groups) => {
 
 function DevicesBrowser(props) {
   const { devices, devicesFolders } = props;
-  const items = devices.map(({ id, name, groups }) => ({
+  const items = devices.map(({ id, name, tags }) => ({
     id,
     key: id,
     label: name,
-    secondaryLabel: generateTagsAndActions(groups),
+    secondaryLabel: generateTagsAndActions(tags),
   }));
   const folders = devicesFolders.map(({ id, name }) => ({
     id,

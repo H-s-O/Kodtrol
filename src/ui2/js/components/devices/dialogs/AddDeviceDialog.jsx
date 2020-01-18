@@ -9,12 +9,13 @@ import DeviceBody from './DeviceBody';
 import DialogFooterActions from '../../ui/DialogFooterActions';
 import { hideAddDeviceDialogAction, updateAddDeviceDialogAction } from '../../../../../common/js/store/actions/dialogs';
 import CustomDialog from '../../ui/CustomDialog';
+import { createDeviceAction } from '../../../../../common/js/store/actions/devices';
 
 const defaultValue = {
   name: null,
   type: null,
   output: null,
-  groups: [],
+  tags: [],
 };
 
 export default function AddDeviceDialog() {
@@ -28,6 +29,10 @@ export default function AddDeviceDialog() {
   const closeHandler = useCallback(() => {
     dispatch(hideAddDeviceDialogAction());
   }, [dispatch]);
+  const successHandler = useCallback(() => {
+    dispatch(createDeviceAction(bodyValue));
+    dispatch(hideAddDeviceDialogAction());
+  }, [dispatch, bodyValue]);
   const changeHandler = useCallback((value, field) => {
     dispatch(updateAddDeviceDialogAction({ ...bodyValue, [field]: value }))
   }, [dispatch, bodyValue]);
@@ -55,6 +60,7 @@ export default function AddDeviceDialog() {
           <Button
             intent={Intent.SUCCESS}
             disabled={!bodyValid}
+            onClick={successHandler}
           >
             Add
           </Button>
