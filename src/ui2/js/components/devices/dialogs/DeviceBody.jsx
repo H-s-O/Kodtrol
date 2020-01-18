@@ -7,6 +7,9 @@ import TextInput from '../../ui/inputs/TextInput';
 import SelectInput from '../../ui/inputs/SelectInput';
 import TagsInput from '../../ui/inputs/TagsInput';
 import { useMemo } from 'react';
+import DmxChannelsInput from '../../ui/inputs/DmxChannelsInput';
+import CustomDivider from '../../ui/CustomDivider';
+import NumberInput from '../../ui/inputs/NumberInput';
 
 export default function DeviceBody({ value, onChange }) {
   const {
@@ -14,6 +17,8 @@ export default function DeviceBody({ value, onChange }) {
     type,
     output,
     groups,
+    startingChannel,
+    channels,
   } = value;
 
   const outputs = useSelector((state) => state.outputs);
@@ -44,7 +49,6 @@ export default function DeviceBody({ value, onChange }) {
         />
       </InlineFormGroup>
       <InlineFormGroup
-        inline
         label="Type"
         helperText={!type ? 'A device type is mandatory.' : undefined}
         intent={!type ? Intent.DANGER : undefined}
@@ -92,6 +96,37 @@ export default function DeviceBody({ value, onChange }) {
           placeholder="Separate groups with commas"
         />
       </InlineFormGroup>
+      {type && (
+        <CustomDivider />
+      )}
+      {type === 'dmx' && (
+        <>
+          <InlineFormGroup
+            label="Address"
+            minWidth={60}
+            helperText={!startingChannel ? 'A DMX address is mandatory.' : undefined}
+            intent={!startingChannel ? Intent.DANGER : undefined}
+          >
+            <NumberInput
+              name="startingChannel"
+              min={1}
+              max={512}
+              value={startingChannel}
+              onChange={onChange}
+            />
+          </InlineFormGroup>
+          <InlineFormGroup
+            label="Channels"
+            minWidth={60}
+          >
+            <DmxChannelsInput
+              name="channels"
+              value={channels}
+              onChange={onChange}
+            />
+          </InlineFormGroup>
+        </>
+      )}
     </>
   )
 }
