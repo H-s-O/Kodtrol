@@ -1,9 +1,10 @@
 import EventEmitter from 'events';
-import { app, Menu } from 'electron';
+import { Menu } from 'electron';
 
 import * as MainMenuEvent from '../events/MainMenuEvent';
 import openExternalFolder from '../../common/js/lib/openExternalFolder';
 import { getCompiledScriptsDir } from '../lib/fileSystem';
+import { APP_NAME } from '../../common/js/constants/app';
 
 export default class MainMenu extends EventEmitter {
   constructor() {
@@ -11,7 +12,7 @@ export default class MainMenu extends EventEmitter {
     
     const template = [
       {
-        label: app.getName(),
+        label: APP_NAME,
         submenu: [
           {
             role: 'about',

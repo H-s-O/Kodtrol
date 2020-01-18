@@ -1,5 +1,7 @@
 import { dialog } from 'electron';
 
+import { PROJECT_FILE_EXTENSION, APP_NAME } from '../../common/js/constants/app';
+
 export const createProjectDialog = () => {
   const result = dialog.showSaveDialogSync({
     title: 'Create project',
@@ -12,8 +14,8 @@ export const openProjectDialog = () => {
     title: 'Open project',
     filters: [
       {
-        name: 'Manuscript files',
-        extensions: ['manuscrit'],
+        name: `${APP_NAME} files`,
+        extensions: [PROJECT_FILE_EXTENSION],
       },
     ],
   });
