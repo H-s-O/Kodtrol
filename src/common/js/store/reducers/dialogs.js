@@ -1,80 +1,69 @@
 import {
-  SHOW_ADD_DEVICE_DIALOG,
-  HIDE_ADD_DEVICE_DIALOG,
-  UPDATE_ADD_DEVICE_DIALOG,
-  SHOW_EDIT_DEVICE_DIALOG,
-  HIDE_EDIT_DEVICE_DIALOG,
-  UPDATE_EDIT_DEVICE_DIALOG,
-  SHOW_ADD_SCRIPT_DIALOG,
-  HIDE_ADD_SCRIPT_DIALOG,
-  UPDATE_ADD_SCRIPT_DIALOG,
-  SHOW_EDIT_SCRIPT_DIALOG,
-  HIDE_EDIT_SCRIPT_DIALOG,
-  UPDATE_EDIT_SCRIPT_DIALOG,
+  SHOW_DEVICE_DIALOG,
+  UPDATE_DEVICE_DIALOG,
+  HIDE_DEVICE_DIALOG,
+  SHOW_SCRIPT_DIALOG,
+  UPDATE_SCRIPT_DIALOG,
+  HIDE_SCRIPT_DIALOG,
+  SHOW_MEDIA_DIALOG,
+  UPDATE_MEDIA_DIALOG,
+  HIDE_MEDIA_DIALOG,
 } from '../actions/dialogs';
 
 const defaultState = {
-  addDeviceDialogOpened: false,
-  addDeviceDialogValue: null,
-  editDeviceDialogOpened: false,
-  editDeviceDialogValue: null,
+  deviceDialogOpened: false,
+  deviceDialogMode: null,
+  deviceDialogValue: null,
   //------------------------------
-  addScriptDialogOpened: false,
-  addScriptDialogValue: null,
-  editScriptDialogOpened: false,
-  editScriptDialogValue: null,
+  scriptDialogOpened: false,
+  scriptDialogMode: null,
+  scriptDialogValue: null,
+  //------------------------------
+  mediaDialogOpened: false,
+  mediaDialogMode: null,
+  mediaDialogValue: null,
 };
 
 export default (state = defaultState, { type, payload }) => {
   switch (type) {
-    case SHOW_ADD_DEVICE_DIALOG:
-      return { ...state, addDeviceDialogOpened: true, addDeviceDialogValue: null };
+    case SHOW_DEVICE_DIALOG:
+      return { ...state, deviceDialogOpened: true, deviceDialogMode: payload.mode, deviceDialogValue: payload.value };
       break;
 
-    case HIDE_ADD_DEVICE_DIALOG:
-      return { ...state, addDeviceDialogOpened: false };
+    case UPDATE_DEVICE_DIALOG:
+      return { ...state, deviceDialogValue: payload };
       break;
 
-    case UPDATE_ADD_DEVICE_DIALOG:
-      return { ...state, addDeviceDialogValue: payload };
-      break;
-
-    case SHOW_EDIT_DEVICE_DIALOG:
-      return { ...state, editDeviceDialogOpened: true, editDeviceDialogValue: payload };
-      break;
-
-    case HIDE_EDIT_DEVICE_DIALOG:
-      return { ...state, editDeviceDialogOpened: false };
-      break;
-
-    case UPDATE_EDIT_DEVICE_DIALOG:
-      return { ...state, editDeviceDialogValue: payload };
+    case HIDE_DEVICE_DIALOG:
+      return { ...state, deviceDialogOpened: false };
       break;
 
     //------------------------------------------------------------------------------
 
-    case SHOW_ADD_SCRIPT_DIALOG:
-      return { ...state, addScriptDialogOpened: true, addScriptDialogValue: null };
+    case SHOW_SCRIPT_DIALOG:
+      return { ...state, scriptDialogOpened: true, scriptDialogMode: payload.mode, scriptDialogValue: payload.value };
       break;
 
-    case HIDE_ADD_SCRIPT_DIALOG:
-      return { ...state, addScriptDialogOpened: false };
+    case UPDATE_SCRIPT_DIALOG:
+      return { ...state, scriptDialogValue: payload };
       break;
 
-    case UPDATE_ADD_SCRIPT_DIALOG:
-      return { ...state, addScriptDialogValue: payload };
+    case HIDE_SCRIPT_DIALOG:
+      return { ...state, scriptDialogOpened: false };
       break;
 
-    case SHOW_EDIT_SCRIPT_DIALOG:
-      return { ...state, editScriptDialogOpened: true, editScriptDialogValue: payload };
+    //------------------------------------------------------------------------------
+
+    case SHOW_MEDIA_DIALOG:
+      return { ...state, mediaDialogOpened: true, mediaDialogMode: payload.mode, mediaDialogValue: payload.value };
       break;
 
-    case HIDE_EDIT_SCRIPT_DIALOG:
-      return { ...state, editScriptDialogOpened: false };
+    case UPDATE_MEDIA_DIALOG:
+      return { ...state, mediaDialogValue: payload };
       break;
 
-    case UPDATE_EDIT_SCRIPT_DIALOG:
-      return { ...state, editScriptDialogValue: payload };
+    case HIDE_MEDIA_DIALOG:
+      return { ...state, mediaDialogOpened: false };
       break;
 
     //------------------------------------------------------------------------------

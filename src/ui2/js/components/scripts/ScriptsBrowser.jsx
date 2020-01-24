@@ -1,42 +1,46 @@
 import React from 'react';
-import { connect } from "react-redux";
-import { Icon, Button } from '@blueprintjs/core';
+import { useDispatch, useSelector } from 'react-redux';
+import { Icon, Button, Intent } from '@blueprintjs/core';
 
 import ManagedTree from '../ui/ManagedTree';
 import { editScriptAction, runScriptAction, stopScriptAction } from '../../../../common/js/store/actions/scripts';
+import { useCallback } from 'react';
 
-const generateLabel = (id, name, props) => {
-  const { runScript } = props;
-
+const ScriptLabel = ({ name, running }) => {
   return (
     <>
       {name}
-      {id === runScript && (
+      {running && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
           icon="eye-open"
-          intent="success"
+          intent={Intent.SUCCESS}
         />
       )}
     </>
   )
 }
 
-const generateActions = (id, props) => {
-  const { doRunScript, runScript, doStopScript } = props;
+const ScriptSecondaryLabel = ({ id, running }) => {
+  const dispatch = useDispatch();
+  const runHandler = useCallback((e) => {
+    e.stopPropagation();
+    dispatch(runScriptAction(id));
+  }, [dispatch, id]);
+  const stopHandler = useCallback((e) => {
+    e.stopPropagation();
+    dispatch(stopScriptAction());
+  }, [dispatch]);
 
-  if (id === runScript) {
+  if (running) {
     return (
       <Button
         small
         minimal
         icon="eye-off"
-        intent="danger"
+        intent={Intent.DANGER}
         title="Stop running script"
-        onClick={(e) => {
-          e.stopPropagation();
-          doStopScript();
-        }}
+        onClick={stopHandler}
       />
     )
   }
@@ -47,55 +51,57 @@ const generateActions = (id, props) => {
       minimal
       icon="eye-open"
       title="Run script"
-      onClick={(e) => {
-        e.stopPropagation();
-        doRunScript(id);
-      }}
+      onClick={runHandler}
     />
   )
 }
 
-function ScriptsBrowser(props) {
-  const { scripts, scriptsFolders, doEditScript } = props;
-  const items = scripts.map(({ id, name }) => ({
-    id,
-    key: id,
-    label: generateLabel(id, name, props),
-    secondaryLabel: generateActions(id, props),
-  }));
+export default function ScriptsBrowser() {
+  const scripts = useSelector((state) => state.scripts);
+  const scriptsFolders = useSelector((state) => state.scriptsFolders);
+  const runScript = useSelector((state) => state.runScript);
+
+  const dispatch = useDispatch();
+  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
+    if (!hasCaret) {
+      const { content } = scripts.find((script) => script.id === id);
+      dispatch(editScriptAction(id, content));
+    }
+  }, [dispatch, scripts]);
+
+  const items = scripts.map(({ id, name }) => {
+    const running = id === runScript;
+    return {
+      id,
+      key: id,
+      label: (
+        <ScriptLabel
+          name={name}
+          running={running}
+        />
+      ),
+      secondaryLabel: (
+        <ScriptSecondaryLabel
+          id={id}
+          running={running}
+        />
+      ),
+    }
+  });
   const folders = scriptsFolders.map(({ id, name }) => ({
     id,
     key: id,
     label: name,
     hasCaret: true,
     isExpanded: false,
-    icon: 'folder-close'
+    icon: 'folder-close',
   }));
 
   return (
     <ManagedTree
       items={items}
       folders={folders}
-      onNodeDoubleClick={({ id, hasCaret }) => {
-        if (!hasCaret) {
-          const { content } = scripts.find((script) => script.id === id);
-          doEditScript(id, content)
-        }
-      }}
+      onNodeDoubleClick={nodeDoubleClickHandler}
     />
   );
 }
-
-const mapStateToProps = ({ scripts, scriptsFolders, runScript }) => ({
-  scripts,
-  scriptsFolders,
-  runScript
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  doEditScript: (id, content) => dispatch(editScriptAction(id, content)),
-  doRunScript: (id) => dispatch(runScriptAction(id)),
-  doStopScript: () => dispatch(stopScriptAction())
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ScriptsBrowser);

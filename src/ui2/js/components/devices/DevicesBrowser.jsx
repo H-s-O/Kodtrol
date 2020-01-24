@@ -4,8 +4,9 @@ import { Tag, Button, Intent, Icon } from '@blueprintjs/core';
 
 import TagGroup from '../ui/TagGroup';
 import ManagedTree from '../ui/ManagedTree';
-import { showEditDeviceDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { showDeviceDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { runDeviceAction, stopDeviceAction } from '../../../../common/js/store/actions/devices';
+import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
 
 const DeviceLabel = ({ name, running }) => {
   return (
@@ -76,7 +77,7 @@ export default function DevicesBrowser() {
   const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
     if (!hasCaret) {
       const device = devices.find((device) => device.id === id);
-      dispatch(showEditDeviceDialogAction(device));
+      dispatch(showDeviceDialogAction(DIALOG_EDIT, device));
     }
   }, [dispatch, devices]);
 

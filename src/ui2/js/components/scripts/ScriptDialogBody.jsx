@@ -1,11 +1,11 @@
 import React from 'react';
 import { Intent } from '@blueprintjs/core';
 
-import InlineFormGroup from '../../ui/InlineFormGroup';
-import TextInput from '../../ui/inputs/TextInput';
-import NumberInput from '../../ui/inputs/NumberInput';
+import InlineFormGroup from '../ui/InlineFormGroup';
+import TextInput from '../ui/inputs/TextInput';
+import NumberInput from '../ui/inputs/NumberInput';
 
-export default function ScriptBody({ value, onChange }) {
+export default function ScriptDialogBody({ value, onChange }) {
   const {
     name,
     tempo,

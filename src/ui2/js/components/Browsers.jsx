@@ -10,7 +10,7 @@ import TimelinesBrowser from './timelines/TimelinesBrowser';
 import FullHeightTabs from './ui/FullHeightTabs';
 import BoardsBrowser from './boards/BoardsBrowser';
 import { ICON_DEVICE, ICON_SCRIPT, ICON_MEDIA, ICON_TIMELINE, ICON_BOARD } from '../../../common/js/constants/icons';
-import { showAddDeviceDialogAction, showAddScriptDialogAction } from '../../../common/js/store/actions/dialogs';
+import { showDeviceDialogAction, showScriptDialogAction, showMediaDialogAction } from '../../../common/js/store/actions/dialogs';
 
 const defaultTabId = 'devices';
 
@@ -29,15 +29,18 @@ export default function Browsers() {
   const addClickHandler = useCallback(() => {
     switch (currentTabId) {
       case 'devices':
-        dispatch(showAddDeviceDialogAction());
+        dispatch(showDeviceDialogAction());
         break;
       case 'scripts':
-        dispatch(showAddScriptDialogAction());
+        dispatch(showScriptDialogAction());
+        break;
+      case 'medias':
+        dispatch(showMediaDialogAction());
         break;
     }
   }, [currentTabId, dispatch]);
   const addDeviceHandler = useCallback(() => {
-    dispatch(showAddDeviceDialogAction());
+    dispatch(showDeviceDialogAction());
   }, [dispatch]);
 
   return (

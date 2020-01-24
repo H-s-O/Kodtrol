@@ -2,15 +2,15 @@ import React, { useMemo } from 'react';
 import { Intent } from "@blueprintjs/core";
 import { useSelector } from 'react-redux';
 
-import InlineFormGroup from '../../ui/InlineFormGroup';
-import TextInput from '../../ui/inputs/TextInput';
-import SelectInput from '../../ui/inputs/SelectInput';
-import TagsInput from '../../ui/inputs/TagsInput';
-import DmxChannelsInput from '../../ui/inputs/DmxChannelsInput';
-import CustomDivider from '../../ui/CustomDivider';
-import NumberInput from '../../ui/inputs/NumberInput';
+import InlineFormGroup from '../ui/InlineFormGroup';
+import TextInput from '../ui/inputs/TextInput';
+import SelectInput from '../ui/inputs/SelectInput';
+import TagsInput from '../ui/inputs/TagsInput';
+import DmxChannelsInput from '../ui/inputs/DmxChannelsInput';
+import CustomDivider from '../ui/CustomDivider';
+import NumberInput from '../ui/inputs/NumberInput';
 
-export default function DeviceBody({ value, onChange }) {
+export default function DeviceDialogBody({ value, onChange }) {
   const {
     name,
     type,

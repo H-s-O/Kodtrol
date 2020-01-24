@@ -1,15 +1,15 @@
 import React from 'react';
 
-import AddDeviceDialog from './devices/dialogs/AddDeviceDialog';
-import EditDeviceDialog from './devices/dialogs/EditDeviceDialog';
-import AddScriptDialog from './scripts/dialogs/AddScriptDialog';
+import DeviceDialog from './devices/DeviceDialog';
+import AddScriptDialog from './scripts/ScriptDialog';
+import MediaDialog from './medias/MediaDialog';
 
 export default function DialogsContainer() {
   return (
     <>
-      <AddDeviceDialog />
-      <EditDeviceDialog />
+      <DeviceDialog />
       <AddScriptDialog />
+      <MediaDialog />
     </>
   );
 }

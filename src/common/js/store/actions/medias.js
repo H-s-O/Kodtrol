@@ -7,20 +7,22 @@ const excludeHashProps = [
   'name',
 ];
 
-export const updateMedias = (medias) => {
+export const UPDATE_MEDIAS = 'update_medias';
+export const updateMediasAction = (medias) => {
   return {
-    type: 'UPDATE_MEDIAS',
+    type: UPDATE_MEDIAS,
     payload: medias,
   };
 };
 
-export const createMedia = (data) => {
+export const CREATE_MEDIA = 'create_media';
+export const createMediaAction = (data) => {
   const newData = {
     ...data,
     id: uniqid(),
   }
   return {
-    type: 'CREATE_MEDIA',
+    type: CREATE_MEDIA,
     payload: {
       ...newData,
       hash: hashDataObject(newData, excludeHashProps),
@@ -28,16 +30,18 @@ export const createMedia = (data) => {
   };
 };
 
-export const deleteMedia = (id) => {
+export const DELETE_MEDIA = 'delete_media';
+export const deleteMediaAction = (id) => {
   return {
-    type: 'DELETE_MEDIA',
+    type: DELETE_MEDIA,
     payload: id,
   };
 };
 
-export const saveMedia = (id, data) => {
+export const SAVE_MEDIA = 'save_media';
+export const saveMediaAction = (id, data) => {
   return {
-    type: 'SAVE_MEDIA',
+    type: SAVE_MEDIA,
     payload: {
       id,
       data: {

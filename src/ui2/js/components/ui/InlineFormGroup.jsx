@@ -7,6 +7,10 @@ const InlineFormGroup = styled(FormGroup).attrs({
   & > .${Classes.LABEL} {
     min-width: ${({ minWidth = 50 }) => minWidth}px;
   }
+
+  & > .${Classes.FORM_CONTENT} {
+    width: 100%;
+  }
 `
 
 export default InlineFormGroup;
