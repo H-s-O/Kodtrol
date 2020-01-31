@@ -10,7 +10,7 @@ import TimelinesBrowser from './timelines/TimelinesBrowser';
 import FullHeightTabs from './ui/FullHeightTabs';
 import BoardsBrowser from './boards/BoardsBrowser';
 import { ICON_DEVICE, ICON_SCRIPT, ICON_MEDIA, ICON_TIMELINE, ICON_BOARD } from '../../../common/js/constants/icons';
-import { showDeviceDialogAction, showScriptDialogAction, showMediaDialogAction, showTimelineDialogAction } from '../../../common/js/store/actions/dialogs';
+import { showDeviceDialogAction, showScriptDialogAction, showMediaDialogAction, showTimelineDialogAction, showBoardDialogAction } from '../../../common/js/store/actions/dialogs';
 
 const defaultTabId = 'devices';
 
@@ -39,6 +39,9 @@ export default function Browsers() {
         break;
       case 'timelines':
         dispatch(showTimelineDialogAction());
+        break;
+      case 'boards':
+        dispatch(showBoardDialogAction());
         break;
     }
   }, [currentTabId, dispatch]);

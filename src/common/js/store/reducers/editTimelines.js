@@ -1,4 +1,4 @@
-import { EDIT_TIMELINE, CLOSE_TIMELINE } from "../actions/timelines";
+import { EDIT_TIMELINE, CLOSE_TIMELINE, UPDATE_EDITED_TIMELINE, SAVE_EDITED_TIMELINE } from '../actions/timelines';
 
 const defaultState = [];
 
@@ -6,6 +6,14 @@ export default (state = defaultState, { type, payload }) => {
   switch (type) {
     case EDIT_TIMELINE:
       return [...state, payload];
+      break;
+
+    case UPDATE_EDITED_TIMELINE:
+      return state.map((timeline) => timeline.id === payload.id ? { ...timeline, ...payload, changed: true } : timeline)
+      break;
+
+    case SAVE_EDITED_TIMELINE:
+      return state.map((timeline) => timeline.id === payload ? { ...timeline, changed: false } : timeline)
       break;
 
     case CLOSE_TIMELINE:

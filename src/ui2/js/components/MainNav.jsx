@@ -8,7 +8,6 @@ import { updateConfigModal } from '../../../common/js/store/actions/modals';
 import { IO_DISCONNECTED, IO_CONNECTED, IO_ACTIVITY } from '../../../common/js/constants/io';
 import TagGroup from './ui/TagGroup';
 import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT, ICON_DEVICE } from '../../../common/js/constants/icons';
-import { scripts } from '../../../common/js/store/reducers';
 
 const StyledNavbar = styled(Navbar)`
   padding: 0px 10px;
@@ -92,97 +91,101 @@ const renderInputs = (props) => {
 const renderCurrentDevice = (props) => {
   const { runDevice } = props
 
-  if (runDevice) {
-    return (
-      <Tag
-        minimal
-        intent={Intent.SUCCESS}
-        icon={ICON_DEVICE}
-      >
-        {runDevice}
-      </Tag>
-    )
-  }
-
   return (
     <Tag
       minimal
-      icon={ICON_DEVICE}
-      title="No tested device"
-    />
-  )
+      intent={runDevice ? Intent.SUCCESS : undefined}
+      icon={runDevice ? ICON_DEVICE : undefined}
+      title={!runDevice ? 'No device tested' : undefined}
+    >
+      {runDevice ? (
+        runDevice
+      ) : (
+          <span
+            className={Classes.TEXT_MUTED}
+          >
+            <Icon
+              icon={ICON_DEVICE}
+            />
+          </span>
+        )}
+    </Tag>
+  );
 }
 
 const renderCurrentScript = (props) => {
   const { runScript, scriptsNames } = props
 
-  if (runScript) {
-    return (
-      <Tag
-        minimal
-        intent={Intent.SUCCESS}
-        icon={ICON_SCRIPT}
-      >
-        {scriptsNames[runScript]}
-      </Tag>
-    )
-  }
-
   return (
     <Tag
       minimal
-      icon={ICON_SCRIPT}
-      title="No script running"
-    />
-  )
+      intent={runScript ? Intent.SUCCESS : undefined}
+      icon={runScript ? ICON_SCRIPT : undefined}
+      title={!runScript ? 'No device tested' : undefined}
+    >
+      {runScript ? (
+        scriptsNames[runScript]
+      ) : (
+          <span
+            className={Classes.TEXT_MUTED}
+          >
+            <Icon
+              icon={ICON_SCRIPT}
+            />
+          </span>
+        )}
+    </Tag>
+  );
 }
 
 const renderCurrentTimeline = (props) => {
   const { runTimeline, timelinesNames } = props
 
-  if (runTimeline) {
-    return (
-      <Tag
-        minimal
-        intent={Intent.SUCCESS}
-        icon={ICON_TIMELINE}
-      >
-        {timelinesNames[runTimeline]}
-      </Tag>
-    )
-  }
-
   return (
     <Tag
       minimal
-      icon={ICON_TIMELINE}
-      title="No timeline running"
-    />
-  )
+      intent={runTimeline ? Intent.SUCCESS : undefined}
+      icon={runTimeline ? ICON_TIMELINE : undefined}
+      title={!runTimeline ? 'No device tested' : undefined}
+    >
+      {runTimeline ? (
+        timelinesNames[runTimeline]
+      ) : (
+          <span
+            className={Classes.TEXT_MUTED}
+          >
+            <Icon
+              icon={ICON_TIMELINE}
+            />
+          </span>
+        )}
+    </Tag>
+  );
 }
 
 const renderCurrentBoard = (props) => {
   const { runBoard, boardsNames } = props
 
-  if (runBoard) {
-    return (
-      <Tag
-        minimal
-        intent={Intent.SUCCESS}
-        icon={ICON_BOARD}
-      >
-        {boardsNames[runBoard]}
-      </Tag>
-    )
-  }
-
   return (
     <Tag
       minimal
-      icon={ICON_BOARD}
-      title="No board running"
-    />
-  )
+      intent={runBoard ? Intent.SUCCESS : undefined}
+      icon={runBoard ? ICON_BOARD : undefined}
+      title={!runBoard ? 'No device tested' : undefined}
+    >
+      {runBoard ? (
+        boardsNames[runBoard]
+      ) : (
+          <span
+            className={Classes.TEXT_MUTED}
+          >
+            <Icon
+              icon={ICON_BOARD}
+            />
+          </span>
+        )}
+    </Tag>
+  );
 }
 
 function MainNav(props) {

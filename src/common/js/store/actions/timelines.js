@@ -18,12 +18,38 @@ export const updateTimelinesAction = (timelines) => {
 };
 
 export const EDIT_TIMELINE = 'edit_timeline';
-export const editTimelineAction = (id) => {
+export const editTimelineAction = (id, {layers, items, zoom, zoomVert}) => {
   return {
     type: EDIT_TIMELINE,
-    payload: id,
+    payload: {
+      id,
+      layers,
+      items,
+      zoom,
+      zoomVert,
+      changed: false,
+    },
   };
 };
+
+export const UPDATE_EDITED_TIMELINE = 'updated_edited_timeline';
+export const updateEditedTimelineAction = (id, content) => {
+  return {
+    type: UPDATE_EDITED_TIMELINE,
+    payload: {
+      id,
+      content,
+    },
+  };
+}
+
+export const SAVE_EDITED_TIMELINE = 'save_edited_timeline';
+export const saveEditedTimelineAction = (id) => {
+  return {
+    type: SAVE_EDITED_TIMELINE,
+    payload: id,
+  };
+}
 
 export const CLOSE_TIMELINE = 'close_timeline';
 export const closeTimelineAction = (id) => {

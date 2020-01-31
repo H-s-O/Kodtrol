@@ -145,3 +145,40 @@ export const hideTimelineDialogAction = (local = true) => {
     } : undefined,
   };
 }
+
+//--------------------------------------------------------------------------
+
+export const SHOW_BOARD_DIALOG = 'show_board_dialog';
+export const showBoardDialogAction = (mode = DIALOG_ADD, value = null, local = true) => {
+  return {
+    type: SHOW_BOARD_DIALOG,
+    payload: {
+      mode,
+      value,
+    },
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+export const UPDATE_BOARD_DIALOG = 'update_board_dialog';
+export const updateBoardDialogAction = (value, local = true) => {
+  return {
+    type: UPDATE_BOARD_DIALOG,
+    payload: value,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+export const HIDE_BOARD_DIALOG = 'hide_board_dialog';
+export const hideBoardDialogAction = (local = true) => {
+  return {
+    type: HIDE_BOARD_DIALOG,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}

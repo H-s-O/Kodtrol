@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
 import ManagedTree from '../ui/ManagedTree';
 import { editScriptAction, runScriptAction, stopScriptAction } from '../../../../common/js/store/actions/scripts';
-import { useCallback } from 'react';
 
 const ScriptLabel = ({ name, running }) => {
   return (
@@ -64,8 +63,8 @@ export default function ScriptsBrowser() {
   const dispatch = useDispatch();
   const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
     if (!hasCaret) {
-      const { content } = scripts.find((script) => script.id === id);
-      dispatch(editScriptAction(id, content));
+      const script = scripts.find((script) => script.id === id);
+      dispatch(editScriptAction(id, script));
     }
   }, [dispatch, scripts]);
 

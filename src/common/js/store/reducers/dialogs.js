@@ -11,6 +11,9 @@ import {
   SHOW_TIMELINE_DIALOG,
   UPDATE_TIMELINE_DIALOG,
   HIDE_TIMELINE_DIALOG,
+  SHOW_BOARD_DIALOG,
+  UPDATE_BOARD_DIALOG,
+  HIDE_BOARD_DIALOG,
 } from '../actions/dialogs';
 
 const defaultState = {
@@ -29,6 +32,10 @@ const defaultState = {
   timelineDialogOpened: false,
   timelineDialogMode: null,
   timelineDialogValue: null,
+  //------------------------------
+  boardDialogOpened: false,
+  boardDialogMode: null,
+  boardDialogValue: null,
 };
 
 export default (state = defaultState, { type, payload }) => {
@@ -85,6 +92,20 @@ export default (state = defaultState, { type, payload }) => {
 
     case HIDE_TIMELINE_DIALOG:
       return { ...state, timelineDialogOpened: false };
+      break;
+
+    //------------------------------------------------------------------------------
+
+    case SHOW_BOARD_DIALOG:
+      return { ...state, boardDialogOpened: true, boardDialogMode: payload.mode, boardDialogValue: payload.value };
+      break;
+
+    case UPDATE_BOARD_DIALOG:
+      return { ...state, boardDialogValue: payload };
+      break;
+
+    case HIDE_BOARD_DIALOG:
+      return { ...state, boardDialogOpened: false };
       break;
 
     //------------------------------------------------------------------------------

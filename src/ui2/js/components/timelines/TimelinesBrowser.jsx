@@ -1,12 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
 import ManagedTree from '../ui/ManagedTree';
 import { editTimelineAction, runTimelineAction, stopTimelineAction } from '../../../../common/js/store/actions/timelines';
-import { useCallback } from 'react';
-import { showTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
 
 const TimelineLabel = ({ name, running }) => {
   return (
@@ -66,7 +63,7 @@ export default function TimelinesBrowser() {
   const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
     if (!hasCaret) {
       const timeline = timelines.find((timeline) => timeline.id === id);
-      dispatch(showTimelineDialogAction(DIALOG_EDIT, timeline));
+      dispatch(editTimelineAction(id, timeline));
     }
   })
 

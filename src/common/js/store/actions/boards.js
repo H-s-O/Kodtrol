@@ -16,12 +16,38 @@ export const updateBoardsAction = (boards) => {
 };
 
 export const EDIT_BOARD = 'edit_board';
-export const editBoardAction = (id) => {
+export const editBoardAction = (id, { layers, items, zoom, zoomVert }) => {
   return {
     type: EDIT_BOARD,
-    payload: id,
+    payload: {
+      id,
+      layers,
+      items,
+      zoom,
+      zoomVert,
+      changed: false,
+    },
   };
 };
+
+export const UPDATE_EDITED_BOARD = 'updated_edited_board';
+export const updateEditedBoardAction = (id, content) => {
+  return {
+    type: UPDATE_EDITED_BOARD,
+    payload: {
+      id,
+      content,
+    },
+  };
+}
+
+export const SAVE_EDITED_BOARD = 'save_edited_board';
+export const saveEditedBoardAction = (id) => {
+  return {
+    type: SAVE_EDITED_BOARD,
+    payload: id,
+  };
+}
 
 export const CLOSE_BOARD = 'close_board';
 export const closeBoardAction = (id) => {

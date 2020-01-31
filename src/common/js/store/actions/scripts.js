@@ -16,7 +16,7 @@ export const updateScriptsAction = (scripts) => {
 };
 
 export const EDIT_SCRIPT = 'edit_script';
-export const editScriptAction = (id, content) => {
+export const editScriptAction = (id, { content }) => {
   return {
     type: EDIT_SCRIPT,
     payload: {

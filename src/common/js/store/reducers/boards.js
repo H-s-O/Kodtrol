@@ -1,4 +1,4 @@
-import { UPDATE_BOARDS, CREATE_BOARD, DELETE_BOARD, SAVE_BOARD } from "../actions/boards";
+import { UPDATE_BOARDS, CREATE_BOARD, DELETE_BOARD, SAVE_BOARD } from '../actions/boards';
 
 const defaultState = [];
 

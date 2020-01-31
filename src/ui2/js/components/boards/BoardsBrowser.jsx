@@ -1,42 +1,45 @@
-import React from 'react';
-import { connect } from "react-redux";
-import { Icon, Button } from '@blueprintjs/core';
+import React, { useCallback } from 'react';
+import { useSelector, useDispatch } from "react-redux";
+import { Icon, Button, Intent } from '@blueprintjs/core';
 
 import ManagedTree from '../ui/ManagedTree';
 import { runBoardAction, stopBoardAction, editBoardAction } from '../../../../common/js/store/actions/boards';
 
-const generateLabel = (id, name, props) => {
-  const { runBoard } = props
-
+const BoardLabel = ({ name, running }) => {
   return (
     <>
       {name}
-      {id === runBoard && (
+      {running && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
           icon="eye-open"
-          intent="success"
+          intent={Intent.SUCCESS}
         />
       )}
     </>
   )
 }
 
-const generateActions = (id, props) => {
-  const { doRunBoard, runBoard, doStopBoard } = props;
+const BoardSecondaryLabel = ({ id, running }) => {
+  const dispatch = useDispatch();
+  const runHandler = useCallback((e) => {
+    e.stopPropagation();
+    dispatch(runBoardAction(id));
+  }, [dispatch, id]);
+  const stopHandler = useCallback((e) => {
+    e.stopPropagation();
+    dispatch(stopBoardAction());
+  }, [dispatch]);
 
-  if (id === runBoard) {
+  if (running) {
     return (
       <Button
         small
         minimal
         icon="eye-off"
-        intent="danger"
+        intent={Intent.DANGER}
         title="Stop running timeline"
-        onClick={(e) => {
-          e.stopPropagation();
-          doStopBoard();
-        }}
+        onClick={stopHandler}
       />
     )
   }
@@ -47,40 +50,47 @@ const generateActions = (id, props) => {
       minimal
       icon="eye-open"
       title="Run timeline"
-      onClick={(e) => {
-        e.stopPropagation();
-        doRunBoard(id);
-      }}
+      onClick={runHandler}
     />
   )
 }
 
-function BoardsBrowser(props) {
-  const { boards, doEditBoard } = props;
-  const items = boards.map(({ id, name }) => ({
-    id,
-    key: id,
-    label: generateLabel(id, name, props),
-    secondaryLabel: generateActions(id, props),
-  }));
+export default function BoardsBrowser() {
+  const boards = useSelector((state) => state.boards);
+  const runBoard = useSelector((state) => state.runBoard);
+
+  const dispatch = useDispatch();
+  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
+    if (!hasCaret) {
+      const board = boards.find((board) => board.id === id);
+      dispatch(editBoardAction(id, board));
+    }
+  })
+
+  const items = boards.map(({ id, name }) => {
+    const running = id === runBoard;
+    return {
+      id,
+      key: id,
+      label: (
+        <BoardLabel
+          name={name}
+          running={running}
+        />
+      ),
+      secondaryLabel: (
+        <BoardSecondaryLabel
+          id={id}
+          running={running}
+        />
+      ),
+    }
+  });
 
   return (
     <ManagedTree
       items={items}
-      onNodeDoubleClick={({ id, hasCaret }) => !hasCaret && doEditBoard(id)}
+      onNodeDoubleClick={nodeDoubleClickHandler}
     />
   );
 }
-
-const mapStateToProps = ({ boards, runBoard }) => ({
-  boards,
-  runBoard
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  doEditBoard: (id) => dispatch(editBoardAction(id)),
-  doRunBoard: (id) => dispatch(runBoardAction(id)),
-  doStopBoard: () => dispatch(stopBoardAction()),
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(BoardsBrowser);
