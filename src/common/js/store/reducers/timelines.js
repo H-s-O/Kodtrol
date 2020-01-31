@@ -1,4 +1,4 @@
-import { UPDATE_TIMELINES, CREATE_TIMELINE, DELETE_TIMELINE, SAVE_TIMELINE } from "../actions/timelines";
+import { UPDATE_TIMELINES, CREATE_TIMELINE, DELETE_TIMELINE, SAVE_TIMELINE } from '../actions/timelines';
 
 const defaultState = [];
 

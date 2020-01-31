@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { Intent, Spinner } from '@blueprintjs/core';
 import { useSelector } from 'react-redux';
 
@@ -7,6 +7,7 @@ import TextInput from '../ui/inputs/TextInput';
 import FileInput from '../ui/inputs/FileInput';
 import SelectInput from '../ui/inputs/SelectInput';
 import mediaInfo from '../../lib/mediaInfo';
+import DurationInput from '../ui/inputs/DurationInput';
 
 export default function MediaDialogBody({ value, onChange }) {
   const {
@@ -28,22 +29,27 @@ export default function MediaDialogBody({ value, onChange }) {
       duration: null,
       codec: null,
     });
-    if (file) {
-      mediaInfo(value, (err, info) => {
-        if (err) {
-          return;
-        }
-        const { streams } = info;
-        const [firstStream] = streams;
-        const { duration_ts, codec_long_name } = firstStream;
-        onChange({
-          file: value,
-          duration: duration_ts,
-          codec: codec_long_name,
-        });
-      });
-    }
   }, [onChange]);
+
+  // useEffect(() => {
+  //   console.log(file, duration, codec);
+  //   if (file) {
+  //     mediaInfo(file, (err, info) => {
+  //       if (err) {
+  //         console.error(err);
+  //       } else {
+  //         const { streams } = info;
+  //         const [firstStream] = streams;
+  //         console.log('firstStream', firstStream);
+  //         const { duration_ts, codec_long_name } = firstStream;
+  //         // onChange({
+  //         //   duration: duration_ts,
+  //         //   codec: codec_long_name,
+  //         // });
+  //       }
+  //     });
+  //   }
+  // }, [onChange, file]);
 
   return (
     <>
@@ -77,8 +83,8 @@ export default function MediaDialogBody({ value, onChange }) {
             size={Spinner.SIZE_SMALL}
           />
         ) : (
-              <TextInput
-                readOnly
+              <DurationInput
+                disabled
                 leftIcon="info-sign"
                 value={duration}
               />
@@ -101,6 +107,7 @@ export default function MediaDialogBody({ value, onChange }) {
           />
         ) : (
               <TextInput
+                readOnly
                 leftIcon="info-sign"
                 value={codec}
               />

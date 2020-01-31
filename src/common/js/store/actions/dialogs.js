@@ -108,3 +108,40 @@ export const hideMediaDialogAction = (local = true) => {
     } : undefined,
   };
 }
+
+//--------------------------------------------------------------------------
+
+export const SHOW_TIMELINE_DIALOG = 'show_timeline_dialog';
+export const showTimelineDialogAction = (mode = DIALOG_ADD, value = null, local = true) => {
+  return {
+    type: SHOW_TIMELINE_DIALOG,
+    payload: {
+      mode,
+      value,
+    },
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+export const UPDATE_TIMELINE_DIALOG = 'update_timeline_dialog';
+export const updateTimelineDialogAction = (value, local = true) => {
+  return {
+    type: UPDATE_TIMELINE_DIALOG,
+    payload: value,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+export const HIDE_TIMELINE_DIALOG = 'hide_timeline_dialog';
+export const hideTimelineDialogAction = (local = true) => {
+  return {
+    type: HIDE_TIMELINE_DIALOG,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}

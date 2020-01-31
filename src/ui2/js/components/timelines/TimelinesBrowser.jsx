@@ -1,42 +1,48 @@
 import React from 'react';
-import { connect } from "react-redux";
-import { Icon, Button } from '@blueprintjs/core';
+import { useSelector, useDispatch } from "react-redux";
+import { Icon, Button, Intent } from '@blueprintjs/core';
 
 import ManagedTree from '../ui/ManagedTree';
 import { editTimelineAction, runTimelineAction, stopTimelineAction } from '../../../../common/js/store/actions/timelines';
+import { useCallback } from 'react';
+import { showTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
 
-const generateLabel = (id, name, props) => {
-  const { runTimeline } = props
-
+const TimelineLabel = ({ name, running }) => {
   return (
     <>
       {name}
-      {id === runTimeline && (
+      {running && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
           icon="eye-open"
-          intent="success"
+          intent={Intent.SUCCESS}
         />
       )}
     </>
   )
 }
 
-const generateActions = (id, props) => {
-  const { doRunTimeline, runTimeline, doStopTimeline } = props;
+const TimelineSecondaryLabel = ({ id, running }) => {
+  const dispatch = useDispatch();
+  const runHandler = useCallback((e) => {
+    e.stopPropagation();
+    dispatch(runTimelineAction(id));
+  }, [dispatch, id]);
+  const stopHandler = useCallback((e) => {
+    e.stopPropagation();
+    dispatch(stopTimelineAction());
+  }, [dispatch]);
 
-  if (id === runTimeline) {
+  if (running) {
     return (
       <Button
         small
         minimal
         icon="eye-off"
-        intent="danger"
+        intent={Intent.DANGER}
         title="Stop running timeline"
-        onClick={(e) => {
-          e.stopPropagation();
-          doStopTimeline();
-        }}
+        onClick={stopHandler}
       />
     )
   }
@@ -47,40 +53,47 @@ const generateActions = (id, props) => {
       minimal
       icon="eye-open"
       title="Run timeline"
-      onClick={(e) => {
-        e.stopPropagation();
-        doRunTimeline(id);
-      }}
+      onClick={runHandler}
     />
   )
 }
 
-function TimelinesBrowser(props) {
-  const { timelines, doEditTimeline } = props;
-  const items = timelines.map(({ id, name }) => ({
-    id,
-    key: id,
-    label: generateLabel(id, name, props),
-    secondaryLabel: generateActions(id, props),
-  }));
+export default function TimelinesBrowser() {
+  const timelines = useSelector((state) => state.timelines);
+  const runTimeline = useSelector((state) => state.runTimeline);
+
+  const dispatch = useDispatch()
+  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
+    if (!hasCaret) {
+      const timeline = timelines.find((timeline) => timeline.id === id);
+      dispatch(showTimelineDialogAction(DIALOG_EDIT, timeline));
+    }
+  })
+
+  const items = timelines.map(({ id, name }) => {
+    const running = id === runTimeline;
+    return {
+      id,
+      key: id,
+      label: (
+        <TimelineLabel
+          name={name}
+          running={running}
+        />
+      ),
+      secondaryLabel: (
+        <TimelineSecondaryLabel
+          id={id}
+          running={running}
+        />
+      ),
+    }
+  });
 
   return (
     <ManagedTree
       items={items}
-      onNodeDoubleClick={({ id, hasCaret }) => !hasCaret && doEditTimeline(id)}
+      onNodeDoubleClick={nodeDoubleClickHandler}
     />
   );
 }
-
-const mapStateToProps = ({ timelines, runTimeline }) => ({
-  timelines,
-  runTimeline
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  doEditTimeline: (id) => dispatch(editTimelineAction(id)),
-  doRunTimeline: (id) => dispatch(runTimelineAction(id)),
-  doStopTimeline: () => dispatch(stopTimelineAction()),
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(TimelinesBrowser);

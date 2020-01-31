@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { Navbar, Button, Alignment, Tag, Intent } from '@blueprintjs/core';
+import { Navbar, Button, Alignment, Tag, Intent, Classes, Icon } from '@blueprintjs/core';
 import { createSelector } from 'reselect';
 
 import { updateConfigModal } from '../../../common/js/store/actions/modals';
 import { IO_DISCONNECTED, IO_CONNECTED, IO_ACTIVITY } from '../../../common/js/constants/io';
 import TagGroup from './ui/TagGroup';
-import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT } from '../../../common/js/constants/icons';
+import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT, ICON_DEVICE } from '../../../common/js/constants/icons';
 import { scripts } from '../../../common/js/store/reducers';
 
 const StyledNavbar = styled(Navbar)`
@@ -16,9 +16,9 @@ const StyledNavbar = styled(Navbar)`
 
 const getStatusIntent = (status) => {
   switch (status) {
-    case IO_DISCONNECTED: return 'danger'; break;
-    case IO_CONNECTED: return 'success'; break;
-    case IO_ACTIVITY: return 'primary'; break;
+    case IO_DISCONNECTED: return Intent.DANGER; break;
+    case IO_CONNECTED: return Intent.SUCCESS; break;
+    case IO_ACTIVITY: return Intent.PRIMARY; break;
     default: return null; break;
   }
 }
@@ -49,7 +49,7 @@ const renderOutputs = (props) => {
 
   return (
     <span
-      className="bp3-text-muted"
+      className={Classes.TEXT_MUTED}
     >
       No outputs
     </span>
@@ -82,11 +82,35 @@ const renderInputs = (props) => {
 
   return (
     <span
-      className="bp3-text-muted"
+      className={Classes.TEXT_MUTED}
     >
       No inputs
     </span>
   );
+}
+
+const renderCurrentDevice = (props) => {
+  const { runDevice } = props
+
+  if (runDevice) {
+    return (
+      <Tag
+        minimal
+        intent={Intent.SUCCESS}
+        icon={ICON_DEVICE}
+      >
+        {runDevice}
+      </Tag>
+    )
+  }
+
+  return (
+    <Tag
+      minimal
+      icon={ICON_DEVICE}
+      title="No tested device"
+    />
+  )
 }
 
 const renderCurrentScript = (props) => {
@@ -105,11 +129,11 @@ const renderCurrentScript = (props) => {
   }
 
   return (
-    <span
-      className="bp3-text-muted"
-    >
-      No running script
-    </span>
+    <Tag
+      minimal
+      icon={ICON_SCRIPT}
+      title="No script running"
+    />
   )
 }
 
@@ -129,11 +153,11 @@ const renderCurrentTimeline = (props) => {
   }
 
   return (
-    <span
-      className="bp3-text-muted"
-    >
-      No running timeline
-    </span>
+    <Tag
+      minimal
+      icon={ICON_TIMELINE}
+      title="No timeline running"
+    />
   )
 }
 
@@ -153,11 +177,11 @@ const renderCurrentBoard = (props) => {
   }
 
   return (
-    <span
-      className="bp3-text-muted"
-    >
-      No running board
-    </span>
+    <Tag
+      minimal
+      icon={ICON_BOARD}
+      title="No board running"
+    />
   )
 }
 
@@ -170,6 +194,8 @@ function MainNav(props) {
         <StyledNavbar.Heading>
           Kodtrol
         </StyledNavbar.Heading>
+        {renderCurrentDevice(props)}
+        <StyledNavbar.Divider />
         {renderCurrentScript(props)}
         <StyledNavbar.Divider />
         {renderCurrentTimeline(props)}
@@ -217,10 +243,11 @@ const boardsNamesSelector = createSelector(
   }), {})
 )
 
-const mapStateToProps = ({ outputs, inputs, ioStatus, runScript, runTimeline, runBoard, scripts, timelines, boards }) => ({
+const mapStateToProps = ({ outputs, inputs, ioStatus, runDevice, runScript, runTimeline, runBoard, scripts, timelines, boards }) => ({
   outputs,
   inputs,
   ioStatus,
+  runDevice,
   runScript,
   runTimeline,
   runBoard,

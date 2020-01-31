@@ -8,6 +8,9 @@ import {
   SHOW_MEDIA_DIALOG,
   UPDATE_MEDIA_DIALOG,
   HIDE_MEDIA_DIALOG,
+  SHOW_TIMELINE_DIALOG,
+  UPDATE_TIMELINE_DIALOG,
+  HIDE_TIMELINE_DIALOG,
 } from '../actions/dialogs';
 
 const defaultState = {
@@ -22,6 +25,10 @@ const defaultState = {
   mediaDialogOpened: false,
   mediaDialogMode: null,
   mediaDialogValue: null,
+  //------------------------------
+  timelineDialogOpened: false,
+  timelineDialogMode: null,
+  timelineDialogValue: null,
 };
 
 export default (state = defaultState, { type, payload }) => {
@@ -64,6 +71,20 @@ export default (state = defaultState, { type, payload }) => {
 
     case HIDE_MEDIA_DIALOG:
       return { ...state, mediaDialogOpened: false };
+      break;
+
+    //------------------------------------------------------------------------------
+
+    case SHOW_TIMELINE_DIALOG:
+      return { ...state, timelineDialogOpened: true, timelineDialogMode: payload.mode, timelineDialogValue: payload.value };
+      break;
+
+    case UPDATE_TIMELINE_DIALOG:
+      return { ...state, timelineDialogValue: payload };
+      break;
+
+    case HIDE_TIMELINE_DIALOG:
+      return { ...state, timelineDialogOpened: false };
       break;
 
     //------------------------------------------------------------------------------

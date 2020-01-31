@@ -3,21 +3,21 @@ import { Intent } from '@blueprintjs/core';
 
 import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
+import DurationInput from '../ui/inputs/DurationInput';
 import NumberInput from '../ui/inputs/NumberInput';
 
-export default function ScriptDialogBody({ value, onChange }) {
+export default function TimelineDialogBody({ value, onChange }) {
   const {
     name,
+    duration,
     tempo,
-    devices,
-    devicesGroups,
   } = value;
 
   return (
     <>
       <InlineFormGroup
         label="Name"
-        helperText={!name ? 'A script name is mandatory.' : undefined}
+        helperText={!name ? 'A timeline name is mandatory.' : undefined}
         intent={!name ? Intent.DANGER : undefined}
       >
         <TextInput
@@ -27,8 +27,19 @@ export default function ScriptDialogBody({ value, onChange }) {
         />
       </InlineFormGroup>
       <InlineFormGroup
+        label="Duration"
+        helperText={!duration ? 'A timeline duration is mandatory.' : undefined}
+        intent={!duration ? Intent.DANGER : undefined}
+      >
+        <DurationInput
+          name="duration"
+          value={duration}
+          onChange={onChange}
+        />
+      </InlineFormGroup>
+      <InlineFormGroup
         label="Tempo"
-        helperText="Used when running the script in standalone mode."
+        helperText={<>If not set, <code>beat()</code> script hooks won't be executed.</>}
       >
         <NumberInput
           name="tempo"
