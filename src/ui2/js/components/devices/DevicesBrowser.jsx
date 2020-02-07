@@ -1,18 +1,18 @@
 import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Tag, Button, Intent, Icon } from '@blueprintjs/core';
+import { Intent, Button, Icon, Tag } from '@blueprintjs/core';
 
-import TagGroup from '../ui/TagGroup';
-import ManagedTree from '../ui/ManagedTree';
 import { showDeviceDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { runDeviceAction, stopDeviceAction } from '../../../../common/js/store/actions/devices';
+import { deleteDeviceAction, runDeviceAction, stopDeviceAction } from '../../../../common/js/store/actions/devices';
 import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
+import ItemBrowser from '../ui/ItemBrowser';
+import TagGroup from '../ui/TagGroup';
 
-const DeviceLabel = ({ name, running }) => {
+const DeviceLabel = ({ name, id, activeItemId }) => {
   return (
     <>
       {name}
-      {running && (
+      {id === activeItemId && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
           icon="eye-open"
@@ -23,7 +23,7 @@ const DeviceLabel = ({ name, running }) => {
   );
 }
 
-const DeviceSecondaryLabel = ({ id, tags, running }) => {
+const DeviceSecondaryLabel = ({ id, tags, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();
@@ -48,7 +48,7 @@ const DeviceSecondaryLabel = ({ id, tags, running }) => {
           );
         })}
       </TagGroup>
-      {!running ? (
+      {id !== activeItemId ? (
         <Button
           small
           minimal
@@ -74,47 +74,25 @@ export default function DevicesBrowser() {
   const runDevice = useSelector((state) => state.runDevice);
 
   const dispatch = useDispatch();
-  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
-    if (!hasCaret) {
-      const device = devices.find((device) => device.id === id);
-      dispatch(showDeviceDialogAction(DIALOG_EDIT, device));
-    }
+  const editPropsCallback = useCallback((id) => {
+    const device = devices.find((device) => device.id === id);
+    dispatch(showDeviceDialogAction(DIALOG_EDIT, device));
   }, [dispatch, devices]);
-
-  const items = devices.map(({ id, name, tags }) => {
-    const running = id === runDevice;
-    return {
-      id,
-      key: id,
-      label: (
-        <DeviceLabel
-          name={name}
-          running={running}
-        />
-      ),
-      secondaryLabel: (
-        <DeviceSecondaryLabel
-          id={id}
-          tags={tags}
-          running={running}
-        />
-      ),
-    }
-  });
-  const folders = devicesFolders.map(({ id, name }) => ({
-    id,
-    key: id,
-    label: name,
-    hasCaret: true,
-    isExpanded: false,
-    icon: 'folder-close',
-  }));
+  const deleteCallback = useCallback((id) => {
+    dispatch(deleteDeviceAction(id));
+  }, [dispatch]);
 
   return (
-    <ManagedTree
-      items={items}
-      folders={folders}
-      onNodeDoubleClick={nodeDoubleClickHandler}
+    <ItemBrowser
+      label="device"
+      items={devices}
+      folders={devicesFolders}
+      activeItemId={runDevice}
+      editPropsCallback={editPropsCallback}
+      deleteCallback={deleteCallback}
+      itemLabelComponent={DeviceLabel}
+      itemSecondaryLabelComponent={DeviceSecondaryLabel}
+      extraComponentProp="tags"
     />
   );
 }

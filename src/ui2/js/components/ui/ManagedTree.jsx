@@ -1,8 +1,11 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Tree } from '@blueprintjs/core';
 
-export default function ManagedTree(props) {
-  const { items = [], folders = [], ...otherProps } = props;
+export default function ManagedTree({
+  items = [],
+  folders = [],
+  ...otherProps
+}) {
   const initialFoldersStates = useMemo(() => folders.reduce((obj, { id, isExpanded = false }) => ({
     ...obj,
     [id]: isExpanded,

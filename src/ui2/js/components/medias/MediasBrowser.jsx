@@ -2,35 +2,37 @@ import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { basename } from 'path';
 
-import ManagedTree from '../ui/ManagedTree';
 import { showMediaDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
+import ItemBrowser from '../ui/ItemBrowser';
+import { deleteMediaAction } from '../../../../common/js/store/actions/medias';
 
-const getDisplayName = (file, name) => {
+const MediaLabel = ({name, file}) => {
   return name ? name : basename(file);
 }
 
 export default function MediasBrowser() {
   const medias = useSelector((state) => state.medias);
+  const mediasFolders = useSelector((state) => state.mediasFolders);
 
   const dispatch = useDispatch();
-  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
-    if (!hasCaret) {
-      const media = medias.find((media) => media.id === id);
-      dispatch(showMediaDialogAction(DIALOG_EDIT, media));
-    }
+  const editPropsCallback = useCallback((id) => {
+    const media = medias.find((media) => media.id === id);
+    dispatch(showMediaDialogAction(DIALOG_EDIT, media));
   }, [dispatch, medias]);
-
-  const items = medias.map(({ id, name, file }) => ({
-    id,
-    key: id,
-    label: getDisplayName(file, name),
-  }));
+  const deleteCallback = useCallback((id) => {
+    dispatch(deleteMediaAction(id));
+  }, [dispatch]);
 
   return (
-    <ManagedTree
-      items={items}
-      onNodeDoubleClick={nodeDoubleClickHandler}
+    <ItemBrowser
+      label="media"
+      items={medias}
+      folders={mediasFolders}
+      editPropsCallback={editPropsCallback}
+      deleteCallback={deleteCallback}
+      itemLabelComponent={MediaLabel}
+      extraComponentProp="file"
     />
   );
 }

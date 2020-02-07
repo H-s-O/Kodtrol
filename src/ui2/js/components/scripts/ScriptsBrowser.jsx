@@ -2,14 +2,16 @@ import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
-import ManagedTree from '../ui/ManagedTree';
-import { editScriptAction, runScriptAction, stopScriptAction } from '../../../../common/js/store/actions/scripts';
+import { editScriptAction, runScriptAction, stopScriptAction, deleteScriptAction } from '../../../../common/js/store/actions/scripts';
+import ItemBrowser from '../ui/ItemBrowser';
+import { showScriptDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
 
-const ScriptLabel = ({ name, running }) => {
+const ScriptLabel = ({ name, id, activeItemId }) => {
   return (
     <>
       {name}
-      {running && (
+      {id === activeItemId && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
           icon="eye-open"
@@ -20,7 +22,7 @@ const ScriptLabel = ({ name, running }) => {
   )
 }
 
-const ScriptSecondaryLabel = ({ id, running }) => {
+const ScriptSecondaryLabel = ({ id, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();
@@ -31,7 +33,7 @@ const ScriptSecondaryLabel = ({ id, running }) => {
     dispatch(stopScriptAction());
   }, [dispatch]);
 
-  if (running) {
+  if (id === activeItemId) {
     return (
       <Button
         small
@@ -61,46 +63,29 @@ export default function ScriptsBrowser() {
   const runScript = useSelector((state) => state.runScript);
 
   const dispatch = useDispatch();
-  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
-    if (!hasCaret) {
-      const script = scripts.find((script) => script.id === id);
-      dispatch(editScriptAction(id, script));
-    }
+  const editCallback = useCallback((id) => {
+    const script = scripts.find((script) => script.id === id);
+    dispatch(editScriptAction(id, script));
+  }, [dispatch, scripts])
+  const editPropsCallback = useCallback((id) => {
+    const script = scripts.find((script) => script.id === id);
+    dispatch(showScriptDialogAction(DIALOG_EDIT, script));
   }, [dispatch, scripts]);
-
-  const items = scripts.map(({ id, name }) => {
-    const running = id === runScript;
-    return {
-      id,
-      key: id,
-      label: (
-        <ScriptLabel
-          name={name}
-          running={running}
-        />
-      ),
-      secondaryLabel: (
-        <ScriptSecondaryLabel
-          id={id}
-          running={running}
-        />
-      ),
-    }
-  });
-  const folders = scriptsFolders.map(({ id, name }) => ({
-    id,
-    key: id,
-    label: name,
-    hasCaret: true,
-    isExpanded: false,
-    icon: 'folder-close',
-  }));
+  const deleteCallback = useCallback((id) => {
+    dispatch(deleteScriptAction(id));
+  }, [dispatch]);
 
   return (
-    <ManagedTree
-      items={items}
-      folders={folders}
-      onNodeDoubleClick={nodeDoubleClickHandler}
+    <ItemBrowser
+      label="script"
+      items={scripts}
+      folders={scriptsFolders}
+      activeItemId={runScript}
+      editCallback={editCallback}
+      editPropsCallback={editPropsCallback}
+      deleteCallback={deleteCallback}
+      itemLabelComponent={ScriptLabel}
+      itemSecondaryLabelComponent={ScriptSecondaryLabel}
     />
   );
 }

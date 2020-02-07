@@ -2,14 +2,16 @@ import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
-import ManagedTree from '../ui/ManagedTree';
-import { runBoardAction, stopBoardAction, editBoardAction } from '../../../../common/js/store/actions/boards';
+import { runBoardAction, stopBoardAction, editBoardAction, deleteBoardAction } from '../../../../common/js/store/actions/boards';
+import ItemBrowser from '../ui/ItemBrowser';
+import { showBoardDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
 
-const BoardLabel = ({ name, running }) => {
+const BoardLabel = ({ name, id, activeItemId }) => {
   return (
     <>
       {name}
-      {running && (
+      {id === activeItemId && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
           icon="eye-open"
@@ -20,7 +22,7 @@ const BoardLabel = ({ name, running }) => {
   )
 }
 
-const BoardSecondaryLabel = ({ id, running }) => {
+const BoardSecondaryLabel = ({ id, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();
@@ -31,7 +33,7 @@ const BoardSecondaryLabel = ({ id, running }) => {
     dispatch(stopBoardAction());
   }, [dispatch]);
 
-  if (running) {
+  if (id === activeItemId) {
     return (
       <Button
         small
@@ -57,40 +59,33 @@ const BoardSecondaryLabel = ({ id, running }) => {
 
 export default function BoardsBrowser() {
   const boards = useSelector((state) => state.boards);
+  const boardsFolders = useSelector((state) => state.boardsFolders);
   const runBoard = useSelector((state) => state.runBoard);
 
   const dispatch = useDispatch();
-  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
-    if (!hasCaret) {
-      const board = boards.find((board) => board.id === id);
-      dispatch(editBoardAction(id, board));
-    }
-  })
-
-  const items = boards.map(({ id, name }) => {
-    const running = id === runBoard;
-    return {
-      id,
-      key: id,
-      label: (
-        <BoardLabel
-          name={name}
-          running={running}
-        />
-      ),
-      secondaryLabel: (
-        <BoardSecondaryLabel
-          id={id}
-          running={running}
-        />
-      ),
-    }
-  });
+  const editCallback = useCallback((id) => {
+    const board = boards.find((board) => board.id === id);
+    dispatch(editBoardAction(id, board));
+  }, [dispatch, boards])
+  const editPropsCallback = useCallback((id) => {
+    const board = boards.find((board) => board.id === id);
+    dispatch(showBoardDialogAction(DIALOG_EDIT, board));
+  }, [dispatch, boards]);
+  const deleteCallback = useCallback((id) => {
+    dispatch(deleteBoardAction(id));
+  }, [dispatch]);
 
   return (
-    <ManagedTree
-      items={items}
-      onNodeDoubleClick={nodeDoubleClickHandler}
+    <ItemBrowser
+      label="board"
+      items={boards}
+      folders={boardsFolders}
+      activeItemId={runBoard}
+      editCallback={editCallback}
+      editPropsCallback={editPropsCallback}
+      deleteCallback={deleteCallback}
+      itemLabelComponent={BoardLabel}
+      itemSecondaryLabelComponent={BoardSecondaryLabel}
     />
   );
 }

@@ -2,14 +2,16 @@ import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
-import ManagedTree from '../ui/ManagedTree';
-import { editTimelineAction, runTimelineAction, stopTimelineAction } from '../../../../common/js/store/actions/timelines';
+import { editTimelineAction, runTimelineAction, stopTimelineAction, deleteTimelineAction } from '../../../../common/js/store/actions/timelines';
+import ItemBrowser from '../ui/ItemBrowser';
+import { showTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
 
-const TimelineLabel = ({ name, running }) => {
+const TimelineLabel = ({ name, id, activeItemId }) => {
   return (
     <>
       {name}
-      {running && (
+      {id === activeItemId && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
           icon="eye-open"
@@ -20,7 +22,7 @@ const TimelineLabel = ({ name, running }) => {
   )
 }
 
-const TimelineSecondaryLabel = ({ id, running }) => {
+const TimelineSecondaryLabel = ({ id, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();
@@ -31,7 +33,7 @@ const TimelineSecondaryLabel = ({ id, running }) => {
     dispatch(stopTimelineAction());
   }, [dispatch]);
 
-  if (running) {
+  if (id === activeItemId) {
     return (
       <Button
         small
@@ -57,40 +59,33 @@ const TimelineSecondaryLabel = ({ id, running }) => {
 
 export default function TimelinesBrowser() {
   const timelines = useSelector((state) => state.timelines);
+  const timelinesFolders = useSelector((state) => state.timelinesFolders);
   const runTimeline = useSelector((state) => state.runTimeline);
 
-  const dispatch = useDispatch()
-  const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
-    if (!hasCaret) {
-      const timeline = timelines.find((timeline) => timeline.id === id);
-      dispatch(editTimelineAction(id, timeline));
-    }
-  })
-
-  const items = timelines.map(({ id, name }) => {
-    const running = id === runTimeline;
-    return {
-      id,
-      key: id,
-      label: (
-        <TimelineLabel
-          name={name}
-          running={running}
-        />
-      ),
-      secondaryLabel: (
-        <TimelineSecondaryLabel
-          id={id}
-          running={running}
-        />
-      ),
-    }
-  });
+  const dispatch = useDispatch();
+  const editCallback = useCallback((id) => {
+    const timeline = timelines.find((timeline) => timeline.id === id);
+    dispatch(editTimelineAction(id, timeline));
+  }, [dispatch, timelines])
+  const editPropsCallback = useCallback((id) => {
+    const timeline = timelines.find((timeline) => timeline.id === id);
+    dispatch(showTimelineDialogAction(DIALOG_EDIT, timeline));
+  }, [dispatch, timelines]);
+  const deleteCallback = useCallback((id) => {
+    dispatch(deleteTimelineAction(id));
+  }, [dispatch]);
 
   return (
-    <ManagedTree
-      items={items}
-      onNodeDoubleClick={nodeDoubleClickHandler}
+    <ItemBrowser
+      label="timeline"
+      items={timelines}
+      folders={timelinesFolders}
+      activeItemId={runTimeline}
+      editCallback={editCallback}
+      editPropsCallback={editPropsCallback}
+      deleteCallback={deleteCallback}
+      itemLabelComponent={TimelineLabel}
+      itemSecondaryLabelComponent={TimelineSecondaryLabel}
     />
   );
 }
