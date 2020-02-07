@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Navbar, Button, Alignment, Tag, Intent, Classes, Icon } from '@blueprintjs/core';
-import { createSelector } from 'reselect';
 
 import { updateConfigModal } from '../../../common/js/store/actions/modals';
 import { IO_DISCONNECTED, IO_CONNECTED, IO_ACTIVITY } from '../../../common/js/constants/io';
 import TagGroup from './ui/TagGroup';
-import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT, ICON_DEVICE } from '../../../common/js/constants/icons';
+import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT, ICON_DEVICE, ICON_INPUT, ICON_OUTPUT } from '../../../common/js/constants/icons';
 
 const StyledNavbar = styled(Navbar)`
   padding: 0px 10px;
@@ -20,23 +19,22 @@ const getStatusIntent = (status) => {
     case IO_ACTIVITY: return Intent.PRIMARY; break;
     default: return null; break;
   }
-}
+};
 
-const renderOutputs = (props) => {
-  const { outputs, ioStatus } = props;
-
-  if (outputs && outputs.length) {
+const ItemsStatuses = ({ items, statuses, icon, rightIcon, defaultText }) => {
+  if (items && items.length) {
     return (
       <TagGroup>
-        {outputs.map(({ id, name }, index) => {
-          const status = id in ioStatus ? ioStatus[id] : null;
+        {items.map(({ id, name }, index) => {
+          const status = id in statuses ? statuses[id] : null;
 
           return (
             <Tag
               minimal
-              key={`output-${index}`}
+              key={index}
               intent={getStatusIntent(status)}
-              rightIcon="log-out"
+              icon={icon}
+              rightIcon={rightIcon}
             >
               {name}
             </Tag>
@@ -50,146 +48,64 @@ const renderOutputs = (props) => {
     <span
       className={Classes.TEXT_MUTED}
     >
-      No outputs
+      {defaultText}
     </span>
   );
-}
+};
 
-const renderInputs = (props) => {
-  const { inputs, ioStatus } = props;
-
-  if (inputs && inputs.length) {
-    return (
-      <TagGroup>
-        {inputs.map(({ id, name }, index) => {
-          const status = id in ioStatus ? ioStatus[id] : null;
-
-          return (
-            <Tag
-              minimal
-              key={`input-${index}`}
-              intent={getStatusIntent(status)}
-              icon="log-in"
-            >
-              {name}
-            </Tag>
-          );
-        })}
-      </TagGroup>
-    )
-  }
-
-  return (
-    <span
-      className={Classes.TEXT_MUTED}
-    >
-      No inputs
-    </span>
-  );
-}
-
-const renderCurrentDevice = (props) => {
-  const { runDevice } = props
-
+const ItemStatus = ({ icon, itemId, itemNames, tooltip }) => {
   return (
     <Tag
       minimal
-      intent={runDevice ? Intent.SUCCESS : undefined}
-      icon={runDevice ? ICON_DEVICE : undefined}
-      title={!runDevice ? 'No device tested' : undefined}
+      intent={itemId ? Intent.SUCCESS : undefined}
+      icon={itemId ? icon : undefined}
+      title={!itemId ? tooltip : undefined}
     >
-      {runDevice ? (
-        runDevice
+      {itemId ? (
+        itemNames[itemId]
       ) : (
           <span
             className={Classes.TEXT_MUTED}
           >
             <Icon
-              icon={ICON_DEVICE}
+              icon={icon}
             />
           </span>
         )}
     </Tag>
   );
-}
+};
 
-const renderCurrentScript = (props) => {
-  const { runScript, scriptsNames } = props
+export default function MainNav() {
+  const devices = useSelector((state) => state.devices);
+  const scripts = useSelector((state) => state.scripts);
+  const timelines = useSelector((state) => state.timelines);
+  const boards = useSelector((state) => state.boards);
+  const runDevice = useSelector((state) => state.runDevice);
+  const runScript = useSelector((state) => state.runScript);
+  const runTimeline = useSelector((state) => state.runTimeline);
+  const runBoard = useSelector((state) => state.runBoard);
+  const inputs = useSelector((state) => state.inputs);
+  const outputs = useSelector((state) => state.outputs);
+  const ioStatus = useSelector((state) => state.ioStatus);
 
-  return (
-    <Tag
-      minimal
-      intent={runScript ? Intent.SUCCESS : undefined}
-      icon={runScript ? ICON_SCRIPT : undefined}
-      title={!runScript ? 'No device tested' : undefined}
-    >
-      {runScript ? (
-        scriptsNames[runScript]
-      ) : (
-          <span
-            className={Classes.TEXT_MUTED}
-          >
-            <Icon
-              icon={ICON_SCRIPT}
-            />
-          </span>
-        )}
-    </Tag>
-  );
-}
+  const devicesNames = useMemo(() => {
+    return devices.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
+  }, [devices]);
+  const scriptsNames = useMemo(() => {
+    return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
+  }, [scripts]);
+  const timelinesNames = useMemo(() => {
+    return timelines.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
+  }, [timelines]);
+  const boardsNames = useMemo(() => {
+    return boards.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
+  }, [boards]);
 
-const renderCurrentTimeline = (props) => {
-  const { runTimeline, timelinesNames } = props
-
-  return (
-    <Tag
-      minimal
-      intent={runTimeline ? Intent.SUCCESS : undefined}
-      icon={runTimeline ? ICON_TIMELINE : undefined}
-      title={!runTimeline ? 'No device tested' : undefined}
-    >
-      {runTimeline ? (
-        timelinesNames[runTimeline]
-      ) : (
-          <span
-            className={Classes.TEXT_MUTED}
-          >
-            <Icon
-              icon={ICON_TIMELINE}
-            />
-          </span>
-        )}
-    </Tag>
-  );
-}
-
-const renderCurrentBoard = (props) => {
-  const { runBoard, boardsNames } = props
-
-  return (
-    <Tag
-      minimal
-      intent={runBoard ? Intent.SUCCESS : undefined}
-      icon={runBoard ? ICON_BOARD : undefined}
-      title={!runBoard ? 'No device tested' : undefined}
-    >
-      {runBoard ? (
-        boardsNames[runBoard]
-      ) : (
-          <span
-            className={Classes.TEXT_MUTED}
-          >
-            <Icon
-              icon={ICON_BOARD}
-            />
-          </span>
-        )}
-    </Tag>
-  );
-}
-
-function MainNav(props) {
-  const { doShowConfigModal } = props;
+  const dispatch = useDispatch();
+  const openConfigClickHandler = useCallback(() => {
+    dispatch(updateConfigModal(true));
+  });
 
   return (
     <StyledNavbar>
@@ -197,70 +113,57 @@ function MainNav(props) {
         <StyledNavbar.Heading>
           Kodtrol
         </StyledNavbar.Heading>
-        {renderCurrentDevice(props)}
+        <ItemStatus
+          icon={ICON_DEVICE}
+          itemId={runDevice}
+          itemNames={devicesNames}
+          tooltip="No device tested"
+        />
         <StyledNavbar.Divider />
-        {renderCurrentScript(props)}
+        <ItemStatus
+          icon={ICON_SCRIPT}
+          itemId={runScript}
+          itemNames={scriptsNames}
+          tooltip="No script running"
+        />
         <StyledNavbar.Divider />
-        {renderCurrentTimeline(props)}
+        <ItemStatus
+          icon={ICON_TIMELINE}
+          itemId={runTimeline}
+          itemNames={timelinesNames}
+          tooltip="No timeline tested"
+        />
         <StyledNavbar.Divider />
-        {renderCurrentBoard(props)}
+        <ItemStatus
+          icon={ICON_BOARD}
+          itemId={runBoard}
+          itemNames={boardsNames}
+          tooltip="No board running"
+        />
       </StyledNavbar.Group>
       <StyledNavbar.Group
         align={Alignment.RIGHT}
       >
-        {renderInputs(props)}
+        <ItemsStatuses
+          items={inputs}
+          statuses={ioStatus}
+          icon={ICON_INPUT}
+          defaultText="No inputs"
+        />
         <StyledNavbar.Divider />
-        {renderOutputs(props)}
+        <ItemsStatuses
+          items={outputs}
+          statuses={ioStatus}
+          rightIcon={ICON_OUTPUT}
+          defaultText="No outputs"
+        />
         <StyledNavbar.Divider />
         <Button
           small
           icon="cog"
-          onClick={doShowConfigModal}
+          onClick={openConfigClickHandler}
         />
       </StyledNavbar.Group>
     </StyledNavbar>
   );
 }
-
-const scriptsNamesSelector = createSelector(
-  [(scripts) => scripts],
-  (scripts) => scripts.reduce((obj, { id, name }) => ({
-    ...obj,
-    [id]: name,
-  }), {})
-)
-
-const timelinesNamesSelector = createSelector(
-  [(timelines) => timelines],
-  (timelines) => timelines.reduce((obj, { id, name }) => ({
-    ...obj,
-    [id]: name,
-  }), {})
-)
-
-const boardsNamesSelector = createSelector(
-  [(boards) => boards],
-  (boards) => boards.reduce((obj, { id, name }) => ({
-    ...obj,
-    [id]: name,
-  }), {})
-)
-
-const mapStateToProps = ({ outputs, inputs, ioStatus, runDevice, runScript, runTimeline, runBoard, scripts, timelines, boards }) => ({
-  outputs,
-  inputs,
-  ioStatus,
-  runDevice,
-  runScript,
-  runTimeline,
-  runBoard,
-  scriptsNames: scriptsNamesSelector(scripts),
-  timelinesNames: timelinesNamesSelector(timelines),
-  boardsNames: boardsNamesSelector(boards),
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  doShowConfigModal: () => dispatch(updateConfigModal(true)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(MainNav);
