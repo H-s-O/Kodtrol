@@ -1,13 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Tab, Button, NonIdealState, Icon, Intent } from '@blueprintjs/core';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import FullHeightCard from '../ui/FullHeightCard';
 import ScriptEditor from './ScriptEditor';
 import FullHeightTabs from '../ui/FullHeightTabs';
-import { closeScriptAction, saveEditedScriptAction } from '../../../../common/js/store/actions/scripts';
-import { createSelector } from 'reselect';
+import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction } from '../../../../common/js/store/actions/scripts';
 import { ICON_SCRIPT } from '../../../../common/js/constants/icons';
 
 const StyledIcon = styled(Icon)`
@@ -16,6 +15,11 @@ const StyledIcon = styled(Icon)`
 
 const StyledCloseButton = styled(Button)`
   margin-left: 3px;
+`;
+
+const StyleFillDiv = styled.div`
+  width: 100%;
+  height: 100%;
 `;
 
 const TabLabel = ({ id, changed, scriptsNames, closeScript }) => {
@@ -39,22 +43,34 @@ const TabLabel = ({ id, changed, scriptsNames, closeScript }) => {
   );
 }
 
-function ScriptsEditor({ editScripts, scriptsNames, closeScript }) {
-  const defaultTabId = editScripts.length ? editScripts[0].id : null;
+export default function ScriptsEditor() {
+  const scripts = useSelector((state) => state.scripts);
+  const editScripts = useSelector((state) => state.editScripts);
 
-  const [currentTabId, setCurrentTabId] = useState(defaultTabId);
+  const scriptsNames = useMemo(() => {
+    return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
+  }, [scripts]);
+  const activeScript = useMemo(() => {
+    return editScripts.find((script) => script.active);
+  }, [editScripts]);
 
   const dispatch = useDispatch();
   const saveHandler = useCallback(() => {
-    dispatch(saveEditedScriptAction(currentTabId));
-  }, [dispatch, currentTabId]);
+    dispatch(saveEditedScriptAction(activeScript.id));
+  }, [dispatch, activeScript]);
+  const closeHandler = useCallback((id) => {
+    dispatch(closeScriptAction(id));
+  }, [dispatch]);
+  const tabChangeHandler = useCallback((id) => {
+    dispatch(focusEditedScriptAction(id));
+  }, [dispatch]);
 
   return (
     <FullHeightCard>
       {editScripts && editScripts.length ? (
         <FullHeightTabs
-          selectedTabId={currentTabId}
-          onChange={(newTabId) => setCurrentTabId(newTabId)}
+          selectedTabId={activeScript ? activeScript.id : undefined}
+          onChange={tabChangeHandler}
         >
           {editScripts.map(({ id, changed }) => (
             <Tab
@@ -70,7 +86,7 @@ function ScriptsEditor({ editScripts, scriptsNames, closeScript }) {
                 id={id}
                 changed={changed}
                 scriptsNames={scriptsNames}
-                closeScript={closeScript}
+                closeScript={closeHandler}
               />
             </Tab>
           ))}
@@ -78,7 +94,6 @@ function ScriptsEditor({ editScripts, scriptsNames, closeScript }) {
           <Button
             small
             icon="settings"
-            onClick={saveHandler}
           />
         </FullHeightTabs>
       ) : (
@@ -86,26 +101,8 @@ function ScriptsEditor({ editScripts, scriptsNames, closeScript }) {
             icon={ICON_SCRIPT}
             description="Double-click a script in the script browser to edit it here."
           />
-        )}
-    </FullHeightCard>
+        )
+      }
+    </FullHeightCard >
   );
 }
-
-const scriptsNamesSelector = createSelector(
-  [(scripts) => scripts],
-  (scripts) => scripts.reduce((obj, { id, name }) => ({
-    ...obj,
-    [id]: name,
-  }), {}),
-)
-
-const mapStateToProps = ({ editScripts, scripts }) => ({
-  editScripts,
-  scriptsNames: scriptsNamesSelector(scripts)
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  closeScript: (id) => dispatch(closeScriptAction(id)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ScriptsEditor);

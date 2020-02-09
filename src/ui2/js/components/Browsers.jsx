@@ -14,6 +14,17 @@ import { showDeviceDialogAction, showScriptDialogAction, showMediaDialogAction, 
 
 const defaultTabId = 'devices';
 
+const getTabLabel = (tabId) => {
+  switch (tabId) {
+    case 'devices': return 'device'; break;
+    case 'scripts': return 'script'; break;
+    case 'medias': return 'media'; break;
+    case 'timelines': return 'timeline'; break;
+    case 'boards': return 'board'; break;
+    default: return null; break;
+  }
+}
+
 export default function Browsers() {
   const { devices, scripts, medias, timelines, boards } = useSelector((state) => ({
     devices: state.devices.length,
@@ -144,25 +155,8 @@ export default function Browsers() {
             content={
               <Menu>
                 <Menu.Item
-                  text="Add Device"
-                  icon={ICON_DEVICE}
-                  onClick={addDeviceHandler}
-                />
-                <Menu.Item
-                  text="Add Script"
-                  icon={ICON_SCRIPT}
-                />
-                <Menu.Item
-                  text="Add Media"
-                  icon={ICON_MEDIA}
-                />
-                <Menu.Item
-                  text="Add Timeline"
-                  icon={ICON_TIMELINE}
-                />
-                <Menu.Item
-                  text="Add Board"
-                  icon={ICON_BOARD}
+                  text={`Add ${getTabLabel(currentTabId)} folder`}
+                  icon="folder-new"
                 />
               </Menu>
             }

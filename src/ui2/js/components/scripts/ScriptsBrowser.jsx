@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
-import { editScriptAction, runScriptAction, stopScriptAction, deleteScriptAction } from '../../../../common/js/store/actions/scripts';
+import { editScriptAction, runScriptAction, stopScriptAction, deleteScriptAction, focusEditedScriptAction } from '../../../../common/js/store/actions/scripts';
 import ItemBrowser from '../ui/ItemBrowser';
 import { showScriptDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
@@ -61,12 +61,17 @@ export default function ScriptsBrowser() {
   const scripts = useSelector((state) => state.scripts);
   const scriptsFolders = useSelector((state) => state.scriptsFolders);
   const runScript = useSelector((state) => state.runScript);
+  const editScripts = useSelector((state) => state.editScripts);
 
   const dispatch = useDispatch();
   const editCallback = useCallback((id) => {
-    const script = scripts.find((script) => script.id === id);
-    dispatch(editScriptAction(id, script));
-  }, [dispatch, scripts])
+    if (editScripts.find((script) => script.id === id)) {
+      dispatch(focusEditedScriptAction(id));
+    } else {
+      const script = scripts.find((script) => script.id === id);
+      dispatch(editScriptAction(id, script));
+    }
+  }, [dispatch, scripts, editScripts])
   const editPropsCallback = useCallback((id) => {
     const script = scripts.find((script) => script.id === id);
     dispatch(showScriptDialogAction(DIALOG_EDIT, script));

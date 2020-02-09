@@ -23,9 +23,18 @@ export const editScriptAction = (id, { content }) => {
       id,
       content,
       changed: false,
+      active: true,
     },
   };
 };
+
+export const FOCUS_EDITED_SCRIPT = 'focus_edited_script';
+export const focusEditedScriptAction = (id) => {
+  return {
+    type: FOCUS_EDITED_SCRIPT,
+    payload: id,
+  };
+}
 
 export const UPDATE_EDITED_SCRIPT = 'updated_edited_script';
 export const updateEditedScriptAction = (id, content) => {

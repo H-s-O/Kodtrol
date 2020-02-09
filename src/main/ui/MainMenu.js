@@ -43,7 +43,7 @@ export default class MainMenu extends EventEmitter {
           },
           {
             label: 'Save project',
-            accelerator: 'CommandOrControl+S',
+            // accelerator: 'CommandOrControl+S',
             click: this.onSaveProjectClick,
           },
           {

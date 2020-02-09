@@ -1,5 +1,5 @@
 import React from 'react';
-import { Intent } from '@blueprintjs/core';
+import { Intent, ControlGroup, Button } from '@blueprintjs/core';
 
 import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
@@ -31,11 +31,17 @@ export default function TimelineDialogBody({ value, onChange }) {
         helperText={!duration ? 'A timeline duration is mandatory.' : undefined}
         intent={!duration ? Intent.DANGER : undefined}
       >
-        <DurationInput
-          name="duration"
-          value={duration}
-          onChange={onChange}
-        />
+        <ControlGroup>
+          <DurationInput
+            name="duration"
+            value={duration}
+            onChange={onChange}
+          />
+          <Button
+            icon="duplicate"
+            title="Copy duration"
+          />
+        </ControlGroup>
       </InlineFormGroup>
       <InlineFormGroup
         label="Tempo"
