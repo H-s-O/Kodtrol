@@ -1,11 +1,12 @@
 import React from 'react';
-import { Dialog } from "@blueprintjs/core";
+import { Dialog } from '@blueprintjs/core';
 
-export default function CustomDialog({ children, ...otherProps }) {
+export default function CustomDialog({ children, minWidth = 600, minHeight = 200, ...otherProps }) {
   return (
     <Dialog
       style={{
-        minWidth: 600,
+        minWidth,
+        minHeight,
       }}
       canOutsideClickClose={false}
       {...otherProps}

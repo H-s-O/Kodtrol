@@ -1,4 +1,4 @@
-import { DIALOG_ADD } from '../../constants/dialogs';
+import { DIALOG_ADD, DIALOG_EDIT } from '../../constants/dialogs';
 
 export const SHOW_DEVICE_DIALOG = 'show_device_dialog';
 export const showDeviceDialogAction = (mode = DIALOG_ADD, value = null, local = true) => {
@@ -177,6 +177,43 @@ export const HIDE_BOARD_DIALOG = 'hide_board_dialog';
 export const hideBoardDialogAction = (local = true) => {
   return {
     type: HIDE_BOARD_DIALOG,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+//--------------------------------------------------------------------------
+
+export const SHOW_CONFIG_DIALOG = 'show_config_dialog';
+export const showConfigDialogAction = (mode = DIALOG_EDIT, value = null, local = true) => {
+  return {
+    type: SHOW_CONFIG_DIALOG,
+    payload: {
+      mode,
+      value,
+    },
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+export const UPDATE_CONFIG_DIALOG = 'update_config_dialog';
+export const updateConfigDialogAction = (value, local = true) => {
+  return {
+    type: UPDATE_CONFIG_DIALOG,
+    payload: value,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+export const HIDE_CONFIG_DIALOG = 'hide_config_dialog';
+export const hideConfigDialogAction = (local = true) => {
+  return {
+    type: HIDE_CONFIG_DIALOG,
     meta: local ? {
       scope: 'local',
     } : undefined,

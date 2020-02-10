@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { Navbar, Button, Alignment, Tag, Intent, Classes, Icon } from '@blueprintjs/core';
 
-import { updateConfigModal } from '../../../common/js/store/actions/modals';
 import { IO_DISCONNECTED, IO_CONNECTED, IO_ACTIVITY } from '../../../common/js/constants/io';
 import TagGroup from './ui/TagGroup';
 import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT, ICON_DEVICE, ICON_INPUT, ICON_OUTPUT } from '../../../common/js/constants/icons';
+import { showConfigDialogAction } from '../../../common/js/store/actions/dialogs';
 
 const StyledNavbar = styled(Navbar)`
   padding: 0px 10px;
@@ -104,7 +104,7 @@ export default function MainNav() {
 
   const dispatch = useDispatch();
   const openConfigClickHandler = useCallback(() => {
-    dispatch(updateConfigModal(true));
+    dispatch(showConfigDialogAction());
   });
 
   return (

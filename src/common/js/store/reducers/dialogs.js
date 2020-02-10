@@ -14,6 +14,9 @@ import {
   SHOW_BOARD_DIALOG,
   UPDATE_BOARD_DIALOG,
   HIDE_BOARD_DIALOG,
+  SHOW_CONFIG_DIALOG,
+  UPDATE_CONFIG_DIALOG,
+  HIDE_CONFIG_DIALOG,
 } from '../actions/dialogs';
 
 const defaultState = {
@@ -36,6 +39,10 @@ const defaultState = {
   boardDialogOpened: false,
   boardDialogMode: null,
   boardDialogValue: null,
+  //------------------------------
+  configDialogOpened: false,
+  configDialogMode: null,
+  configDialogValue: null,
 };
 
 export default (state = defaultState, { type, payload }) => {
@@ -106,6 +113,20 @@ export default (state = defaultState, { type, payload }) => {
 
     case HIDE_BOARD_DIALOG:
       return { ...state, boardDialogOpened: false };
+      break;
+
+    //------------------------------------------------------------------------------
+
+    case SHOW_CONFIG_DIALOG:
+      return { ...state, configDialogOpened: true, configDialogMode: payload.mode, configDialogValue: payload.value };
+      break;
+
+    case UPDATE_CONFIG_DIALOG:
+      return { ...state, configDialogValue: payload };
+      break;
+
+    case HIDE_CONFIG_DIALOG:
+      return { ...state, configDialogOpened: false };
       break;
 
     //------------------------------------------------------------------------------
