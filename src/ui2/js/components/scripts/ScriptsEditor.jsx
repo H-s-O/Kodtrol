@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { Tab, Button, NonIdealState, Icon, Intent } from '@blueprintjs/core';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import useHotkeys from '@reecelucas/react-use-hotkeys';
 
 import FullHeightCard from '../ui/FullHeightCard';
 import ScriptEditor from './ScriptEditor';
@@ -46,6 +47,7 @@ const TabLabel = ({ id, changed, scriptsNames, closeScript }) => {
 export default function ScriptsEditor() {
   const scripts = useSelector((state) => state.scripts);
   const editScripts = useSelector((state) => state.editScripts);
+  const lastEditor = useSelector((state) => state.lastEditor);
 
   const scriptsNames = useMemo(() => {
     return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
@@ -56,14 +58,18 @@ export default function ScriptsEditor() {
 
   const dispatch = useDispatch();
   const saveHandler = useCallback(() => {
-    dispatch(saveEditedScriptAction(activeScript.id));
-  }, [dispatch, activeScript]);
+    if (lastEditor && lastEditor.type === 'script' && activeScript && activeScript.changed) {
+      dispatch(saveEditedScriptAction(activeScript.id));
+    }
+  }, [dispatch, activeScript, lastEditor]);
   const closeHandler = useCallback((id) => {
     dispatch(closeScriptAction(id));
   }, [dispatch]);
   const tabChangeHandler = useCallback((id) => {
     dispatch(focusEditedScriptAction(id));
   }, [dispatch]);
+
+  useHotkeys('Meta+s', saveHandler);
 
   return (
     <FullHeightCard>
