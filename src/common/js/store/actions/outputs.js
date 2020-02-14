@@ -5,16 +5,18 @@ const excludeHashProps = [
   'name',
 ];
 
-export const updateOutputs = (outputs) => {
+export const UPDATE_OUTPUTS = 'update_outputs';
+export const updateOutputsAction = (outputs) => {
   return {
-    type: 'UPDATE_OUTPUTS',
+    type: UPDATE_OUTPUTS,
     payload: outputs,
   };
 };
 
-export const saveOutputs = (data) => {
+export const SAVE_OUTPUTS = 'save_outputs';
+export const saveOutputsAction = (data) => {
   return {
-    type: 'SAVE_OUTPUTS',
+    type: SAVE_OUTPUTS,
     payload: data.map((output) => {
       return {
         ...output,

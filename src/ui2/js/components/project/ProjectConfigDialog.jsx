@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Tabs, Tab, Card, Intent, Classes, Tree, Tag } from '@blueprintjs/core';
+import { Button, Tabs, Tab, Card, Intent, Tag } from '@blueprintjs/core';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import uniqid from 'uniqid';
@@ -12,8 +12,13 @@ import { hideConfigDialogAction } from '../../../../common/js/store/actions/dial
 import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
 import SelectInput from '../ui/inputs/SelectInput';
-import { IO_DMX, IO_ILDA, IO_OSC, IO_MIDI, IO_LABELS } from '../../../../common/js/constants/io';
+import { IO_DMX, IO_ILDA, IO_OSC, IO_MIDI, IO_LABELS, IO_ARTNET } from '../../../../common/js/constants/io';
 import ManagedTree from '../ui/ManagedTree';
+import inputValidator from '../../../../common/js/validators/inputValidator';
+import outputValidator from '../../../../common/js/validators/outputValidator';
+import { deleteWarning } from '../../../../ui/js/lib/messageBoxes';
+import { saveInputsAction } from '../../../../common/js/store/actions/inputs';
+import { saveOutputsAction } from '../../../../common/js/store/actions/outputs';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -30,9 +35,11 @@ const StyledRightColumn = styled.div`
 `
 
 const StyledAddButton = styled(Button)`
-  .${Classes.TAB} + & {
-    margin-top: 10px;
-  }
+  ${({ margin }) => margin && `
+    & {
+      margin-top: 10px;
+    }
+  `}
 `;
 
 const SingleInput = ({ value, onChange }) => {
@@ -99,17 +106,29 @@ const getDmxDriverHelper = (driver) => {
   return null;
 }
 
-const OutputSecondaryLabel = ({ type }) => {
-  if (!type) {
-    return null;
-  }
+const OutputSecondaryLabel = ({ id, type, onDelete }) => {
+  const deleteClickHandler = useCallback((e) => {
+    e.stopPropagation();
+    onDelete(id);
+  }, [id, onDelete]);
 
   return (
-    <Tag
-      minimal
-    >
-      {IO_LABELS[type]}
-    </Tag>
+    <>
+      {type && (
+        <Tag
+          minimal
+        >
+          {IO_LABELS[type]}
+        </Tag>
+      )}
+      <Button
+        small
+        minimal
+        icon="trash"
+        intent={Intent.DANGER}
+        onClick={deleteClickHandler}
+      />
+    </>
   );
 }
 
@@ -119,6 +138,7 @@ const SingleOutput = ({ value, onChange }) => {
     type = null,
     driver = null,
     port = null,
+    address = null,
   } = value;
 
   const changeHandler = useCallback((newValue, field) => {
@@ -149,15 +169,16 @@ const SingleOutput = ({ value, onChange }) => {
           onChange={changeHandler}
         >
           <option value="null">--</option>
-          <option value={IO_DMX}>DMX</option>
-          <option value={IO_ILDA}>ILDA</option>
+          <option value={IO_DMX}>{IO_LABELS[IO_DMX]}</option>
+          <option value={IO_ARTNET}>{IO_LABELS[IO_ARTNET]}</option>
+          <option value={IO_ILDA}>{IO_LABELS[IO_ILDA]}</option>
         </SelectInput>
       </InlineFormGroup>
       {type === IO_DMX && (
         <>
           <InlineFormGroup
             label="Driver"
-            helperText={!driver ? 'An DMX output driver is mandatory.' : getDmxDriverHelper(driver)}
+            helperText={!driver ? 'A DMX output driver is mandatory.' : getDmxDriverHelper(driver)}
             intent={!driver ? Intent.DANGER : driver === 'enttec-open-usb-dmx' ? Intent.WARNING : undefined}
           >
             <SelectInput
@@ -176,7 +197,7 @@ const SingleOutput = ({ value, onChange }) => {
           {driver && (
             <InlineFormGroup
               label="Port"
-              helperText={!port ? 'An DMX output port is mandatory.' : undefined}
+              helperText={!port ? 'A DMX output port is mandatory.' : undefined}
               intent={!port ? Intent.DANGER : undefined}
             >
               <TextInput
@@ -188,6 +209,19 @@ const SingleOutput = ({ value, onChange }) => {
           )}
         </>
       )}
+      {(type === IO_ARTNET || type === IO_ILDA) && (
+        <InlineFormGroup
+          label="Address"
+          helperText={!address ? 'An Art-Net output address is mandatory.' : undefined}
+          intent={!address ? Intent.DANGER : undefined}
+        >
+          <TextInput
+            name="address"
+            value={address}
+            onChange={changeHandler}
+          />
+        </InlineFormGroup>
+      )}
     </Card>
   )
 };
@@ -197,10 +231,10 @@ const getItemListName = (name) => {
 }
 
 const ItemsPanel = ({
-  id,
   value,
   onAdd,
   onChange,
+  onDelete,
   itemComponent: ItemComponent,
   listSecondaryLabelComponent: ListSecondaryLabelComponent,
 }) => {
@@ -221,6 +255,7 @@ const ItemsPanel = ({
         id={id}
         name={name}
         type={type}
+        onDelete={onDelete}
       />
     ) : undefined,
   }));
@@ -237,6 +272,7 @@ const ItemsPanel = ({
             fill
             small
             icon="plus"
+            margin={value && value.length > 0}
             onClick={onAdd}
           />
         </StyledLeftColumn>
@@ -245,6 +281,7 @@ const ItemsPanel = ({
             <ItemComponent
               value={currentItem}
               onChange={onChange}
+              onDelete={onDelete}
             />
           )}
         </StyledRightColumn>
@@ -257,6 +294,7 @@ export default function ProjectConfigDialog() {
   const dialogOpen = useSelector((state) => state.dialogs.configDialogOpened);
   const inputs = useSelector((state) => state.inputs);
   const outputs = useSelector((state) => state.outputs);
+  const devices = useSelector((state) => state.devices);
 
   const [currentInputs, setInputs] = useState(inputs);
   const [currentOutputs, setOutputs] = useState(outputs);
@@ -272,11 +310,44 @@ export default function ProjectConfigDialog() {
   const changeOutputHandler = useCallback((value) => {
     setOutputs(currentOutputs.map((item) => item.id === value.id ? value : item));
   }, [currentOutputs]);
+  const deleteInputHandler = useCallback((id) => {
+    const obj = currentInputs.find(({ id }) => id === outputId);
+    const message = `Delete input "${getItemListName(obj.name)}"?`;
+
+    deleteWarning(message, (result) => {
+      if (result) {
+        setInputs(currentInputs.filter((item) => item.id !== id));
+      }
+    });
+  }, [currentInputs]);
+  const deleteOutputHandler = useCallback((id) => {
+    const obj = currentOutputs.find((item) => item.id === id);
+    const devicesUsing = devices.filter(({ output }) => output === id);
+    const message = `Delete output "${getItemListName(obj.name)}"?`;
+    const detail = devicesUsing.length > 0 ? `This output is used by ${devicesUsing.length} device(s).` : null;
+
+    deleteWarning(message, detail, (result) => {
+      if (result) {
+        setOutputs(currentOutputs.filter((item) => item.id !== id));
+      }
+    });
+  }, [currentOutputs, devices]);
 
   const dispatch = useDispatch();
   const closeHandler = useCallback(() => {
     dispatch(hideConfigDialogAction());
   }, [dispatch]);
+  const applyHandler = useCallback(() => {
+    dispatch(saveInputsAction(currentInputs));
+    dispatch(saveOutputsAction(currentOutputs));
+  }, [dispatch, currentInputs, currentOutputs]);
+  const successHandler = useCallback(() => {
+    dispatch(saveInputsAction(currentInputs));
+    dispatch(saveOutputsAction(currentOutputs));
+    dispatch(hideConfigDialogAction());
+  }, [dispatch, currentInputs, currentOutputs]);
+
+  const allValid = currentInputs.every(inputValidator) && currentOutputs.every(outputValidator);
 
   return (
     <CustomDialog
@@ -289,17 +360,23 @@ export default function ProjectConfigDialog() {
       <DialogBody>
         <Tabs
           large
-          id="io"
+          id="config"
+          defaultSelectedTabId="inputs"
         >
+          <Tab
+            id="general"
+            title="General"
+            disabled
+          />
           <Tab
             id="inputs"
             title="Inputs"
             panel={(
               <ItemsPanel
-                id="inputs"
                 value={currentInputs}
                 onAdd={addInputHandler}
                 onChange={changeInputHandler}
+                onDelete={deleteInputHandler}
                 itemComponent={SingleInput}
               />
             )}
@@ -309,10 +386,10 @@ export default function ProjectConfigDialog() {
             title="Outputs"
             panel={(
               <ItemsPanel
-                id="outputs"
                 value={currentOutputs}
                 onAdd={addOutputHandler}
                 onChange={changeOutputHandler}
+                onDelete={deleteOutputHandler}
                 itemComponent={SingleOutput}
                 listSecondaryLabelComponent={OutputSecondaryLabel}
               />
@@ -326,7 +403,21 @@ export default function ProjectConfigDialog() {
             onClick={closeHandler}
           >
             Close
-              </Button>
+          </Button>
+          <Button
+            intent={Intent.PRIMARY}
+            disabled={!allValid}
+            onClick={applyHandler}
+          >
+            Apply
+          </Button>
+          <Button
+            intent={Intent.SUCCESS}
+            disabled={!allValid}
+            onClick={successHandler}
+          >
+            Save
+          </Button>
         </DialogFooterActions>
       </DialogFooter>
     </CustomDialog>

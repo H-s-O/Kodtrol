@@ -5,11 +5,11 @@ import { PROJECT_FILE_EXTENSION } from '../../../common/js/constants/app';
 
 const { dialog } = remote;
 
-export function deleteWarning(message, detail = undefined, callback) {
+export function deleteWarning(message, detail = null, callback) {
   // Handle two arguments call
   if (isFunction(detail)) {
     callback = detail;
-    detail = undefined;
+    detail = null;
   }
 
   const response = dialog.showMessageBoxSync(remote.getCurrentWindow(), {
@@ -20,7 +20,7 @@ export function deleteWarning(message, detail = undefined, callback) {
     defaultId: 0,
     cancelId: 1,
     message,
-    detail,
+    detail: detail ? detail : undefined,
   });
   callback(response === 0)
 };
