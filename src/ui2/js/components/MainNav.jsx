@@ -131,7 +131,7 @@ export default function MainNav() {
           icon={ICON_TIMELINE}
           itemId={runTimeline}
           itemNames={timelinesNames}
-          tooltip="No timeline tested"
+          tooltip="No timeline running"
         />
         <StyledNavbar.Divider />
         <ItemStatus
