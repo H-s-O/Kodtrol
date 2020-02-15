@@ -7,7 +7,7 @@ import useHotkeys from '@reecelucas/react-use-hotkeys';
 import FullHeightCard from '../ui/FullHeightCard';
 import ScriptEditor from './ScriptEditor';
 import FullHeightTabs from '../ui/FullHeightTabs';
-import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction } from '../../../../common/js/store/actions/scripts';
+import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction, runScriptAction } from '../../../../common/js/store/actions/scripts';
 import { ICON_SCRIPT } from '../../../../common/js/constants/icons';
 
 const StyledIcon = styled(Icon)`
@@ -62,6 +62,12 @@ export default function ScriptsEditor() {
       dispatch(saveEditedScriptAction(activeScript.id));
     }
   }, [dispatch, activeScript, lastEditor]);
+  const saveAndRunHandler = useCallback(() => {
+    if (lastEditor && lastEditor.type === 'script' && activeScript && activeScript.changed) {
+      dispatch(saveEditedScriptAction(activeScript.id));
+      dispatch(runScriptAction(activeScript.id));
+    }
+  }, [dispatch, activeScript, lastEditor]);
   const closeHandler = useCallback((id) => {
     dispatch(closeScriptAction(id));
   }, [dispatch]);
@@ -70,6 +76,7 @@ export default function ScriptsEditor() {
   }, [dispatch]);
 
   useHotkeys('Meta+s', saveHandler);
+  useHotkeys('Meta+r', saveAndRunHandler);
 
   return (
     <FullHeightCard>

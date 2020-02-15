@@ -89,9 +89,6 @@ export default class MainMenu extends EventEmitter {
             type: 'separator',
           },
           {
-            role: 'reload',
-          },
-          {
             role: 'forcereload',
           },
           {
