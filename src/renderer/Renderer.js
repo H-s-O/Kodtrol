@@ -1,4 +1,5 @@
 import Ticker from './lib/Ticker';
+import RootDeviceRenderer from './rendering/renderers/root/RootDeviceRenderer';
 import RootScriptRenderer from './rendering/renderers/root/RootScriptRenderer';
 import RootTimelineRenderer from './rendering/renderers/root/RootTimelineRenderer';
 import RootBoardRenderer from './rendering/renderers/root/RootBoardRenderer';
@@ -14,6 +15,7 @@ import DmxDevice from './rendering/DmxDevice';
 import IldaDevice from './rendering/IldaDevice';
 import DmxDeviceProxy from './rendering/DmxDeviceProxy';
 import IldaDeviceProxy from './rendering/IldaDeviceProxy';
+import { IO_DMX, IO_ILDA } from '../common/js/constants/io';
 
 export default class Renderer {
   outputs = {};
@@ -23,6 +25,7 @@ export default class Renderer {
   timelines = {};
   boards = {};
   medias = {};
+  currentDevice = null;
   currentScript = null;
   currentTimeline = null;
   currentBoard = null;
@@ -32,18 +35,19 @@ export default class Renderer {
   renderDelay = (1 / 40) * 1000; // @TODO configurable?
   frameTime = 0;
   ioUpdateTimer = null;
-  
+
   constructor() {
     this.providers = {
       getOutput: this.getOutput,
       getScript: this.getScript,
       getScripts: this.getScripts,
+      getDevice: this.getDevice,
       getDevices: this.getDevices,
       getTimeline: this.getTimeline,
       getBoard: this.getBoard,
       getMedia: this.getMedia,
     }
-    
+
     process.on('SIGTERM', this.onSigTerm);
     process.on('message', this.onMessage);
 
@@ -51,12 +55,12 @@ export default class Renderer {
 
     this.send('ready');
   }
-  
+
   onSigTerm = () => {
     this.destroy();
     process.exit();
   }
-  
+
   destroy = () => {
     if (this.ioUpdateTimer) {
       clearInterval(this.ioUpdateTimer);
@@ -67,11 +71,11 @@ export default class Renderer {
     if (this.outputs) {
       Object.values(this.outputs).forEach((output) => output.destroy());
     }
-    
+
     this.inputs = null;
     this.outputs = null;
   }
-  
+
   onMessage = (message) => {
     if ('updateOutputs' in message) {
       const { updateOutputs } = message;
@@ -94,9 +98,12 @@ export default class Renderer {
     } else if ('updateBoards' in message) {
       const { updateBoards } = message;
       this.updateBoards(updateBoards);
-    } else if ('previewScript' in message) {
-      const { previewScript } = message;
-      this.previewScript(previewScript);
+    } else if ('runDevice' in message) {
+      const { runDevice } = message;
+      this.runDevice(runDevice);
+    } else if ('runScript' in message) {
+      const { runScript } = message;
+      this.runScript(runScript);
     } else if ('runTimeline' in message) {
       const { runTimeline } = message;
       this.runTimeline(runTimeline);
@@ -111,7 +118,7 @@ export default class Renderer {
       this.updateBoardInfo(boardInfoUser);
     }
   }
-  
+
   updateOutputs = (data) => {
     this.outputs = hashComparator(
       data,
@@ -124,7 +131,7 @@ export default class Renderer {
 
     this.updateIOStatus();
   }
-  
+
   updateInputs = (data) => {
     this.inputs = hashComparator(
       data,
@@ -135,15 +142,15 @@ export default class Renderer {
     );
     // console.log('RENDERER updateInputs', this.inputs);
   }
-  
+
   updateDevices = (data) => {
     this.devices = hashComparator(
       data,
       this.devices,
       (item) => {
-        if (item.type === 'dmx') {
+        if (item.type === IO_DMX) {
           return new DmxDevice(this.providers, item);
-        } else if (item.type === 'ilda') {
+        } else if (item.type === IO_ILDA) {
           return new IldaDevice(this.providers, item);
         }
         throw new Error(`Unknown device type "${item.type}"`);
@@ -153,7 +160,7 @@ export default class Renderer {
     );
     // console.log('RENDERER updateDevices', this.devices);
   }
-  
+
   updateScripts = (data) => {
     this.scripts = hashComparator(
       data,
@@ -164,7 +171,7 @@ export default class Renderer {
     );
     // console.log('RENDERER updateScripts', this.scripts);
   }
-  
+
   updateTimelines = (data) => {
     this.timelines = hashComparator(
       data,
@@ -175,7 +182,7 @@ export default class Renderer {
     );
     // console.log('RENDERER updateTimelines', this.timelines);
   }
-  
+
   updateBoards = (data) => {
     this.boards = hashComparator(
       data,
@@ -186,7 +193,7 @@ export default class Renderer {
     );
     // console.log('RENDERER updateBoards', this.boards);
   }
-  
+
   updateMedias = (data) => {
     this.medias = hashComparator(
       data,
@@ -197,41 +204,45 @@ export default class Renderer {
     );
     // console.log('RENDERER updateMedias', this.medias);
   }
-  
+
   getOutput = (outputId) => {
     return this.outputs[outputId];
   }
-  
+
   getScript = (scriptId) => {
     return this.scripts[scriptId];
   }
-  
+
   getScripts = (scriptsList) => {
     return scriptsList.map((id) => {
-      return this.scripts[id];
+      return this.getScript(id);
     });
   }
-  
+
   getTimeline = (timelineId) => {
     return this.timelines[timelineId];
   }
-  
+
   getBoard = (boardId) => {
     return this.boards[boardId];
   }
-  
+
+  getDevice = (deviceId) => {
+    const device = this.devices[deviceId];
+    if (device.type === IO_DMX) {
+      return new DmxDeviceProxy(device);
+    } else if (device.type === IO_ILDA) {
+      return new IldaDeviceProxy(device);
+    }
+    return null;
+  }
+
   getDevices = (devicesList) => {
     return devicesList.map((id) => {
-      const device = this.devices[id];
-      if (device.type === 'dmx') {
-        return new DmxDeviceProxy(device);
-      } else if (device.type === 'ilda') {
-        return new IldaDeviceProxy(device);
-      }
-      return null;
+      return this.getDevice(id);
     });
   }
-  
+
   getMedia = (mediaId) => {
     const media = this.medias[mediaId];
     if (media) {
@@ -239,27 +250,45 @@ export default class Renderer {
     }
     return null;
   }
-  
-  previewScript = (id) => {
+
+  runDevice = (id) => {
+    if (id === null || (this.currentDevice && this.currentDevice.device.id !== id)) {
+      if (this.currentDevice) {
+        this.currentDevice.destroy();
+        this.currentDevice = null;
+      }
+    }
+
+    if (id !== null) {
+      const renderer = new RootDeviceRenderer(this.providers, id);
+      this.currentDevice = renderer;
+    }
+
+    this.updateTicker();
+
+    console.log('RENDERER runDevice', id);
+  }
+
+  runScript = (id) => {
     if (id === null || (this.currentScript && this.currentScript.script.id !== id)) {
       if (this.currentScript) {
         this.currentScript.destroy();
         this.currentScript = null;
       }
     }
-    
+
     this.resetAll();
-    
+
     if (id !== null) {
       const renderer = new RootScriptRenderer(this.providers, id);
       this.currentScript = renderer;
     }
 
     this.updateTicker();
-    
-    console.log('RENDERER previewScript', id);
+
+    console.log('RENDERER runScript', id);
   }
-  
+
   runTimeline = (id) => {
     if (id === null || (this.currentTimeline && this.currentTimeline.id !== id)) {
       if (this.currentTimeline) {
@@ -267,19 +296,19 @@ export default class Renderer {
         this.currentTimeline = null;
       }
     }
-    
+
     this.resetAll();
-    
+
     if (id !== null) {
       const renderer = new RootTimelineRenderer(this.providers, id, this.onTimelineEnded);
       this.currentTimeline = renderer;
     }
 
     this.updateTicker(false);
-    
+
     console.log('RENDERER runTimeline', id);
   }
-  
+
   runBoard = (id) => {
     if (id === null || (this.currentBoard && this.currentBoard.id !== id)) {
       if (this.currentBoard) {
@@ -287,19 +316,19 @@ export default class Renderer {
         this.currentBoard = null;
       }
     }
-    
+
     this.resetAll();
-    
+
     if (id !== null) {
       const renderer = new RootBoardRenderer(this.providers, id);
       this.currentBoard = renderer;
     }
 
     this.updateTicker();
-    
+
     console.log('RENDERER runBoard', id);
   }
-  
+
   updateTicker = (start = true) => {
     if (this.ticker) {
       this.ticker.destroy();
@@ -307,8 +336,8 @@ export default class Renderer {
     }
 
     this.frameTime = 0;
-    
-    if (this.currentScript || this.currentTimeline || this.currentBoard) {
+
+    if (this.currentDevice || this.currentScript || this.currentTimeline || this.currentBoard) {
       if (!this.ticker) {
         this.ticker = new Ticker(this.tickHandler);
         if (start) {
@@ -327,10 +356,10 @@ export default class Renderer {
       },
     });
   }
-  
+
   updateTimelineInfo = (data) => {
     console.log('Renderer.updateTimelineInfo', data);
-    
+
     if (this.currentTimeline) {
       const { playing, position } = data;
       if (typeof playing !== 'undefined') {
@@ -345,25 +374,25 @@ export default class Renderer {
       });
     }
   }
-  
+
   updateTimelinePlaybackStatus = (playing) => {
     if (playing && !this.ticker.running) {
       this.currentTimeline.notifyPlay();
-      
+
       this.playing = true;
       this.ticker.start();
     } else if (!playing && this.ticker.running) {
       this.playing = false;
       this.ticker.stop();
-      
+
       this.currentTimeline.notifyStop();
       this.outputAll();
     }
   }
-  
+
   updateBoardInfo = (data) => {
     console.log('Renderer.updateBoardInfo', data);
-    
+
     if (this.currentBoard) {
       const { activeItems } = data;
       if (typeof activeItems !== 'undefined') {
@@ -391,7 +420,7 @@ export default class Renderer {
       ioStatus,
     });
   }
-  
+
   send = (data) => {
     process.send(data);
   }
@@ -406,7 +435,7 @@ export default class Renderer {
     if (this.currentBoard) {
       this.currentBoard.tick(delta);
     }
-    
+
     if (this.frameTime >= this.renderDelay || initial) {
       const diff = this.frameTime - this.renderDelay;
       this.tickerFrame(diff);
@@ -415,10 +444,10 @@ export default class Renderer {
 
     this.frameTime += delta;
   }
-  
+
   tickerFrame = (delta) => {
     this.resetDevices();
-    
+
     if (this.currentScript) {
       this.currentScript.frame(delta);
     }
@@ -440,10 +469,13 @@ export default class Renderer {
         },
       });
     }
-    
+    if (this.currentDevice) {
+      this.currentDevice.frame(delta);
+    }
+
     this.outputAll();
   }
-  
+
   onInput = (type, data) => {
     if (this.currentScript) {
       this.currentScript.input(type, data);
@@ -455,24 +487,24 @@ export default class Renderer {
       this.currentBoard.input(type, data);
     }
   }
-  
+
   resetAll = () => {
     this.resetDevices();
     this.resetMedias();
   }
-  
+
   resetDevices = () => {
     Object.values(this.devices).forEach((device) => device.reset());
   }
-  
+
   resetMedias = () => {
     Object.values(this.medias).forEach((media) => media.reset());
   }
-  
+
   outputAll = () => {
     Object.values(this.devices).forEach((device) => device.sendDataToOutput());
     Object.values(this.medias).forEach((media) => media.sendDataToOutput());
-    
+
     Object.values(this.outputs).forEach((output) => output.flush());
   }
 }

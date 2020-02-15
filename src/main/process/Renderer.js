@@ -7,7 +7,7 @@ import * as RendererEvent from '../events/RendererEvent';
 
 export default class Renderer extends EventEmitter {
   childProcess = null;
-  
+
   constructor() {
     super();
 
@@ -25,7 +25,7 @@ export default class Renderer extends EventEmitter {
     });
     this.childProcess.on('message', this.onMessage);
   }
-  
+
   onMessage = (message) => {
     if (message) {
       if (message === 'ready') {
@@ -43,13 +43,18 @@ export default class Renderer extends EventEmitter {
       }
     }
   }
-  
+
   send = (data) => {
-    if (this.childProcess && this.childProcess.connected) {
+    if (this.childProcess) {
+      if (!this.childProcess.connected) {
+        console.error('Renderer not connected!');
+        return;
+      }
+
       this.childProcess.send(data);
     }
   }
-  
+
   destroy = () => {
     if (this.childProcess) {
       this.childProcess.kill();

@@ -3,9 +3,10 @@ import { camelCase, upperFirst } from 'lodash';
 import AbstractDevice from './AbstractDevice';
 
 export default class DmxDevice extends AbstractDevice {
-  _startingChannel = null;
+  _address = null;
   _channelAliases = {};
   _channelDefaults = {};
+  _channelTestValues = {};
   _channels = {};
 
   constructor(providers, sourceDevice) {
@@ -13,20 +14,21 @@ export default class DmxDevice extends AbstractDevice {
 
     this.update(sourceDevice);
   }
-  
+
   update = (sourceDevice) => {
     const {
-      startChannel,
+      address,
       channels,
     } = sourceDevice;
 
-    this._startingChannel = parseInt(startChannel);
-    
+    this._address = parseInt(address);
+
     this._setChannelAliases(channels);
     this._setDefaultValues(channels);
+    this._setTestValues(channels);
     this._setChannelGettersAndSetters(channels);
   }
-  
+
   _setChannelAliases = (channels) => {
     // Guard
     if (!channels) {
@@ -34,7 +36,7 @@ export default class DmxDevice extends AbstractDevice {
       return;
     }
 
-    this._channelAliases = channels.reduce((obj, {alias}, index) => {
+    this._channelAliases = channels.reduce((obj, { alias }, index) => {
       if (alias) {
         return {
           ...obj,
@@ -44,7 +46,7 @@ export default class DmxDevice extends AbstractDevice {
       return obj;
     }, {});
   }
-  
+
   _setDefaultValues = (channels) => {
     // Guard
     if (!channels) {
@@ -52,12 +54,22 @@ export default class DmxDevice extends AbstractDevice {
       return;
     }
 
-    this._channelDefaults = channels.map(({defaultValue}) => parseInt(defaultValue));
+    this._channelDefaults = channels.map(({ defaultValue }) => defaultValue || 0);
   }
-  
+
+  _setTestValues = (channels) => {
+    // Guard
+    if (!channels) {
+      this._channelTestValues = [];
+      return;
+    }
+
+    this._channelTestValues = channels.map(({ testValue }) => testValue || 0);
+  }
+
   _setChannelGettersAndSetters = (channels) => {
     if (channels) {
-      channels.forEach(({alias}) => {
+      channels.forEach(({ alias }) => {
         if (alias) {
           const aliasMethodName = upperFirst(camelCase(alias));
           this[`get${aliasMethodName}`] = () => {
@@ -72,14 +84,18 @@ export default class DmxDevice extends AbstractDevice {
     }
   }
 
-  get startingChannel() {
-    return this._startingChannel;
+  get address() {
+    return this._address;
   }
 
   get channelDefaults() {
     return this._channelDefaults;
   }
-  
+
+  get channelTestValues() {
+    return this._channelTestValues;
+  }
+
   get channelAliases() {
     return this._channelAliases;
   }
@@ -87,26 +103,32 @@ export default class DmxDevice extends AbstractDevice {
   get channels() {
     return this._channels;
   }
-  
+
   reset = () => {
     this._channels = {
       ...this._channelDefaults,
     };
   }
-  
+
+  applyTestValues = () => {
+    this._channels = {
+      ...this._channelTestValues,
+    };
+  }
+
   sendDataToOutput = () => {
     // Guard
     if (this._output) {
       const data = Object.entries(this._channels).reduce((obj, [channel, channelValue]) => {
         return {
           ...obj,
-          [this._startingChannel + Number(channel)]: channelValue,
+          [this._address + parseInt(channel)]: channelValue,
         };
       }, {});
       this._output.buffer(data);
     }
   }
-  
+
   getChannelDefault = (channel) => {
     if (typeof channel === 'string') {
       channel = this._channelAliases[channel];
@@ -132,11 +154,12 @@ export default class DmxDevice extends AbstractDevice {
   updateChannel = (channel, func) => {
     return this.setChannel(channel, func(this.getChannel(channel)));
   }
-  
+
   destroy = () => {
-    this._startingChannel = null;
+    this._address = null;
     this._channelAliases = null;
     this._channelDefaults = null;
+    this._channelTestValues = null;
     this._channels = null;
 
     // super.destroy(); // @TODO needs babel update

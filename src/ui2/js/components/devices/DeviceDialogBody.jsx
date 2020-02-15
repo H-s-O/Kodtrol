@@ -9,6 +9,7 @@ import TagsInput from '../ui/inputs/TagsInput';
 import DmxChannelsInput from '../ui/inputs/DmxChannelsInput';
 import CustomDivider from '../ui/CustomDivider';
 import NumberInput from '../ui/inputs/NumberInput';
+import { IO_DMX, IO_ILDA, IO_LABELS, IO_ARTNET } from '../../../../common/js/constants/io';
 
 export default function DeviceDialogBody({ value, onChange }) {
   const {
@@ -27,10 +28,10 @@ export default function DeviceDialogBody({ value, onChange }) {
       return []
     }
     return outputs.filter((output) => {
-      if (type === 'dmx') {
-        return output.type === 'dmx' || output.type === 'artnet';
-      } else if (type === 'ilda') {
-        return output.type === 'ilda';
+      if (type === IO_DMX) {
+        return output.type === IO_DMX || output.type === IO_ARTNET;
+      } else if (type === IO_ILDA) {
+        return output.type === IO_ILDA;
       }
     })
   }, [outputs, type]);
@@ -59,8 +60,8 @@ export default function DeviceDialogBody({ value, onChange }) {
           onChange={onChange}
         >
           <option value="null">--</option>
-          <option value="dmx">DMX</option>
-          <option value="ilda">ILDA</option>
+          <option value={IO_DMX}>{IO_LABELS[IO_DMX]}</option>
+          <option value={IO_ILDA}>{IO_LABELS[IO_ILDA]}</option>
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup

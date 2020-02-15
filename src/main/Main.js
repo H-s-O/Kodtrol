@@ -1,9 +1,9 @@
 import { app, powerSaveBlocker } from 'electron';
-import { get, set, pick } from 'lodash';
+import { set, pick } from 'lodash';
 import { join } from 'path';
 
 import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
-import { readAppConfig, writeAppConfig, createProject, writeJson, readJson, writeFile, ensureDir, getCompiledScriptsDir } from './lib/fileSystem';
+import { readAppConfig, writeAppConfig, writeJson, readJson, writeFile, ensureDir, getCompiledScriptsDir } from './lib/fileSystem';
 import MainWindow from './ui/MainWindow';
 import MainMenu from './ui/MainMenu';
 import * as MainWindowEvent from './events/MainWindowEvent';
@@ -17,6 +17,7 @@ import { updateIOStatus } from '../common/js/store/actions/ioStatus';
 import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
+import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -24,7 +25,6 @@ export default class Main {
   mainMenu = null
   store = null;
   renderer = null;
-  expressApp = null;
   powerSaveBlockerId = null;
 
   constructor() {
@@ -97,7 +97,8 @@ export default class Main {
     this.store.on(StoreEvent.MEDIAS_CHANGED, this.onMediasChanged);
     this.store.on(StoreEvent.TIMELINES_CHANGED, this.onTimelinesChanged);
     this.store.on(StoreEvent.BOARDS_CHANGED, this.onBoardsChanged);
-    this.store.on(StoreEvent.PREVIEW_SCRIPT, this.onPreviewScript);
+    this.store.on(StoreEvent.RUN_DEVICE, this.onRunDevice);
+    this.store.on(StoreEvent.RUN_SCRIPT, this.onRunScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
     this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
     this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
@@ -200,12 +201,24 @@ export default class Main {
     this.saveProject();
   }
 
-  onPreviewScript = () => {
-    const { previewScript } = this.store.state;
+  onRunDevice = () => {
+    const { runDevice } = this.store.state;
 
     if (this.renderer) {
       this.renderer.send({
-        previewScript,
+        runDevice,
+      });
+    }
+
+    this.updatePower();
+  }
+
+  onRunScript = () => {
+    const { runScript } = this.store.state;
+
+    if (this.renderer) {
+      this.renderer.send({
+        runScript,
       });
     }
 
@@ -364,7 +377,7 @@ export default class Main {
   createProject = () => {
     const projectPath = createProjectDialog();
     if (projectPath !== null) {
-      const finalPath = `${projectPath}.manuscrit`;
+      const finalPath = `${projectPath}.${PROJECT_FILE_EXTENSION}`;
 
       this.loadProject(finalPath, true);
       this.saveProject();
@@ -376,12 +389,21 @@ export default class Main {
     writeJson(this.currentProjectFilePath, pick(state, [
       'fileVersion',
       'devices',
+      'devicesFolders',
       'scripts',
+      'scriptsFolders',
+      'editScripts',
       'medias',
+      'mediasFolders',
       'timelines',
+      'timelinesFolders',
+      'editTimelines',
       'boards',
+      'boardsFolders',
+      'editBoards',
       'outputs',
       'inputs',
+      'lastEditor',
     ]));
   }
 
@@ -415,7 +437,7 @@ export default class Main {
 
   updatePower = () => {
     const state = this.store.state;
-    const shouldBlock = state.previewScript !== null || state.runTimeline !== null || state.runBoard !== null;
+    const shouldBlock = state.runDevice !== null || state.runScript !== null || state.runTimeline !== null || state.runBoard !== null;
 
     if (shouldBlock) {
       if (this.powerSaveBlockerId === null) {

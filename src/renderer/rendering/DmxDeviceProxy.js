@@ -5,11 +5,11 @@ import AbstractDeviceProxy from './AbstractDeviceProxy';
 export default class DmxDeviceProxy extends AbstractDeviceProxy {
   constructor(originDevice) {
     super(originDevice);
-    
-    this.setChannelVarHelpers(this._proxyTarget.channelAliases);
+
+    this._setChannelVarHelpers(this._proxyTarget.channelAliases);
   }
-  
-  setChannelVarHelpers = (channels) => {
+
+  _setChannelVarHelpers = (channels) => {
     Object.keys(channels).forEach((alias) => {
       const aliasMethodName = upperFirst(camelCase(alias));
       this[`set${aliasMethodName}FromVar`] = (varName) => {
@@ -18,7 +18,7 @@ export default class DmxDeviceProxy extends AbstractDeviceProxy {
       };
     });
   }
-  
+
   setChannelFromVar = (channel, varName = null) => {
     return this.setChannel(channel, this.getVar(varName !== null ? varName : channel));
   }

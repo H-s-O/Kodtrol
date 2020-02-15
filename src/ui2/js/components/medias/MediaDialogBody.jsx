@@ -8,6 +8,7 @@ import FileInput from '../ui/inputs/FileInput';
 import SelectInput from '../ui/inputs/SelectInput';
 import mediaInfo from '../../lib/mediaInfo';
 import DurationInput from '../ui/inputs/DurationInput';
+import { IO_AUDIO } from '../../../../common/js/constants/io';
 
 export default function MediaDialogBody({ value, onChange }) {
   const {
@@ -20,7 +21,7 @@ export default function MediaDialogBody({ value, onChange }) {
 
   const outputs = useSelector((state) => state.outputs);
   const availableOutputs = useMemo(() => {
-    return outputs.filter(({ type }) => type === 'audio')
+    return outputs.filter(({ type }) => type === IO_AUDIO)
   }, [outputs]);
 
   const fileChangeHandler = useCallback((value) => {

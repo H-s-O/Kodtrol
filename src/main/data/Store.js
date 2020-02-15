@@ -1,11 +1,10 @@
 import EventEmitter from 'events';
 import { ipcMain } from 'electron';
-import { createStore, applyMiddleware, combineReducers } from 'redux'
-import { forwardToRenderer, triggerAlias, replayActionMain } from 'electron-redux';
+import { createStore, applyMiddleware } from 'redux'
+import { forwardToRenderer, replayActionMain } from 'electron-redux';
 import { observer, observe } from 'redux-observers'
 
 import * as StoreEvent from '../events/StoreEvent';
-import * as appReducers from '../../common/js/store/reducers/index';
 import rootReducer from '../../common/js/store/reducers/root';
 import resetRunningItems from '../../common/js/store/middlewares/resetRunningItems';
 import resetCurrentItems from '../../common/js/store/middlewares/resetCurrentItems';
@@ -78,11 +77,17 @@ export default class Store extends EventEmitter {
       },
       this.onBoardsChange
     );
-    const previewScriptObserver = observer(
+    const runDeviceObserver = observer(
       (state) => {
-        return state.previewScript;
+        return state.runDevice;
       },
-      this.onPreviewScript
+      this.onRunDevice
+    );
+    const runScriptObserver = observer(
+      (state) => {
+        return state.runScript;
+      },
+      this.onRunScript
     );
     const runTimelineObserver = observer(
       (state) => {
@@ -117,7 +122,8 @@ export default class Store extends EventEmitter {
       mediasObserver,
       timelinesObserver,
       boardsObserver,
-      previewScriptObserver,
+      runDeviceObserver,
+      runScriptObserver,
       runTimelineObserver,
       runBoardObserver,
       timelineInfoUserObserver,
@@ -166,8 +172,12 @@ export default class Store extends EventEmitter {
     this.emit(StoreEvent.BOARDS_CHANGED);
   }
 
-  onPreviewScript = (dispatch, current, previous) => {
-    this.emit(StoreEvent.PREVIEW_SCRIPT);
+  onRunDevice = (dispatch, current, previous) => {
+    this.emit(StoreEvent.RUN_DEVICE);
+  }
+
+  onRunScript = (dispatch, current, previous) => {
+    this.emit(StoreEvent.RUN_SCRIPT);
   }
 
   onRunTimeline = (dispatch, current, previous) => {

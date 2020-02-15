@@ -1,75 +1,88 @@
 import MidiInput from '../inputs/MidiInput';
 import OscInput from '../inputs/OscInput';
+import { IO_MIDI, IO_OSC } from '../../common/js/constants/io';
 
 export default class Input {
   _id = null;
   _type = null;
-  _extraData = null;
+  _type = null;
+  _protocol = null;
+  _port = null;
+  _device = null;
   _input = null;
   _onInputCallback = null;
   _hash = null;
 
   constructor(sourceInput, onInputCallback) {
-    this._onInputCallback = onInputCallback;
-    
     this.update(sourceInput, onInputCallback);
   }
-  
+
   update = (sourceInput, onInputCallback) => {
     const {
       id,
       type,
-      extraData,
+      protocol,
+      port,
+      device,
       hash,
     } = sourceInput;
-    
+
     this._id = id;
     this._type = type;
-    this._extraData = extraData;
+    this._protocol = protocol;
+    this._port = port;
+    this._device = device;
     this._hash = hash;
-    
-    this.setInput(type, extraData);
+
+    this._onInputCallback = onInputCallback;
+
+    this._setInput();
   }
-  
-  setInput = (type, extraData) => {
+
+  _setInput = () => {
     if (this._input) {
       this._input.destroy();
     }
-    
+
     let input = null;
-    
-    if (type === 'midi') {
-      input = new MidiInput(this.inputMessageCallback);
-    } else if (type === 'osc') {
-      const { port, subType } = extraData;
-      input = new OscInput(this.inputMessageCallback, subType, port);
+
+    switch (this._type) {
+      case IO_MIDI:
+        input = new MidiInput(this._inputMessageCallback);
+        break;
+      case IO_OSC:
+        input = new OscInput(this._inputMessageCallback, this._protocol, this._port);
+        break;
+      default:
+        throw new Error(`Unknown input type "${this._type}"`);
+        break;
     }
 
     this._input = input;
   }
-  
+
   get id() {
     return this._id;
   }
-  
+
   get inputInstance() {
     return this._input;
   }
-  
+
   get type() {
     return this._type;
   }
-  
+
   get hash() {
     return this._hash;
   }
-  
-  inputMessageCallback = (message) => {
+
+  _inputMessageCallback = (message) => {
     if (this._onInputCallback) {
       this._onInputCallback(this._type, message);
     }
   }
-  
+
   destroy = () => {
     if (this._input) {
       this._input.destroy();
@@ -77,7 +90,9 @@ export default class Input {
 
     this._id = null;
     this._type = null;
-    this._extraData = null;
+    this._protocol = null;
+    this._port = null;
+    this._device = null;
     this._input = null;
     this._onInputCallback = null;
     this._hash = null;
