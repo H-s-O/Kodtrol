@@ -59,6 +59,11 @@ export default function ScriptDialog() {
     }
     dispatch(hideScriptDialogAction());
   }, [dispatch, bodyValue]);
+  const applyHandler = useCallback(() => {
+    if (scriptDialogMode === DIALOG_EDIT) {
+      dispatch(saveScriptAction(bodyValue.id, bodyValue));
+    }
+  }, [dispatch, bodyValue]);
   const changeHandler = useCallback((value, field) => {
     dispatch(updateScriptDialogAction(mergeDialogBody(bodyValue, value, field)));
   }, [dispatch, bodyValue]);
@@ -83,6 +88,15 @@ export default function ScriptDialog() {
           >
             Cancel
           </Button>
+          {scriptDialogMode === DIALOG_EDIT && (
+            <Button
+              intent={Intent.PRIMARY}
+              disabled={!bodyValid}
+              onClick={applyHandler}
+            >
+              Apply
+          </Button>
+          )}
           <Button
             intent={Intent.SUCCESS}
             disabled={!bodyValid}

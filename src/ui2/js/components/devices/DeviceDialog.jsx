@@ -59,6 +59,11 @@ export default function DeviceDialog() {
     }
     dispatch(hideDeviceDialogAction());
   }, [dispatch, bodyValue]);
+  const applyHandler = useCallback(() => {
+    if (deviceDialogMode === DIALOG_EDIT) {
+      dispatch(saveDeviceAction(bodyValue.id, bodyValue));
+    }
+  }, [dispatch, bodyValue]);
   const changeHandler = useCallback((value, field) => {
     dispatch(updateDeviceDialogAction(mergeDialogBody(bodyValue, value, field)));
   }, [dispatch, bodyValue]);
@@ -83,6 +88,15 @@ export default function DeviceDialog() {
           >
             Cancel
           </Button>
+          {deviceDialogMode === DIALOG_EDIT && (
+            <Button
+              intent={Intent.PRIMARY}
+              disabled={!bodyValid}
+              onClick={applyHandler}
+            >
+              Apply
+          </Button>
+          )}
           <Button
             intent={Intent.SUCCESS}
             disabled={!bodyValid}
