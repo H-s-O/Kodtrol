@@ -8,6 +8,7 @@ export const IO_DMX = 'dmx';
 export const IO_ARTNET = 'artnet';
 export const IO_SERIAL = 'serial';
 export const IO_ILDA = 'ilda';
+export const IO_AUDIO = 'audio';
 
 export const IO_LABELS = {
   [IO_DISCONNECTED]: 'Disconnected',
@@ -20,4 +21,5 @@ export const IO_LABELS = {
   [IO_ARTNET]: 'Art-Net',
   [IO_SERIAL]: 'Serial',
   [IO_ILDA]: 'ILDA',
+  [IO_AUDIO]: 'Audio',
 };

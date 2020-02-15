@@ -11,8 +11,9 @@ import DialogFooterActions from '../ui/DialogFooterActions';
 import { hideConfigDialogAction } from '../../../../common/js/store/actions/dialogs';
 import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
+import NumberInput from '../ui/inputs/NumberInput';
 import SelectInput from '../ui/inputs/SelectInput';
-import { IO_DMX, IO_ILDA, IO_OSC, IO_MIDI, IO_LABELS, IO_ARTNET } from '../../../../common/js/constants/io';
+import { IO_DMX, IO_ILDA, IO_OSC, IO_MIDI, IO_LABELS, IO_ARTNET, IO_AUDIO } from '../../../../common/js/constants/io';
 import ManagedTree from '../ui/ManagedTree';
 import inputValidator from '../../../../common/js/validators/inputValidator';
 import outputValidator from '../../../../common/js/validators/outputValidator';
@@ -42,10 +43,39 @@ const StyledAddButton = styled(Button)`
   `}
 `;
 
+const ItemSecondaryLabel = ({ id, type, onDelete }) => {
+  const deleteClickHandler = useCallback((e) => {
+    e.stopPropagation();
+    onDelete(id);
+  }, [id, onDelete]);
+
+  return (
+    <>
+      {type && (
+        <Tag
+          minimal
+        >
+          {IO_LABELS[type]}
+        </Tag>
+      )}
+      <Button
+        small
+        minimal
+        icon="trash"
+        intent={Intent.DANGER}
+        onClick={deleteClickHandler}
+      />
+    </>
+  );
+}
+
 const SingleInput = ({ value, onChange }) => {
   const {
     name = null,
     type = null,
+    protocol = null,
+    port = null,
+    device = null,
   } = value;
 
   const changeHandler = useCallback((newValue, field) => {
@@ -76,10 +106,59 @@ const SingleInput = ({ value, onChange }) => {
           onChange={changeHandler}
         >
           <option value="null">--</option>
-          <option value={IO_OSC}>OSC</option>
-          <option value={IO_MIDI}>MIDI</option>
+          <option value={IO_OSC}>{IO_LABELS[IO_OSC]}</option>
+          <option value={IO_MIDI}>{IO_LABELS[IO_MIDI]}</option>
         </SelectInput>
       </InlineFormGroup>
+      {type === IO_OSC && (
+        <>
+          <InlineFormGroup
+            label="Protocol"
+            helperText={!protocol ? 'An OSC input protocol is mandatory.' : undefined}
+            intent={!protocol ? Intent.DANGER : undefined}
+          >
+            <SelectInput
+              name="protocol"
+              value={protocol}
+              onChange={changeHandler}
+            >
+              <option value="null">--</option>
+              <option value="tcp">TCP</option>
+              <option value="udp">UDP</option>
+            </SelectInput>
+          </InlineFormGroup>
+          <InlineFormGroup
+            label="Port"
+            helperText={!port ? 'An OSC input port is mandatory.' : undefined}
+            intent={!port ? Intent.DANGER : undefined}
+          >
+            <NumberInput
+              name="port"
+              min={1024}
+              max={65535}
+              placeholder="1024 - 65535"
+              value={port}
+              onChange={changeHandler}
+            />
+          </InlineFormGroup>
+        </>
+      )}
+      {type === IO_MIDI && (
+        <InlineFormGroup
+          label="Device"
+          helperText={!device ? 'You must select a MIDI input device.' : undefined}
+          intent={!device ? Intent.DANGER : undefined}
+        >
+          <SelectInput
+            name="device"
+            value={device}
+            onChange={changeHandler}
+          >
+            <option value="null">--</option>
+            <option value="asdasdasd">Device 1</option>
+          </SelectInput>
+        </InlineFormGroup>
+      )}
     </Card>
   )
 };
@@ -104,32 +183,6 @@ const getDmxDriverHelper = (driver) => {
   }
 
   return null;
-}
-
-const OutputSecondaryLabel = ({ id, type, onDelete }) => {
-  const deleteClickHandler = useCallback((e) => {
-    e.stopPropagation();
-    onDelete(id);
-  }, [id, onDelete]);
-
-  return (
-    <>
-      {type && (
-        <Tag
-          minimal
-        >
-          {IO_LABELS[type]}
-        </Tag>
-      )}
-      <Button
-        small
-        minimal
-        icon="trash"
-        intent={Intent.DANGER}
-        onClick={deleteClickHandler}
-      />
-    </>
-  );
 }
 
 const SingleOutput = ({ value, onChange }) => {
@@ -172,6 +225,7 @@ const SingleOutput = ({ value, onChange }) => {
           <option value={IO_DMX}>{IO_LABELS[IO_DMX]}</option>
           <option value={IO_ARTNET}>{IO_LABELS[IO_ARTNET]}</option>
           <option value={IO_ILDA}>{IO_LABELS[IO_ILDA]}</option>
+          <option value={IO_AUDIO}>{IO_LABELS[IO_AUDIO]}</option>
         </SelectInput>
       </InlineFormGroup>
       {type === IO_DMX && (
@@ -311,7 +365,7 @@ export default function ProjectConfigDialog() {
     setOutputs(currentOutputs.map((item) => item.id === value.id ? value : item));
   }, [currentOutputs]);
   const deleteInputHandler = useCallback((id) => {
-    const obj = currentInputs.find(({ id }) => id === outputId);
+    const obj = currentInputs.find((item) => item.id === id);
     const message = `Delete input "${getItemListName(obj.name)}"?`;
 
     deleteWarning(message, (result) => {
@@ -378,6 +432,7 @@ export default function ProjectConfigDialog() {
                 onChange={changeInputHandler}
                 onDelete={deleteInputHandler}
                 itemComponent={SingleInput}
+                listSecondaryLabelComponent={ItemSecondaryLabel}
               />
             )}
           />
@@ -391,7 +446,7 @@ export default function ProjectConfigDialog() {
                 onChange={changeOutputHandler}
                 onDelete={deleteOutputHandler}
                 itemComponent={SingleOutput}
-                listSecondaryLabelComponent={OutputSecondaryLabel}
+                listSecondaryLabelComponent={ItemSecondaryLabel}
               />
             )}
           />
