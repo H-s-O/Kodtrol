@@ -23,21 +23,22 @@ export default class Script extends EventEmitter {
     const {
       id,
       devices,
-      previewTempo,
+      devicesGroups,
+      tempo,
       hash,
     } = sourceScript;
     
     this._id = id;
     this._hash = hash;
-    this._tempo = Number(previewTempo);
+    this._tempo = Number(tempo);
     
-    this.setDevices(devices);
-    this.setScriptInstanceAndFlags(id);
+    this._setDevices(devices, devicesGroups);
+    this._setScriptInstanceAndFlags(id);
 
     this.emit('updated');
   }
   
-  setDevices = (devices) => {
+  _setDevices = (devices) => {
     // Guard
     if (!devices) {
       this._devices = [];
@@ -46,7 +47,7 @@ export default class Script extends EventEmitter {
     this._devices = devices.map(({id}) => id);
   }
   
-  setScriptInstanceAndFlags = (id) => {
+  _setScriptInstanceAndFlags = (id) => {
     const scriptPath = getCompiledScriptPath(id);
     
     // clear existing cached module before attempting load

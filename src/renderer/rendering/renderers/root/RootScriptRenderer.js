@@ -3,43 +3,43 @@ import ScriptRenderer from '../items/ScriptRenderer';
 import timeToPPQ from '../../../lib/timeToPPQ';
 
 export default class RootScriptRenderer extends BaseRootRenderer {
-    _instance = null;
+  _instance = null;
 
-    constructor(providers, scriptId) {
-        super(providers);
+  constructor(providers, scriptId) {
+    super(providers);
 
-        this._setScriptInstance(scriptId);
-    }
+    this._setScriptInstance(scriptId);
+  }
 
-    _setScriptInstance = (scriptId) => {
-        this._instance = new ScriptRenderer(this._providers, scriptId);
-    }
+  _setScriptInstance = (scriptId) => {
+    this._instance = new ScriptRenderer(this._providers, scriptId);
+  }
 
-    get script() {
-        return this._instance;
-    }
+  get script() {
+    return this._instance;
+  }
 
-    _getRenderingTempo = () => {
-        return this._instance.script.tempo;
-    }
+  _getRenderingTempo = () => {
+    return this._instance.script.tempo;
+  }
 
-    _runFrame = (frameTime) => {
-        this._instance.render(this._currentTime);
-    }
+  _runFrame = (frameTime) => {
+    this._instance.render(this._currentTime);
+  }
 
-    _runBeat = (beatPos) => {
-        const localBeatPos = timeToPPQ(this._currentTime, this._getRenderingTempo());
-        this._instance.beat(beatPos, localBeatPos);
-    }
+  _runBeat = (beatPos) => {
+    const localBeatPos = timeToPPQ(this._currentTime, this._getRenderingTempo());
+    this._instance.beat(beatPos, localBeatPos);
+  }
 
-    _runInput = (type, data) => {
-        this._instance.input(type, data);
-    }
+  _runInput = (type, data) => {
+    this._instance.input(type, data);
+  }
 
-    destroy = () => {
-        this._instance.destroy();
-        this._instance = null;
+  destroy = () => {
+    this._instance.destroy();
+    this._instance = null;
 
-        // super.destroy(); // @TODO needs babel update
-    }
+    // super.destroy(); // @TODO needs babel update
+  }
 }
