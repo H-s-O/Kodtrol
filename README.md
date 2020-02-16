@@ -3,6 +3,8 @@
 
 (Curious to see what the project in this screenshot looks like? [Here it is](https://youtu.be/CueEGW6SlJ0).)
 
+# ❇️ A refactor is in progress before the first official beta. [See what's brewing on the-big-refactor branch](https://github.com/H-s-O/Kodtrol/tree/the-big-refactor).
+  
 # ⚠️ Note: this software is still in alpha stage. Use at your own risk; expect breaking changes without prior notice.
 There is no executable build yet. Still an Electron noob. See "Local development / run from source" below.
 
