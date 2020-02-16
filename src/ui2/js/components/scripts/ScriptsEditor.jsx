@@ -63,7 +63,7 @@ export default function ScriptsEditor() {
     }
   }, [dispatch, activeScript, lastEditor]);
   const saveAndRunHandler = useCallback(() => {
-    if (lastEditor && lastEditor.type === 'script' && activeScript && activeScript.changed) {
+    if (lastEditor && lastEditor.type === 'script' && activeScript) {
       dispatch(saveEditedScriptAction(activeScript.id));
       dispatch(runScriptAction(activeScript.id));
     }
