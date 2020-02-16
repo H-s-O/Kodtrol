@@ -6,7 +6,7 @@ import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
 import SelectInput from '../ui/inputs/SelectInput';
 import TagsInput from '../ui/inputs/TagsInput';
-import DmxChannelsInput from '../ui/inputs/DmxChannelsInput';
+import DmxChannelsInput from './DmxChannelsInput';
 import CustomDivider from '../ui/CustomDivider';
 import NumberInput from '../ui/inputs/NumberInput';
 import { IO_DMX, IO_ILDA, IO_LABELS, IO_ARTNET } from '../../../../common/js/constants/io';

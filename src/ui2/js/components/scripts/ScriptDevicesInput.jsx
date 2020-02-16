@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
-import { Button, Intent, HTMLTable, ButtonGroup } from '@blueprintjs/core';
-
-import TextInput from './TextInput';
-import NumberInput from './NumberInput';
 import styled from 'styled-components';
-import CheckboxInput from './CheckboxInput';
+import { Button, ButtonGroup, HTMLTable, Intent, MenuItem } from '@blueprintjs/core';
+
+import SelectInput from '../ui/inputs/SelectInput';
+
+// import SelectSearchInput from '../ui/inputs/SelectSearchInput';
 
 const StyledTable = styled(HTMLTable)`
   tbody {
@@ -28,53 +28,47 @@ const StyledTable = styled(HTMLTable)`
   }
 `
 
-const ChannelRow = ({
+// const deviceMenuRenderer = (item, { handleClick, modifiers, query }) => {
+//   return (
+//     <MenuItem
+//       text="asdasd"
+//     />
+//   )
+// };
+
+const DeviceRow = ({
   id,
-  channelNumber,
-  alias,
-  defaultValue,
-  testValue,
-  onDelete,
+  index,
+  deviceNumber,
   onChange,
+  disableUp,
+  disableDown,
   onMoveUp,
   onMoveDown,
-  disableUp = false,
-  disableDown = false
+  onDelete,
+  devices,
 }) => {
   return (
     <tr>
       <td>
-        <CheckboxInput
-          inline
+        {deviceNumber}
+      </td>
+      <td>
+        <SelectInput
+          value={id}
+          onChange={(value) => onChange(index, value, 'id')}
         >
-          {channelNumber}
-        </CheckboxInput>
-      </td>
-      <td>
-        <TextInput
-          value={alias}
-          onChange={(value) => onChange(id, value, 'alias')}
-        />
-      </td>
-      <td>
-        <NumberInput
-          fill
-          min={0}
-          max={255}
-          placeholder="0"
-          value={defaultValue}
-          onChange={(value) => onChange(id, value, 'defaultValue')}
-        />
-      </td>
-      <td>
-        <NumberInput
-          fill
-          min={0}
-          max={255}
-          placeholder="0"
-          value={testValue}
-          onChange={(value) => onChange(id, value, 'testValue')}
-        />
+          <option value="null">--</option>
+          {devices.map((device, index) => {
+            return (
+              <option
+                key={index}
+                value={device.id}>
+                {device.name}
+              </option>
+            )
+          })}
+        </SelectInput>
       </td>
       <td>
         <ButtonGroup>
@@ -82,44 +76,44 @@ const ChannelRow = ({
             small
             icon="arrow-up"
             disabled={disableUp}
-            onClick={() => onMoveUp(id)}
+            onClick={() => onMoveUp(index)}
           />
           <Button
             small
             icon="arrow-down"
             disabled={disableDown}
-            onClick={() => onMoveDown(id)}
+            onClick={() => onMoveDown(index)}
           />
           <Button
             small
             intent={Intent.DANGER}
             icon="trash"
-            onClick={() => onDelete(id)}
+            onClick={() => onDelete(index)}
           />
         </ButtonGroup>
       </td>
     </tr>
-  );
-}
+  )
+};
 
-export default function DmxChannelsInput({ value, name, onChange }) {
+export default function ScriptDevicesInput({ value, name, onChange, devices }) {
   const displayValue = !value ? [] : value;
 
   const addHandler = useCallback(() => {
     if (typeof onChange === 'function') {
-      onChange([...displayValue, { alias: null, defaultValue: null, testValue: null }], name);
+      onChange([...displayValue, { id: null }], name);
     }
   }, [onChange, name, displayValue]);
   const deleteHandler = useCallback((id) => {
     if (typeof onChange === 'function') {
-      onChange(displayValue.filter((channel, index) => index !== id), name);
+      onChange(displayValue.filter((device, index) => index !== id), name);
     }
   }, [onChange, name, displayValue]);
   const changeHandler = useCallback((id, fieldValue, fieldName) => {
     if (typeof onChange === 'function') {
-      onChange(displayValue.map((channel, index) => index === id ? { ...channel, [fieldName]: fieldValue } : channel), name);
+      onChange(displayValue.map((device, index) => index === id ? { ...device, [fieldName]: fieldValue } : device), name);
     }
-  }, [onChange, name, displayValue])
+  }, [onChange, name, displayValue]);
   const moveUpHandler = useCallback((id) => {
     if (typeof onChange === 'function') {
       const newValue = [...displayValue];
@@ -139,50 +133,43 @@ export default function DmxChannelsInput({ value, name, onChange }) {
 
   return (
     <StyledTable
-      bordered
       condensed
+      bordered
     >
       {displayValue.length > 0 && (
         <>
           <thead>
             <tr>
-              <td>
-                <CheckboxInput
-                  inline
-                />
-              </td>
-              <td>Name</td>
-              <td>Default value</td>
-              <td>Test value</td>
-              <td></td>
+              <td>#</td>
+              <td>Device</td>
+              <td>Actions</td>
             </tr>
           </thead>
           <tbody>
-            {displayValue.map((channel, index) => {
+            {displayValue.map((device, index) => {
               return (
-                <ChannelRow
+                <DeviceRow
                   key={index}
-                  id={index}
-                  channelNumber={index + 1}
+                  index={index}
+                  deviceNumber={index + 1}
+                  devices={devices}
                   disableUp={index === 0}
                   disableDown={index === displayValue.length - 1}
                   onDelete={deleteHandler}
                   onChange={changeHandler}
                   onMoveUp={moveUpHandler}
                   onMoveDown={moveDownHandler}
-                  {...channel}
+                  {...device}
                 />
               );
             })}
-            <tr>
-            </tr>
           </tbody>
         </>
       )}
       <tfoot>
         <tr>
           <td
-            colSpan="5"
+            colSpan="3"
           >
             <Button
               small

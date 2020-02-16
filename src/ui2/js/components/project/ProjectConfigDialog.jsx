@@ -292,7 +292,7 @@ const ItemsPanel = ({
   itemComponent: ItemComponent,
   listSecondaryLabelComponent: ListSecondaryLabelComponent,
 }) => {
-  const [currentItemId, setCurrentItemId] = useState(null);
+  const [currentItemId, setCurrentItemId] = useState(value && value.length > 0 ? value[0].id : null);
 
   const nodeClickHandler = useCallback(({ id }) => {
     setCurrentItemId(id);
