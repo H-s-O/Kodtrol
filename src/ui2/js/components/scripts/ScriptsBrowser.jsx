@@ -32,6 +32,9 @@ const ScriptSecondaryLabel = ({ id, activeItemId }) => {
     e.stopPropagation();
     dispatch(stopScriptAction());
   }, [dispatch]);
+  const doubleClickHandler = useCallback((e) => {
+    e.stopPropagation();
+  });
 
   if (id === activeItemId) {
     return (
@@ -42,6 +45,7 @@ const ScriptSecondaryLabel = ({ id, activeItemId }) => {
         intent={Intent.DANGER}
         title="Stop running script"
         onClick={stopHandler}
+        onDoubleClick={doubleClickHandler}
       />
     )
   }
@@ -53,6 +57,7 @@ const ScriptSecondaryLabel = ({ id, activeItemId }) => {
       icon="eye-open"
       title="Run script"
       onClick={runHandler}
+      onDoubleClick={doubleClickHandler}
     />
   )
 }

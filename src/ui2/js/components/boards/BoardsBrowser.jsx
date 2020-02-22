@@ -32,6 +32,9 @@ const BoardSecondaryLabel = ({ id, activeItemId }) => {
     e.stopPropagation();
     dispatch(stopBoardAction());
   }, [dispatch]);
+  const doubleClickHandler = useCallback((e) => {
+    e.stopPropagation();
+  });
 
   if (id === activeItemId) {
     return (
@@ -42,6 +45,7 @@ const BoardSecondaryLabel = ({ id, activeItemId }) => {
         intent={Intent.DANGER}
         title="Stop running timeline"
         onClick={stopHandler}
+        onDoubleClick={doubleClickHandler}
       />
     )
   }
@@ -53,6 +57,7 @@ const BoardSecondaryLabel = ({ id, activeItemId }) => {
       icon="eye-open"
       title="Run timeline"
       onClick={runHandler}
+      onDoubleClick={doubleClickHandler}
     />
   )
 }

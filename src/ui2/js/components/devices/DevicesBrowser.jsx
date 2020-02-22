@@ -33,6 +33,9 @@ const DeviceSecondaryLabel = ({ id, tags, activeItemId }) => {
     e.stopPropagation();
     dispatch(stopDeviceAction());
   }, [dispatch]);
+  const doubleClickHandler = useCallback((e) => {
+    e.stopPropagation();
+  });
 
   return (
     <>
@@ -54,6 +57,7 @@ const DeviceSecondaryLabel = ({ id, tags, activeItemId }) => {
           minimal
           icon="eye-open"
           onClick={runHandler}
+          onDoubleClick={doubleClickHandler}
         />
       ) : (
           <Button
@@ -62,6 +66,7 @@ const DeviceSecondaryLabel = ({ id, tags, activeItemId }) => {
             icon="eye-off"
             intent={Intent.DANGER}
             onClick={stopHandler}
+            onDoubleClick={doubleClickHandler}
           />
         )}
     </>
