@@ -37,12 +37,12 @@ export const focusEditedScriptAction = (id) => {
 }
 
 export const UPDATE_EDITED_SCRIPT = 'updated_edited_script';
-export const updateEditedScriptAction = (id, content) => {
+export const updateEditedScriptAction = (id, data) => {
   return {
     type: UPDATE_EDITED_SCRIPT,
     payload: {
       id,
-      content,
+      data,
     },
   };
 }

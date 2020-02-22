@@ -13,7 +13,7 @@ export default (state = defaultState, { type, payload }) => {
       break;
 
     case UPDATE_EDITED_TIMELINE:
-      return state.map((timeline) => timeline.id === payload.id ? { ...timeline, ...payload, changed: true } : timeline)
+      return state.map((timeline) => timeline.id === payload.id ? { ...timeline, ...payload.data, changed: true } : timeline)
       break;
 
     case SAVE_EDITED_TIMELINE:

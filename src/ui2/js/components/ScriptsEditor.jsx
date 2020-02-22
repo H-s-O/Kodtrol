@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import useHotkeys from '@reecelucas/react-use-hotkeys';
 
 import FullHeightCard from './ui/FullHeightCard';
-import ScriptEditor from './scripts/ScriptEditor';
+import ScriptEditorTab from './scripts/ScriptEditorTab';
 import FullHeightTabs from './ui/FullHeightTabs';
 import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction, runScriptAction } from '../../../common/js/store/actions/scripts';
 import { ICON_SCRIPT } from '../../../common/js/constants/icons';
@@ -90,7 +90,7 @@ export default function ScriptsEditor() {
               key={id}
               id={id}
               panel={(
-                <ScriptEditor
+                <ScriptEditorTab
                   id={id}
                 />
               )}

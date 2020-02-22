@@ -7,3 +7,4 @@ export const ICON_INPUT = 'log-in';
 export const ICON_OUTPUT = 'log-out';
 export const ICON_CURVE = 'flows';
 export const ICON_TRIGGER = 'symbol-diamond';
+export const ICON_LAYER = 'layer';

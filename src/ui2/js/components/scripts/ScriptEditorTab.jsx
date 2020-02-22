@@ -9,8 +9,8 @@ export default function ScriptEditor({ id }) {
   const { content } = editScripts.find((script) => script.id === id);
 
   const dispatch = useDispatch();
-  const changeHandler = useCallback((newValue) => {
-    dispatch(updateEditedScriptAction(id, newValue));
+  const changeHandler = useCallback((content) => {
+    dispatch(updateEditedScriptAction(id, { content }));
   }, [dispatch, id]);
 
   return (

@@ -13,7 +13,7 @@ export default (state = defaultState, { type, payload }) => {
       break;
 
     case UPDATE_EDITED_SCRIPT:
-      return state.map((script) => script.id === payload.id ? { ...script, ...payload, changed: true } : script)
+      return state.map((script) => script.id === payload.id ? { ...script, ...payload.data, changed: true } : script)
       break;
 
     case SAVE_EDITED_SCRIPT:

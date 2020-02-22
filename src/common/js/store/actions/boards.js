@@ -39,12 +39,12 @@ export const focusEditedBoardAction = (id) => {
 }
 
 export const UPDATE_EDITED_BOARD = 'updated_edited_board';
-export const updateEditedBoardAction = (id, content) => {
+export const updateEditedBoardAction = (id, data) => {
   return {
     type: UPDATE_EDITED_BOARD,
     payload: {
       id,
-      content,
+      data,
     },
   };
 }

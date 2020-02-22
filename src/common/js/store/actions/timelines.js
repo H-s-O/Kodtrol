@@ -41,12 +41,12 @@ export const focusEditedTimelineAction = (id) => {
 }
 
 export const UPDATE_EDITED_TIMELINE = 'updated_edited_timeline';
-export const updateEditedTimelineAction = (id, content) => {
+export const updateEditedTimelineAction = (id, data) => {
   return {
     type: UPDATE_EDITED_TIMELINE,
     payload: {
       id,
-      content,
+      data,
     },
   };
 }

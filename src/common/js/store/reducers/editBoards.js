@@ -13,7 +13,7 @@ export default (state = defaultState, { type, payload }) => {
       break;
 
     case UPDATE_EDITED_BOARD:
-      return state.map((board) => board.id === payload.id ? { ...board, ...payload, changed: true } : board)
+      return state.map((board) => board.id === payload.id ? { ...board, ...payload.data, changed: true } : board)
       break;
 
     case SAVE_EDITED_BOARD:

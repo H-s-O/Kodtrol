@@ -1,0 +1,134 @@
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { Intent } from '@blueprintjs/core';
+
+import InlineFormGroup from '../../ui/InlineFormGroup';
+import TextInput from '../../ui/inputs/TextInput';
+import SelectInput from '../../ui/inputs/SelectInput';
+import DurationInput from '../../ui/inputs/DurationInput';
+import NumberInput from '../../ui/inputs/NumberInput';
+import ColorInput from '../../ui/inputs/ColorInput';
+
+export default function TimelineScriptDialogBody({ value = {}, onChange, layers = [] }) {
+  const {
+    script = null,
+    name = null,
+    inTime = null,
+    outTime = null,
+    leadInTime = null,
+    leadOutTime = null,
+    color = null,
+  } = value;
+
+  const projectScripts = useSelector((state) => state.scripts);
+  const availableScripts = useMemo(() => {
+    return projectScripts.map(({ id, name }) => ({ id, name }));
+  }, [projectScripts]);
+
+  return (
+    <>
+      <InlineFormGroup
+        label="Script"
+        helperText={!script ? 'A script is mandatory.' : undefined}
+        intent={!name ? Intent.DANGER : undefined}
+      >
+        <SelectInput
+          name="script"
+          onChange={onChange}
+        >
+          <option value="null">--</option>
+          {availableScripts.map((item, index) => {
+            return (
+              <option
+                key={index}
+                value={item.id}>
+                {item.name}
+              </option>
+            )
+          })}
+        </SelectInput>
+      </InlineFormGroup>
+      <InlineFormGroup
+        label="Layer"
+        helperText={!script ? 'A layer is mandatory.' : undefined}
+        intent={!name ? Intent.DANGER : undefined}
+      >
+        <SelectInput
+          name="layer"
+          onChange={onChange}
+        >
+          <option value="null">--</option>
+          {layers.map((item, index) => {
+            return (
+              <option
+                key={index}
+                value={item.id}>
+                {item.name}
+              </option>
+            )
+          })}
+        </SelectInput>
+      </InlineFormGroup>
+      <InlineFormGroup
+        label="Name"
+        helperText="If not set, Kodtrol will use the associated script's name."
+      >
+        <TextInput
+          name="name"
+          value={name}
+          onChange={onChange}
+        />
+      </InlineFormGroup>
+      <InlineFormGroup
+        label="In time"
+        helperText={inTime === null ? 'An in time is mandatory.' : undefined}
+        intent={inTime === null ? Intent.DANGER : undefined}
+      >
+        <DurationInput
+          name="inTime"
+          value={inTime}
+        />
+      </InlineFormGroup>
+      <InlineFormGroup
+        label="Lead-in time"
+        helperText={<>Duration in milliseconds for which <code>leadInFrame()</code> will run before <b>In time</b>.</>}
+      >
+        <NumberInput
+          name="leadInTime"
+          value={leadInTime}
+          placeholder="500"
+          min={0}
+        />
+      </InlineFormGroup>
+      <InlineFormGroup
+        label="Out time"
+        helperText={outTime === null ? 'A out time is mandatory.' : undefined}
+        intent={inTime === null ? Intent.DANGER : undefined}
+      >
+        <DurationInput
+          name="outTime"
+          value={outTime}
+        />
+      </InlineFormGroup>
+      <InlineFormGroup
+        label="Lead-out time"
+        helperText={<>Duration in milliseconds for which <code>leadOutFrame()</code> will run after <b>Out time</b>.</>}
+      >
+        <NumberInput
+          name="leadOutTime"
+          value={leadOutTime}
+          placeholder="500"
+          min={0}
+        />
+      </InlineFormGroup>
+      <InlineFormGroup
+        label="Color"
+      >
+        <ColorInput
+          name="color"
+          value={color}
+        />
+      </InlineFormGroup>
+    </>
+  );
+}
