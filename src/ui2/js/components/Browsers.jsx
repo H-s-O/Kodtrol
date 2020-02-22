@@ -69,9 +69,9 @@ export default function Browsers() {
       >
         <Tab
           id="devices"
-          panel={devices ? <DeviceBrowser /> : <NonIdealState icon={ICON_DEVICE} description={
+          panel={devices ? <DeviceBrowser /> : <NonIdealState icon={ICON_DEVICE} title="Devices Browser" description={
             <>
-              No devices yet. Click <Icon icon="plus" /> to add one.
+              No devices yet. Click the <Icon icon="plus" /> above to create one.
             </>
           } />
           }
@@ -84,9 +84,9 @@ export default function Browsers() {
         </Tab>
         <Tab
           id="scripts"
-          panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} description={
+          panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} title="Scripts Browser" description={
             <>
-              No scripts yet. Click <Icon icon="plus" /> to add one.
+              No scripts yet. Click the <Icon icon="plus" /> above to create one.
               </>
           } />
           }
@@ -99,9 +99,9 @@ export default function Browsers() {
         </Tab>
         <Tab
           id="medias"
-          panel={medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} description={
+          panel={medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} title="Media Browser" description={
             <>
-              No medias yet. Click <Icon icon="plus" /> to add one.
+              No medias yet. Click the <Icon icon="plus" /> above to create one.
               </>
           } />
           }
@@ -114,9 +114,9 @@ export default function Browsers() {
         </Tab>
         <Tab
           id="timelines"
-          panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} description={
+          panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} title="Timelines Browser" description={
             <>
-              No timelines yet. Click <Icon icon="plus" /> to add one.
+              No timelines yet. Click the <Icon icon="plus" /> above to create one.
               </>
           } />
           }
@@ -129,9 +129,9 @@ export default function Browsers() {
         </Tab>
         <Tab
           id="boards"
-          panel={boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} description={
+          panel={boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} title="Boards Browser" description={
             <>
-              No boards yet. Click <Icon icon="plus" /> to add one.
+              No boards yet. Click the <Icon icon="plus" /> above to create one.
               </>
           } />
           }

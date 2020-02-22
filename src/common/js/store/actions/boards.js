@@ -30,6 +30,14 @@ export const editBoardAction = (id, { layers, items, zoom, zoomVert }) => {
   };
 };
 
+export const FOCUS_EDITED_BOARD = 'focus_edited_board';
+export const focusEditedBoardAction = (id) => {
+  return {
+    type: FOCUS_EDITED_BOARD,
+    payload: id,
+  };
+}
+
 export const UPDATE_EDITED_BOARD = 'updated_edited_board';
 export const updateEditedBoardAction = (id, content) => {
   return {

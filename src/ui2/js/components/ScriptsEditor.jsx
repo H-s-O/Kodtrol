@@ -4,11 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import useHotkeys from '@reecelucas/react-use-hotkeys';
 
-import FullHeightCard from '../ui/FullHeightCard';
-import ScriptEditor from './ScriptEditor';
-import FullHeightTabs from '../ui/FullHeightTabs';
-import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction, runScriptAction } from '../../../../common/js/store/actions/scripts';
-import { ICON_SCRIPT } from '../../../../common/js/constants/icons';
+import FullHeightCard from './ui/FullHeightCard';
+import ScriptEditor from './scripts/ScriptEditor';
+import FullHeightTabs from './ui/FullHeightTabs';
+import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction, runScriptAction } from '../../../common/js/store/actions/scripts';
+import { ICON_SCRIPT } from '../../../common/js/constants/icons';
 
 const StyledIcon = styled(Icon)`
   margin-right: 3px;
@@ -112,6 +112,7 @@ export default function ScriptsEditor() {
       ) : (
           <NonIdealState
             icon={ICON_SCRIPT}
+            title="Script Editor"
             description="Double-click a script in the script browser to edit it here."
           />
         )

@@ -5,3 +5,5 @@ export const ICON_TIMELINE = 'film';
 export const ICON_BOARD = 'heat-grid';
 export const ICON_INPUT = 'log-in';
 export const ICON_OUTPUT = 'log-out';
+export const ICON_CURVE = 'flows';
+export const ICON_TRIGGER = 'symbol-diamond';

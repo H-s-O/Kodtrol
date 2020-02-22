@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
-import { editTimelineAction, runTimelineAction, stopTimelineAction, deleteTimelineAction } from '../../../../common/js/store/actions/timelines';
+import { editTimelineAction, runTimelineAction, stopTimelineAction, deleteTimelineAction, focusEditedTimelineAction } from '../../../../common/js/store/actions/timelines';
 import ItemBrowser from '../ui/ItemBrowser';
 import { showTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
@@ -61,12 +61,17 @@ export default function TimelinesBrowser() {
   const timelines = useSelector((state) => state.timelines);
   const timelinesFolders = useSelector((state) => state.timelinesFolders);
   const runTimeline = useSelector((state) => state.runTimeline);
+  const editTimelines = useSelector((state) => state.editTimelines);
 
   const dispatch = useDispatch();
   const editCallback = useCallback((id) => {
-    const timeline = timelines.find((timeline) => timeline.id === id);
-    dispatch(editTimelineAction(id, timeline));
-  }, [dispatch, timelines])
+    if (editTimelines.find((timeline) => timeline.id === id)) {
+      dispatch(focusEditedTimelineAction(id));
+    } else {
+      const timeline = timelines.find((timeline) => timeline.id === id);
+      dispatch(editTimelineAction(id, timeline));
+    }
+  }, [dispatch, timelines, editTimelines]);
   const editPropsCallback = useCallback((id) => {
     const timeline = timelines.find((timeline) => timeline.id === id);
     dispatch(showTimelineDialogAction(DIALOG_EDIT, timeline));

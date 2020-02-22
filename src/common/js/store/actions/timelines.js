@@ -32,6 +32,14 @@ export const editTimelineAction = (id, {layers, items, zoom, zoomVert}) => {
   };
 };
 
+export const FOCUS_EDITED_TIMELINE = 'focus_edited_timeline';
+export const focusEditedTimelineAction = (id) => {
+  return {
+    type: FOCUS_EDITED_TIMELINE,
+    payload: id,
+  };
+}
+
 export const UPDATE_EDITED_TIMELINE = 'updated_edited_timeline';
 export const updateEditedTimelineAction = (id, content) => {
   return {

@@ -3,14 +3,14 @@ import styled from 'styled-components';
 
 import MainNav from './components/MainNav';
 import Browsers from './components/Browsers';
-import ScriptsEditor from './components/scripts/ScriptsEditor';
-import TimelineEditor from './components/timelines/TimelineEditor';
 import DialogsContainer from './components/DialogsContainer';
+import ScriptsEditor from './components/ScriptsEditor';
+import TimelinesBoardsEditor from './components/TimelinesBoardsEditor';
 
 const StyledContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100% - 10px);
 `
 
 const StyledTopRow = styled.div`
@@ -20,6 +20,7 @@ const StyledBottomRow = styled.div`
   display: flex;
   flex: 1;
   margin-top: 5px;
+  height: 100%
 `
 
 const StyledLeftCol = styled.div`
@@ -58,7 +59,7 @@ export default function Main(props) {
               <ScriptsEditor />
             </StyledScriptsRow>
             <StyledTimelinesDashboardsRow>
-              <TimelineEditor />
+              <TimelinesBoardsEditor />
             </StyledTimelinesDashboardsRow>
           </StyledRightCol>
         </StyledBottomRow>

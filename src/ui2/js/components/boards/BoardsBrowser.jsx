@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
-import { runBoardAction, stopBoardAction, editBoardAction, deleteBoardAction } from '../../../../common/js/store/actions/boards';
+import { runBoardAction, stopBoardAction, editBoardAction, deleteBoardAction, focusEditedBoardAction } from '../../../../common/js/store/actions/boards';
 import ItemBrowser from '../ui/ItemBrowser';
 import { showBoardDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
@@ -61,12 +61,17 @@ export default function BoardsBrowser() {
   const boards = useSelector((state) => state.boards);
   const boardsFolders = useSelector((state) => state.boardsFolders);
   const runBoard = useSelector((state) => state.runBoard);
+  const editBoards = useSelector((state) => state.editBoards);
 
   const dispatch = useDispatch();
   const editCallback = useCallback((id) => {
-    const board = boards.find((board) => board.id === id);
-    dispatch(editBoardAction(id, board));
-  }, [dispatch, boards])
+    if (editBoards.find((board) => board.id === id)) {
+      dispatch(focusEditedBoardAction(id));
+    } else {
+      const board = boards.find((board) => board.id === id);
+      dispatch(editBoardAction(id, board));
+    }
+  }, [dispatch, boards, editBoards]);
   const editPropsCallback = useCallback((id) => {
     const board = boards.find((board) => board.id === id);
     dispatch(showBoardDialogAction(DIALOG_EDIT, board));

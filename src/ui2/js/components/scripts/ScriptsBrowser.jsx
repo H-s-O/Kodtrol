@@ -71,7 +71,7 @@ export default function ScriptsBrowser() {
       const script = scripts.find((script) => script.id === id);
       dispatch(editScriptAction(id, script));
     }
-  }, [dispatch, scripts, editScripts])
+  }, [dispatch, scripts, editScripts]);
   const editPropsCallback = useCallback((id) => {
     const script = scripts.find((script) => script.id === id);
     dispatch(showScriptDialogAction(DIALOG_EDIT, script));
