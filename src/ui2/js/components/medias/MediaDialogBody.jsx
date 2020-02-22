@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import { Intent, Spinner } from '@blueprintjs/core';
 import { useSelector } from 'react-redux';
 
@@ -24,33 +24,36 @@ export default function MediaDialogBody({ value, onChange }) {
     return outputs.filter(({ type }) => type === IO_AUDIO)
   }, [outputs]);
 
+  const [fileChanged, setFileChanged] = useState(false);
+
   const fileChangeHandler = useCallback((value) => {
     onChange({
       file: value,
       duration: null,
       codec: null,
     });
+    setFileChanged(true);
   }, [onChange]);
 
-  // useEffect(() => {
-  //   console.log(file, duration, codec);
-  //   if (file) {
-  //     mediaInfo(file, (err, info) => {
-  //       if (err) {
-  //         console.error(err);
-  //       } else {
-  //         const { streams } = info;
-  //         const [firstStream] = streams;
-  //         console.log('firstStream', firstStream);
-  //         const { duration_ts, codec_long_name } = firstStream;
-  //         // onChange({
-  //         //   duration: duration_ts,
-  //         //   codec: codec_long_name,
-  //         // });
-  //       }
-  //     });
-  //   }
-  // }, [onChange, file]);
+  useEffect(() => {
+    if (file && fileChanged) {
+      mediaInfo(file)
+        .then((info) => {
+          const { streams } = info;
+          const [firstStream] = streams;
+          const { duration_ts, codec_long_name } = firstStream;
+          onChange({
+            duration: duration_ts,
+            codec: codec_long_name,
+          });
+          setFileChanged(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setFileChanged(false);
+        });
+    }
+  }, [onChange, file]);
 
   return (
     <>
