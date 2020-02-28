@@ -53,7 +53,7 @@ export default function ScriptsEditor() {
     return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
   }, [scripts]);
   const activeScript = useMemo(() => {
-    return editScripts.find((script) => script.active);
+    return editScripts.find(({ active }) => active);
   }, [editScripts]);
 
   const dispatch = useDispatch();
@@ -82,6 +82,7 @@ export default function ScriptsEditor() {
     <FullHeightCard>
       {editScripts && editScripts.length ? (
         <FullHeightTabs
+          id="scripts_editor"
           selectedTabId={activeScript ? activeScript.id : undefined}
           onChange={tabChangeHandler}
         >

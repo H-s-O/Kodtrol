@@ -16,7 +16,7 @@ export const updateBoardsAction = (boards) => {
 };
 
 export const EDIT_BOARD = 'edit_board';
-export const editBoardAction = (id, { layers, items, zoom, zoomVert }) => {
+export const editBoardAction = (id, { layers, items, zoom, zoomVert, tempo }) => {
   return {
     type: EDIT_BOARD,
     payload: {
@@ -25,6 +25,7 @@ export const editBoardAction = (id, { layers, items, zoom, zoomVert }) => {
       items,
       zoom,
       zoomVert,
+      tempo,
       changed: false,
     },
   };

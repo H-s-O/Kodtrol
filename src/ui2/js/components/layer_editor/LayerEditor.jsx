@@ -10,6 +10,7 @@ import { canMoveLayerUp, canMoveLayerDown, doMoveLayer, doAddLayer } from './lay
 const { Menu } = remote;
 
 const StyledContainer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column-reverse;
 
@@ -18,7 +19,7 @@ const StyledContainer = styled.div`
   background: ${Colors.DARK_GRAY1};
 `;
 
-export default function LayerEditor({ layers = [], onChange, onDelete, renderLayerContextMenu }) {
+export default function LayerEditor({ layers = [], onChange, onDelete, renderLayerContextMenu, renderLayerChildren }) {
   const orderedLayers = useMemo(() => {
     return layers.sort(orderSort);
   }, [layers]);
@@ -86,7 +87,9 @@ export default function LayerEditor({ layers = [], onChange, onDelete, renderLay
           key={layer.id}
           layer={layer}
           onContextMenu={layerContextMenuHandler}
-        />
+        >
+          {renderLayerChildren && renderLayerChildren(layer.id)}
+        </Layer>
       ))}
     </StyledContainer>
   );

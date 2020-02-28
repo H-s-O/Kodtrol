@@ -18,7 +18,7 @@ export const updateTimelinesAction = (timelines) => {
 };
 
 export const EDIT_TIMELINE = 'edit_timeline';
-export const editTimelineAction = (id, {layers, items, zoom, zoomVert}) => {
+export const editTimelineAction = (id, { layers, items, zoom, zoomVert, tempo, duration }) => {
   return {
     type: EDIT_TIMELINE,
     payload: {
@@ -27,6 +27,8 @@ export const editTimelineAction = (id, {layers, items, zoom, zoomVert}) => {
       items,
       zoom,
       zoomVert,
+      tempo,
+      duration,
       changed: false,
     },
   };

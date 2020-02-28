@@ -7,9 +7,9 @@ import FullHeightCard from './ui/FullHeightCard';
 import FullHeightTabs from './ui/FullHeightTabs';
 import { ICON_TIMELINE, ICON_BOARD } from '../../../common/js/constants/icons';
 import TimelineEditorTab from './timelines/TimelineEditorTab';
-import { closeTimelineAction } from '../../../common/js/store/actions/timelines';
+import { closeTimelineAction, focusEditedTimelineAction } from '../../../common/js/store/actions/timelines';
 import BoardEditorTab from './boards/BoardEditorTab';
-import { closeBoardAction } from '../../../common/js/store/actions/boards';
+import { closeBoardAction, focusEditedBoardAction } from '../../../common/js/store/actions/boards';
 
 const StyledDivider = styled.div`
   width: 1px;
@@ -67,6 +67,12 @@ export default function TimelinesBoardsEditor() {
   const boardsNames = useMemo(() => {
     return boards.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
   }, [boards]);
+  const activeTimeline = useMemo(() => {
+    return editTimelines.find(({ active }) => active);
+  }, [editTimelines]);
+  const activeBoard = useMemo(() => {
+    return editBoards.find(({ active }) => active);
+  }, [editBoards]);
 
   const dispatch = useDispatch();
   const closeTimelineHandler = useCallback((id) => {
@@ -75,12 +81,21 @@ export default function TimelinesBoardsEditor() {
   const closeBoardHandler = useCallback((id) => {
     dispatch(closeBoardAction(id));
   }, [dispatch]);
+  const tabChangeHandler = useCallback((id) => {
+    if (editTimelines.find((timeline) => timeline.id === id)) {
+      dispatch(focusEditedTimelineAction(id));
+    } else if (editBoards.find((board) => board.id === id)) {
+      dispatch(focusEditedBoardAction(id));
+    }
+  }, [dispatch, editTimelines, editBoards]);
 
   return (
     <FullHeightCard>
       {((editTimelines && editTimelines.length > 0) || (editBoards && editBoards.length > 0)) ? (
         <FullHeightTabs
-          id="timelines_boards"
+          id="timelines_boards_editor"
+          selectedTabId={activeTimeline ? activeTimeline.id : activeBoard ? activeBoard.id : undefined}
+          onChange={tabChangeHandler}
         >
           {(editTimelines && editTimelines.length > 0) && editTimelines.map(({ id, changed }) => (
             <Tab

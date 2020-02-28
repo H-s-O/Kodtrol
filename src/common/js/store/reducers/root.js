@@ -26,6 +26,7 @@ import ioStatus from './ioStatus';
 import dialogs from './dialogs';
 import lastEditor from './lastEditor';
 import saveEditedScript from './saveEditedScript';
+import setActiveEditor from './setActiveEditor';
 import trackLastEditor from './trackLastEditor';
 
 const standardReducers = combineReducers({
@@ -60,6 +61,7 @@ export default (previousState, action) => {
   let newState;
   newState = standardReducers(previousState, action);
   newState = saveEditedScript(newState, action);
+  newState = setActiveEditor(newState, action);
   newState = trackLastEditor(newState, action);
   return newState;
 };

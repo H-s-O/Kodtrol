@@ -23,7 +23,6 @@ export const editScriptAction = (id, { content }) => {
       id,
       content,
       changed: false,
-      active: true,
     },
   };
 };

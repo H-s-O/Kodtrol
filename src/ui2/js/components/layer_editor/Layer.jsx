@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Colors } from '@blueprintjs/core';
 
 const StyledContainer = styled.div`
+  position: relative;
   width: 100%;
   background: ${Colors.DARK_GRAY2};
   flex-grow: 1;
@@ -16,7 +17,7 @@ const StyledContainer = styled.div`
   }
 `;
 
-export default function Layer({ layer, onContextMenu, ...otherProps }) {
+export default function Layer({ layer, onContextMenu, children, ...otherProps }) {
   const { id, order } = layer;
   const contextMenuHandler = useCallback((e) => {
     if (onContextMenu) {
@@ -29,7 +30,7 @@ export default function Layer({ layer, onContextMenu, ...otherProps }) {
       onContextMenu={contextMenuHandler}
       {...otherProps}
     >
-      {id} {order}
+      {children}
     </StyledContainer>
   );
 }
