@@ -24,27 +24,19 @@ export default (state, { type, payload }) => {
     case FOCUS_EDITED_TIMELINE:
     case UPDATE_EDITED_TIMELINE:
     case CLOSE_TIMELINE:
-      {
-        const editedTimeline = state.editTimelines.find(({ active }) => active);
-        return {
-          ...state,
-          lastEditor: editedTimeline ? {
-            type: 'timeline',
-            id: editedTimeline.id,
-          } : null,
-        };
-      }
-      break;
-
     case EDIT_BOARD:
     case FOCUS_EDITED_BOARD:
     case UPDATE_EDITED_BOARD:
     case CLOSE_BOARD:
       {
+        const editedTimeline = state.editTimelines.find(({ active }) => active);
         const editedBoard = state.editBoards.find(({ active }) => active);
         return {
           ...state,
-          lastEditor: editedBoard ? {
+          lastEditor: editedTimeline ? {
+            type: 'timeline',
+            id: editedTimeline.id,
+          } : editedBoard ? {
             type: 'board',
             id: editedBoard.id,
           } : null,

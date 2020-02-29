@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 import LayerEditor from '../../layer_editor/LayerEditor';
 import BoardItem from './BoardItem';
 import percentString from '../../../lib/percentString';
+import { doAddLayer, doDeleteLayer } from '../../layer_editor/layerOperations';
+import { deleteWarning } from '../../../lib/dialogHelpers';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -78,6 +80,23 @@ export default function BoardEditor({ board, onChange }) {
   }, [onChange, board]);
 
   // Layers
+  const addLayerAtTopClickHandler = useCallback(() => {
+    onChange({ layers: doAddLayer(layers, 'max') });
+  }, [onChange, board]);
+  const addLayerAtBottomClickHandler = useCallback(() => {
+    onChange({ layers: doAddLayer(layers, 'min') });
+  }, [onChange, board]);
+  const layersChangerHandler = useCallback((layers) => {
+    onChange({ layers });
+  }, [onChange, board]);
+  const layersDeleteHandler = useCallback((id) => {
+    const layer = layers.find((layer) => layer.id === id);
+    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`).then((result) => {
+      if (result) {
+        onChange({ layers: doDeleteLayer(layers, id) });
+      }
+    });
+  }, [onChange, board]);
   const layerChildrenRenderer = useCallback((id) => {
     return (
       <BoardLayer
@@ -158,6 +177,8 @@ export default function BoardEditor({ board, onChange }) {
           <LayerEditor
             layers={layers}
             renderLayerChildren={layerChildrenRenderer}
+            onChange={layersChangerHandler}
+            onDelete={layersDeleteHandler}
           />
         </div>
       </StyledBottomRow>
