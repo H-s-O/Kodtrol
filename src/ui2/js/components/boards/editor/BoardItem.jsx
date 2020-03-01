@@ -20,6 +20,7 @@ const BlockHeader = styled.div`
 const BlockContainer = styled.div`
   flex-grow: 1;
   border-radius: 4px;
+  color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
   background-color: ${({ color }) => color};
   border-color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
 
@@ -32,12 +33,13 @@ const BlockContainer = styled.div`
   }
 `;
 
-export default function BoardItem({ item, scriptsNames }) {
+export default function BoardItem({ item, scriptsNames, ...otherProps }) {
   const { id, name, color, script, media } = item;
 
   return (
     <BlockContainer
       color={color}
+      {...otherProps}
     >
       <BlockHeader>
         <BlockLabel>

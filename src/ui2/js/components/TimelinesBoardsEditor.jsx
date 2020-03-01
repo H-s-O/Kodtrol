@@ -2,14 +2,15 @@ import React, { useCallback, useMemo } from 'react';
 import { Tab, Icon, Button, Intent, NonIdealState, Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
+import useHotkeys from '@reecelucas/react-use-hotkeys';
 
 import FullHeightCard from './ui/FullHeightCard';
 import FullHeightTabs from './ui/FullHeightTabs';
 import { ICON_TIMELINE, ICON_BOARD } from '../../../common/js/constants/icons';
 import TimelineEditorTab from './timelines/TimelineEditorTab';
-import { closeTimelineAction, focusEditedTimelineAction } from '../../../common/js/store/actions/timelines';
 import BoardEditorTab from './boards/BoardEditorTab';
-import { closeBoardAction, focusEditedBoardAction } from '../../../common/js/store/actions/boards';
+import { closeTimelineAction, focusEditedTimelineAction, saveEditedTimelineAction, runTimelineAction } from '../../../common/js/store/actions/timelines';
+import { closeBoardAction, focusEditedBoardAction, saveEditedBoardAction, runBoardAction } from '../../../common/js/store/actions/boards';
 
 const StyledDivider = styled.div`
   width: 1px;
@@ -60,6 +61,7 @@ export default function TimelinesBoardsEditor() {
   const editBoards = useSelector((state) => state.editBoards);
   const timelines = useSelector((state) => state.timelines);
   const boards = useSelector((state) => state.boards);
+  const lastEditor = useSelector((state) => state.lastEditor);
 
   const timelinesNames = useMemo(() => {
     return timelines.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
@@ -78,6 +80,22 @@ export default function TimelinesBoardsEditor() {
   const closeTimelineHandler = useCallback((id) => {
     dispatch(closeTimelineAction(id));
   }, [dispatch]);
+  const saveHandler = useCallback(() => {
+    if (lastEditor && lastEditor.type === 'timeline' && activeTimeline && activeTimeline.changed) {
+      dispatch(saveEditedTimelineAction(activeTimeline.id));
+    } else if (lastEditor && lastEditor.type === 'board' && activeBoard && activeBoard.changed) {
+      dispatch(saveEditedBoardAction(activeBoard.id));
+    }
+  }, [dispatch, activeTimeline, activeBoard, lastEditor]);
+  const saveAndRunHandler = useCallback(() => {
+    if (lastEditor && lastEditor.type === 'timeline' && activeTimeline) {
+      dispatch(saveEditedTimelineAction(activeTimeline.id));
+      dispatch(runTimelineAction(activeTimeline.id));
+    } else if (lastEditor && lastEditor.type === 'board' && activeBoard) {
+      dispatch(saveEditedBoardAction(activeBoard.id));
+      dispatch(runBoardAction(activeBoard.id));
+    }
+  }, [dispatch, activeTimeline, activeBoard, lastEditor]);
   const closeBoardHandler = useCallback((id) => {
     dispatch(closeBoardAction(id));
   }, [dispatch]);
@@ -88,6 +106,9 @@ export default function TimelinesBoardsEditor() {
       dispatch(focusEditedBoardAction(id));
     }
   }, [dispatch, editTimelines, editBoards]);
+
+  useHotkeys('Meta+s', saveHandler);
+  useHotkeys('Meta+r', saveAndRunHandler);
 
   return (
     <FullHeightCard>

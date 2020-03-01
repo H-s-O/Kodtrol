@@ -12,7 +12,7 @@ import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
 import { DIALOG_ADD, DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
 import useDialog from '../../../lib/useDialog';
-import { ITEM_SCRIPT, ITEM_TRIGGER } from '../../../../../common/js/constants/timelines';
+import { ITEM_SCRIPT, ITEM_TRIGGER } from '../../../../../common/js/constants/items';
 import TimelineTriggerDialog from './TimelineTriggerDialog';
 import TimelineItem from './TimelineItem';
 

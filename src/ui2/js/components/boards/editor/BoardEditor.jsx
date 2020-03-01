@@ -2,12 +2,19 @@ import React, { useMemo, useCallback } from 'react';
 import { Button, ButtonGroup, Position, Popover, Menu, Icon } from '@blueprintjs/core';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { remote } from 'electron';
 
 import LayerEditor from '../../layer_editor/LayerEditor';
 import BoardItem from './BoardItem';
 import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../layer_editor/layerOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
+import { ICON_LAYER, ICON_SCRIPT } from '../../../../../common/js/constants/icons';
+import { DIALOG_ADD, DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
+import { ITEM_SCRIPT } from '../../../../../common/js/constants/items';
+import useDialog from '../../../lib/useDialog';
+import BoardScriptDialog from './BoardScriptDialog';
+import { getItem, doUpdateItem } from '../../timelines/editor/timelineOperations';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -34,7 +41,7 @@ const BoardLayerContainer = styled.div`
   height: 100%;
 `;
 
-const BoardLayer = ({ id, items = [], scriptsNames }) => {
+const BoardLayer = ({ id, items = [], scriptsNames, onItemContextMenu }) => {
   return (
     <BoardLayerContainer>
       {items.map((item) => (
@@ -42,6 +49,7 @@ const BoardLayer = ({ id, items = [], scriptsNames }) => {
           key={item.id}
           item={item}
           scriptsNames={scriptsNames}
+          onContextMenu={(e) => onItemContextMenu(e, item.id)}
         />
       ))}
     </BoardLayerContainer>
@@ -71,6 +79,8 @@ export default function BoardEditor({ board, onChange }) {
     }, {});
   }, [board]);
 
+  const scriptDialog = useDialog();
+
   // Zoom
   const zoomClickHandler = useCallback((value) => {
     onChange({ zoom: value });
@@ -78,6 +88,41 @@ export default function BoardEditor({ board, onChange }) {
   const zoomVertClickHandler = useCallback((value) => {
     onChange({ zoomVert: value });
   }, [onChange, board]);
+
+  // Scripts
+  const addScriptClickHandler = useCallback(() => {
+    scriptDialog.show();
+  }, [scriptDialog]);
+  const editScriptClickHandler = useCallback((id) => {
+    const script = getItem(items, id);
+    scriptDialog.show(DIALOG_EDIT, script);
+  }, [scriptDialog, board]);
+  const scriptDialogSuccessHandler = useCallback(() => {
+    if (scriptDialog.mode === DIALOG_EDIT) {
+      onChange({ items: doUpdateItem(items, scriptDialog.value) });
+    } else {
+      onChange({ items: doAddItem(items, { ...scriptDialog.value, id: uniqid(), type: ITEM_SCRIPT }) });
+    }
+    scriptDialog.hide();
+  }, [onChange, scriptDialog]);
+
+  // Item context menu
+  const itemContextMenuHandler = useCallback((e, id) => {
+    e.stopPropagation();
+
+    const item = getItem(items, id);
+
+    const template = [];
+    if (item.type === ITEM_SCRIPT) {
+      template.push({
+        label: 'Edit script block',
+        click: () => editScriptClickHandler(id),
+      });
+    }
+
+    const menu = remote.Menu.buildFromTemplate(template);
+    menu.popup();
+  }, [board, editScriptClickHandler]);
 
   // Layers
   const addLayerAtTopClickHandler = useCallback(() => {
@@ -103,85 +148,140 @@ export default function BoardEditor({ board, onChange }) {
         id={id}
         items={itemsByLayer[id]}
         scriptsNames={scriptsNames}
+        onItemContextMenu={itemContextMenuHandler}
       />
     );
-  }, [board, itemsByLayer, scriptsNames]);
+  }, [board, itemsByLayer, scriptsNames, itemContextMenuHandler]);
 
   return (
-    <StyledContainer>
-      <StyledTopRow>
-        <StyledButtonGroup>
-          <Popover
-            minimal
-            position={Position.BOTTOM}
-            content={(
-              <Menu>
-                {ZOOM_LEVELS.map((level) => (
-                  <Menu.Item
-                    key={level}
-                    active={zoom === level}
-                    text={percentString(level, true)}
-                    onClick={() => zoomClickHandler(level)}
-                  />
-                ))}
-              </Menu>
-            )}
-          >
-            <Button
-              small
-              icon="search"
-              rightIcon="caret-down"
+    <>
+      <StyledContainer>
+        <StyledTopRow>
+          <StyledButtonGroup>
+            <Popover
+              minimal
+              position={Position.BOTTOM}
+              content={(
+                <Menu>
+                  {(layers && layers.length > 0) ? (
+                    <>
+                      <Menu.Item
+                        icon={ICON_LAYER}
+                        text="Add layer at top"
+                        onClick={addLayerAtTopClickHandler}
+                      />
+                      <Menu.Item
+                        icon={ICON_LAYER}
+                        text="Add layer at bottom"
+                        onClick={addLayerAtBottomClickHandler}
+                      />
+                      <Menu.Divider />
+                      <Menu.Item
+                        icon={ICON_SCRIPT}
+                        text="Add Script block"
+                        onClick={addScriptClickHandler}
+                      />
+                    </>
+                  ) : (
+                      <Menu.Item
+                        icon={ICON_LAYER}
+                        text="Add Layer"
+                        onClick={addLayerAtBottomClickHandler}
+                      />
+                    )}
+                </Menu>
+              )}
             >
-              <Icon
-                icon="arrows-horizontal"
+              <Button
+                small
+                icon="plus"
+                rightIcon="caret-down"
               />
-            </Button>
-          </Popover>
-        </StyledButtonGroup>
-        <StyledButtonGroup>
-          <Popover
-            minimal
-            position={Position.BOTTOM}
-            content={(
-              <Menu>
-                {ZOOM_LEVELS.map((level) => (
-                  <Menu.Item
-                    key={level}
-                    active={zoomVert === level}
-                    text={percentString(level, true)}
-                    onClick={() => zoomVertClickHandler(level)}
-                  />
-                ))}
-              </Menu>
-            )}
-          >
-            <Button
-              small
-              icon="search"
-              rightIcon="caret-down"
+            </Popover>
+          </StyledButtonGroup>
+          <StyledButtonGroup>
+            <Popover
+              minimal
+              position={Position.BOTTOM}
+              content={(
+                <Menu>
+                  {ZOOM_LEVELS.map((level) => (
+                    <Menu.Item
+                      key={level}
+                      active={zoom === level}
+                      text={percentString(level, true)}
+                      onClick={() => zoomClickHandler(level)}
+                    />
+                  ))}
+                </Menu>
+              )}
             >
-              <Icon
-                icon="arrows-vertical"
-              />
-            </Button>
-          </Popover>
-        </StyledButtonGroup>
-      </StyledTopRow>
-      <StyledBottomRow>
-        <div
-          style={{
-            width: percentString(zoom),
-            height: percentString(zoomVert),
-          }}
-        >
-          <LayerEditor
-            layers={layers}
-            renderLayerChildren={layerChildrenRenderer}
-            onChange={layersChangerHandler}
-            onDelete={layersDeleteHandler}
-          />
-        </div>
-      </StyledBottomRow>
-    </StyledContainer>
+              <Button
+                small
+                icon="search"
+                rightIcon="caret-down"
+              >
+                <Icon
+                  icon="arrows-horizontal"
+                />
+              </Button>
+            </Popover>
+          </StyledButtonGroup>
+          <StyledButtonGroup>
+            <Popover
+              minimal
+              position={Position.BOTTOM}
+              content={(
+                <Menu>
+                  {ZOOM_LEVELS.map((level) => (
+                    <Menu.Item
+                      key={level}
+                      active={zoomVert === level}
+                      text={percentString(level, true)}
+                      onClick={() => zoomVertClickHandler(level)}
+                    />
+                  ))}
+                </Menu>
+              )}
+            >
+              <Button
+                small
+                icon="search"
+                rightIcon="caret-down"
+              >
+                <Icon
+                  icon="arrows-vertical"
+                />
+              </Button>
+            </Popover>
+          </StyledButtonGroup>
+        </StyledTopRow>
+        <StyledBottomRow>
+          <div
+            style={{
+              width: percentString(zoom),
+              height: percentString(zoomVert),
+            }}
+          >
+            <LayerEditor
+              layers={layers}
+              renderLayerChildren={layerChildrenRenderer}
+              onChange={layersChangerHandler}
+              onDelete={layersDeleteHandler}
+            />
+          </div>
+        </StyledBottomRow>
+      </StyledContainer>
+      <BoardScriptDialog
+        opened={scriptDialog.opened}
+        mode={scriptDialog.mode}
+        value={scriptDialog.value}
+        layers={availableLayers}
+        scripts={scriptsNames}
+        onChange={scriptDialog.change}
+        onSuccess={scriptDialogSuccessHandler}
+        onClose={scriptDialog.hide}
+      />
+    </>
   );
 }

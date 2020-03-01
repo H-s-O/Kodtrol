@@ -11,7 +11,7 @@ export const getDialogTitle = (mode, label) => {
       return `Duplicate ${label}`;
       break;
     case DIALOG_EDIT:
-      return `Save ${label}`;
+      return `Edit ${label}`;
       break;
     case DIALOG_ADD:
     default:

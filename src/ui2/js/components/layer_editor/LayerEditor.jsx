@@ -7,8 +7,6 @@ import orderSort from '../../../../common/js/lib/orderSort';
 import Layer from './Layer';
 import { canMoveLayerUp, canMoveLayerDown, doMoveLayer, doAddLayer } from './layerOperations';
 
-const { Menu } = remote;
-
 const StyledContainer = styled.div`
   position: relative;
   display: flex;
@@ -76,7 +74,7 @@ export default function LayerEditor({ layers = [], onChange, onDelete, renderLay
       template = renderLayerContextMenu(template, id, e);
     }
 
-    const menu = Menu.buildFromTemplate(template);
+    const menu = remote.Menu.buildFromTemplate(template);
     menu.popup();
   }, [onChange, layers]);
 

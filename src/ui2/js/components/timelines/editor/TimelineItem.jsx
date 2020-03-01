@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import percentString from '../../../lib/percentString';
-import { ITEM_TRIGGER } from '../../../../../common/js/constants/timelines';
+import { ITEM_TRIGGER } from '../../../../../common/js/constants/items';
 
 const BlockContainer = styled.div`
   position: absolute;
