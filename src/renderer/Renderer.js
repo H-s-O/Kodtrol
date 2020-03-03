@@ -110,12 +110,12 @@ export default class Renderer {
     } else if ('runBoard' in message) {
       const { runBoard } = message;
       this.runBoard(runBoard);
-    } else if ('timelineInfoUser' in message) {
-      const { timelineInfoUser } = message;
-      this.updateTimelineInfo(timelineInfoUser);
-    } else if ('boardInfoUser' in message) {
-      const { boardInfoUser } = message;
-      this.updateBoardInfo(boardInfoUser);
+    } else if ('updateTimelineInfo' in message) {
+      const { updateTimelineInfo } = message;
+      this.updateTimelineInfo(updateTimelineInfo);
+    } else if ('updateBoardInfo' in message) {
+      const { updateBoardInfo } = message;
+      this.updateBoardInfo(updateBoardInfo);
     }
   }
 

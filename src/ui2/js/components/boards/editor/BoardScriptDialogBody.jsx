@@ -7,7 +7,13 @@ import TextInput from '../../ui/inputs/TextInput';
 import SelectInput from '../../ui/inputs/SelectInput';
 import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
-import { ITEM_TRIGGER_MIDI_NOTE, ITEM_LABELS, ITEM_TRIGGER_MIDI_CC, ITEM_TYPE_TRIGGER_ONCE, ITEM_TYPE_TOGGLE } from '../../../../../common/js/constants/items';
+import {
+  ITEM_TRIGGER_MIDI_NOTE,
+  ITEM_LABELS,
+  ITEM_TRIGGER_MIDI_CC,
+  ITEM_BEHAVIOR_TRIGGER_ONCE,
+  ITEM_BEHAVIOR_TOGGLE,
+} from '../../../../../common/js/constants/items';
 
 export default function BoardScriptDialogBody({ value = {}, onChange, layers = [], scripts = [] }) {
   const {
@@ -100,8 +106,8 @@ export default function BoardScriptDialogBody({ value = {}, onChange, layers = [
           onChange={onChange}
         >
           <option value="null">--</option>
-          <option value={ITEM_TYPE_TRIGGER_ONCE}>{ITEM_LABELS[ITEM_TYPE_TRIGGER_ONCE]}</option>
-          <option value={ITEM_TYPE_TOGGLE}>{ITEM_LABELS[ITEM_TYPE_TOGGLE]}</option>
+          <option value={ITEM_BEHAVIOR_TRIGGER_ONCE}>{ITEM_LABELS[ITEM_BEHAVIOR_TRIGGER_ONCE]}</option>
+          <option value={ITEM_BEHAVIOR_TOGGLE}>{ITEM_LABELS[ITEM_BEHAVIOR_TOGGLE]}</option>
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup

@@ -18,6 +18,8 @@ import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
+import { ipcMainListen, ipcMainClear } from './lib/ipcMain';
+import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO } from '../common/js/constants/events';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -86,6 +88,7 @@ export default class Main {
 
     this.createRenderer();
     this.createMainWindow();
+    this.setupEventListeners();
   }
 
   createStore = (initialData = null) => {
@@ -296,6 +299,31 @@ export default class Main {
     }
   }
 
+  setupEventListeners = () => {
+    ipcMainListen(UPDATE_TIMELINE_INFO, this.onUpdateTimelineInfo)
+    ipcMainListen(UPDATE_BOARD_INFO, this.onUpdateBoardInfo)
+  }
+
+  removeEventListeners = () => {
+    ipcMainClear();
+  }
+
+  onUpdateTimelineInfo = (event, data) => {
+    if (this.renderer) {
+      this.renderer.send({
+        updateTimelineInfo: data,
+      });
+    }
+  }
+
+  onUpdateBoardInfo = (event, data) => {
+    if (this.renderer) {
+      this.renderer.send({
+        updateBoardInfo: data,
+      });
+    }
+  }
+
   createRenderer = () => {
     this.renderer = new Renderer();
     this.renderer.on(RendererEvent.READY, this.onRendererReady);
@@ -424,6 +452,7 @@ export default class Main {
   }
 
   closeProject = () => {
+    this.removeEventListeners();
     this.destroyMainWindow();
     this.destroyStore();
     this.destroyRenderer();

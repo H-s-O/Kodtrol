@@ -10,11 +10,13 @@ import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../layer_editor/layerOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import { ICON_LAYER, ICON_SCRIPT } from '../../../../../common/js/constants/icons';
-import { DIALOG_ADD, DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
-import { ITEM_SCRIPT } from '../../../../../common/js/constants/items';
+import { DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
+import { ITEM_SCRIPT, ITEM_BEHAVIOR_TOGGLE } from '../../../../../common/js/constants/items';
 import useDialog from '../../../lib/useDialog';
 import BoardScriptDialog from './BoardScriptDialog';
 import { getItem, doUpdateItem } from '../../timelines/editor/timelineOperations';
+import { ipcRendererSend } from '../../../lib/ipcRenderer';
+import { UPDATE_BOARD_INFO } from '../../../../../common/js/constants/events';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -41,7 +43,14 @@ const BoardLayerContainer = styled.div`
   height: 100%;
 `;
 
-const BoardLayer = ({ id, items = [], scriptsNames, onItemContextMenu }) => {
+const BoardLayer = ({
+  id,
+  items = [],
+  scriptsNames,
+  onItemMouseDown,
+  onItemMouseUp,
+  onItemContextMenu,
+}) => {
   return (
     <BoardLayerContainer>
       {items.map((item) => (
@@ -49,6 +58,8 @@ const BoardLayer = ({ id, items = [], scriptsNames, onItemContextMenu }) => {
           key={item.id}
           item={item}
           scriptsNames={scriptsNames}
+          onMouseDown={(e) => onItemMouseDown(e, item.id)}
+          onMouseUp={(e) => onItemMouseUp(e, item.id)}
           onContextMenu={(e) => onItemContextMenu(e, item.id)}
         />
       ))}
@@ -61,7 +72,9 @@ const ZOOM_LEVELS = [1.0, 2.0, 3.0, 5.0, 8.0, 10.0];
 export default function BoardEditor({ board, onChange }) {
   const { items, layers, zoom, zoomVert } = board;
 
-  const scripts = useSelector((state) => state.scripts)
+  const scripts = useSelector((state) => state.scripts);
+  const runBoard = useSelector((state) => state.runBoard);
+  const boardInfo = useSelector((state) => state.boardInfo);
 
   const scriptsNames = useMemo(() => {
     return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
@@ -106,7 +119,46 @@ export default function BoardEditor({ board, onChange }) {
     scriptDialog.hide();
   }, [onChange, scriptDialog]);
 
-  // Item context menu
+  // Items
+  const itemMouseDownHandler = useCallback((e, id) => {
+    // Ignore when related to onContextMenu
+    if (e.button !== 0) {
+      return;
+    }
+
+    if (runBoard === board.id) {
+      e.stopPropagation();
+
+      const item = getItem(items, id);
+      const activeItems = boardInfo && boardInfo.activeItems ? boardInfo.activeItems : {};
+      const data = {
+        activeItems: {
+          ...activeItems,
+          [id]: item.behavior === ITEM_BEHAVIOR_TOGGLE ? id in activeItems ? undefined : true : true,
+        },
+      };
+
+      ipcRendererSend(UPDATE_BOARD_INFO, data);
+    }
+  }, [board, runBoard, boardInfo]);
+  const itemMouseUpHandler = useCallback((e, id) => {
+    if (runBoard === board.id) {
+      e.stopPropagation();
+
+      const item = getItem(items, id);
+      if (item.behavior !== ITEM_BEHAVIOR_TOGGLE) {
+        const activeItems = boardInfo && boardInfo.activeItems ? boardInfo.activeItems : {};
+        const data = {
+          activeItems: {
+            ...activeItems,
+            [id]: undefined,
+          },
+        };
+
+        ipcRendererSend(UPDATE_BOARD_INFO, data);
+      }
+    }
+  }, [board, runBoard, boardInfo]);
   const itemContextMenuHandler = useCallback((e, id) => {
     e.stopPropagation();
 
@@ -148,10 +200,12 @@ export default function BoardEditor({ board, onChange }) {
         id={id}
         items={itemsByLayer[id]}
         scriptsNames={scriptsNames}
+        onItemMouseDown={itemMouseDownHandler}
+        onItemMouseUp={itemMouseUpHandler}
         onItemContextMenu={itemContextMenuHandler}
       />
     );
-  }, [board, itemsByLayer, scriptsNames, itemContextMenuHandler]);
+  }, [board, itemsByLayer, scriptsNames, itemMouseDownHandler, itemMouseUpHandler, itemContextMenuHandler]);
 
   return (
     <>

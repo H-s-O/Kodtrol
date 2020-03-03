@@ -4,6 +4,7 @@ import TriggerRenderer from '../items/TriggerRenderer';
 import CurveRenderer from '../items/CurveRenderer';
 import AudioRenderer from '../items/AudioRenderer';
 import timeToPPQ from '../../../lib/timeToPPQ';
+import { ITEM_SCRIPT, ITEM_MEDIA, ITEM_TRIGGER, ITEM_CURVE } from '../../../../common/js/constants/items';
 
 export default class RootTimelineRenderer extends BaseRootRenderer {
   _timeline = null;
@@ -14,7 +15,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
   _timeMap = null;
   _timeDivisor = 1000;
   _endCallback = null;
-  
+
   constructor(providers, timelineId, endCallback) {
     super(providers);
 
@@ -22,7 +23,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
     this._setTimelineAndItems(timelineId);
   }
-  
+
   _setTimelineAndItems = (timelineId) => {
     this._timeline = this._providers.getTimeline(timelineId);
     this._timeline.on('updated', this._onTimelineUpdated);
@@ -32,7 +33,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
   _onTimelineUpdated = () => {
     // "Rebuild" timeline
-    
+
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
     Object.values(this._curves).forEach((curve) => curve.instance.destroy());
 
@@ -53,14 +54,14 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         [layer.id]: layer,
       }
     }, {});
-    
+
     // Extract timeline items
     const timelineItems = this._timeline.items.sort((a, b) => {
       return layersById[a.layer].order - layersById[b.layer].order;
     });
-    
+
     this._blocks = timelineItems
-      .filter((item) => 'script' in item)
+      .filter(({ type }) => type === ITEM_SCRIPT)
       .reduce((obj, block) => {
         return {
           ...obj,
@@ -71,9 +72,9 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           },
         };
       }, {});
-      
+
     this._medias = timelineItems
-      .filter((item) => 'media' in item)
+      .filter(({ type }) => type === ITEM_MEDIA)
       .reduce((obj, media) => {
         return {
           ...obj,
@@ -83,9 +84,9 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           },
         };
       }, {});
-    
+
     this._triggers = timelineItems
-      .filter((item) => 'trigger' in item)
+      .filter(({ type }) => type === ITEM_TRIGGER)
       .reduce((obj, trigger) => {
         return {
           ...obj,
@@ -95,9 +96,9 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           },
         };
       }, {});
-      
+
     this._curves = timelineItems
-      .filter((item) => 'curve' in item)
+      .filter(({ type }) => type === ITEM_CURVE)
       .reduce((obj, curve) => {
         return {
           ...obj,
@@ -116,7 +117,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     for (let t = 0; t < duration; t += divisor) {
       const timeIndex = (t / divisor) >> 0;
       const end = t + divisor - 1;
-      for (let i = 0; i < itemsCount; i++) {
+      for (let i = 0; i < itemsCount; i++) {
         const item = timelineItems[i];
         const { id, inTime, outTime, script, media, trigger, curve, leadInTime, leadOutTime } = item;
         let trueInTime, trueOutTime;
@@ -136,10 +137,10 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           trueOutTime = outTime;
         }
         if (
-            (trueInTime >= t && trueInTime <= end) // division at start
-            || (trueOutTime >= t && trueOutTime <= end) // division at end
-            || (trueInTime < t && trueOutTime > end) // division in middle
-          ) {
+          (trueInTime >= t && trueInTime <= end) // division at start
+          || (trueOutTime >= t && trueOutTime <= end) // division at end
+          || (trueInTime < t && trueOutTime > end) // division in middle
+        ) {
           let addIndex = null;
           if (typeof script !== 'undefined') {
             addIndex = 2;
@@ -149,7 +150,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
             addIndex = 0;
           } else if (typeof curve !== 'undefined') {
             addIndex = 1;
-          } 
+          }
           if (addIndex !== null) {
             if (!timeMap[timeIndex]) {
               timeMap[timeIndex] = [
@@ -166,7 +167,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     }
     this._timeMap = timeMap;
   }
-  
+
   get timeline() {
     return this._timeline;
   }
@@ -179,20 +180,20 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this.resetCurves();
     this.resetMedias()
   }
-  
+
   notifyPlay = () => {
-    
+
   }
-  
+
   notifyStop = () => {
     // Stop all medias
-    Object.values(this._medias).forEach(({instance}) => instance.stop());
+    Object.values(this._medias).forEach(({ instance }) => instance.stop());
   }
 
   _getRenderingTempo = () => {
     return this._timeline.tempo;
   }
-  
+
   _runFrame = (frameTime) => {
     const currentTime = this._currentTime;
     if (currentTime >= this._timeline.outTime) {
@@ -200,7 +201,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       this._endCallback();
       return;
     }
-    
+
     const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       // Nothing to render
@@ -217,7 +218,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         && !trigger.instance.triggered
       ) {
         trigger.instance.render();
-        
+
         triggerData[trigger.trigger] = true;
       }
     }
@@ -238,9 +239,9 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           currentTime,
           curvePercent: ((currentTime - inTime) / (outTime - inTime)),
         };
-        
+
         const data = curve.instance.render(currentTime, curveInfo);
-        
+
         curveData[curve.name] = data;
       }
     }
@@ -275,7 +276,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         block.instance.render(currentTime, blockInfo, triggerData, curveData);
       }
     }
-    
+
     const medias = timeItems[3];
     const mediaCount = medias.length;
     for (let i = 0; i < mediaCount; i++) {
@@ -291,7 +292,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           currentTime,
           mediaPercent: ((currentTime - inTime) / (outTime - inTime)),
         };
-        
+
         media.instance.render(currentTime, mediaInfo);
       }
     }
@@ -299,7 +300,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
   _runBeat = (beatPos) => {
     const currentTime = this._currentTime;
-    
+
     const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       return;
@@ -323,15 +324,15 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       }
     }
   }
-  
+
   _runInput = (type, data) => {
     const currentTime = this._currentTime;
-    
+
     const timeItems = this._getTimelineItemsAtTime(currentTime);
     if (timeItems === null) {
       return;
     }
-    
+
     const blocks = timeItems[2];
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
@@ -344,7 +345,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       }
     }
   }
-  
+
   _getTimelineItemsAtTime = (time) => {
     const timeMap = this._timeMap;
     const timeDivisor = this._timeDivisor;
