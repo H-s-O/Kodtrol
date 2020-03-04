@@ -1,4 +1,4 @@
-import { EDIT_BOARD, CLOSE_BOARD, UPDATE_EDITED_BOARD, SAVE_EDITED_BOARD } from '../actions/boards';
+import { EDIT_BOARD, CLOSE_BOARD, UPDATE_EDITED_BOARD } from '../actions/boards';
 
 const defaultState = [];
 
@@ -10,10 +10,6 @@ export default (state = defaultState, { type, payload }) => {
 
     case UPDATE_EDITED_BOARD:
       return state.map((board) => board.id === payload.id ? { ...board, ...payload.data, changed: true } : board)
-      break;
-
-    case SAVE_EDITED_BOARD:
-      return state.map((board) => board.id === payload ? { ...board, changed: false } : board)
       break;
 
     case CLOSE_BOARD:

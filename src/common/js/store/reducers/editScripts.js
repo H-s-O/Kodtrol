@@ -1,4 +1,4 @@
-import { EDIT_SCRIPT, CLOSE_SCRIPT, UPDATE_EDITED_SCRIPT, SAVE_EDITED_SCRIPT } from '../actions/scripts';
+import { EDIT_SCRIPT, CLOSE_SCRIPT, UPDATE_EDITED_SCRIPT } from '../actions/scripts';
 
 const defaultState = [];
 
@@ -10,10 +10,6 @@ export default (state = defaultState, { type, payload }) => {
 
     case UPDATE_EDITED_SCRIPT:
       return state.map((script) => script.id === payload.id ? { ...script, ...payload.data, changed: true } : script)
-      break;
-
-    case SAVE_EDITED_SCRIPT:
-      return state.map((script) => script.id === payload ? { ...script, changed: false } : script)
       break;
 
     case CLOSE_SCRIPT:

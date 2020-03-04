@@ -1,6 +1,6 @@
-import { EDIT_SCRIPT, FOCUS_EDITED_SCRIPT, CLOSE_SCRIPT } from '../actions/scripts';
-import { EDIT_TIMELINE, FOCUS_EDITED_TIMELINE, CLOSE_TIMELINE } from '../actions/timelines';
-import { EDIT_BOARD, FOCUS_EDITED_BOARD, CLOSE_BOARD } from '../actions/boards';
+import { EDIT_SCRIPT, FOCUS_EDITED_SCRIPT, CLOSE_SCRIPT } from '../../actions/scripts';
+import { EDIT_TIMELINE, FOCUS_EDITED_TIMELINE, CLOSE_TIMELINE } from '../../actions/timelines';
+import { EDIT_BOARD, FOCUS_EDITED_BOARD, CLOSE_BOARD } from '../../actions/boards';
 
 export default (state, { type, payload }) => {
   switch (type) {
