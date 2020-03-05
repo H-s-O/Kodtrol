@@ -2,15 +2,17 @@ import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { ButtonGroup, Button, Popover, Menu, Position, Icon } from '@blueprintjs/core';
 import uniqid from 'uniqid';
+import { useSelector } from 'react-redux';
+import { remote } from 'electron';
 
 import LayerEditor from '../../layer_editor/LayerEditor';
 import { ICON_SCRIPT, ICON_MEDIA, ICON_CURVE, ICON_TRIGGER, ICON_LAYER } from '../../../../../common/js/constants/icons';
 import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../layer_editor/layerOperations';
-import { doAddItem, doUpdateItem } from './timelineOperations';
+import { doAddItem, doUpdateItem, getItem } from './timelineOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
-import { DIALOG_ADD, DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
 import useDialog from '../../../lib/useDialog';
 import { ITEM_SCRIPT, ITEM_TRIGGER } from '../../../../../common/js/constants/items';
 import TimelineTriggerDialog from './TimelineTriggerDialog';
@@ -35,12 +37,20 @@ const StyledButtonGroup = styled(ButtonGroup)`
   margin-right: 5px;
 `;
 
-const TimelineLayer = ({ id, items = [], timelineDuration }) => {
+const TimelineLayer = ({
+  id,
+  items = [],
+  scriptsNames,
+  timelineDuration,
+  onItemContextMenu,
+}) => {
   return items.map((item) => (
     <TimelineItem
       key={item.id}
       item={item}
+      scriptsNames={scriptsNames}
       timelineDuration={timelineDuration}
+      onContextMenu={(e) => onItemContextMenu(e, item.id)}
     />
   ));
 };
@@ -50,6 +60,16 @@ const ZOOM_LEVELS = [1.0, 2.0, 3.0, 5.0, 8.0, 10.0];
 export default function TimelineEditor({ timeline, onChange }) {
   const { duration, layers, items, zoom, zoomVert } = timeline;
 
+  const scripts = useSelector((state) => state.scripts);
+  const runTimeline = useSelector((state) => state.runTimeline);
+  const timelineInfo = useSelector((state) => state.timelineInfo);
+
+  const scriptsNames = useMemo(() => {
+    return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
+  }, [scripts]);
+  const availableScripts = useMemo(() => {
+    return scripts.map(({ id, name }) => ({ id, name }));
+  }, [scripts]);
   const availableLayers = useMemo(() => {
     return layers.map(({ id, order }) => ({ id, name: order + 1 }));
   }, [timeline]);
@@ -74,6 +94,64 @@ export default function TimelineEditor({ timeline, onChange }) {
     onChange({ zoomVert: value });
   }, [onChange, timeline]);
 
+  // Scripts
+  const addScriptClickHandler = useCallback(() => {
+    scriptDialog.show();
+  }, [scriptDialog]);
+  const editScriptClickHandler = useCallback((id) => {
+    const script = getItem(items, id);
+    scriptDialog.show(DIALOG_EDIT, script);
+  }, [scriptDialog, timeline]);
+  const scriptDialogSuccessHandler = useCallback(() => {
+    if (scriptDialog.mode === DIALOG_EDIT) {
+      onChange({ items: doUpdateItem(items, scriptDialog.value) });
+    } else {
+      onChange({ items: doAddItem(items, { ...scriptDialog.value, id: uniqid(), type: ITEM_SCRIPT }) });
+    }
+    scriptDialog.hide();
+  }, [onChange, scriptDialog]);
+
+  // Triggers
+  const addTriggerClickHandler = useCallback(() => {
+    triggerDialog.show();
+  }, [triggerDialog]);
+  const editTriggerClickHandler = useCallback((id) => {
+    const trigger = getItem(items, id);
+    triggerDialog.show(DIALOG_EDIT, trigger);
+  }, [triggerDialog, timeline]);
+  const triggerDialogSuccessHandler = useCallback(() => {
+    if (triggerDialog.mode === DIALOG_EDIT) {
+      onChange({ items: doUpdateItem(items, triggerDialog.value) });
+    } else {
+      onChange({ items: doAddItem(items, { ...triggerDialog.value, id: uniqid(), type: ITEM_TRIGGER }) });
+    }
+    triggerDialog.hide();
+  }, [onChange, triggerDialog]);
+
+  // Items
+  const itemContextMenuHandler = useCallback((e, id) => {
+    e.stopPropagation();
+
+    const item = getItem(items, id);
+
+    const template = [];
+    if (item.type === ITEM_SCRIPT) {
+      template.push({
+        label: 'Edit script block',
+        click: () => editScriptClickHandler(id),
+      });
+    }
+    if (item.type === ITEM_TRIGGER) {
+      template.push({
+        label: 'Edit trigger',
+        click: () => editTriggerClickHandler(id),
+      });
+    }
+
+    const menu = remote.Menu.buildFromTemplate(template);
+    menu.popup();
+  }, [timeline, editScriptClickHandler]);
+
   // Layers
   const addLayerAtTopClickHandler = useCallback(() => {
     onChange({ layers: doAddLayer(layers, 'max') });
@@ -97,38 +175,12 @@ export default function TimelineEditor({ timeline, onChange }) {
       <TimelineLayer
         id={id}
         items={itemsByLayer[id]}
+        scriptsNames={scriptsNames}
         timelineDuration={duration}
+        onItemContextMenu={itemContextMenuHandler}
       />
     );
-  }, [timeline, itemsByLayer]);
-
-  // Scripts
-  const addScriptClickHandler = useCallback(() => {
-    scriptDialog.show(DIALOG_ADD);
-  }, [scriptDialog]);
-  const scriptDialogSuccessHandler = useCallback(() => {
-    if (scriptDialog.mode === DIALOG_EDIT) {
-      onChange({ items: doUpdateItem(items, scriptDialog.value) });
-    } else {
-      onChange({ items: doAddItem(items, { ...scriptDialog.value, id: uniqid(), type: ITEM_SCRIPT }) });
-    }
-    scriptDialog.hide();
-  }, [onChange, scriptDialog]);
-
-  // Triggers
-  const addTriggerClickHandler = useCallback(() => {
-    triggerDialog.show(DIALOG_ADD);
-  }, [triggerDialog]);
-  const triggerDialogSuccessHandler = useCallback(() => {
-    if (triggerDialog.mode === DIALOG_EDIT) {
-      onChange({ items: doUpdateItem(items, triggerDialog.value) });
-    } else {
-      onChange({ items: doAddItem(items, { ...triggerDialog.value, id: uniqid(), type: ITEM_TRIGGER }) });
-    }
-    triggerDialog.hide();
-  }, [onChange, triggerDialog]);
-
-
+  }, [timeline, itemsByLayer, scriptsNames, itemContextMenuHandler]);
 
   return (
     <>
@@ -138,10 +190,12 @@ export default function TimelineEditor({ timeline, onChange }) {
             <Button
               small
               icon="step-backward"
+              disabled={runTimeline !== timeline.id}
             />
             <Button
               small
               icon="play"
+              disabled={runTimeline !== timeline.id}
             />
           </StyledButtonGroup>
           <StyledButtonGroup>
@@ -276,19 +330,20 @@ export default function TimelineEditor({ timeline, onChange }) {
         opened={scriptDialog.opened}
         mode={scriptDialog.mode}
         value={scriptDialog.value}
-        layers={availableLayers}
         onChange={scriptDialog.change}
         onSuccess={scriptDialogSuccessHandler}
         onClose={scriptDialog.hide}
+        layers={availableLayers}
+        scripts={availableScripts}
       />
       <TimelineTriggerDialog
         opened={triggerDialog.opened}
         mode={triggerDialog.mode}
         value={triggerDialog.value}
-        layers={availableLayers}
         onChange={triggerDialog.change}
         onSuccess={triggerDialogSuccessHandler}
         onClose={triggerDialog.hide}
+        layers={availableLayers}
       />
     </>
   )

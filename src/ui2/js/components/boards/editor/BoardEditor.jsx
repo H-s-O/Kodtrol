@@ -79,6 +79,9 @@ export default function BoardEditor({ board, onChange }) {
   const scriptsNames = useMemo(() => {
     return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
   }, [scripts]);
+  const availableScripts = useMemo(() => {
+    return scripts.map(({ id, name }) => ({ id, name }));
+  }, [scripts]);
   const availableLayers = useMemo(() => {
     return layers.map(({ id, order }) => ({ id, name: order + 1 }));
   }, [board]);
@@ -330,11 +333,11 @@ export default function BoardEditor({ board, onChange }) {
         opened={scriptDialog.opened}
         mode={scriptDialog.mode}
         value={scriptDialog.value}
-        layers={availableLayers}
-        scripts={scriptsNames}
         onChange={scriptDialog.change}
         onSuccess={scriptDialogSuccessHandler}
         onClose={scriptDialog.hide}
+        layers={availableLayers}
+        scripts={availableScripts}
       />
     </>
   );

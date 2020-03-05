@@ -28,11 +28,6 @@ export default function BoardScriptDialogBody({ value = {}, onChange, layers = [
     color = null,
   } = value;
 
-  const projectScripts = useSelector((state) => state.scripts);
-  const availableScripts = useMemo(() => {
-    return projectScripts.map(({ id, name }) => ({ id, name }));
-  }, [projectScripts]);
-
   return (
     <>
       <InlineFormGroup
@@ -47,7 +42,7 @@ export default function BoardScriptDialogBody({ value = {}, onChange, layers = [
           onChange={onChange}
         >
           <option value="null">--</option>
-          {availableScripts.map((item, index) => {
+          {scripts.map((item, index) => {
             return (
               <option
                 key={index}

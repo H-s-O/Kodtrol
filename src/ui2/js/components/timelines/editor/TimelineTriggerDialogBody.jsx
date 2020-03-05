@@ -25,6 +25,7 @@ export default function TimelineTriggerDialogBody({ value = {}, onChange, layers
       >
         <SelectInput
           name="layer"
+          value={layer}
           onChange={onChange}
         >
           <option value="null">--</option>

@@ -18,6 +18,7 @@ export default function TimelineTriggerDialog({ opened, mode, value, layers, onC
       isOpen={opened}
       title={getDialogTitle(mode, 'Trigger')}
       icon={ICON_TRIGGER}
+      onClose={onClose}
     >
       <DialogBody>
         <TimelineTriggerDialogBody

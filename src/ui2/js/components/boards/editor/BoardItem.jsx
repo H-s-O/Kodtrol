@@ -3,7 +3,9 @@ import styled from 'styled-components';
 import Color from 'color';
 
 const BlockLabel = styled.span`
-  /* position: sticky; */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-x: hidden;
 `;
 
 const BlockHeader = styled.div`

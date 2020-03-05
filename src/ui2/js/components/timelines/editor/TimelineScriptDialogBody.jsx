@@ -9,7 +9,7 @@ import DurationInput from '../../ui/inputs/DurationInput';
 import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
 
-export default function TimelineScriptDialogBody({ value = {}, onChange, layers = [] }) {
+export default function TimelineScriptDialogBody({ value = {}, onChange, layers = [], scripts = [] }) {
   const {
     script = null,
     layer = null,
@@ -20,12 +20,7 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
     leadOutTime = null,
     color = null,
   } = value;
-
-  const projectScripts = useSelector((state) => state.scripts);
-  const availableScripts = useMemo(() => {
-    return projectScripts.map(({ id, name }) => ({ id, name }));
-  }, [projectScripts]);
-
+  console.log('scripts2', scripts)
   return (
     <>
       <InlineFormGroup
@@ -36,10 +31,11 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       >
         <SelectInput
           name="script"
+          value={script}
           onChange={onChange}
         >
           <option value="null">--</option>
-          {availableScripts.map((item, index) => {
+          {scripts.map((item, index) => {
             return (
               <option
                 key={index}
@@ -58,6 +54,7 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       >
         <SelectInput
           name="layer"
+          value={layer}
           onChange={onChange}
         >
           <option value="null">--</option>

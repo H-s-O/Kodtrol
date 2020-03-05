@@ -10,7 +10,7 @@ import TimelineScriptDialogBody from './TimelineScriptDialogBody';
 import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
 import timelineScriptValidator from '../../../../../common/js/validators/timelineScriptValidator';
 
-export default function TimelineScriptDialog({ opened, mode, value, layers, onChange, onSuccess, onClose }) {
+export default function TimelineScriptDialog({ opened, mode, value, layers, scripts, onChange, onSuccess, onClose }) {
   const bodyValid = value && timelineScriptValidator(value);
 
   return (
@@ -18,12 +18,14 @@ export default function TimelineScriptDialog({ opened, mode, value, layers, onCh
       isOpen={opened}
       title={getDialogTitle(mode, 'Script block')}
       icon={ICON_SCRIPT}
+      onClose={onClose}
     >
       <DialogBody>
         <TimelineScriptDialogBody
           value={value}
           onChange={onChange}
           layers={layers}
+          scripts={scripts}
         />
       </DialogBody>
       <DialogFooter>
