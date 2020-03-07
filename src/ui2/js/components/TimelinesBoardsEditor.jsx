@@ -11,6 +11,8 @@ import TimelineEditorTab from './timelines/TimelineEditorTab';
 import BoardEditorTab from './boards/BoardEditorTab';
 import { closeTimelineAction, focusEditedTimelineAction, saveEditedTimelineAction, runTimelineAction } from '../../../common/js/store/actions/timelines';
 import { closeBoardAction, focusEditedBoardAction, saveEditedBoardAction, runBoardAction } from '../../../common/js/store/actions/boards';
+import { ipcRendererSend } from '../lib/ipcRenderer';
+import { UPDATE_TIMELINE_INFO } from '../../../common/js/constants/events';
 
 const StyledDivider = styled.div`
   width: 1px;
@@ -62,6 +64,8 @@ export default function TimelinesBoardsEditor() {
   const timelines = useSelector((state) => state.timelines);
   const boards = useSelector((state) => state.boards);
   const lastEditor = useSelector((state) => state.lastEditor);
+  const runTimeline = useSelector((state) => state.runTimeline);
+  const timelineInfo = useSelector((state) => state.timelineInfo);
 
   const timelinesNames = useMemo(() => {
     return timelines.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
@@ -80,6 +84,16 @@ export default function TimelinesBoardsEditor() {
   const closeTimelineHandler = useCallback((id) => {
     dispatch(closeTimelineAction(id));
   }, [dispatch]);
+  const closeBoardHandler = useCallback((id) => {
+    dispatch(closeBoardAction(id));
+  }, [dispatch]);
+  const tabChangeHandler = useCallback((id) => {
+    if (editTimelines.find((timeline) => timeline.id === id)) {
+      dispatch(focusEditedTimelineAction(id));
+    } else if (editBoards.find((board) => board.id === id)) {
+      dispatch(focusEditedBoardAction(id));
+    }
+  }, [dispatch, editTimelines, editBoards]);
   const saveHandler = useCallback(() => {
     if (lastEditor && lastEditor.type === 'timeline' && activeTimeline && activeTimeline.changed) {
       dispatch(saveEditedTimelineAction(activeTimeline.id));
@@ -96,19 +110,32 @@ export default function TimelinesBoardsEditor() {
       dispatch(runBoardAction(activeBoard.id));
     }
   }, [dispatch, activeTimeline, activeBoard, lastEditor]);
-  const closeBoardHandler = useCallback((id) => {
-    dispatch(closeBoardAction(id));
-  }, [dispatch]);
-  const tabChangeHandler = useCallback((id) => {
-    if (editTimelines.find((timeline) => timeline.id === id)) {
-      dispatch(focusEditedTimelineAction(id));
-    } else if (editBoards.find((board) => board.id === id)) {
-      dispatch(focusEditedBoardAction(id));
+  const playPauseHandler = useCallback(() => {
+    if (runTimeline) {
+      const { playing } = timelineInfo;
+      const data = {
+        ...timelineInfo,
+        playing: !playing,
+      };
+
+      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
     }
-  }, [dispatch, editTimelines, editBoards]);
+  }, [runTimeline, timelineInfo]);
+  const rewindHandler = useCallback(() => {
+    if (runTimeline) {
+      const data = {
+        ...timelineInfo,
+        position: 0,
+      };
+
+      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+    }
+  }, [runTimeline, timelineInfo]);
 
   useHotkeys('Meta+s', saveHandler);
   useHotkeys('Meta+r', saveAndRunHandler);
+  useHotkeys(' ', playPauseHandler);
+  useHotkeys('r', rewindHandler);
 
   return (
     <FullHeightCard>

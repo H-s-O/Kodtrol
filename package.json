@@ -9,7 +9,8 @@
   "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "./build/main/kodtrol-main.js",
   "scripts": {
-    "dev": "parcel watch ./src/ui2/index.html --target electron --out-dir ./build/ui --public-url ./",
+    "clean": "rm -rf .cache && rm -rf ./build/*",
+    "dev": "parcel watch ./src/ui2/index.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../",
     "build": "npx webpack --progress --config build/webpack.config.js -p",
     "start": "npx electron -r @babel/register ./src/main/kodtrol-main.js",
     "package": "npm run build && npx electron-packager dist MyApp",

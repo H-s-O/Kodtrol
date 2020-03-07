@@ -22,7 +22,7 @@ export default class MainWindow extends EventEmitter {
       show: false,
       webPreferences: {
         nodeIntegration: true,
-        webSecurity: false, // Allows fetch() to use "file://" scheme
+        webSecurity: false, // Allows fetch() to use "file" scheme
       }
     });
     this.win.on('close', this.onClose);
@@ -38,7 +38,7 @@ export default class MainWindow extends EventEmitter {
       }
     } 
 
-    this.win.loadFile(join(__dirname, '../../../build/ui/index.html'));
+    this.win.loadFile(join(__dirname, '../../../build/ui2/index.html'));
     
     this.contents = this.win.webContents;
     this.contents.once('did-finish-load', this.onFinishLoad);

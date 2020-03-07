@@ -9,16 +9,15 @@ import DurationInput from '../../ui/inputs/DurationInput';
 import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
 
-export default function TimelineScriptDialogBody({ value = {}, onChange, layers = [], scripts = [] }) {
+export default function TimelineScriptDialogBody({ value = {}, onChange, layers = [], medias = [] }) {
   const {
-    script = null,
+    media = null,
     layer = null,
     name = null,
     inTime = null,
     outTime = null,
-    leadInTime = null,
-    leadOutTime = null,
     color = null,
+    volume = 1,
   } = value;
 
   return (
@@ -26,16 +25,16 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       <InlineFormGroup
         minWidth="100"
         label="Script"
-        helperText={!script ? 'A script is mandatory.' : undefined}
-        intent={!script ? Intent.DANGER : undefined}
+        helperText={!media ? 'A media is mandatory.' : undefined}
+        intent={!media ? Intent.DANGER : undefined}
       >
         <SelectInput
-          name="script"
-          value={script}
+          name="media"
+          value={media}
           onChange={onChange}
         >
           <option value="null">--</option>
-          {scripts.map((item, index) => {
+          {medias.map((item, index) => {
             return (
               <option
                 key={index}
@@ -72,7 +71,7 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       <InlineFormGroup
         minWidth="100"
         label="Name"
-        helperText="If not set, Kodtrol will use the associated script's name."
+        helperText="If not set, Kodtrol will use the associated media's name."
       >
         <TextInput
           name="name"
@@ -94,19 +93,6 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       </InlineFormGroup>
       <InlineFormGroup
         minWidth="100"
-        label="Lead-in time"
-        helperText={<>Duration in milliseconds for which <code>leadInFrame()</code> will run before <b>In time</b>.</>}
-      >
-        <NumberInput
-          name="leadInTime"
-          value={leadInTime}
-          placeholder="500"
-          min={0}
-          onChange={onChange}
-        />
-      </InlineFormGroup>
-      <InlineFormGroup
-        minWidth="100"
         label="Out time"
         helperText={outTime === null ? 'A out time is mandatory.' : undefined}
         intent={outTime === null ? Intent.DANGER : undefined}
@@ -119,14 +105,11 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       </InlineFormGroup>
       <InlineFormGroup
         minWidth="100"
-        label="Lead-out time"
-        helperText={<>Duration in milliseconds for which <code>leadOutFrame()</code> will run after <b>Out time</b>.</>}
+        label="Volume"
       >
         <NumberInput
-          name="leadOutTime"
-          value={leadOutTime}
-          placeholder="500"
-          min={0}
+          name="volume"
+          value={volume}
           onChange={onChange}
         />
       </InlineFormGroup>

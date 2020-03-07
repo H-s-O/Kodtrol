@@ -1,10 +1,10 @@
 import { app, BrowserWindow } from 'electron';
+import { join } from 'path';
 
 export default class AudioRenderer {
-  audioWindow = null;
-  contents = null;
-  ready = false;
-  
+  _audioWindow = null;
+  _ready = false;
+
   constructor() {
     // Set the Autoplay Policy to not require user interaction;
     // this allows us to play audio normally
@@ -16,9 +16,9 @@ export default class AudioRenderer {
 
     app.on('ready', this.onReady);
     app.on('window-all-closed', this.onWindowAllClosed);
-    
+
     process.on('SIGTERM', this.onSigTerm);
-    
+
     process.stdin.setEncoding('utf8');
     process.stdin.on('data', this.onData);
   }
@@ -27,17 +27,17 @@ export default class AudioRenderer {
     this.destroyAudioWindow();
     process.exit();
   }
-  
+
   onReady = () => {
     this.createAudioWindow();
   }
-  
+
   onWindowAllClosed = () => {
     // Do nothing, keep the app alive
   }
-  
+
   createAudioWindow = () => {
-    this.audioWindow = new BrowserWindow({
+    this._audioWindow = new BrowserWindow({
       show: false,
       skipTaskbar: true,
       webPreferences: {
@@ -45,26 +45,26 @@ export default class AudioRenderer {
         webSecurity: false,
       },
     });
-    this.audioWindow.loadURL('http://localhost:8080/audio/index.html');
-    this.contents = this.audioWindow.webContents;
-    this.contents.once('did-finish-load', this.onFinishLoad);
+
+    this._audioWindow.loadFile(join(__dirname, '../../../../build/audio/index.html'));
+    this._audioWindow.webContents.once('did-finish-load', this.onFinishLoad);
   }
-  
+
   onFinishLoad = () => {
-    this.ready = true;
+    this._ready = true;
   }
-  
+
   destroyAudioWindow = () => {
-    if (this.audioWindow) {
-      this.audioWindow.removeAllListeners();
-      this.audioWindow.close();
+    if (this._audioWindow) {
+      this._audioWindow.removeAllListeners();
+      this._audioWindow.close();
     }
-    this.audioWindow = null;
+    this._audioWindow = null;
   }
-  
+
   onData = (chunk) => {
-    if (this.ready) {
-      this.contents.send('data', chunk);
+    if (this._audioWindow && this._ready) {
+      this._audioWindow.webContents.send('data', chunk);
     }
   }
 }

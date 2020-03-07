@@ -1,11 +1,11 @@
 export default class TriggerRenderer {
-  triggered = false;
-  
+  _triggered = false;
+
   reset = () => {
-    this.triggered = false;
+    this._triggered = false;
   }
-  
+
   render = () => {
-    this.triggered = true;
+    this._triggered = true;
   }
 }

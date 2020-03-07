@@ -14,9 +14,11 @@ import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
 import { DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
 import useDialog from '../../../lib/useDialog';
-import { ITEM_SCRIPT, ITEM_TRIGGER } from '../../../../../common/js/constants/items';
+import { ITEM_SCRIPT, ITEM_TRIGGER, ITEM_MEDIA } from '../../../../../common/js/constants/items';
 import TimelineTriggerDialog from './TimelineTriggerDialog';
 import TimelineItem from './TimelineItem';
+import TimelineMediaDialog from './TimelineMediaDialog';
+import { getMediaName } from '../../../../../common/js/lib/itemNames';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -41,6 +43,7 @@ const TimelineLayer = ({
   id,
   items = [],
   scriptsNames,
+  mediasNames,
   timelineDuration,
   onItemContextMenu,
 }) => {
@@ -49,6 +52,7 @@ const TimelineLayer = ({
       key={item.id}
       item={item}
       scriptsNames={scriptsNames}
+      mediasNames={mediasNames}
       timelineDuration={timelineDuration}
       onContextMenu={(e) => onItemContextMenu(e, item.id)}
     />
@@ -61,6 +65,7 @@ export default function TimelineEditor({ timeline, onChange }) {
   const { duration, layers, items, zoom, zoomVert } = timeline;
 
   const scripts = useSelector((state) => state.scripts);
+  const medias = useSelector((state) => state.medias);
   const runTimeline = useSelector((state) => state.runTimeline);
   const timelineInfo = useSelector((state) => state.timelineInfo);
 
@@ -70,6 +75,12 @@ export default function TimelineEditor({ timeline, onChange }) {
   const availableScripts = useMemo(() => {
     return scripts.map(({ id, name }) => ({ id, name }));
   }, [scripts]);
+  const mediasNames = useMemo(() => {
+    return medias.reduce((obj, media) => ({ ...obj, [media.id]: { name: getMediaName(media), file: media.file }}), {});
+  }, [medias]);
+  const availableMedias = useMemo(() => {
+    return medias.map((media) => ({ id: media.id, name: getMediaName(media) }));
+  }, [medias]);
   const availableLayers = useMemo(() => {
     return layers.map(({ id, order }) => ({ id, name: order + 1 }));
   }, [timeline]);
@@ -85,6 +96,7 @@ export default function TimelineEditor({ timeline, onChange }) {
 
   const scriptDialog = useDialog();
   const triggerDialog = useDialog();
+  const mediaDialog = useDialog();
 
   // Zoom
   const zoomClickHandler = useCallback((value) => {
@@ -128,6 +140,23 @@ export default function TimelineEditor({ timeline, onChange }) {
     triggerDialog.hide();
   }, [onChange, triggerDialog]);
 
+  // Medias
+  const addMediaClickHandler = useCallback(() => {
+    mediaDialog.show();
+  }, [mediaDialog]);
+  const editMediaClickHandler = useCallback((id) => {
+    const media = getItem(items, id);
+    mediaDialog.show(DIALOG_EDIT, media);
+  }, [mediaDialog, timeline]);
+  const mediaDialogSuccessHandler = useCallback(() => {
+    if (mediaDialog.mode === DIALOG_EDIT) {
+      onChange({ items: doUpdateItem(items, mediaDialog.value) });
+    } else {
+      onChange({ items: doAddItem(items, { ...mediaDialog.value, id: uniqid(), type: ITEM_MEDIA }) });
+    }
+    mediaDialog.hide();
+  }, [onChange, mediaDialog]);
+
   // Items
   const itemContextMenuHandler = useCallback((e, id) => {
     e.stopPropagation();
@@ -145,6 +174,12 @@ export default function TimelineEditor({ timeline, onChange }) {
       template.push({
         label: 'Edit trigger',
         click: () => editTriggerClickHandler(id),
+      });
+    }
+    if (item.type === ITEM_MEDIA) {
+      template.push({
+        label: 'Edit media',
+        click: () => editMediaClickHandler(id),
       });
     }
 
@@ -176,6 +211,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         id={id}
         items={itemsByLayer[id]}
         scriptsNames={scriptsNames}
+        mediasNames={mediasNames}
         timelineDuration={duration}
         onItemContextMenu={itemContextMenuHandler}
       />
@@ -242,6 +278,7 @@ export default function TimelineEditor({ timeline, onChange }) {
                   <Menu.Item
                     icon={ICON_MEDIA}
                     text="Add Media block"
+                    onClick={addMediaClickHandler}
                   />
                 </Menu>
               )}
@@ -344,6 +381,16 @@ export default function TimelineEditor({ timeline, onChange }) {
         onSuccess={triggerDialogSuccessHandler}
         onClose={triggerDialog.hide}
         layers={availableLayers}
+      />
+      <TimelineMediaDialog
+        opened={mediaDialog.opened}
+        mode={mediaDialog.mode}
+        value={mediaDialog.value}
+        onChange={mediaDialog.change}
+        onSuccess={mediaDialogSuccessHandler}
+        onClose={mediaDialog.hide}
+        layers={availableLayers}
+        medias={availableMedias}
       />
     </>
   )

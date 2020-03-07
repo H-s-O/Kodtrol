@@ -1,43 +1,42 @@
 import parseCurve from '../../../../common/js/lib/parseCurve';
 
 export default class CurveRenderer {
-  started = false;
-  curveData = null;
-  
-  constructor(sourceCurve) {
-    const { curve } = sourceCurve;
-    this.curveData = parseCurve(curve);
+  _started = false;
+  _curveData = null;
+
+  constructor({ curve }) {
+    this._curveData = parseCurve(curve);
   }
-  
+
   reset = () => {
-    this.started = false;
+    this._started = false;
   }
-  
+
   render = (delta, curveInfo) => {
-    this.started = true;
-    
+    this._started = true;
+
     const { curvePercent } = curveInfo;
-    
-    const before = this.curveData.reduce((val, point) => {
+
+    const before = this._curveData.reduce((val, point) => {
       return point.x <= curvePercent ? point : val;
-    }, {x: 0});
-    const after = this.curveData.reduceRight((val, point) => {
+    }, { x: 0 });
+    const after = this._curveData.reduceRight((val, point) => {
       return point.x >= curvePercent ? point : val;
-    }, {x: 1});
+    }, { x: 1 });
     // Guard
     if (!before || !after) {
       return 0.0;
     }
-    
-    const { x:startX, y:startY } = before;
-    const { x:endX, y:endY } = after;
+
+    const { x: startX, y: startY } = before;
+    const { x: endX, y: endY } = after;
     const relativePercent = (curvePercent - startX) / (endX - startX);
     const output = Math.abs(startY + (relativePercent * (endY - startY)));
-    
+
     return output;
   }
-  
+
   destroy = () => {
-    this.curveData = null;
+    this._curveData = null;
   }
 }

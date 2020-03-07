@@ -119,15 +119,15 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       const end = t + divisor - 1;
       for (let i = 0; i < itemsCount; i++) {
         const item = timelineItems[i];
-        const { id, inTime, outTime, script, media, trigger, curve, leadInTime, leadOutTime } = item;
+        const { id, type, inTime, outTime, script, media, curve, leadInTime, leadOutTime } = item;
         let trueInTime, trueOutTime;
-        if (typeof trigger !== 'undefined') {
+        if (type === ITEM_TRIGGER) {
           trueInTime = inTime;
           // Fake a duration of at least two divisions; this will
           // make triggers with inTime near the end of a division to span at least two
           // divisions, which will lessen the chance of being missed when there's lag
           trueOutTime = inTime + divisor;
-        } else if (typeof script !== 'undefined') {
+        } else if (type === ITEM_SCRIPT) {
           const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : 500;
           const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : 500;
           trueInTime = inTime - trueLeadInTime;
@@ -142,13 +142,13 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           || (trueInTime < t && trueOutTime > end) // division in middle
         ) {
           let addIndex = null;
-          if (typeof script !== 'undefined') {
+          if (type === ITEM_SCRIPT) {
             addIndex = 2;
-          } else if (typeof media !== 'undefined') {
+          } else if (type === ITEM_MEDIA) {
             addIndex = 3;
-          } else if (typeof trigger !== 'undefined') {
+          } else if (type === ITEM_TRIGGER) {
             addIndex = 0;
-          } else if (typeof curve !== 'undefined') {
+          } else if (type === ITEM_CURVE) {
             addIndex = 1;
           }
           if (addIndex !== null) {

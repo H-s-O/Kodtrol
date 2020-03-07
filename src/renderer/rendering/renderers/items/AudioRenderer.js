@@ -4,20 +4,20 @@ export default class AudioRenderer {
   _media = null;
   _providers = null;
   
-  started = false;
-  volume = 1;
-  streamId = null;
-  duration = 0;
-  id = null;
+  _started = false;
+  _volume = 1;
+  _streamId = null;
+  _duration = 0;
+  _id = null;
   
   constructor(providers, sourceAudio) {
     this._providers = providers;
     
     const { id, volume, inTime, outTime, media } = sourceAudio;
     
-    this.id = id;
-    this.volume = Number(volume);
-    this.duration = Number(outTime) - Number(inTime);
+    this._id = id;
+    this._volume = Number(volume);
+    this._duration = Number(outTime) - Number(inTime);
     
     this.setMedia(media);
   }
@@ -27,25 +27,25 @@ export default class AudioRenderer {
   }
   
   reset = () => {
-    this.started = false;
-    this.streamId = null;
+    this._started = false;
+    this._streamId = null;
   }
   
   render = (delta, blockInfo) => {
     const { mediaPercent } = blockInfo;
-    if (!this.started) {
-      this.streamId = uniqid();
+    if (!this._started) {
+      this._streamId = uniqid();
     }
     
-    this.started = true;
+    this._started = true;
 
-    const position = mediaPercent * this.duration;
-    const volume = this.volume;
+    const position = mediaPercent * this._duration;
+    const volume = this._volume;
     
     this._media.setActive(true);
     this._media.setVolume(volume);
     this._media.setPosition(position);
-    this._media.setStreamId(this.streamId); // hack
+    this._media.setStreamId(this._streamId); // hack
   }
   
   stop = () => {

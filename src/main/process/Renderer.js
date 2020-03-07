@@ -47,7 +47,7 @@ export default class Renderer extends EventEmitter {
   send = (data) => {
     if (this.childProcess) {
       if (!this.childProcess.connected) {
-        console.error('Renderer not connected!');
+        console.error('Renderer subprocess not connected!');
         return;
       }
 

@@ -1,4 +1,4 @@
-import { app, powerSaveBlocker } from 'electron';
+import { app, powerSaveBlocker, protocol } from 'electron';
 import { set, pick } from 'lodash';
 import { join } from 'path';
 
