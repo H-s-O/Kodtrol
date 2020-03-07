@@ -63,6 +63,10 @@ const StyledBlockContainer = styled.div`
   color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
   background-color: ${({ color }) => color};
   border-color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
+
+  &:hover, &.active {
+    background-color: ${({ color }) => Color(color).lighten(0.1).rgb().string()};
+  }
 `;
 
 const StyledPointLabel = styled.div`
@@ -86,6 +90,10 @@ const StyledPointContainer = styled.div`
     overflow-x: visible;
     z-index: 5;
   }
+
+  &:hover, &.active {
+    background-color: ${({ color }) => Color(color).lighten(0.1).rgb().string()};
+  }
 `;
 
 const StyledWaveform = styled.svg`
@@ -98,29 +106,38 @@ const StyledWaveform = styled.svg`
   }
 `;
 
-const TimelineScript = ({ script: { color, name, script }, scriptsNames, ...otherProps }) => {
+const TimelineScript = ({ script: { color, name, script }, scriptsNames, onDrag, ...otherProps }) => {
+  const container = useRef();
+
   return (
     <StyledBlockContainer
+      ref={container}
       color={color}
       {...otherProps}
     >
       <StyledBlockHeader>
         <StyledBlockAnchor
           left
+          onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
         />
         <StyledBlockLabel>{name || scriptsNames[script]}</StyledBlockLabel>
         <StyledBlockAnchor
           right
+          onMouseDown={(e) => onDrag(e, container.current, 'outTime')}
         />
       </StyledBlockHeader>
     </StyledBlockContainer>
   );
 };
 
-const TimelineTrigger = ({ trigger: { color, name }, ...otherProps }) => {
+const TimelineTrigger = ({ trigger: { color, name }, onDrag, ...otherProps }) => {
+  const container = useRef();
+
   return (
     <StyledPointContainer
+      ref={container}
       color={color}
+      onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
       {...otherProps}
     >
       <StyledPointLabel>{name}</StyledPointLabel>
@@ -128,26 +145,31 @@ const TimelineTrigger = ({ trigger: { color, name }, ...otherProps }) => {
   );
 };
 
-const TimelineCurve = ({ curve: { color, name, curve }, ...otherProps }) => {
+const TimelineCurve = ({ curve: { color, name, curve }, onDrag, ...otherProps }) => {
+  const container = useRef();
+
   return (
     <StyledBlockContainer
+      ref={container}
       color={color}
       {...otherProps}
     >
       <StyledBlockHeader>
         <StyledBlockAnchor
           left
+          onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
         />
         <StyledBlockLabel>{name}</StyledBlockLabel>
         <StyledBlockAnchor
           right
+          onMouseDown={(e) => onDrag(e, container.current, 'outTime')}
         />
       </StyledBlockHeader>
     </StyledBlockContainer>
   );
 };
 
-const TimelineMedia = ({ media: { color, name, media }, mediasNames, ...otherProps }) => {
+const TimelineMedia = ({ media: { color, name, media }, mediasNames, onDrag, ...otherProps }) => {
   const file = mediasNames[media].file;
 
   const [loading, setLoading] = useState(false);
@@ -176,18 +198,23 @@ const TimelineMedia = ({ media: { color, name, media }, mediasNames, ...otherPro
     }
   }, [instance, loading, waveformData]);
 
+  const container = useRef();
+
   return (
     <StyledBlockContainer
+      ref={container}
       color={color}
       {...otherProps}
     >
       <StyledBlockHeader>
         <StyledBlockAnchor
           left
+          onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
         />
         <StyledBlockLabel>{name || mediasNames[media].name}</StyledBlockLabel>
         <StyledBlockAnchor
           right
+          onMouseDown={(e) => onDrag(e, container.current, 'outTime')}
         />
       </StyledBlockHeader>
       <StyledBlockBody>

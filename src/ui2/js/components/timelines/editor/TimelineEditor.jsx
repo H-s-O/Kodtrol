@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { ButtonGroup, Button, Popover, Menu, Position, Icon } from '@blueprintjs/core';
 import uniqid from 'uniqid';
@@ -19,6 +19,7 @@ import TimelineTriggerDialog from './TimelineTriggerDialog';
 import TimelineItem from './TimelineItem';
 import TimelineMediaDialog from './TimelineMediaDialog';
 import { getMediaName } from '../../../../../common/js/lib/itemNames';
+import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -63,6 +64,7 @@ const TimelineLayer = ({
   scriptsNames,
   mediasNames,
   timelineDuration,
+  onItemDrag,
   onItemContextMenu,
 }) => {
   return items.map((item) => (
@@ -72,6 +74,7 @@ const TimelineLayer = ({
       scriptsNames={scriptsNames}
       mediasNames={mediasNames}
       timelineDuration={timelineDuration}
+      onDrag={(e, element, mode) => onItemDrag(e, item.id, element, mode)}
       onContextMenu={(e) => onItemContextMenu(e, item.id)}
     />
   ));
@@ -94,7 +97,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     return scripts.map(({ id, name }) => ({ id, name }));
   }, [scripts]);
   const mediasNames = useMemo(() => {
-    return medias.reduce((obj, media) => ({ ...obj, [media.id]: { name: getMediaName(media), file: media.file }}), {});
+    return medias.reduce((obj, media) => ({ ...obj, [media.id]: { name: getMediaName(media), file: media.file } }), {});
   }, [medias]);
   const availableMedias = useMemo(() => {
     return medias.map((media) => ({ id: media.id, name: getMediaName(media) }));
@@ -176,6 +179,22 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [onChange, mediaDialog]);
 
   // Items
+  const dragContent = useRef(null);
+  const itemDragStartHandler = useCallback((e, id, element, mode) => {
+    // Ignore when related to onContextMenu
+    if (e.button !== 0) {
+      return;
+    }
+
+    e.stopPropagation();
+
+    dragContent.current = {
+      item: getItem(items, id),
+      mode,
+      element,
+    };
+    document.body.style = 'cursor:ew-resize;';
+  }, [dragContent, timeline]);
   const itemContextMenuHandler = useCallback((e, id) => {
     e.stopPropagation();
 
@@ -196,7 +215,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     }
     if (item.type === ITEM_MEDIA) {
       template.push({
-        label: 'Edit media',
+        label: 'Edit media block',
         click: () => editMediaClickHandler(id),
       });
     }
@@ -204,7 +223,6 @@ export default function TimelineEditor({ timeline, onChange }) {
     const menu = remote.Menu.buildFromTemplate(template);
     menu.popup();
   }, [timeline, editScriptClickHandler]);
-
   // Layers
   const addLayerAtTopClickHandler = useCallback(() => {
     onChange({ layers: doAddLayer(layers, 'max') });
@@ -231,19 +249,50 @@ export default function TimelineEditor({ timeline, onChange }) {
         scriptsNames={scriptsNames}
         mediasNames={mediasNames}
         timelineDuration={duration}
+        onItemDrag={itemDragStartHandler}
         onItemContextMenu={itemContextMenuHandler}
       />
     );
-  }, [timeline, itemsByLayer, scriptsNames, itemContextMenuHandler]);
+  }, [timeline, itemsByLayer, scriptsNames, itemDragStartHandler, itemContextMenuHandler]);
 
   // Zoom container & trackers
   const mouseTracker = useRef();
   const zoomContainerMouseMoveHandler = useCallback((e) => {
     if (mouseTracker.current) {
-      const left = e.clientX - e.currentTarget.getBoundingClientRect().left;
-      mouseTracker.current.style = `left:${left}px`;
+      mouseTracker.current.style = `left:${getContainerX(e)}px`;
     }
-  }, [mouseTracker]);
+    if (dragContent.current) {
+      const { mode, element, item } = dragContent.current;
+      const percent = getContainerPercent(e);
+      if (mode === 'inTime') {
+        if (item.type === ITEM_TRIGGER) {
+          element.style = `left:${percentString(percent)}`;
+        } else {
+          element.style = `left:${percentString(percent)};width:${percentString((item.outTime / duration) - percent)}`;
+        }
+      } else if (mode === 'outTime') {
+        element.style = `left:${percentString(item.inTime / duration)};width:${percentString(percent - (item.inTime / duration))}`;
+      }
+      dragContent.current.percent = percent;
+    }
+  }, [mouseTracker.current, dragContent.current, timeline]);
+  const windowMouseUpHandler = useCallback((e) => {
+    if (dragContent.current) {
+      const { mode, element, item, percent } = dragContent.current;
+      // element.style = undefined;
+      if (mode === 'inTime') {
+        onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent) }) });
+      } else if (mode === 'outTime') {
+        onChange({ items: doUpdateItem(items, { ...item, outTime: Math.round(duration * percent) }) });
+      }
+      dragContent.current = null;
+      document.body.style = 'cursor:initial;';
+    }
+  }, [dragContent.current, timeline, onChange]);
+  useEffect(() => {
+    window.addEventListener('mouseup', windowMouseUpHandler);
+    return () => window.removeEventListener('mouseup', windowMouseUpHandler);
+  }, [windowMouseUpHandler]);
 
   return (
     <>
@@ -388,7 +437,7 @@ export default function TimelineEditor({ timeline, onChange }) {
               onChange={layersChangerHandler}
               onDelete={layersDeleteHandler}
             />
-            <StyledMouseTracker 
+            <StyledMouseTracker
               ref={mouseTracker}
             />
           </StyledZoomContainer>

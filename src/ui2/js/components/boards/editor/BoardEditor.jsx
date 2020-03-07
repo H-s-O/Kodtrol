@@ -3,6 +3,7 @@ import { Button, ButtonGroup, Position, Popover, Menu, Icon } from '@blueprintjs
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { remote } from 'electron';
+import uniqid from 'uniqid';
 
 import LayerEditor from '../../layer_editor/LayerEditor';
 import BoardItem from './BoardItem';
@@ -14,7 +15,7 @@ import { DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
 import { ITEM_SCRIPT, ITEM_BEHAVIOR_TOGGLE } from '../../../../../common/js/constants/items';
 import useDialog from '../../../lib/useDialog';
 import BoardScriptDialog from './BoardScriptDialog';
-import { getItem, doUpdateItem } from '../../timelines/editor/timelineOperations';
+import { getItem, doUpdateItem, doAddItem } from '../../timelines/editor/timelineOperations';
 import { ipcRendererSend } from '../../../lib/ipcRenderer';
 import { UPDATE_BOARD_INFO } from '../../../../../common/js/constants/events';
 

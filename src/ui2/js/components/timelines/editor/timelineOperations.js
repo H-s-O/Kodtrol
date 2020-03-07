@@ -13,15 +13,6 @@ export const doUpdateItem = (items, item) => {
   return newItems;
 }
 
-export const getTimelineScreenXFromEvent = (e, parent) => {
-  const { clientX } = e;
-  const { left } = parent.getBoundingClientRect();
-  const { scrollLeft } = parent;
-
-  const pos = (clientX - left + scrollLeft);
-  return pos;
-}
-
 export const getTimelinePercentFromEvent = (e, parent) => {
   const { clientX } = e;
   const { left } = parent.getBoundingClientRect();
