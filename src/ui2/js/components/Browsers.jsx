@@ -56,9 +56,6 @@ export default function Browsers() {
         break;
     }
   }, [currentTabId, dispatch]);
-  const addDeviceHandler = useCallback(() => {
-    dispatch(showDeviceDialogAction());
-  }, [dispatch]);
 
   return (
     <FullHeightCard>

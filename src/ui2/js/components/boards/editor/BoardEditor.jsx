@@ -8,14 +8,14 @@ import uniqid from 'uniqid';
 import LayerEditor from '../../layer_editor/LayerEditor';
 import BoardItem from './BoardItem';
 import percentString from '../../../lib/percentString';
-import { doAddLayer, doDeleteLayer } from '../../layer_editor/layerOperations';
+import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import { ICON_LAYER, ICON_SCRIPT } from '../../../../../common/js/constants/icons';
 import { DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
 import { ITEM_SCRIPT, ITEM_BEHAVIOR_TOGGLE } from '../../../../../common/js/constants/items';
 import useDialog from '../../../lib/useDialog';
 import BoardScriptDialog from './BoardScriptDialog';
-import { getItem, doUpdateItem, doAddItem } from '../../timelines/editor/timelineOperations';
+import { getItem, doUpdateItem, doAddItem, doDeleteItem, canChangeItemLayerUp, canChangeItemLayerDown, doChangeItemLayer } from '../../../../../common/js/lib/itemOperations';
 import { ipcRendererSend } from '../../../lib/ipcRenderer';
 import { UPDATE_BOARD_INFO } from '../../../../../common/js/constants/events';
 
@@ -114,6 +114,14 @@ export default function BoardEditor({ board, onChange }) {
     const script = getItem(items, id);
     scriptDialog.show(DIALOG_EDIT, script);
   }, [scriptDialog, board]);
+  const deleteScriptClickHandler = useCallback((id) => {
+    deleteWarning(`Are you sure you want to delete script block ${'name'}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      });
+  }, [board]);
   const scriptDialogSuccessHandler = useCallback(() => {
     if (scriptDialog.mode === DIALOG_EDIT) {
       onChange({ items: doUpdateItem(items, scriptDialog.value) });
@@ -163,22 +171,58 @@ export default function BoardEditor({ board, onChange }) {
       }
     }
   }, [board, runBoard, boardInfo]);
+  const itemChangeLayerUpClick = useCallback((id) => {
+    onChange({ items: doChangeItemLayer(items, layers, id, 1) });
+  }, [onChange, board]);
+  const itemChangeLayerDownClick = useCallback((id) => {
+    onChange({ items: doChangeItemLayer(items, layers, id, -1) });
+  }, [onChange, board]);
   const itemContextMenuHandler = useCallback((e, id) => {
     e.stopPropagation();
 
     const item = getItem(items, id);
 
-    const template = [];
+    const template = [
+      {
+        label: 'Move',
+        submenu: [
+          {
+            label: 'To layer above',
+            click: () => itemChangeLayerUpClick(id),
+            enabled: canChangeItemLayerUp(items, layers, id),
+          },
+          {
+            label: 'To layer below',
+            click: () => itemChangeLayerDownClick(id),
+            enabled: canChangeItemLayerDown(items, layers, id),
+          },
+        ],
+      },
+      {
+        type: 'separator',
+      },
+    ];
     if (item.type === ITEM_SCRIPT) {
       template.push({
         label: 'Edit script block',
         click: () => editScriptClickHandler(id),
       });
+      template.push({ type: 'separator' });
+      template.push({
+        label: 'Delete script block...',
+        click: () => deleteScriptClickHandler(id),
+      })
     }
 
     const menu = remote.Menu.buildFromTemplate(template);
     menu.popup();
-  }, [board, editScriptClickHandler]);
+  }, [
+    board,
+    editScriptClickHandler,
+    deleteScriptClickHandler,
+    itemChangeLayerUpClick,
+    itemChangeLayerDownClick,
+  ]);
 
   // Layers
   const addLayerAtTopClickHandler = useCallback(() => {
@@ -192,11 +236,12 @@ export default function BoardEditor({ board, onChange }) {
   }, [onChange, board]);
   const layersDeleteHandler = useCallback((id) => {
     const layer = layers.find((layer) => layer.id === id);
-    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`).then((result) => {
-      if (result) {
-        onChange({ layers: doDeleteLayer(layers, id) });
-      }
-    });
+    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ layers: doDeleteLayer(layers, id) });
+        }
+      });
   }, [onChange, board]);
   const layerChildrenRenderer = useCallback((id) => {
     return (
@@ -224,6 +269,12 @@ export default function BoardEditor({ board, onChange }) {
                   {(layers && layers.length > 0) ? (
                     <>
                       <Menu.Item
+                        icon={ICON_SCRIPT}
+                        text="Add Script block"
+                        onClick={addScriptClickHandler}
+                      />
+                      <Menu.Divider />
+                      <Menu.Item
                         icon={ICON_LAYER}
                         text="Add layer at top"
                         onClick={addLayerAtTopClickHandler}
@@ -232,12 +283,6 @@ export default function BoardEditor({ board, onChange }) {
                         icon={ICON_LAYER}
                         text="Add layer at bottom"
                         onClick={addLayerAtBottomClickHandler}
-                      />
-                      <Menu.Divider />
-                      <Menu.Item
-                        icon={ICON_SCRIPT}
-                        text="Add Script block"
-                        onClick={addScriptClickHandler}
                       />
                     </>
                   ) : (

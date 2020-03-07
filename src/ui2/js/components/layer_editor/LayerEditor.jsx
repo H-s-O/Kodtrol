@@ -5,7 +5,7 @@ import { remote } from 'electron';
 
 import orderSort from '../../../../common/js/lib/orderSort';
 import Layer from './Layer';
-import { canMoveLayerUp, canMoveLayerDown, doMoveLayer, doAddLayer } from './layerOperations';
+import { canMoveLayerUp, canMoveLayerDown, doMoveLayer, doAddLayer, getLayer } from '../../../../common/js/lib/layerOperations';
 
 const StyledContainer = styled.div`
   position: relative;
@@ -29,10 +29,12 @@ export default function LayerEditor({ layers = [], onChange, onDelete, renderLay
     onChange(doMoveLayer(layers, id, -1));
   }, [onChange, layers]);
   const addLayerAboveHandler = useCallback((id) => {
-    onChange(doAddLayer(layers, id, 1));
+    const layer = getLayer(layers, id);
+    onChange(doAddLayer(layers, layer.order + 1));
   }, [onChange, layers]);
   const addLayerBelowHandler = useCallback((id) => {
-    onChange(doAddLayer(layers, id));
+    const layer = getLayer(layers, id);
+    onChange(doAddLayer(layers, layer.order));
   }, [onChange, layers]);
   const deleteLayerHandler = useCallback((id) => {
     onDelete(id);
@@ -41,25 +43,35 @@ export default function LayerEditor({ layers = [], onChange, onDelete, renderLay
   const layerContextMenuHandler = useCallback((e, id) => {
     let template = [
       {
-        label: 'Move layer up',
-        click: () => moveLayerUpHandler(id),
-        enabled: canMoveLayerUp(layers, id),
-      },
-      {
-        label: 'Move layer down',
-        click: () => moveLayerDownHandler(id),
-        enabled: canMoveLayerDown(layers, id),
+        label: 'Add',
+        submenu: [
+          {
+            label: 'Layer above',
+            click: () => addLayerAboveHandler(id),
+          },
+          {
+            label: 'Layer below',
+            click: () => addLayerBelowHandler(id),
+          },
+        ],
       },
       {
         type: 'separator',
       },
       {
-        label: 'Add layer above',
-        click: () => addLayerAboveHandler(id),
-      },
-      {
-        label: 'Add layer below',
-        click: () => addLayerBelowHandler(id),
+        label: 'Move layer',
+        submenu: [
+          {
+            label: 'Up',
+            click: () => moveLayerUpHandler(id),
+            enabled: canMoveLayerUp(layers, id),
+          },
+          {
+            label: 'Down',
+            click: () => moveLayerDownHandler(id),
+            enabled: canMoveLayerDown(layers, id),
+          },
+        ],
       },
       {
         type: 'separator',

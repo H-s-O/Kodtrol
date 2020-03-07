@@ -10,6 +10,7 @@ const StyledBlockLabel = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow-x: hidden;
+  margin: 0px 2px;
 `;
 
 const StyledBlockAnchor = styled.div`
@@ -85,13 +86,10 @@ const StyledPointContainer = styled.div`
   background-color: ${({ color }) => color};
   overflow-x: hidden;
   color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
-  
-  &:hover {
-    overflow-x: visible;
-    z-index: 5;
-  }
 
   &:hover, &.active {
+    overflow-x: visible;
+    z-index: 5;
     background-color: ${({ color }) => Color(color).lighten(0.1).rgb().string()};
   }
 `;

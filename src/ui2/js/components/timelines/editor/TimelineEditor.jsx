@@ -8,17 +8,17 @@ import { remote } from 'electron';
 import LayerEditor from '../../layer_editor/LayerEditor';
 import { ICON_SCRIPT, ICON_MEDIA, ICON_CURVE, ICON_TRIGGER, ICON_LAYER } from '../../../../../common/js/constants/icons';
 import percentString from '../../../lib/percentString';
-import { doAddLayer, doDeleteLayer } from '../../layer_editor/layerOperations';
-import { doAddItem, doUpdateItem, getItem } from './timelineOperations';
+import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
+import { doAddItem, doUpdateItem, getItem, doDeleteItem, canChangeItemLayerUp, canChangeItemLayerDown, doChangeItemLayer } from '../../../../../common/js/lib/itemOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
 import { DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
 import useDialog from '../../../lib/useDialog';
-import { ITEM_SCRIPT, ITEM_TRIGGER, ITEM_MEDIA } from '../../../../../common/js/constants/items';
+import { ITEM_SCRIPT, ITEM_TRIGGER, ITEM_MEDIA, ITEM_CURVE } from '../../../../../common/js/constants/items';
 import TimelineTriggerDialog from './TimelineTriggerDialog';
 import TimelineItem from './TimelineItem';
 import TimelineMediaDialog from './TimelineMediaDialog';
-import { getMediaName } from '../../../../../common/js/lib/itemNames';
+import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNames';
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 
 const StyledContainer = styled.div`
@@ -135,6 +135,15 @@ export default function TimelineEditor({ timeline, onChange }) {
     const script = getItem(items, id);
     scriptDialog.show(DIALOG_EDIT, script);
   }, [scriptDialog, timeline]);
+  const deleteScriptClickHandler = useCallback((id) => {
+    const script = getItem(items, id);
+    deleteWarning(`Are you sure you want to delete script ${getScriptName(script, scriptsNames)}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      })
+  }, [onChange, timeline, scriptsNames]);
   const scriptDialogSuccessHandler = useCallback(() => {
     if (scriptDialog.mode === DIALOG_EDIT) {
       onChange({ items: doUpdateItem(items, scriptDialog.value) });
@@ -152,6 +161,15 @@ export default function TimelineEditor({ timeline, onChange }) {
     const trigger = getItem(items, id);
     triggerDialog.show(DIALOG_EDIT, trigger);
   }, [triggerDialog, timeline]);
+  const deleteTriggerClickHandler = useCallback((id) => {
+    const trigger = getItem(items, id);
+    deleteWarning(`Are you sure you want to delete trigger ${trigger.name}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      })
+  }, [onChange, timeline]);
   const triggerDialogSuccessHandler = useCallback(() => {
     if (triggerDialog.mode === DIALOG_EDIT) {
       onChange({ items: doUpdateItem(items, triggerDialog.value) });
@@ -169,6 +187,15 @@ export default function TimelineEditor({ timeline, onChange }) {
     const media = getItem(items, id);
     mediaDialog.show(DIALOG_EDIT, media);
   }, [mediaDialog, timeline]);
+  const deleteMediaClickHandler = useCallback((id) => {
+    const media = getItem(items, id);
+    deleteWarning(`Are you sure you want to delete media ${mediasNames[media.media].name}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      })
+  }, [onChange, timeline, mediasNames]);
   const mediaDialogSuccessHandler = useCallback(() => {
     if (mediaDialog.mode === DIALOG_EDIT) {
       onChange({ items: doUpdateItem(items, mediaDialog.value) });
@@ -188,23 +215,54 @@ export default function TimelineEditor({ timeline, onChange }) {
 
     e.stopPropagation();
 
+    element.classList.add('active');
+    document.body.style = 'cursor:ew-resize;';
     dragContent.current = {
       item: getItem(items, id),
       mode,
       element,
     };
-    document.body.style = 'cursor:ew-resize;';
   }, [dragContent, timeline]);
+  const itemChangeLayerUpClick = useCallback((id) => {
+    onChange({ items: doChangeItemLayer(items, layers, id, 1) });
+  }, [onChange, timeline]);
+  const itemChangeLayerDownClick = useCallback((id) => {
+    onChange({ items: doChangeItemLayer(items, layers, id, -1) });
+  }, [onChange, timeline]);
   const itemContextMenuHandler = useCallback((e, id) => {
     e.stopPropagation();
 
     const item = getItem(items, id);
 
-    const template = [];
+    const template = [
+      {
+        label: 'Move',
+        submenu: [
+          {
+            label: 'To layer above',
+            click: () => itemChangeLayerUpClick(id),
+            enabled: canChangeItemLayerUp(items, layers, id),
+          },
+          {
+            label: 'To layer below',
+            click: () => itemChangeLayerDownClick(id),
+            enabled: canChangeItemLayerDown(items, layers, id),
+          },
+        ],
+      },
+      {
+        type: 'separator',
+      },
+    ];
     if (item.type === ITEM_SCRIPT) {
       template.push({
         label: 'Edit script block',
         click: () => editScriptClickHandler(id),
+      });
+      template.push({ type: 'separator' });
+      template.push({
+        label: 'Delete script block...',
+        click: () => deleteScriptClickHandler(id),
       });
     }
     if (item.type === ITEM_TRIGGER) {
@@ -212,17 +270,51 @@ export default function TimelineEditor({ timeline, onChange }) {
         label: 'Edit trigger',
         click: () => editTriggerClickHandler(id),
       });
+      template.push({ type: 'separator' });
+      template.push({
+        label: 'Delete trigger...',
+        click: () => deleteTriggerClickHandler(id),
+      });
     }
     if (item.type === ITEM_MEDIA) {
       template.push({
         label: 'Edit media block',
         click: () => editMediaClickHandler(id),
       });
+      template.push({ type: 'separator' });
+      template.push({
+        label: 'Delete media block...',
+        click: () => deleteMediaClickHandler(id),
+      });
+    }
+    if (item.type === ITEM_CURVE) {
+      template.push({
+        label: 'Edit curve block',
+        click: () => editCurveClickHandler(id),
+      });
+      template.push({ type: 'separator' });
+      template.push({
+        label: 'Delete curve block...',
+        click: () => deleteCurveClickHandler(id),
+      });
     }
 
     const menu = remote.Menu.buildFromTemplate(template);
     menu.popup();
-  }, [timeline, editScriptClickHandler]);
+  }, [
+    timeline,
+    editScriptClickHandler,
+    deleteScriptClickHandler,
+    editTriggerClickHandler,
+    deleteTriggerClickHandler,
+    editMediaClickHandler,
+    deleteMediaClickHandler,
+    // editCurveClickHandler,
+    // deleteCurveClickHandler,
+    itemChangeLayerUpClick,
+    itemChangeLayerDownClick,
+  ]);
+
   // Layers
   const addLayerAtTopClickHandler = useCallback(() => {
     onChange({ layers: doAddLayer(layers, 'max') });
@@ -235,11 +327,12 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [onChange, timeline]);
   const layersDeleteHandler = useCallback((id) => {
     const layer = layers.find((layer) => layer.id === id);
-    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`).then((result) => {
-      if (result) {
-        onChange({ layers: doDeleteLayer(layers, id) });
-      }
-    });
+    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ layers: doDeleteLayer(layers, id) });
+        }
+      });
   }, [onChange, timeline]);
   const layerChildrenRenderer = useCallback((id) => {
     return (
@@ -279,14 +372,14 @@ export default function TimelineEditor({ timeline, onChange }) {
   const windowMouseUpHandler = useCallback((e) => {
     if (dragContent.current) {
       const { mode, element, item, percent } = dragContent.current;
-      // element.style = undefined;
       if (mode === 'inTime') {
         onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent) }) });
       } else if (mode === 'outTime') {
         onChange({ items: doUpdateItem(items, { ...item, outTime: Math.round(duration * percent) }) });
       }
-      dragContent.current = null;
+      element.classList.remove('active');
       document.body.style = 'cursor:initial;';
+      dragContent.current = null;
     }
   }, [dragContent.current, timeline, onChange]);
   useEffect(() => {
@@ -319,6 +412,26 @@ export default function TimelineEditor({ timeline, onChange }) {
                   {(layers && layers.length > 0) ? (
                     <>
                       <Menu.Item
+                        icon={ICON_SCRIPT}
+                        text="Add Script block"
+                        onClick={addScriptClickHandler}
+                      />
+                      <Menu.Item
+                        icon={ICON_TRIGGER}
+                        text="Add Trigger"
+                        onClick={addTriggerClickHandler}
+                      />
+                      <Menu.Item
+                        icon={ICON_CURVE}
+                        text="Add Curve block"
+                      />
+                      <Menu.Item
+                        icon={ICON_MEDIA}
+                        text="Add Media block"
+                        onClick={addMediaClickHandler}
+                      />
+                      <Menu.Divider />
+                      <Menu.Item
                         icon={ICON_LAYER}
                         text="Add layer at top"
                         onClick={addLayerAtTopClickHandler}
@@ -336,26 +449,6 @@ export default function TimelineEditor({ timeline, onChange }) {
                         onClick={addLayerAtBottomClickHandler}
                       />
                     )}
-                  <Menu.Divider />
-                  <Menu.Item
-                    icon={ICON_SCRIPT}
-                    text="Add Script block"
-                    onClick={addScriptClickHandler}
-                  />
-                  <Menu.Item
-                    icon={ICON_TRIGGER}
-                    text="Add Trigger"
-                    onClick={addTriggerClickHandler}
-                  />
-                  <Menu.Item
-                    icon={ICON_CURVE}
-                    text="Add Curve block"
-                  />
-                  <Menu.Item
-                    icon={ICON_MEDIA}
-                    text="Add Media block"
-                    onClick={addMediaClickHandler}
-                  />
                 </Menu>
               )}
             >

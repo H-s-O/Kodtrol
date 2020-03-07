@@ -6,6 +6,7 @@ const BlockLabel = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow-x: hidden;
+  margin: 0px 2px;
 `;
 
 const BlockHeader = styled.div`

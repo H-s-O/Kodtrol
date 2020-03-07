@@ -1,6 +1,11 @@
 import uniqid from 'uniqid';
 
-import orderSort from '../../../../common/js/lib/orderSort';
+import orderSort from './orderSort';
+
+export const getLayer = (layers, layerId) => {
+  const layer = layers.find(({ id }) => id === layerId);
+  return layer;
+};
 
 export const sortLayers = (layers) => {
   const sortedLayers = layers
@@ -60,18 +65,17 @@ export const doMoveLayer = (layers, layerId, offset) => {
 
 export const canMoveLayerUp = (layers, layerId) => {
   const layer = layers.find(({ id }) => id === layerId);
-
-  return layer.order < layers.length - 1;
+  const canIt = layer.order < layers.length - 1;
+  return canIt;
 };
 
 export const canMoveLayerDown = (layers, layerId) => {
   const layer = layers.find(({ id }) => id === layerId);
-
-  return layer.order > 0;
+  const canIt = layer.order > 0;
+  return canIt;
 };
 
 export const doDeleteLayer = (layers, layerId) => {
   const newLayers = sortLayers(layers.filter(({ id }) => id !== layerId));
-
   return newLayers;
 };
