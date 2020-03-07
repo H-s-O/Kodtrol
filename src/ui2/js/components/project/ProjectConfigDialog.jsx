@@ -35,11 +35,9 @@ const StyledRightColumn = styled.div`
   width: 100%;
 `
 
-const StyledAddButton = styled(Button)`
-  ${({ margin }) => margin && `
-    & {
-      margin-top: 10px;
-    }
+const StyledAddButton = styled(({ withMargin, ...otherProps }) => <Button {...otherProps} />)`
+  ${({ withMargin }) => withMargin && `
+    margin-top: 10px;
   `}
 `;
 
@@ -326,7 +324,7 @@ const ItemsPanel = ({
             fill
             small
             icon="plus"
-            margin={value && value.length > 0}
+            withMargin={value && value.length > 0}
             onClick={onAdd}
           />
         </StyledLeftColumn>
