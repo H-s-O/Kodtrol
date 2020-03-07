@@ -12,3 +12,21 @@ export const doUpdateItem = (items, item) => {
   const newItems = items.map((obj) => obj.id === item.id ? item : obj);
   return newItems;
 }
+
+export const getTimelineScreenXFromEvent = (e, parent) => {
+  const { clientX } = e;
+  const { left } = parent.getBoundingClientRect();
+  const { scrollLeft } = parent;
+
+  const pos = (clientX - left + scrollLeft);
+  return pos;
+}
+
+export const getTimelinePercentFromEvent = (e, parent) => {
+  const { clientX } = e;
+  const { left } = parent.getBoundingClientRect();
+  const { scrollLeft, scrollWidth } = parent;
+
+  const percent = (clientX - left + scrollLeft) / scrollWidth;
+  return percent;
+}

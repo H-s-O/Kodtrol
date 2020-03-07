@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import { ButtonGroup, Button, Popover, Menu, Position, Icon } from '@blueprintjs/core';
 import uniqid from 'uniqid';
@@ -38,6 +38,24 @@ const StyledBottomRow = styled.div`
 const StyledButtonGroup = styled(ButtonGroup)`
   margin-right: 5px;
 `;
+
+const StyledZoomContainer = styled.div`
+  position: relative;
+
+  & > * {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+  }
+`;
+
+const StyledMouseTracker = styled.div`
+  width: 1px;
+  height: 100%;
+  background-color: #AAA;
+  z-index: 15;
+  pointer-events: none;
+`
 
 const TimelineLayer = ({
   id,
@@ -218,6 +236,15 @@ export default function TimelineEditor({ timeline, onChange }) {
     );
   }, [timeline, itemsByLayer, scriptsNames, itemContextMenuHandler]);
 
+  // Zoom container & trackers
+  const mouseTracker = useRef();
+  const zoomContainerMouseMoveHandler = useCallback((e) => {
+    if (mouseTracker.current) {
+      const left = e.clientX - e.currentTarget.getBoundingClientRect().left;
+      mouseTracker.current.style = `left:${left}px`;
+    }
+  }, [mouseTracker]);
+
   return (
     <>
       <StyledContainer>
@@ -348,11 +375,12 @@ export default function TimelineEditor({ timeline, onChange }) {
           </StyledButtonGroup>
         </StyledTopRow>
         <StyledBottomRow>
-          <div
+          <StyledZoomContainer
             style={{
               width: percentString(zoom),
               height: percentString(zoomVert),
             }}
+            onMouseMove={zoomContainerMouseMoveHandler}
           >
             <LayerEditor
               layers={layers}
@@ -360,7 +388,10 @@ export default function TimelineEditor({ timeline, onChange }) {
               onChange={layersChangerHandler}
               onDelete={layersDeleteHandler}
             />
-          </div>
+            <StyledMouseTracker 
+              ref={mouseTracker}
+            />
+          </StyledZoomContainer>
         </StyledBottomRow>
       </StyledContainer>
       <TimelineScriptDialog

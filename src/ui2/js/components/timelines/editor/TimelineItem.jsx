@@ -12,10 +12,37 @@ const StyledBlockLabel = styled.span`
   overflow-x: hidden;
 `;
 
+const StyledBlockAnchor = styled.div`
+  ${({ left }) => left && `
+    border-right-width: 10px;
+    border-right-style: solid;
+    border-right-color: inherit;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+
+    &:hover {
+      border-right-color: #AAA;
+    }
+  `}
+
+  ${({ right }) => right && `
+    border-left-width: 10px;
+    border-left-style: solid;
+    border-left-color: inherit;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+
+    &:hover {
+      border-left-color: #AAA;
+    }
+  `}
+`;
+
 const StyledBlockHeader = styled.div`
   display: flex;
-  justify-content: center;
-  padding: 4px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0px;
   width: 100%;
   font-size: 0.75em;
   border-bottom-color: inherit;
@@ -57,7 +84,7 @@ const StyledPointContainer = styled.div`
   
   &:hover {
     overflow-x: visible;
-    z-index: 10;
+    z-index: 5;
   }
 `;
 
@@ -78,7 +105,13 @@ const TimelineScript = ({ script: { color, name, script }, scriptsNames, ...othe
       {...otherProps}
     >
       <StyledBlockHeader>
+        <StyledBlockAnchor
+          left
+        />
         <StyledBlockLabel>{name || scriptsNames[script]}</StyledBlockLabel>
+        <StyledBlockAnchor
+          right
+        />
       </StyledBlockHeader>
     </StyledBlockContainer>
   );
@@ -102,7 +135,13 @@ const TimelineCurve = ({ curve: { color, name, curve }, ...otherProps }) => {
       {...otherProps}
     >
       <StyledBlockHeader>
+        <StyledBlockAnchor
+          left
+        />
         <StyledBlockLabel>{name}</StyledBlockLabel>
+        <StyledBlockAnchor
+          right
+        />
       </StyledBlockHeader>
     </StyledBlockContainer>
   );
@@ -143,7 +182,13 @@ const TimelineMedia = ({ media: { color, name, media }, mediasNames, ...otherPro
       {...otherProps}
     >
       <StyledBlockHeader>
+        <StyledBlockAnchor
+          left
+        />
         <StyledBlockLabel>{name || mediasNames[media].name}</StyledBlockLabel>
+        <StyledBlockAnchor
+          right
+        />
       </StyledBlockHeader>
       <StyledBlockBody>
         {(waveformData && waveformWidth) && (
