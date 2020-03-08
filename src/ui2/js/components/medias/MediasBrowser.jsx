@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { basename } from 'path';
 
 import { showMediaDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 import ItemBrowser from '../ui/ItemBrowser';
 import { deleteMediaAction } from '../../../../common/js/store/actions/medias';
 
@@ -20,6 +20,10 @@ export default function MediasBrowser() {
     const media = medias.find((media) => media.id === id);
     dispatch(showMediaDialogAction(DIALOG_EDIT, media));
   }, [dispatch, medias]);
+  const duplicateCallback = useCallback((id) => {
+    const media = medias.find((media) => media.id === id);
+    dispatch(showMediaDialogAction(DIALOG_DUPLICATE, media));
+  }, [dispatch, medias]);
   const deleteCallback = useCallback((id) => {
     dispatch(deleteMediaAction(id));
   }, [dispatch]);
@@ -30,6 +34,7 @@ export default function MediasBrowser() {
       items={medias}
       folders={mediasFolders}
       editPropsCallback={editPropsCallback}
+      duplicateCallback={duplicateCallback}
       deleteCallback={deleteCallback}
       itemLabelComponent={MediaLabel}
       extraComponentProp="file"

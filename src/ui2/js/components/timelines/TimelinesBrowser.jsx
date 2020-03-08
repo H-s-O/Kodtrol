@@ -5,7 +5,7 @@ import { Icon, Button, Intent } from '@blueprintjs/core';
 import { editTimelineAction, runTimelineAction, stopTimelineAction, deleteTimelineAction, focusEditedTimelineAction } from '../../../../common/js/store/actions/timelines';
 import ItemBrowser from '../ui/ItemBrowser';
 import { showTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 
 const TimelineLabel = ({ name, id, activeItemId }) => {
   return (
@@ -81,6 +81,10 @@ export default function TimelinesBrowser() {
     const timeline = timelines.find((timeline) => timeline.id === id);
     dispatch(showTimelineDialogAction(DIALOG_EDIT, timeline));
   }, [dispatch, timelines]);
+  const duplicateCallback = useCallback((id) => {
+    const timeline = timelines.find((timeline) => timeline.id === id);
+    dispatch(showTimelineDialogAction(DIALOG_DUPLICATE, timeline));
+  }, [dispatch, timelines]);
   const deleteCallback = useCallback((id) => {
     dispatch(deleteTimelineAction(id));
   }, [dispatch]);
@@ -93,6 +97,7 @@ export default function TimelinesBrowser() {
       activeItemId={runTimeline}
       editCallback={editCallback}
       editPropsCallback={editPropsCallback}
+      duplicateCallback={duplicateCallback}
       deleteCallback={deleteCallback}
       itemLabelComponent={TimelineLabel}
       itemSecondaryLabelComponent={TimelineSecondaryLabel}

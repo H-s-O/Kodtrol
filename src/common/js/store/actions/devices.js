@@ -18,8 +18,8 @@ export const updateDevicesAction = (devices) => {
 export const CREATE_DEVICE = 'create_device';
 export const createDeviceAction = (data) => {
   const newData = {
-    ...data,
     tags: [],
+    ...data,
     id: uniqid(),
   }
   return {

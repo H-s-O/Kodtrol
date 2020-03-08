@@ -4,7 +4,7 @@ import { Intent, Button, Icon, Tag } from '@blueprintjs/core';
 
 import { showDeviceDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { deleteDeviceAction, runDeviceAction, stopDeviceAction } from '../../../../common/js/store/actions/devices';
-import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 import ItemBrowser from '../ui/ItemBrowser';
 import TagGroup from '../ui/TagGroup';
 
@@ -83,6 +83,10 @@ export default function DevicesBrowser() {
     const device = devices.find((device) => device.id === id);
     dispatch(showDeviceDialogAction(DIALOG_EDIT, device));
   }, [dispatch, devices]);
+  const duplicateCallback = useCallback((id) => {
+    const device = devices.find((device) => device.id === id);
+    dispatch(showDeviceDialogAction(DIALOG_DUPLICATE, device));
+  }, [dispatch, devices]);
   const deleteCallback = useCallback((id) => {
     dispatch(deleteDeviceAction(id));
   }, [dispatch]);
@@ -94,6 +98,7 @@ export default function DevicesBrowser() {
       folders={devicesFolders}
       activeItemId={runDevice}
       editPropsCallback={editPropsCallback}
+      duplicateCallback={duplicateCallback}
       deleteCallback={deleteCallback}
       itemLabelComponent={DeviceLabel}
       itemSecondaryLabelComponent={DeviceSecondaryLabel}

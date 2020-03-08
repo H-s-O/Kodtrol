@@ -5,7 +5,7 @@ import { Icon, Button, Intent } from '@blueprintjs/core';
 import { runBoardAction, stopBoardAction, editBoardAction, deleteBoardAction, focusEditedBoardAction } from '../../../../common/js/store/actions/boards';
 import ItemBrowser from '../ui/ItemBrowser';
 import { showBoardDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 
 const BoardLabel = ({ name, id, activeItemId }) => {
   return (
@@ -81,6 +81,10 @@ export default function BoardsBrowser() {
     const board = boards.find((board) => board.id === id);
     dispatch(showBoardDialogAction(DIALOG_EDIT, board));
   }, [dispatch, boards]);
+  const duplicateCallback = useCallback((id) => {
+    const board = boards.find((board) => board.id === id);
+    dispatch(showBoardDialogAction(DIALOG_DUPLICATE, board));
+  }, [dispatch, boards]);
   const deleteCallback = useCallback((id) => {
     dispatch(deleteBoardAction(id));
   }, [dispatch]);
@@ -93,6 +97,7 @@ export default function BoardsBrowser() {
       activeItemId={runBoard}
       editCallback={editCallback}
       editPropsCallback={editPropsCallback}
+      duplicateCallback={duplicateCallback}
       deleteCallback={deleteCallback}
       itemLabelComponent={BoardLabel}
       itemSecondaryLabelComponent={BoardSecondaryLabel}

@@ -5,7 +5,7 @@ import { Icon, Button, Intent } from '@blueprintjs/core';
 import { editScriptAction, runScriptAction, stopScriptAction, deleteScriptAction, focusEditedScriptAction } from '../../../../common/js/store/actions/scripts';
 import ItemBrowser from '../ui/ItemBrowser';
 import { showScriptDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 
 const ScriptLabel = ({ name, id, activeItemId }) => {
   return (
@@ -81,6 +81,10 @@ export default function ScriptsBrowser() {
     const script = scripts.find((script) => script.id === id);
     dispatch(showScriptDialogAction(DIALOG_EDIT, script));
   }, [dispatch, scripts]);
+  const duplicateCallback = useCallback((id) => {
+    const script = scripts.find((script) => script.id === id);
+    dispatch(showScriptDialogAction(DIALOG_DUPLICATE, script));
+  }, [dispatch, scripts]);
   const deleteCallback = useCallback((id) => {
     dispatch(deleteScriptAction(id));
   }, [dispatch]);
@@ -93,6 +97,7 @@ export default function ScriptsBrowser() {
       activeItemId={runScript}
       editCallback={editCallback}
       editPropsCallback={editPropsCallback}
+      duplicateCallback={duplicateCallback}
       deleteCallback={deleteCallback}
       itemLabelComponent={ScriptLabel}
       itemSecondaryLabelComponent={ScriptSecondaryLabel}
