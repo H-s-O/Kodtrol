@@ -8,12 +8,12 @@ import * as MainWindowEvent from '../events/MainWindowEvent';
 export default class MainWindow extends EventEmitter {
   win = null;
   contents = null;
-  
+
   static __devToolsAdded = false;
-  
+
   constructor(title) {
     super();
-    
+
     this.win = new BrowserWindow({
       title,
       width: 1600,
@@ -28,7 +28,7 @@ export default class MainWindow extends EventEmitter {
     this.win.on('close', this.onClose);
     this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);
-    
+
     const isDev = true;
     if (isDev) {
       if (!MainWindow.__devToolsAdded) {
@@ -36,40 +36,46 @@ export default class MainWindow extends EventEmitter {
         BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'));
         MainWindow.__devToolsAdded = true;
       }
-    } 
+    }
 
     this.win.loadFile(join(__dirname, '../../../build/ui2/index.html'));
-    
+
     this.contents = this.win.webContents;
     this.contents.once('did-finish-load', this.onFinishLoad);
   }
-  
+
   get browserWindow() {
     return this.win;
   }
-  
+
   onReadyToShow = () => {
     this.win.show();
   }
-  
+
   onFinishLoad = () => {
     // disable page zoom/scale
     this.contents.setZoomFactor(1);
     this.contents.setVisualZoomLevelLimits(1, 1);
     this.contents.setLayoutZoomLevelLimits(0, 0);
-    
+
     this.emit(MainWindowEvent.LOADED);
   }
-  
+
   onClose = (e) => {
     // Do not let the window close by itself; handle it in Main
     e.preventDefault();
-    
+
     this.emit(MainWindowEvent.CLOSING);
   }
-  
+
   onClosed = () => {
     this.emit(MainWindowEvent.CLOSED);
+  }
+
+  send = (channel, ...data) => {
+    if (this.contents) {
+      this.contents.send(channel, ...data);
+    }
   }
 
   capture = async (selector, callback) => {
@@ -106,7 +112,7 @@ export default class MainWindow extends EventEmitter {
       })
     }
   }
-  
+
   destroy = () => {
     if (this.win) {
       this.win.removeAllListeners();
@@ -115,7 +121,7 @@ export default class MainWindow extends EventEmitter {
     if (this.contents) {
       this.contents.removeAllListeners();
     }
-    
+
     this.win = null;
     this.contents = null;
   }

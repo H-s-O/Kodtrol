@@ -20,6 +20,8 @@ import TimelineItem from './TimelineItem';
 import TimelineMediaDialog from './TimelineMediaDialog';
 import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNames';
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
+import { ipcRendererListen, ipcRendererClear } from '../../../lib/ipcRenderer';
+import { UPDATE_TIMELINE_INFO } from '../../../../../common/js/constants/events';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -58,6 +60,14 @@ const StyledMouseTracker = styled.div`
   pointer-events: none;
 `
 
+const StyledPositionTracker = styled.div`
+  width: 1px;
+  height: 100%;
+  background-color: #F00;
+  z-index: 10;
+  pointer-events: none;
+`
+
 const TimelineLayer = ({
   id,
   items = [],
@@ -89,6 +99,8 @@ export default function TimelineEditor({ timeline, onChange }) {
   const medias = useSelector((state) => state.medias);
   const runTimeline = useSelector((state) => state.runTimeline);
   const timelineInfo = useSelector((state) => state.timelineInfo);
+
+  const isRunning = timeline.id == runTimeline;
 
   const scriptsNames = useMemo(() => {
     return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
@@ -315,48 +327,18 @@ export default function TimelineEditor({ timeline, onChange }) {
     itemChangeLayerDownClick,
   ]);
 
-  // Layers
-  const addLayerAtTopClickHandler = useCallback(() => {
-    onChange({ layers: doAddLayer(layers, 'max') });
-  }, [onChange, timeline]);
-  const addLayerAtBottomClickHandler = useCallback(() => {
-    onChange({ layers: doAddLayer(layers, 'min') });
-  }, [onChange, timeline]);
-  const layersChangerHandler = useCallback((layers) => {
-    onChange({ layers });
-  }, [onChange, timeline]);
-  const layersDeleteHandler = useCallback((id) => {
-    const layer = layers.find((layer) => layer.id === id);
-    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ layers: doDeleteLayer(layers, id) });
-        }
-      });
-  }, [onChange, timeline]);
-  const layerChildrenRenderer = useCallback((id) => {
-    return (
-      <TimelineLayer
-        id={id}
-        items={itemsByLayer[id]}
-        scriptsNames={scriptsNames}
-        mediasNames={mediasNames}
-        timelineDuration={duration}
-        onItemDrag={itemDragStartHandler}
-        onItemContextMenu={itemContextMenuHandler}
-      />
-    );
-  }, [timeline, itemsByLayer, scriptsNames, itemDragStartHandler, itemContextMenuHandler]);
-
   // Zoom container & trackers
   const mouseTracker = useRef();
+  const positionTracker = useRef();
+  const timelinePercent = useRef();
   const zoomContainerMouseMoveHandler = useCallback((e) => {
     if (mouseTracker.current) {
       mouseTracker.current.style = `left:${getContainerX(e)}px`;
     }
+    const percent = getContainerPercent(e);
+    timelinePercent.current = percent;
     if (dragContent.current) {
       const { mode, element, item } = dragContent.current;
-      const percent = getContainerPercent(e);
       if (mode === 'inTime') {
         if (item.type === ITEM_TRIGGER) {
           element.style = `left:${percentString(percent)}`;
@@ -368,7 +350,7 @@ export default function TimelineEditor({ timeline, onChange }) {
       }
       dragContent.current.percent = percent;
     }
-  }, [mouseTracker.current, dragContent.current, timeline]);
+  }, [mouseTracker.current, dragContent.current, timelinePercent, timeline]);
   const windowMouseUpHandler = useCallback((e) => {
     if (dragContent.current) {
       const { mode, element, item, percent } = dragContent.current;
@@ -395,12 +377,12 @@ export default function TimelineEditor({ timeline, onChange }) {
             <Button
               small
               icon="step-backward"
-              disabled={runTimeline !== timeline.id}
+              disabled={!isRunning}
             />
             <Button
               small
               icon="play"
-              disabled={runTimeline !== timeline.id}
+              disabled={!isRunning}
             />
           </StyledButtonGroup>
           <StyledButtonGroup>
@@ -530,6 +512,11 @@ export default function TimelineEditor({ timeline, onChange }) {
               onChange={layersChangerHandler}
               onDelete={layersDeleteHandler}
             />
+            {isRunning && (
+              <StyledPositionTracker
+                ref={positionTracker}
+              />
+            )}
             <StyledMouseTracker
               ref={mouseTracker}
             />

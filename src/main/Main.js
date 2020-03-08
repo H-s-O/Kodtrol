@@ -18,7 +18,7 @@ import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
-import { ipcMainListen, ipcMainClear } from './lib/ipcMain';
+import { ipcMainListen, ipcMainClear, ipcMainSend } from './lib/ipcMain';
 import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO } from '../common/js/constants/events';
 
 export default class Main {
@@ -352,11 +352,15 @@ export default class Main {
   }
 
   onRendererTimelineInfoUpdate = (info) => {
-    this.store.dispatch(updateTimelineInfo(info));
+    if (this.mainWindow) {
+      this.mainWindow.send(UPDATE_TIMELINE_INFO, info);
+    }
   }
 
   onRendererBoardInfoUpdate = (info) => {
-    this.store.dispatch(updateBoardInfo(info));
+    if (this.mainWindow) {
+      this.mainWindow.send(UPDATE_BOARD_INFO, info);
+    }
   }
 
   onRendererIOStatusUpdate = (status) => {
