@@ -83,7 +83,7 @@ export default function LayerEditor({ layers = [], onChange, onDelete, renderLay
     ];
 
     if (renderLayerContextMenu) {
-      template = renderLayerContextMenu(template, id, e);
+      template = renderLayerContextMenu(template, e, id);
     }
 
     const menu = remote.Menu.buildFromTemplate(template);

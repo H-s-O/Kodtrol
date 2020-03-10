@@ -204,7 +204,7 @@ export default function BoardEditor({ board, onChange }) {
     ];
     if (item.type === ITEM_SCRIPT) {
       template.push({
-        label: 'Edit script block',
+        label: 'Edit script block...',
         click: () => editScriptClickHandler(id),
       });
       template.push({ type: 'separator' });
@@ -270,7 +270,7 @@ export default function BoardEditor({ board, onChange }) {
                     <>
                       <Menu.Item
                         icon={ICON_SCRIPT}
-                        text="Add Script block"
+                        text="Add Script block..."
                         onClick={addScriptClickHandler}
                       />
                       <Menu.Divider />

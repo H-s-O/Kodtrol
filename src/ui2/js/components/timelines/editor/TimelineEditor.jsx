@@ -12,7 +12,7 @@ import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOpe
 import { doAddItem, doUpdateItem, getItem, doDeleteItem, canChangeItemLayerUp, canChangeItemLayerDown, doChangeItemLayer } from '../../../../../common/js/lib/itemOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
-import { DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT, DIALOG_ADD } from '../../../../../common/js/constants/dialogs';
 import useDialog from '../../../lib/useDialog';
 import { ITEM_SCRIPT, ITEM_TRIGGER, ITEM_MEDIA, ITEM_CURVE } from '../../../../../common/js/constants/items';
 import TimelineTriggerDialog from './TimelineTriggerDialog';
@@ -131,6 +131,10 @@ export default function TimelineEditor({ timeline, onChange }) {
   const triggerDialog = useDialog();
   const mediaDialog = useDialog();
 
+  const mouseTracker = useRef();
+  const positionTracker = useRef();
+  const timelinePercent = useRef();
+
   // Zoom
   const zoomClickHandler = useCallback((value) => {
     onChange({ zoom: value });
@@ -140,8 +144,8 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [onChange, timeline]);
 
   // Scripts
-  const addScriptClickHandler = useCallback(() => {
-    scriptDialog.show();
+  const addScriptClickHandler = useCallback((initial = null) => {
+    initial ? scriptDialog.show(DIALOG_ADD, initial) : scriptDialog.show();
   }, [scriptDialog]);
   const editScriptClickHandler = useCallback((id) => {
     const script = getItem(items, id);
@@ -166,8 +170,8 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [onChange, scriptDialog]);
 
   // Triggers
-  const addTriggerClickHandler = useCallback(() => {
-    triggerDialog.show();
+  const addTriggerClickHandler = useCallback((initial = null) => {
+    initial ? triggerDialog.show(DIALOG_ADD, initial) : triggerDialog.show();
   }, [triggerDialog]);
   const editTriggerClickHandler = useCallback((id) => {
     const trigger = getItem(items, id);
@@ -192,8 +196,8 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [onChange, triggerDialog]);
 
   // Medias
-  const addMediaClickHandler = useCallback(() => {
-    mediaDialog.show();
+  const addMediaClickHandler = useCallback((initial = null) => {
+    initial ? mediaDialog.show(DIALOG_ADD, initial) : mediaDialog.show();
   }, [mediaDialog]);
   const editMediaClickHandler = useCallback((id) => {
     const media = getItem(items, id);
@@ -234,13 +238,13 @@ export default function TimelineEditor({ timeline, onChange }) {
       mode,
       element,
     };
-  }, [dragContent, timeline]);
+  }, [dragContent, items]);
   const itemChangeLayerUpClick = useCallback((id) => {
     onChange({ items: doChangeItemLayer(items, layers, id, 1) });
-  }, [onChange, timeline]);
+  }, [onChange, items, layers]);
   const itemChangeLayerDownClick = useCallback((id) => {
     onChange({ items: doChangeItemLayer(items, layers, id, -1) });
-  }, [onChange, timeline]);
+  }, [onChange, items, layers]);
   const itemContextMenuHandler = useCallback((e, id) => {
     e.stopPropagation();
 
@@ -268,7 +272,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     ];
     if (item.type === ITEM_SCRIPT) {
       template.push({
-        label: 'Edit script block',
+        label: 'Edit script block...',
         click: () => editScriptClickHandler(id),
       });
       template.push({ type: 'separator' });
@@ -279,7 +283,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     }
     if (item.type === ITEM_TRIGGER) {
       template.push({
-        label: 'Edit trigger',
+        label: 'Edit trigger...',
         click: () => editTriggerClickHandler(id),
       });
       template.push({ type: 'separator' });
@@ -288,20 +292,9 @@ export default function TimelineEditor({ timeline, onChange }) {
         click: () => deleteTriggerClickHandler(id),
       });
     }
-    if (item.type === ITEM_MEDIA) {
-      template.push({
-        label: 'Edit media block',
-        click: () => editMediaClickHandler(id),
-      });
-      template.push({ type: 'separator' });
-      template.push({
-        label: 'Delete media block...',
-        click: () => deleteMediaClickHandler(id),
-      });
-    }
     if (item.type === ITEM_CURVE) {
       template.push({
-        label: 'Edit curve block',
+        label: 'Edit curve block...',
         click: () => editCurveClickHandler(id),
       });
       template.push({ type: 'separator' });
@@ -310,11 +303,23 @@ export default function TimelineEditor({ timeline, onChange }) {
         click: () => deleteCurveClickHandler(id),
       });
     }
+    if (item.type === ITEM_MEDIA) {
+      template.push({
+        label: 'Edit media block...',
+        click: () => editMediaClickHandler(id),
+      });
+      template.push({ type: 'separator' });
+      template.push({
+        label: 'Delete media block...',
+        click: () => deleteMediaClickHandler(id),
+      });
+    }
 
     const menu = remote.Menu.buildFromTemplate(template);
     menu.popup();
   }, [
-    timeline,
+    items,
+    layers,
     editScriptClickHandler,
     deleteScriptClickHandler,
     editTriggerClickHandler,
@@ -325,12 +330,10 @@ export default function TimelineEditor({ timeline, onChange }) {
     // deleteCurveClickHandler,
     itemChangeLayerUpClick,
     itemChangeLayerDownClick,
+    timelinePercent,
   ]);
 
   // Zoom container & trackers
-  const mouseTracker = useRef();
-  const positionTracker = useRef();
-  const timelinePercent = useRef();
   const zoomContainerMouseMoveHandler = useCallback((e) => {
     if (mouseTracker.current) {
       mouseTracker.current.style = `left:${getContainerX(e)}px`;
@@ -350,7 +353,7 @@ export default function TimelineEditor({ timeline, onChange }) {
       }
       dragContent.current.percent = percent;
     }
-  }, [mouseTracker.current, dragContent.current, timelinePercent, timeline]);
+  }, [mouseTracker.current, dragContent.current, timelinePercent, duration]);
   const windowMouseUpHandler = useCallback((e) => {
     if (dragContent.current) {
       const { mode, element, item, percent } = dragContent.current;
@@ -363,11 +366,86 @@ export default function TimelineEditor({ timeline, onChange }) {
       document.body.style = 'cursor:initial;';
       dragContent.current = null;
     }
-  }, [dragContent.current, timeline, onChange]);
+  }, [dragContent.current, duration, onChange]);
+  const updateTimelineInfoHandler = useCallback((e, data) => {
+    if (positionTracker.current) {
+      const { position } = data;
+      const percent = position / duration;
+      positionTracker.current.style = `left:${percentString(percent)}`;
+    }
+  }, [positionTracker.current, duration]);
   useEffect(() => {
     window.addEventListener('mouseup', windowMouseUpHandler);
     return () => window.removeEventListener('mouseup', windowMouseUpHandler);
   }, [windowMouseUpHandler]);
+  useEffect(() => {
+    ipcRendererListen(UPDATE_TIMELINE_INFO, updateTimelineInfoHandler);
+    return () => ipcRendererClear(UPDATE_TIMELINE_INFO, updateTimelineInfoHandler);
+  }, [updateTimelineInfoHandler]);
+
+  // Layers
+  const addLayerAtTopClickHandler = useCallback(() => {
+    onChange({ layers: doAddLayer(layers, 'max') });
+  }, [onChange, timeline]);
+  const addLayerAtBottomClickHandler = useCallback(() => {
+    onChange({ layers: doAddLayer(layers, 'min') });
+  }, [onChange, timeline]);
+  const layersChangerHandler = useCallback((layers) => {
+    onChange({ layers });
+  }, [onChange, timeline]);
+  const layersDeleteHandler = useCallback((id) => {
+    const layer = layers.find((layer) => layer.id === id);
+    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ layers: doDeleteLayer(layers, id) });
+        }
+      });
+  }, [onChange, timeline]);
+  const layerChildrenRenderer = useCallback((id) => {
+    return (
+      <TimelineLayer
+        id={id}
+        items={itemsByLayer[id]}
+        scriptsNames={scriptsNames}
+        mediasNames={mediasNames}
+        timelineDuration={duration}
+        onItemDrag={itemDragStartHandler}
+        onItemContextMenu={itemContextMenuHandler}
+      />
+    );
+  }, [timeline, itemsByLayer, scriptsNames, itemDragStartHandler, itemContextMenuHandler]);
+  const layerContextMenuRenderer = useCallback((template, e, id) => {
+    const inTime = Math.round(timelinePercent.current * duration);
+    const outTime = Math.min(inTime + 10000, duration);
+    template[0].submenu.unshift({
+      type: 'separator',
+    });
+    template[0].submenu.unshift({
+      label: 'Media block here...',
+      click: () => addMediaClickHandler({ layer: id, inTime, outTime })
+    });
+    template[0].submenu.unshift({
+      label: 'Curve block here...',
+      // click: () => addCurveClickHandler({ layer: id, inTime, outTime })
+    });
+    template[0].submenu.unshift({
+      label: 'Trigger here...',
+      click: () => addTriggerClickHandler({ layer: id, inTime })
+    });
+    template[0].submenu.unshift({
+      label: 'Script block here...',
+      click: () => addScriptClickHandler({ layer: id, inTime, outTime })
+    });
+    return template;
+  }, [
+    duration,
+    timelinePercent,
+    addScriptClickHandler,
+    addTriggerClickHandler,
+    // addCurveClickHandler,
+    addMediaClickHandler,
+  ]);
 
   return (
     <>
@@ -395,21 +473,21 @@ export default function TimelineEditor({ timeline, onChange }) {
                     <>
                       <Menu.Item
                         icon={ICON_SCRIPT}
-                        text="Add Script block"
+                        text="Add Script block..."
                         onClick={addScriptClickHandler}
                       />
                       <Menu.Item
                         icon={ICON_TRIGGER}
-                        text="Add Trigger"
+                        text="Add Trigger..."
                         onClick={addTriggerClickHandler}
                       />
                       <Menu.Item
                         icon={ICON_CURVE}
-                        text="Add Curve block"
+                        text="Add Curve block..."
                       />
                       <Menu.Item
                         icon={ICON_MEDIA}
-                        text="Add Media block"
+                        text="Add Media block..."
                         onClick={addMediaClickHandler}
                       />
                       <Menu.Divider />
@@ -509,6 +587,7 @@ export default function TimelineEditor({ timeline, onChange }) {
             <LayerEditor
               layers={layers}
               renderLayerChildren={layerChildrenRenderer}
+              renderLayerContextMenu={layerContextMenuRenderer}
               onChange={layersChangerHandler}
               onDelete={layersDeleteHandler}
             />
