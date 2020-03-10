@@ -1,8 +1,14 @@
 import React, { useCallback, useMemo } from 'react';
 import { remote } from 'electron';
+import styled from 'styled-components';
 
 import ManagedTree from '../ui/ManagedTree';
 import { deleteWarning } from '../../../../ui/js/lib/messageBoxes';
+
+const StyledContainer = styled.div`
+  height: 100%;
+  overflow: auto;
+`;
 
 export default function ItemBrowser({
   items = [],
@@ -107,11 +113,13 @@ export default function ItemBrowser({
   }, [folders]);
 
   return (
-    <ManagedTree
-      items={treeItems}
-      folders={treeFolders}
-      onNodeContextMenu={nodeContextMenuHandler}
-      onNodeDoubleClick={nodeDoubleClickHandler}
-    />
+    <StyledContainer>
+      <ManagedTree
+        items={treeItems}
+        folders={treeFolders}
+        onNodeContextMenu={nodeContextMenuHandler}
+        onNodeDoubleClick={nodeDoubleClickHandler}
+      />
+    </StyledContainer>
   );
 }
