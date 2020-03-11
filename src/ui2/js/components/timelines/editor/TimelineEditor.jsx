@@ -342,6 +342,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     timelinePercent.current = percent;
     if (dragContent.current) {
       const { mode, element, item } = dragContent.current;
+
       if (mode === 'inTime') {
         if (item.type === ITEM_TRIGGER) {
           element.style = `left:${percentString(percent)}`;
@@ -351,22 +352,25 @@ export default function TimelineEditor({ timeline, onChange }) {
       } else if (mode === 'outTime') {
         element.style = `left:${percentString(item.inTime / duration)};width:${percentString(percent - (item.inTime / duration))}`;
       }
+
       dragContent.current.percent = percent;
     }
   }, [mouseTracker.current, dragContent.current, timelinePercent, duration]);
   const windowMouseUpHandler = useCallback((e) => {
     if (dragContent.current) {
       const { mode, element, item, percent } = dragContent.current;
+
       if (mode === 'inTime') {
         onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent) }) });
       } else if (mode === 'outTime') {
         onChange({ items: doUpdateItem(items, { ...item, outTime: Math.round(duration * percent) }) });
       }
+
       element.classList.remove('active');
       document.body.style = 'cursor:initial;';
       dragContent.current = null;
     }
-  }, [dragContent.current, duration, onChange]);
+  }, [dragContent.current, items, duration, onChange]);
   const updateTimelineInfoHandler = useCallback((e, data) => {
     if (positionTracker.current) {
       const { position } = data;
