@@ -137,8 +137,13 @@ export default function TimelineEditor({ timeline, onChange }) {
 
   // Zoom
   const zoomClickHandler = useCallback((value) => {
+    // Hide and reset the position of the mouse tracker, which
+    // prevents the zoom container from overflowing after a zoom change
+    if (mouseTracker.current) {
+      mouseTracker.current.style = 'left:0px;visibility:hidden';
+    }
     onChange({ zoom: value });
-  }, [onChange, timeline]);
+  }, [onChange, timeline, mouseTracker.current]);
   const zoomVertClickHandler = useCallback((value) => {
     onChange({ zoomVert: value });
   }, [onChange, timeline]);
@@ -336,7 +341,7 @@ export default function TimelineEditor({ timeline, onChange }) {
   // Zoom container & trackers
   const zoomContainerMouseMoveHandler = useCallback((e) => {
     if (mouseTracker.current) {
-      mouseTracker.current.style = `left:${getContainerX(e)}px`;
+      mouseTracker.current.style = `left:${getContainerX(e)}px;visibility:visible`;
     }
     const percent = getContainerPercent(e);
     timelinePercent.current = percent;
