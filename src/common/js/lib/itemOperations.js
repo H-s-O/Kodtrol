@@ -1,3 +1,5 @@
+import { clipboardGetMode } from '../../../ui2/js/lib/customClipboard';
+
 export const getItem = (items, itemId) => {
   const item = items.find(({ id }) => id === itemId);
   return item;
@@ -68,4 +70,18 @@ export const doChangeItemLayer = (items, layers, itemId, offset) => {
   });
 
   return newItems;
+};
+
+export const canPasteItem = (mode) => {
+  const copyItemMode = clipboardGetMode();
+  if (mode === 'item' && copyItemMode === 'item') {
+    return true;
+  } else if (mode === 'inTime' && (copyItemMode === 'inTime' || copyItemMode === 'outTime')) {
+    return true;
+  } else if (mode === 'outTime' && (copyItemMode === 'inTime' || copyItemMode === 'outTime')) {
+    return true;
+  } else if (mode === 'inAndOutTime' && copyItemMode === 'inAndOutTime') {
+    return true;
+  }
+  return false;
 };

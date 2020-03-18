@@ -9,7 +9,7 @@ import LayerEditor from '../../layer_editor/LayerEditor';
 import { ICON_SCRIPT, ICON_MEDIA, ICON_CURVE, ICON_TRIGGER, ICON_LAYER } from '../../../../../common/js/constants/icons';
 import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
-import { doAddItem, doUpdateItem, getItem, doDeleteItem, canChangeItemLayerUp, canChangeItemLayerDown, doChangeItemLayer } from '../../../../../common/js/lib/itemOperations';
+import { doAddItem, doUpdateItem, getItem, doDeleteItem, canChangeItemLayerUp, canChangeItemLayerDown, doChangeItemLayer, canPasteItem } from '../../../../../common/js/lib/itemOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
 import { DIALOG_EDIT, DIALOG_ADD } from '../../../../../common/js/constants/dialogs';
@@ -22,6 +22,7 @@ import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNa
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 import { ipcRendererListen, ipcRendererClear } from '../../../lib/ipcRenderer';
 import { UPDATE_TIMELINE_INFO } from '../../../../../common/js/constants/events';
+import { clipboardPut } from '../../../lib/customClipboard';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -250,12 +251,70 @@ export default function TimelineEditor({ timeline, onChange }) {
   const itemChangeLayerDownClick = useCallback((id) => {
     onChange({ items: doChangeItemLayer(items, layers, id, -1) });
   }, [onChange, items, layers]);
+  const itemCopyClick = useCallback((id) => {
+    const item = getItem(items, id);
+    clipboardPut('item', { ...item });
+  }, [items]);
+  const itemCopyInTimeClick = useCallback((id) => {
+    const item = getItem(items, id);
+    clipboardPut('inTime', item.inTime);
+  }, [items]);
+  const itemCopyOutTimeClick = useCallback((id) => {
+    const item = getItem(items, id);
+    clipboardPut('outTime', item.outTime);
+  }, [items]);
   const itemContextMenuHandler = useCallback((e, id) => {
     e.stopPropagation();
 
     const item = getItem(items, id);
 
     const template = [
+      {
+        label: 'Copy',
+        submenu: [
+          {
+            label: 'Item',
+            click: () => itemCopyClick(id),
+          },
+          ...(item.type === ITEM_TRIGGER ? [
+            {
+              label: 'Trigger time',
+              click: () => itemCopyInTimeClick(id),
+            },
+          ] : [
+              {
+                label: 'Block In time',
+                click: () => itemCopyInTimeClick(id),
+              },
+              {
+                label: 'Block Out time',
+                click: () => itemCopyOutTimeClick(id),
+              },
+            ]
+          ),
+        ],
+      },
+      {
+        label: 'Paste',
+        submenu: item.type === ITEM_TRIGGER ? [
+          {
+            label: 'Time as trigger time',
+            click: () => itemCopyInTimeClick(id),
+            enabled: canPasteItem('inTime'),
+          },
+        ] : [
+            {
+              label: 'Time as block In time',
+              click: () => itemCopyInTimeClick(id),
+              enabled: canPasteItem('inTime'),
+            },
+            {
+              label: 'Time as block Out time',
+              click: () => itemCopyOutTimeClick(id),
+              enabled: canPasteItem('outTime'),
+            },
+          ],
+      },
       {
         label: 'Move',
         submenu: [
@@ -335,6 +394,9 @@ export default function TimelineEditor({ timeline, onChange }) {
     // deleteCurveClickHandler,
     itemChangeLayerUpClick,
     itemChangeLayerDownClick,
+    itemCopyClick,
+    itemCopyInTimeClick,
+    itemCopyOutTimeClick,
     timelinePercent,
   ]);
 
@@ -446,6 +508,17 @@ export default function TimelineEditor({ timeline, onChange }) {
       label: 'Script block here...',
       click: () => addScriptClickHandler({ layer: id, inTime, outTime })
     });
+    template.splice(1, 0, ...[
+      {
+        label: 'Paste',
+        submenu: [
+          {
+            label: 'Item here',
+            enabled: canPasteItem('item'),
+          },
+        ],
+      },
+    ]);
     return template;
   }, [
     duration,

@@ -56,9 +56,6 @@ export default function LayerEditor({ layers = [], onChange, onDelete, renderLay
         ],
       },
       {
-        type: 'separator',
-      },
-      {
         label: 'Move layer',
         submenu: [
           {
