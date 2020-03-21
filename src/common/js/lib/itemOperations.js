@@ -1,4 +1,6 @@
-import { clipboardGetMode } from '../../../ui2/js/lib/customClipboard';
+import uniqid from 'uniqid';
+
+import { clipboardGetMode, clipboardPut, clipboardGetValue } from '../../../ui2/js/lib/customClipboard';
 
 export const getItem = (items, itemId) => {
   const item = items.find(({ id }) => id === itemId);
@@ -84,4 +86,85 @@ export const canPasteItem = (mode) => {
     return true;
   }
   return false;
+};
+
+export const doCopy = (items, itemId, mode) => {
+  const item = items.find(({ id }) => id === itemId);
+  let data;
+  if (mode === 'item') {
+    data = { ...item };
+  } else if (mode === 'inTime') {
+    data = item.inTime;
+  } else if (mode === 'outTime') {
+    data = item.outTime;
+  } else if (mode === 'inAndOutTime') {
+    data = { inTime: item.inTime, outTime: item.outTime };
+  }
+  clipboardPut(mode, data);
+};
+
+export const doPaste = (items, itemId, mode, layerId, newInTime, maxTime) => {
+  const copyItemData = clipboardGetValue();
+
+  // Guard
+  if (copyItemData === null) {
+    return items;
+  }
+
+  let newItem;
+  let newItems;
+  if (mode === 'item') {
+    const { inTime } = copyItemData;
+    if (newInTime < 0) {
+      newInTime = 0;
+    } else if (newInTime > maxTime) {
+      newInTime = maxTime;
+    }
+    newItem = {
+      ...copyItemData,
+      id: uniqid(), // override with new id
+      layer: layerId,
+      inTime: newInTime,
+    }
+    if ('outTime' in copyItemData) {
+      const diffTime = copyItemData.outTime - inTime;
+      let newOutTime = newInTime + diffTime;
+      if (newOutTime < 0) {
+        newOutTime = 0;
+      } else if (newOutTime > maxTime) {
+        newOutTime = maxTime;
+      }
+      newItem.outTime = newOutTime;
+    }
+    newItems = [
+      ...items,
+      newItem,
+    ];
+  } else if (mode === 'inAndOutTime') {
+    const item = items.find(({ id }) => id === itemId);
+    newItem = {
+      ...item,
+      ...copyItemData,
+    };
+    newItems = items.map((item) => {
+      if (item.id === itemId) {
+        return newItem;
+      }
+      return item;
+    });
+  } else {
+    const item = items.find(({ id }) => id === itemId);
+    newItem = {
+      ...item,
+      [mode]: copyItemData,
+    };
+    newItems = items.map((item) => {
+      if (item.id === itemId) {
+        return newItem;
+      }
+      return item;
+    });
+  }
+
+  return newItems;
 };

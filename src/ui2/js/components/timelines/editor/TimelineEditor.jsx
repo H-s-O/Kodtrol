@@ -9,7 +9,18 @@ import LayerEditor from '../../layer_editor/LayerEditor';
 import { ICON_SCRIPT, ICON_MEDIA, ICON_CURVE, ICON_TRIGGER, ICON_LAYER } from '../../../../../common/js/constants/icons';
 import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
-import { doAddItem, doUpdateItem, getItem, doDeleteItem, canChangeItemLayerUp, canChangeItemLayerDown, doChangeItemLayer, canPasteItem } from '../../../../../common/js/lib/itemOperations';
+import {
+  doAddItem,
+  doUpdateItem,
+  getItem,
+  doDeleteItem,
+  canChangeItemLayerUp,
+  canChangeItemLayerDown,
+  doChangeItemLayer,
+  canPasteItem,
+  doCopy,
+  doPaste,
+} from '../../../../../common/js/lib/itemOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
 import { DIALOG_EDIT, DIALOG_ADD } from '../../../../../common/js/constants/dialogs';
@@ -22,7 +33,6 @@ import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNa
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 import { ipcRendererListen, ipcRendererClear } from '../../../lib/ipcRenderer';
 import { UPDATE_TIMELINE_INFO } from '../../../../../common/js/constants/events';
-import { clipboardPut } from '../../../lib/customClipboard';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -252,17 +262,29 @@ export default function TimelineEditor({ timeline, onChange }) {
     onChange({ items: doChangeItemLayer(items, layers, id, -1) });
   }, [onChange, items, layers]);
   const itemCopyClick = useCallback((id) => {
-    const item = getItem(items, id);
-    clipboardPut('item', { ...item });
+    doCopy(items, id, 'item');
   }, [items]);
   const itemCopyInTimeClick = useCallback((id) => {
-    const item = getItem(items, id);
-    clipboardPut('inTime', item.inTime);
+    doCopy(items, id, 'inTime');
   }, [items]);
   const itemCopyOutTimeClick = useCallback((id) => {
-    const item = getItem(items, id);
-    clipboardPut('outTime', item.outTime);
+    doCopy(items, id, 'outTime');
   }, [items]);
+  const itemCopyInAndOutTimeClick = useCallback((id) => {
+    doCopy(items, id, 'inAndOutTime');
+  }, [items]);
+  const itemPasteClick = useCallback((id, inTime) => {
+    onChange({ items: doPaste(items, null, 'item', id, inTime, duration) });
+  }, [onChange, items, duration]);
+  const itemPasteInTimeClick = useCallback((id) => {
+    onChange({ items: doPaste(items, id, 'inTime') });
+  }, [onChange, items]);
+  const itemPasteOutTimeClick = useCallback((id) => {
+    onChange({ items: doPaste(items, id, 'outTime') });
+  }, [onChange, items]);
+  const itemPasteInAndOutTimeClick = useCallback((id) => {
+    onChange({ items: doPaste(items, id, 'inAndOutTime') });
+  }, [onChange, items]);
   const itemContextMenuHandler = useCallback((e, id) => {
     e.stopPropagation();
 
@@ -290,6 +312,10 @@ export default function TimelineEditor({ timeline, onChange }) {
                 label: 'Block Out time',
                 click: () => itemCopyOutTimeClick(id),
               },
+              {
+                label: 'Block In and Out time',
+                click: () => itemCopyInAndOutTimeClick(id),
+              },
             ]
           ),
         ],
@@ -299,24 +325,29 @@ export default function TimelineEditor({ timeline, onChange }) {
         submenu: item.type === ITEM_TRIGGER ? [
           {
             label: 'Time as trigger time',
-            click: () => itemCopyInTimeClick(id),
+            click: () => itemPasteInTimeClick(id),
             enabled: canPasteItem('inTime'),
           },
         ] : [
             {
               label: 'Time as block In time',
-              click: () => itemCopyInTimeClick(id),
+              click: () => itemPasteInTimeClick(id),
               enabled: canPasteItem('inTime'),
             },
             {
               label: 'Time as block Out time',
-              click: () => itemCopyOutTimeClick(id),
+              click: () => itemPasteOutTimeClick(id),
               enabled: canPasteItem('outTime'),
+            },
+            {
+              label: 'In and Out Time as block In and Out time',
+              click: () => itemPasteInAndOutTimeClick(id),
+              enabled: canPasteItem('inAndOutTime'),
             },
           ],
       },
       {
-        label: 'Move',
+        label: 'Move item',
         submenu: [
           {
             label: 'To layer above',
@@ -397,6 +428,11 @@ export default function TimelineEditor({ timeline, onChange }) {
     itemCopyClick,
     itemCopyInTimeClick,
     itemCopyOutTimeClick,
+    itemCopyInAndOutTimeClick,
+    itemPasteClick,
+    itemPasteInTimeClick,
+    itemPasteOutTimeClick,
+    itemPasteInAndOutTimeClick,
     timelinePercent,
   ]);
 
@@ -515,6 +551,7 @@ export default function TimelineEditor({ timeline, onChange }) {
           {
             label: 'Item here',
             enabled: canPasteItem('item'),
+            click: () => itemPasteClick(id, inTime),
           },
         ],
       },
