@@ -1,4 +1,4 @@
-import { DIALOG_ADD, DIALOG_EDIT } from '../../constants/dialogs';
+import { DIALOG_ADD, DIALOG_EDIT, DIALOG_IMPORT_ALL } from '../../constants/dialogs';
 
 export const SHOW_DEVICE_DIALOG = 'show_device_dialog';
 export const showDeviceDialogAction = (mode = DIALOG_ADD, value = null, local = false) => {
@@ -214,6 +214,43 @@ export const HIDE_CONFIG_DIALOG = 'hide_config_dialog';
 export const hideConfigDialogAction = (local = false) => {
   return {
     type: HIDE_CONFIG_DIALOG,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+//--------------------------------------------------------------------------
+
+export const SHOW_IMPORT_DIALOG = 'show_import_dialog';
+export const showImportDialogAction = (mode = DIALOG_IMPORT_ALL, value = null, local = false) => {
+  return {
+    type: SHOW_IMPORT_DIALOG,
+    payload: {
+      mode,
+      value,
+    },
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+export const UPDATE_IMPORT_DIALOG = 'update_import_dialog';
+export const updateImportDialogAction = (value, local = false) => {
+  return {
+    type: UPDATE_IMPORT_DIALOG,
+    payload: value,
+    meta: local ? {
+      scope: 'local',
+    } : undefined,
+  };
+}
+
+export const HIDE_IMPORT_DIALOG = 'hide_import_dialog';
+export const hideImportDialogAction = (local = false) => {
+  return {
+    type: HIDE_IMPORT_DIALOG,
     meta: local ? {
       scope: 'local',
     } : undefined,

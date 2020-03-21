@@ -17,6 +17,9 @@ import {
   SHOW_CONFIG_DIALOG,
   UPDATE_CONFIG_DIALOG,
   HIDE_CONFIG_DIALOG,
+  SHOW_IMPORT_DIALOG,
+  UPDATE_IMPORT_DIALOG,
+  HIDE_IMPORT_DIALOG,
 } from '../actions/dialogs';
 
 const defaultState = {
@@ -43,6 +46,10 @@ const defaultState = {
   configDialogOpened: false,
   configDialogMode: null,
   configDialogValue: null,
+  //------------------------------
+  importDialogOpened: false,
+  importDialogMode: null,
+  importDialogValue: null,
 };
 
 export default (state = defaultState, { type, payload }) => {
@@ -127,6 +134,20 @@ export default (state = defaultState, { type, payload }) => {
 
     case HIDE_CONFIG_DIALOG:
       return { ...state, configDialogOpened: false };
+      break;
+
+    //------------------------------------------------------------------------------
+
+    case SHOW_IMPORT_DIALOG:
+      return { ...state, importDialogOpened: true, importDialogMode: payload.mode, importDialogValue: payload.value };
+      break;
+
+    case UPDATE_IMPORT_DIALOG:
+      return { ...state, importDialogValue: payload };
+      break;
+
+    case HIDE_IMPORT_DIALOG:
+      return { ...state, importDialogOpened: false };
       break;
 
     //------------------------------------------------------------------------------

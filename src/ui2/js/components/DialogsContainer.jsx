@@ -6,6 +6,7 @@ import MediaDialog from './medias/MediaDialog';
 import TimelineDialog from './timelines/TimelineDialog';
 import BoardDialog from './boards/BoardDialog';
 import ProjectConfigDialog from './project/ProjectConfigDialog';
+import ImportDialog from './ImportDialog';
 
 export default function DialogsContainer() {
   return (
@@ -16,6 +17,7 @@ export default function DialogsContainer() {
       <TimelineDialog />
       <BoardDialog />
       <ProjectConfigDialog />
+      <ImportDialog />
     </>
   );
 }

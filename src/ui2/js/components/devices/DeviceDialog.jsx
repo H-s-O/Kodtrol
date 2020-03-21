@@ -95,7 +95,7 @@ export default function DeviceDialog() {
               onClick={applyHandler}
             >
               Apply
-          </Button>
+            </Button>
           )}
           <Button
             intent={Intent.SUCCESS}

@@ -10,7 +10,21 @@ import TimelinesBrowser from './timelines/TimelinesBrowser';
 import FullHeightTabs from './ui/FullHeightTabs';
 import BoardsBrowser from './boards/BoardsBrowser';
 import { ICON_DEVICE, ICON_SCRIPT, ICON_MEDIA, ICON_TIMELINE, ICON_BOARD } from '../../../common/js/constants/icons';
-import { showDeviceDialogAction, showScriptDialogAction, showMediaDialogAction, showTimelineDialogAction, showBoardDialogAction } from '../../../common/js/store/actions/dialogs';
+import {
+  showDeviceDialogAction,
+  showScriptDialogAction,
+  showMediaDialogAction,
+  showTimelineDialogAction,
+  showBoardDialogAction,
+  showImportDialogAction,
+} from '../../../common/js/store/actions/dialogs';
+import {
+  DIALOG_IMPORT_DEVICES,
+  DIALOG_IMPORT_SCRIPTS,
+  DIALOG_IMPORT_MEDIAS,
+  DIALOG_IMPORT_TIMELINES,
+  DIALOG_IMPORT_BOARDS,
+} from '../../../common/js/constants/dialogs';
 
 const defaultTabId = 'devices';
 
@@ -53,6 +67,25 @@ export default function Browsers() {
         break;
       case 'boards':
         dispatch(showBoardDialogAction());
+        break;
+    }
+  }, [currentTabId, dispatch]);
+  const importClickHandler = useCallback(() => {
+    switch (currentTabId) {
+      case 'devices':
+        dispatch(showImportDialogAction(DIALOG_IMPORT_DEVICES));
+        break;
+      case 'scripts':
+        dispatch(showImportDialogAction(DIALOG_IMPORT_SCRIPTS));
+        break;
+      case 'medias':
+        dispatch(showImportDialogAction(DIALOG_IMPORT_MEDIAS));
+        break;
+      case 'timelines':
+        dispatch(showImportDialogAction(DIALOG_IMPORT_TIMELINES));
+        break;
+      case 'boards':
+        dispatch(showImportDialogAction(DIALOG_IMPORT_BOARDS));
         break;
     }
   }, [currentTabId, dispatch]);
@@ -154,6 +187,12 @@ export default function Browsers() {
                 <Menu.Item
                   text={`Add ${getTabLabel(currentTabId)} folder`}
                   icon="folder-new"
+                />
+                <Menu.Divider />
+                <Menu.Item
+                  text={`Import ${getTabLabel(currentTabId)}(s) from project...`}
+                  icon="import"
+                  onClick={importClickHandler}
                 />
               </Menu>
             }
