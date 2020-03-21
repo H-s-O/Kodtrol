@@ -89,6 +89,29 @@ export const createTimelineAction = (data) => {
   };
 };
 
+export const CREATE_TIMELINES = 'create_timelines';
+export const createTimelinesAction = (list) => {
+  const newData = list.map((data) => {
+    const newTimelineData = {
+      zoom: 1.0,
+      zoomVert: 1.0,
+      items: [],
+      layers: [],
+      tempo: null,
+      ...data,
+      id: uniqid(),
+    };
+    return {
+      ...newTimelineData,
+      hash: hashDataObject(newTimelineData, excludeHashProps),
+    };
+  });
+  return {
+    type: CREATE_TIMELINES,
+    payload: newData,
+  };
+};
+
 export const DELETE_TIMELINE = 'delete_timeline';
 export const deleteTimelineAction = (id) => {
   return {

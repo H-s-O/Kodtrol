@@ -1,4 +1,10 @@
-import { UPDATE_BOARDS, CREATE_BOARD, DELETE_BOARD, SAVE_BOARD } from '../actions/boards';
+import {
+  UPDATE_BOARDS,
+  CREATE_BOARD,
+  DELETE_BOARD,
+  SAVE_BOARD,
+  CREATE_BOARDS,
+} from '../actions/boards';
 
 const defaultState = [];
 
@@ -10,6 +16,10 @@ export default (state = defaultState, { type, payload }) => {
 
     case CREATE_BOARD:
       return [...state, payload];
+      break;
+
+    case CREATE_BOARDS:
+      return [...state, ...payload];
       break;
 
     case DELETE_BOARD:

@@ -81,6 +81,28 @@ export const createScriptAction = (data) => {
   };
 };
 
+export const CREATE_SCRIPTS = 'create_scripts';
+export const createScriptsAction = (list) => {
+  const newData = list.map((data) => {
+    const newScriptData = {
+      content: '',
+      tempo: null,
+      devices: [],
+      devicesGroups: [],
+      ...data,
+      id: uniqid(),
+    };
+    return {
+      ...newScriptData,
+      hash: hashDataObject(newScriptData, excludeHashProps),
+    };
+  });
+  return {
+    type: CREATE_SCRIPTS,
+    payload: newData,
+  };
+};
+
 export const DELETE_SCRIPT = 'delete_script';
 export const deleteScriptAction = (id) => {
   return {

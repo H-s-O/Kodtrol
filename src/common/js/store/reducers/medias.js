@@ -1,4 +1,10 @@
-import { UPDATE_MEDIAS, CREATE_MEDIA, DELETE_MEDIA, SAVE_MEDIA } from '../actions/medias';
+import {
+  UPDATE_MEDIAS,
+  CREATE_MEDIA,
+  DELETE_MEDIA,
+  SAVE_MEDIA,
+  CREATE_MEDIAS,
+} from '../actions/medias';
 
 const defaultState = [];
 
@@ -9,10 +15,11 @@ export default (state = defaultState, { type, payload }) => {
       break;
 
     case CREATE_MEDIA:
-      return [
-        ...state,
-        payload,
-      ];
+      return [...state, payload];
+      break;
+
+    case CREATE_MEDIAS:
+      return [...state, ...payload];
       break;
 
     case DELETE_MEDIA:

@@ -31,6 +31,25 @@ export const createDeviceAction = (data) => {
   };
 };
 
+export const CREATE_DEVICES = 'create_devices';
+export const createDevicesAction = (list) => {
+  const newData = list.map((data) => {
+    const newDeviceData = {
+      tags: [],
+      ...data,
+      id: uniqid(),
+    }
+    return {
+      ...newDeviceData,
+      hash: hashDataObject(newDeviceData, excludeHashProps),
+    }
+  });
+  return {
+    type: CREATE_DEVICES,
+    payload: newData,
+  };
+};
+
 export const DELETE_DEVICE = 'delete_device';
 export const deleteDeviceAction = (id) => {
   return {

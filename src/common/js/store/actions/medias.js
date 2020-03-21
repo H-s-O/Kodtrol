@@ -30,6 +30,24 @@ export const createMediaAction = (data) => {
   };
 };
 
+export const CREATE_MEDIAS = 'create_medias';
+export const createMediasAction = (list) => {
+  const newData = list.map((data) => {
+    const newMediaData = {
+      ...data,
+      id: uniqid(),
+    };
+    return {
+      ...newMediaData,
+      hash: hashDataObject(newMediaData, excludeHashProps),
+    };
+  });
+  return {
+    type: CREATE_MEDIAS,
+    payload: newData,
+  };
+};
+
 export const DELETE_MEDIA = 'delete_media';
 export const deleteMediaAction = (id) => {
   return {

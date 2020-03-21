@@ -1,4 +1,10 @@
-import { UPDATE_SCRIPTS, CREATE_SCRIPT, DELETE_SCRIPT, SAVE_SCRIPT } from "../actions/scripts";
+import {
+  UPDATE_SCRIPTS,
+  CREATE_SCRIPT,
+  DELETE_SCRIPT,
+  SAVE_SCRIPT,
+  CREATE_SCRIPTS,
+} from '../actions/scripts';
 
 const defaultState = [];
 
@@ -10,6 +16,10 @@ export default (state = defaultState, { type, payload }) => {
 
     case CREATE_SCRIPT:
       return [...state, payload];
+      break;
+
+    case CREATE_SCRIPTS:
+      return [...state, ...payload];
       break;
 
     case DELETE_SCRIPT:

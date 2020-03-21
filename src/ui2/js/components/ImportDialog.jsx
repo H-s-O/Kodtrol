@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import styled from 'styled-components';
 import { Button, Spinner, Intent } from '@blueprintjs/core';
 import { readJson } from 'fs-extra';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,8 +11,6 @@ import DialogFooterActions from './ui/DialogFooterActions';
 import FileInput from './ui/inputs/FileInput';
 import InlineFormGroup from './ui/InlineFormGroup';
 import { PROJECT_FILE_EXTENSION } from '../../../common/js/constants/app';
-import styled from 'styled-components';
-import SelectInput from './ui/inputs/SelectInput';
 import { getMediaName } from '../../../common/js/lib/itemNames';
 import MultiSelectInput from './ui/inputs/MultiSelectInput';
 import {
@@ -24,6 +23,11 @@ import {
 import { hideImportDialogAction, updateImportDialogAction } from '../../../common/js/store/actions/dialogs';
 import mergeDialogBody from '../../../common/js/lib/mergeDialogBody';
 import importValidator from '../../../common/js/validators/importValidator';
+import { createDevicesAction } from '../../../common/js/store/actions/devices';
+import { createScriptsAction } from '../../../common/js/store/actions/scripts';
+import { createMediasAction } from '../../../common/js/store/actions/medias';
+import { createTimelinesAction } from '../../../common/js/store/actions/timelines';
+import { createBoardsAction } from '../../../common/js/store/actions/boards';
 
 const StyledSpinnerContainer = styled.div`
   display: flex;
@@ -46,22 +50,44 @@ export default function ImportDialog() {
 
   const bodyValue = dialogValue || defaultValue;
   const bodyValid = importValidator(bodyValue);
-  const { devices } = bodyValue;
-
-  const dispatch = useDispatch();
-  const closeHandler = useCallback(() => {
-    dispatch(hideImportDialogAction());
-  }, [dispatch]);
-  const successHandler = useCallback(() => {
-    // @TODO
-  }, [dispatch]);
-  const changeHandler = useCallback((value, field) => {
-    dispatch(updateImportDialogAction(mergeDialogBody(bodyValue, value, field)))
-  }, [dispatch, bodyValue]);
+  const { devices, scripts, medias, timelines, boards } = bodyValue;
 
   const [file, setFile] = useState(null);
   const [project, setProject] = useState(null);
   const [projectChanged, setProjectChanged] = useState(false);
+
+  const dispatch = useDispatch();
+  const closeHandler = useCallback(() => {
+    dispatch(hideImportDialogAction());
+    setFile(null);
+    setProject(null);
+    setProjectChanged(false);
+  }, [dispatch]);
+  const successHandler = useCallback(() => {
+    console.log(devices, scripts, medias, timelines, boards);
+    if (dialogMode & DIALOG_IMPORT_DEVICES && devices && devices.length > 0) {
+      dispatch(createDevicesAction(project.devices.filter(({ id }) => devices.includes(id))));
+    }
+    if (dialogMode & DIALOG_IMPORT_SCRIPTS && scripts && scripts.length > 0) {
+      dispatch(createScriptsAction(project.scripts.filter(({ id }) => scripts.includes(id))));
+    }
+    if (dialogMode & DIALOG_IMPORT_MEDIAS && medias && medias.length > 0) {
+      dispatch(createMediasAction(project.medias.filter(({ id }) => medias.includes(id))));
+    }
+    if (dialogMode & DIALOG_IMPORT_TIMELINES && timelines && timelines.length > 0) {
+      dispatch(createTimelinesAction(project.timelines.filter(({ id }) => timelines.includes(id))));
+    }
+    if (dialogMode & DIALOG_IMPORT_BOARDS && boards && boards.length > 0) {
+      dispatch(createBoardsAction(project.boards.filter(({ id }) => boards.includes(id))));
+    }
+    dispatch(hideImportDialogAction());
+    setFile(null);
+    setProject(null);
+    setProjectChanged(false);
+  }, [dispatch, project, devices, scripts, medias, timelines, boards]);
+  const changeHandler = useCallback((value, field) => {
+    dispatch(updateImportDialogAction(mergeDialogBody(bodyValue, value, field)))
+  }, [dispatch, bodyValue]);
 
   const fileChangeHandler = useCallback((value) => {
     if (value) {
@@ -136,11 +162,14 @@ export default function ImportDialog() {
                     label="Script(s)"
                     minWidth={75}
                   >
-                    <SelectInput>
-                      {project.scripts.map(({ id, name, type }) => (
-                        <option key={id} value={id}>{name}</option>
-                      ))}
-                    </SelectInput>
+                    <MultiSelectInput
+                      fill
+                      name="scripts"
+                      value={scripts}
+                      onChange={changeHandler}
+                      items={project.scripts.map(({ id, name }) => ({ label: name, value: id }))}
+                      placeholder="Click to select..."
+                    />
                   </InlineFormGroup>
                 ) : null}
                 {(dialogMode & DIALOG_IMPORT_MEDIAS) ? (
@@ -148,11 +177,14 @@ export default function ImportDialog() {
                     label="Media(s)"
                     minWidth={75}
                   >
-                    <SelectInput>
-                      {project.medias.map((media) => (
-                        <option key={media.id} value={media.id}>{getMediaName(media)}</option>
-                      ))}
-                    </SelectInput>
+                    <MultiSelectInput
+                      fill
+                      name="medias"
+                      value={medias}
+                      onChange={changeHandler}
+                      items={project.medias.map((media) => ({ label: getMediaName(media), value: media.id }))}
+                      placeholder="Click to select..."
+                    />
                   </InlineFormGroup>
                 ) : null}
                 {(dialogMode & DIALOG_IMPORT_TIMELINES) ? (
@@ -160,11 +192,14 @@ export default function ImportDialog() {
                     label="Timeline(s)"
                     minWidth={75}
                   >
-                    <SelectInput>
-                      {project.timelines.map(({ id, name }) => (
-                        <option key={id} value={id}>{name}</option>
-                      ))}
-                    </SelectInput>
+                    <MultiSelectInput
+                      fill
+                      name="timelines"
+                      value={timelines}
+                      onChange={changeHandler}
+                      items={project.timelines.map(({ id, name }) => ({ label: name, value: id }))}
+                      placeholder="Click to select..."
+                    />
                   </InlineFormGroup>
                 ) : null}
                 {(dialogMode & DIALOG_IMPORT_BOARDS) ? (
@@ -172,11 +207,14 @@ export default function ImportDialog() {
                     label="Board(s)"
                     minWidth={75}
                   >
-                    <SelectInput>
-                      {project.boards.map(({ id, name }) => (
-                        <option key={id} value={id}>{name}</option>
-                      ))}
-                    </SelectInput>
+                    <MultiSelectInput
+                      fill
+                      name="boards"
+                      value={boards}
+                      onChange={changeHandler}
+                      items={project.boards.map(({ id, name }) => ({ label: name, value: id }))}
+                      placeholder="Click to select..."
+                    />
                   </InlineFormGroup>
                 ) : null}
               </>

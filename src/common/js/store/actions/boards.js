@@ -86,6 +86,29 @@ export const createBoardAction = (data) => {
   };
 };
 
+export const CREATE_BOARDS = 'create_boards';
+export const createBoardsAction = (list) => {
+  const newData = list.map((data) => {
+    const newBoardData = {
+      zoom: 1.0,
+      zoomVert: 1.0,
+      items: [],
+      layers: [],
+      tempo: null,
+      ...data,
+      id: uniqid(),
+    };
+    return {
+      ...newBoardData,
+      hash: hashDataObject(newBoardData, excludeHashProps),
+    };
+  });
+  return {
+    type: CREATE_BOARDS,
+    payload: newData,
+  };
+};
+
 export const DELETE_BOARD = 'delete_board';
 export const deleteBoardAction = (id) => {
   return {

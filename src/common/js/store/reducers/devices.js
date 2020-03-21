@@ -3,6 +3,7 @@ import {
   CREATE_DEVICE,
   DELETE_DEVICE,
   SAVE_DEVICE,
+  CREATE_DEVICES,
 } from '../actions/devices';
 
 const defaultState = [];
@@ -14,10 +15,11 @@ export default (state = defaultState, { type, payload }) => {
       break;
 
     case CREATE_DEVICE:
-      return [
-        ...state,
-        payload,
-      ];
+      return [...state, payload];
+      break;
+
+    case CREATE_DEVICES:
+      return [...state, ...payload];
       break;
 
     case DELETE_DEVICE:
