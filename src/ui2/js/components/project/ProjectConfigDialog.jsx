@@ -183,6 +183,19 @@ const getDmxDriverHelper = (driver) => {
   return null;
 }
 
+const getIldaDriverHelper = (driver) => {
+  switch (driver) {
+    case 'ether-dream':
+      return 'For a Ether Dream network DAC.';
+      break;
+    case 'laserdock':
+      return 'For a Laserdock/Lasercube USB DAC.';
+      break;
+  }
+
+  return null;
+}
+
 const SingleOutput = ({ value, onChange }) => {
   const {
     name = null,
@@ -259,6 +272,25 @@ const SingleOutput = ({ value, onChange }) => {
               />
             </InlineFormGroup>
           )}
+        </>
+      )}
+      {type === IO_ILDA && (
+        <>
+          <InlineFormGroup
+            label="Driver"
+            helperText={!driver ? 'An ILDA output driver is mandatory.' : getIldaDriverHelper(driver)}
+            intent={!driver ? Intent.DANGER : undefined}
+          >
+            <SelectInput
+              name="driver"
+              value={driver}
+              onChange={changeHandler}
+            >
+              <option value="null">--</option>
+              <option value="ether-dream">Ether Dream</option>
+              <option value="laserdock">Laserdock</option>
+            </SelectInput>
+          </InlineFormGroup>
         </>
       )}
       {(type === IO_ARTNET || type === IO_ILDA) && (
