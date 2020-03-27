@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import Color from 'color';
+import uniqid from 'uniqid';
 
 import percentString from '../../../lib/percentString';
 import { ITEM_TRIGGER, ITEM_SCRIPT, ITEM_MEDIA, ITEM_CURVE } from '../../../../../common/js/constants/items';
 import AudioSVGWaveform from '../../../lib/AudioSVGWaveform';
+import parseCurve from '../../../../../common/js/lib/parseCurve';
+import { getContainerCoords } from '../../../lib/mouseEvents';
 
 const StyledBlockLabel = styled.span`
   text-overflow: ellipsis;
@@ -104,7 +107,43 @@ const StyledWaveform = styled.svg`
   }
 `;
 
-const TimelineScript = ({ script: { color, name, script }, scriptsNames, onDrag, ...otherProps }) => {
+const StyledCurveContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;
+
+const StyledCurve = styled.svg`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  polyline {
+    fill: none;
+    stroke: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
+  }
+`;
+
+const StyledCurvePoint = styled.div`
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  margin-top: -4px;
+  border-radius: 4px;
+  background-color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
+
+  &:hover {
+    outline: 1px solid ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
+    outline-offset: 1px;
+  }
+`;
+
+const TimelineScript = ({ script, scriptsNames, onDrag, onChange, ...otherProps }) => {
+  const { color, name, script: scriptId } = script;
   const container = useRef();
 
   return (
@@ -118,7 +157,7 @@ const TimelineScript = ({ script: { color, name, script }, scriptsNames, onDrag,
           left
           onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
         />
-        <StyledBlockLabel>{name || scriptsNames[script]}</StyledBlockLabel>
+        <StyledBlockLabel>{name || scriptsNames[scriptId]}</StyledBlockLabel>
         <StyledBlockAnchor
           right
           onMouseDown={(e) => onDrag(e, container.current, 'outTime')}
@@ -128,7 +167,8 @@ const TimelineScript = ({ script: { color, name, script }, scriptsNames, onDrag,
   );
 };
 
-const TimelineTrigger = ({ trigger: { color, name }, onDrag, ...otherProps }) => {
+const TimelineTrigger = ({ trigger, onDrag, onChange, ...otherProps }) => {
+  const { color, name } = trigger;
   const container = useRef();
 
   return (
@@ -143,8 +183,33 @@ const TimelineTrigger = ({ trigger: { color, name }, onDrag, ...otherProps }) =>
   );
 };
 
-const TimelineCurve = ({ curve: { color, name, curve }, onDrag, ...otherProps }) => {
+const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
+  const { color, name, curve: curveData } = curve;
   const container = useRef();
+
+  const parsedCurve = useMemo(() => parseCurve(curveData), [curveData]);
+  const realCount = useMemo(() => parsedCurve.filter(({ extra }) => !extra).length, [parsedCurve]);
+
+  const containerClickHandler = useCallback((e) => {
+    e.stopPropagation();
+
+    const coords = getContainerCoords(e);
+    const newPoint = {
+      ...coords,
+      id: uniqid(),
+    };
+    const newCurve = [
+      ...parsedCurve,
+      newPoint,
+    ];
+    onChange({ ...curve, curve: newCurve });
+  }, [onChange, parsedCurve]);
+  const pointClickHandler = useCallback((e, id) => {
+    e.stopPropagation();
+
+    const newCurve = parsedCurve.filter((point) => point.id !== id);
+    onChange({ ...curve, curve: newCurve });
+  }, [onChange, parsedCurve]);
 
   return (
     <StyledBlockContainer
@@ -157,18 +222,60 @@ const TimelineCurve = ({ curve: { color, name, curve }, onDrag, ...otherProps })
           left
           onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
         />
-        <StyledBlockLabel>{name}</StyledBlockLabel>
+        <StyledBlockLabel>{name} [{realCount} point(s)]</StyledBlockLabel>
         <StyledBlockAnchor
           right
           onMouseDown={(e) => onDrag(e, container.current, 'outTime')}
         />
       </StyledBlockHeader>
+      <StyledBlockBody>
+        <StyledCurveContainer
+          onClick={containerClickHandler}
+        >
+          {(parsedCurve.length > 0) && (
+            <>
+              <StyledCurve
+                color={color}
+                viewBox="0 0 1 1"
+                preserveAspectRatio="none"
+              >
+                <polyline
+                  points={parsedCurve.map(({ x, y }) => `${x},${(1 - y)}`).join(' ')}
+                  vectorEffect="non-scaling-stroke"
+                  strokeWidth="2"
+                  strokeLinecap="butt"
+                  strokeLinejoin="miter"
+                  strokeMiterlimit="0"
+                />
+              </StyledCurve>
+              {parsedCurve.map(({ x, y, id, extra }) => {
+                if (extra) {
+                  return null;
+                }
+
+                return (
+                  <StyledCurvePoint
+                    key={id}
+                    color={color}
+                    style={{
+                      left: percentString(x),
+                      top: percentString(1 - y),
+                    }}
+                    onClick={(e) => pointClickHandler(e, id)}
+                  />
+                );
+              })}
+            </>
+          )}
+        </StyledCurveContainer>
+      </StyledBlockBody>
     </StyledBlockContainer>
   );
 };
 
-const TimelineMedia = ({ media: { color, name, media, volume }, mediasNames, onDrag, ...otherProps }) => {
-  const file = mediasNames[media].file;
+const TimelineMedia = ({ media, mediasNames, onDrag, onChange, ...otherProps }) => {
+  const { color, name, media: mediaId, volume } = media;
+  const file = mediasNames[mediaId].file;
 
   const [loading, setLoading] = useState(false);
   const [waveformWidth, setWaveformWidth] = useState(null);
@@ -209,7 +316,7 @@ const TimelineMedia = ({ media: { color, name, media, volume }, mediasNames, onD
           left
           onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
         />
-        <StyledBlockLabel>{name || mediasNames[media].name} [volume: {percentString(volume)}]</StyledBlockLabel>
+        <StyledBlockLabel>{name || mediasNames[mediaId].name} [volume: {percentString(volume)}]</StyledBlockLabel>
         <StyledBlockAnchor
           right
           onMouseDown={(e) => onDrag(e, container.current, 'outTime')}

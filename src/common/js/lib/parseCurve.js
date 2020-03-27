@@ -1,10 +1,10 @@
 import { sortBy } from 'lodash';
 
 export default (curve) => {
-  const sorted = sortBy(curve, ['x']);
-  if (!sorted.length) {
-    return sorted;
+  if (!curve || curve.length === 0) {
+    return [];
   }
+  const sorted = sortBy(curve, ['x']);
   const first = sorted[0];
   if (first.x !== 0) {
     sorted.unshift({
@@ -22,4 +22,4 @@ export default (curve) => {
     });
   }
   return sorted;
-}
+};

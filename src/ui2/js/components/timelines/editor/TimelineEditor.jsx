@@ -30,6 +30,7 @@ import { ITEM_SCRIPT, ITEM_TRIGGER, ITEM_MEDIA, ITEM_CURVE } from '../../../../.
 import TimelineTriggerDialog from './TimelineTriggerDialog';
 import TimelineItem from './TimelineItem';
 import TimelineMediaDialog from './TimelineMediaDialog';
+import TimelineCurveDialog from './TimelineCurveDialog';
 import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNames';
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 import { ipcRendererListen, ipcRendererClear, ipcRendererSend } from '../../../lib/ipcRenderer';
@@ -89,6 +90,7 @@ const TimelineLayer = ({
   timelineDuration,
   onItemDrag,
   onItemContextMenu,
+  onItemChange,
 }) => {
   return items.map((item) => (
     <TimelineItem
@@ -99,6 +101,7 @@ const TimelineLayer = ({
       timelineDuration={timelineDuration}
       onDrag={(e, element, mode) => onItemDrag(e, item.id, element, mode)}
       onContextMenu={(e) => onItemContextMenu(e, item.id)}
+      onChange={onItemChange}
     />
   ));
 };
@@ -142,6 +145,7 @@ export default function TimelineEditor({ timeline, onChange }) {
   const scriptDialog = useDialog();
   const triggerDialog = useDialog();
   const mediaDialog = useDialog();
+  const curveDialog = useDialog();
 
   const mouseTracker = useRef();
   const positionTracker = useRef();
@@ -238,6 +242,32 @@ export default function TimelineEditor({ timeline, onChange }) {
     }
     mediaDialog.hide();
   }, [onChange, mediaDialog]);
+
+  // Curves
+  const addCurveClickHandler = useCallback((initial = null) => {
+    initial ? curveDialog.show(DIALOG_ADD, initial) : curveDialog.show();
+  }, [curveDialog]);
+  const editCurveClickHandler = useCallback((id) => {
+    const curve = getItem(items, id);
+    curveDialog.show(DIALOG_EDIT, curve);
+  }, [curveDialog, timeline]);
+  const deleteCurveClickHandler = useCallback((id) => {
+    const curve = getItem(items, id);
+    deleteWarning(`Are you sure you want to delete curve ${curve.name}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      })
+  }, [onChange, timeline]);
+  const curveDialogSuccessHandler = useCallback(() => {
+    if (curveDialog.mode === DIALOG_EDIT) {
+      onChange({ items: doUpdateItem(items, curveDialog.value) });
+    } else {
+      onChange({ items: doAddItem(items, { ...curveDialog.value, id: uniqid(), type: ITEM_CURVE }) });
+    }
+    curveDialog.hide();
+  }, [onChange, curveDialog]);
 
   // Items
   const dragContent = useRef(null);
@@ -423,8 +453,8 @@ export default function TimelineEditor({ timeline, onChange }) {
     deleteTriggerClickHandler,
     editMediaClickHandler,
     deleteMediaClickHandler,
-    // editCurveClickHandler,
-    // deleteCurveClickHandler,
+    editCurveClickHandler,
+    deleteCurveClickHandler,
     itemChangeLayerUpClick,
     itemChangeLayerDownClick,
     itemCopyClick,
@@ -437,6 +467,9 @@ export default function TimelineEditor({ timeline, onChange }) {
     itemPasteInAndOutTimeClick,
     timelinePercent,
   ]);
+  const itemChangeHandler = useCallback((value, id) => {
+    onChange({items: doUpdateItem(items, value)})
+  }, [onChange, items])
 
   // Zoom container & trackers
   const zoomContainerMouseMoveHandler = useCallback((e) => {
@@ -532,9 +565,10 @@ export default function TimelineEditor({ timeline, onChange }) {
         timelineDuration={duration}
         onItemDrag={itemDragStartHandler}
         onItemContextMenu={itemContextMenuHandler}
+        onItemChange={itemChangeHandler}
       />
     );
-  }, [timeline, itemsByLayer, scriptsNames, itemDragStartHandler, itemContextMenuHandler]);
+  }, [timeline, itemsByLayer, scriptsNames, itemDragStartHandler, itemContextMenuHandler, itemChangeHandler]);
   const layerContextMenuRenderer = useCallback((template, e, id) => {
     const inTime = Math.round(timelinePercent.current * duration);
     const outTime = Math.min(inTime + 10000, duration);
@@ -547,7 +581,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     });
     template[0].submenu.unshift({
       label: 'Curve block here...',
-      // click: () => addCurveClickHandler({ layer: id, inTime, outTime })
+      click: () => addCurveClickHandler({ layer: id, inTime, outTime })
     });
     template[0].submenu.unshift({
       label: 'Trigger here...',
@@ -662,6 +696,7 @@ export default function TimelineEditor({ timeline, onChange }) {
                       <Menu.Item
                         icon={ICON_CURVE}
                         text="Add Curve block..."
+                        onClick={addCurveClickHandler}
                       />
                       <Menu.Item
                         icon={ICON_MEDIA}
@@ -809,6 +844,15 @@ export default function TimelineEditor({ timeline, onChange }) {
         onClose={mediaDialog.hide}
         layers={availableLayers}
         medias={availableMedias}
+      />
+      <TimelineCurveDialog
+        opened={curveDialog.opened}
+        mode={curveDialog.mode}
+        value={curveDialog.value}
+        onChange={curveDialog.change}
+        onSuccess={curveDialogSuccessHandler}
+        onClose={curveDialog.hide}
+        layers={availableLayers}
       />
     </>
   )
