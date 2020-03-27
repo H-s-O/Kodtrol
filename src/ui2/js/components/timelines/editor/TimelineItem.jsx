@@ -223,7 +223,7 @@ const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
           left
           onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
         />
-        <StyledBlockLabel>{name} [{realCount} point(s)]</StyledBlockLabel>
+        <StyledBlockLabel>{name} [{realCount === 0 ? 'empty curve' : `${realCount} point${realCount > 1 ? 's' : ''}`}]</StyledBlockLabel>
         <StyledBlockAnchor
           right
           onMouseDown={(e) => onDrag(e, container.current, 'outTime')}
