@@ -46,12 +46,13 @@ const StyledBlockHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 0px;
+  padding: 2px 0px;
   width: 100%;
   font-size: 0.75em;
   border-bottom-color: inherit;
   border-bottom-style: solid;
   border-bottom-width: 1px;
+  overflow-x: hidden;
 `;
 
 const StyledBlockBody = styled.div`
@@ -63,7 +64,7 @@ const StyledBlockContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-radius: 4px;
+  border-radius: 3px;
   color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
   background-color: ${({ color }) => color};
   border-color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
@@ -78,8 +79,8 @@ const StyledPointLabel = styled.div`
   padding: 4px;
   font-size: 0.75em;
   background-color: inherit;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
 `;
 
 const StyledPointContainer = styled.div`
@@ -327,6 +328,7 @@ const TimelineMedia = ({ media, mediasNames, onDrag, onChange, ...otherProps }) 
           <StyledWaveform
             viewBox={`0 -1 ${waveformWidth} 2`}
             preserveAspectRatio="none"
+            color={color}
           >
             <path
               d={waveformData}

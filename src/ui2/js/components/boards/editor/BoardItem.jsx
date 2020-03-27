@@ -12,7 +12,7 @@ const BlockLabel = styled.span`
 const BlockHeader = styled.div`
   display: flex;
   justify-content: center;
-  padding: 4px;
+  padding: 2px;
   width: 100%;
   font-size: 0.75em;
   border-bottom-color: inherit;
@@ -22,7 +22,7 @@ const BlockHeader = styled.div`
 
 const BlockContainer = styled.div`
   flex-grow: 1;
-  border-radius: 4px;
+  border-radius: 3px;
   color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
   background-color: ${({ color }) => color};
   border-color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
