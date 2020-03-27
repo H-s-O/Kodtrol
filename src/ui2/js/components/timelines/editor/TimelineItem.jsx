@@ -167,7 +167,7 @@ const TimelineCurve = ({ curve: { color, name, curve }, onDrag, ...otherProps })
   );
 };
 
-const TimelineMedia = ({ media: { color, name, media }, mediasNames, onDrag, ...otherProps }) => {
+const TimelineMedia = ({ media: { color, name, media, volume }, mediasNames, onDrag, ...otherProps }) => {
   const file = mediasNames[media].file;
 
   const [loading, setLoading] = useState(false);
@@ -209,7 +209,7 @@ const TimelineMedia = ({ media: { color, name, media }, mediasNames, onDrag, ...
           left
           onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
         />
-        <StyledBlockLabel>{name || mediasNames[media].name}</StyledBlockLabel>
+        <StyledBlockLabel>{name || mediasNames[media].name} [volume: {percentString(volume)}]</StyledBlockLabel>
         <StyledBlockAnchor
           right
           onMouseDown={(e) => onDrag(e, container.current, 'outTime')}
