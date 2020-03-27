@@ -11,8 +11,6 @@ import TimelineEditorTab from './timelines/TimelineEditorTab';
 import BoardEditorTab from './boards/BoardEditorTab';
 import { closeTimelineAction, focusEditedTimelineAction, saveEditedTimelineAction, runTimelineAction } from '../../../common/js/store/actions/timelines';
 import { closeBoardAction, focusEditedBoardAction, saveEditedBoardAction, runBoardAction } from '../../../common/js/store/actions/boards';
-import { ipcRendererSend } from '../lib/ipcRenderer';
-import { UPDATE_TIMELINE_INFO } from '../../../common/js/constants/events';
 
 const StyledDivider = styled.div`
   width: 1px;
@@ -110,32 +108,9 @@ export default function TimelinesBoardsEditor() {
       dispatch(runBoardAction(activeBoard.id));
     }
   }, [dispatch, activeTimeline, activeBoard, lastEditor]);
-  const playPauseHandler = useCallback(() => {
-    if (runTimeline) {
-      const { playing } = timelineInfo;
-      const data = {
-        ...timelineInfo,
-        playing: !playing,
-      };
-
-      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
-    }
-  }, [runTimeline, timelineInfo]);
-  const rewindHandler = useCallback(() => {
-    if (runTimeline) {
-      const data = {
-        ...timelineInfo,
-        position: 0,
-      };
-
-      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
-    }
-  }, [runTimeline, timelineInfo]);
 
   useHotkeys('Meta+s', saveHandler);
   useHotkeys('Meta+r', saveAndRunHandler);
-  useHotkeys(' ', playPauseHandler);
-  useHotkeys('r', rewindHandler);
 
   return (
     <FullHeightCard>

@@ -4,6 +4,7 @@ import { ButtonGroup, Button, Popover, Menu, Position, Icon } from '@blueprintjs
 import uniqid from 'uniqid';
 import { useSelector } from 'react-redux';
 import { remote } from 'electron';
+import useHotkeys from '@reecelucas/react-use-hotkeys';
 
 import LayerEditor from '../../layer_editor/LayerEditor';
 import { ICON_SCRIPT, ICON_MEDIA, ICON_CURVE, ICON_TRIGGER, ICON_LAYER } from '../../../../../common/js/constants/icons';
@@ -31,8 +32,9 @@ import TimelineItem from './TimelineItem';
 import TimelineMediaDialog from './TimelineMediaDialog';
 import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNames';
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
-import { ipcRendererListen, ipcRendererClear } from '../../../lib/ipcRenderer';
+import { ipcRendererListen, ipcRendererClear, ipcRendererSend } from '../../../lib/ipcRenderer';
 import { UPDATE_TIMELINE_INFO } from '../../../../../common/js/constants/events';
+import focusIsGlobal from '../../../../../ui/js/lib/focusIsGlobal';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -109,7 +111,6 @@ export default function TimelineEditor({ timeline, onChange }) {
   const scripts = useSelector((state) => state.scripts);
   const medias = useSelector((state) => state.medias);
   const runTimeline = useSelector((state) => state.runTimeline);
-  const timelineInfo = useSelector((state) => state.timelineInfo);
 
   const isRunning = timeline.id == runTimeline;
 
@@ -145,6 +146,7 @@ export default function TimelineEditor({ timeline, onChange }) {
   const mouseTracker = useRef();
   const positionTracker = useRef();
   const timelinePercent = useRef();
+  const timelineInfo = useRef();
 
   // Zoom
   const zoomClickHandler = useCallback((value) => {
@@ -459,6 +461,16 @@ export default function TimelineEditor({ timeline, onChange }) {
       dragContent.current.percent = percent;
     }
   }, [mouseTracker.current, dragContent.current, timelinePercent, duration]);
+  const zoomContainerDoubleClickHandler = useCallback((e) => {
+    if (isRunning) {
+      const { current } = timelineInfo;
+      const data = {
+        ...current,
+        position: Math.round(timelinePercent.current * duration),
+      };
+      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+    }
+  }, [isRunning, timelinePercent, timelineInfo, duration]);
   const windowMouseUpHandler = useCallback((e) => {
     if (dragContent.current) {
       const { mode, element, item, percent } = dragContent.current;
@@ -475,12 +487,13 @@ export default function TimelineEditor({ timeline, onChange }) {
     }
   }, [dragContent.current, items, duration, onChange]);
   const updateTimelineInfoHandler = useCallback((e, data) => {
+    timelineInfo.current = data;
     if (positionTracker.current) {
       const { position } = data;
       const percent = position / duration;
       positionTracker.current.style = `left:${percentString(percent)}`;
     }
-  }, [positionTracker.current, duration]);
+  }, [positionTracker.current, timelineInfo, duration]);
   useEffect(() => {
     window.addEventListener('mouseup', windowMouseUpHandler);
     return () => window.removeEventListener('mouseup', windowMouseUpHandler);
@@ -565,6 +578,52 @@ export default function TimelineEditor({ timeline, onChange }) {
     // addCurveClickHandler,
     addMediaClickHandler,
   ]);
+
+  // Control
+  const playPauseHandler = useCallback(() => {
+    if (isRunning && focusIsGlobal()) {
+      const { current } = timelineInfo;
+      const data = {
+        ...current,
+        playing: current ? !current.playing : true,
+      };
+      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+    }
+  }, [isRunning, timelineInfo]);
+  const rewindHandler = useCallback(() => {
+    if (isRunning && focusIsGlobal()) {
+      const { current } = timelineInfo;
+      const data = {
+        ...current,
+        position: 0,
+      };
+      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+    }
+  }, [isRunning, timelineInfo]);
+  const backHandler = useCallback(() => {
+    if (isRunning && focusIsGlobal()) {
+      const { current } = timelineInfo;
+      const data = {
+        ...current,
+        position: current ? Math.max(current.position - 5000, 0) : 0,
+      };
+      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+    }
+  }, [isRunning, timelineInfo]);
+  const forwardHandler = useCallback(() => {
+    if (isRunning && focusIsGlobal()) {
+      const { current } = timelineInfo;
+      const data = {
+        ...current,
+        position: current ? Math.min(current.position + 5000, duration) : 5000,
+      };
+      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+    }
+  }, [isRunning, timelineInfo, duration]);
+  useHotkeys(' ', playPauseHandler);
+  useHotkeys('r', rewindHandler);
+  useHotkeys('Shift+ArrowLeft', backHandler);
+  useHotkeys('Shift+ArrowRight', forwardHandler);
 
   return (
     <>
@@ -702,6 +761,7 @@ export default function TimelineEditor({ timeline, onChange }) {
               height: percentString(zoomVert),
             }}
             onMouseMove={zoomContainerMouseMoveHandler}
+            onDoubleClick={zoomContainerDoubleClickHandler}
           >
             <LayerEditor
               layers={layers}
