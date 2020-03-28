@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { Button, ButtonGroup, Position, Popover, Menu, Icon } from '@blueprintjs/core';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
@@ -16,7 +16,7 @@ import { ITEM_SCRIPT, ITEM_BEHAVIOR_TOGGLE } from '../../../../../common/js/cons
 import useDialog from '../../../lib/useDialog';
 import BoardScriptDialog from './BoardScriptDialog';
 import { getItem, doUpdateItem, doAddItem, doDeleteItem, canChangeItemLayerUp, canChangeItemLayerDown, doChangeItemLayer } from '../../../../../common/js/lib/itemOperations';
-import { ipcRendererSend } from '../../../lib/ipcRenderer';
+import { ipcRendererSend, ipcRendererListen, ipcRendererClear } from '../../../lib/ipcRenderer';
 import { UPDATE_BOARD_INFO } from '../../../../../common/js/constants/events';
 
 const StyledContainer = styled.div`
@@ -47,6 +47,7 @@ const BoardLayerContainer = styled.div`
 const BoardLayer = ({
   id,
   items = [],
+  boardInfo,
   scriptsNames,
   onItemMouseDown,
   onItemMouseUp,
@@ -54,16 +55,20 @@ const BoardLayer = ({
 }) => {
   return (
     <BoardLayerContainer>
-      {items.map((item) => (
-        <BoardItem
-          key={item.id}
-          item={item}
-          scriptsNames={scriptsNames}
-          onMouseDown={(e) => onItemMouseDown(e, item.id)}
-          onMouseUp={(e) => onItemMouseUp(e, item.id)}
-          onContextMenu={(e) => onItemContextMenu(e, item.id)}
-        />
-      ))}
+      {items.map((item) => {
+        const active = boardInfo && boardInfo.activeItems && item.id in boardInfo.activeItems;
+        return (
+          <BoardItem
+            key={item.id}
+            item={item}
+            active={active}
+            scriptsNames={scriptsNames}
+            onMouseDown={(e) => onItemMouseDown(e, item.id)}
+            onMouseUp={(e) => onItemMouseUp(e, item.id)}
+            onContextMenu={(e) => onItemContextMenu(e, item.id)}
+          />
+        );
+      })}
     </BoardLayerContainer>
   );
 };
@@ -75,7 +80,8 @@ export default function BoardEditor({ board, onChange }) {
 
   const scripts = useSelector((state) => state.scripts);
   const runBoard = useSelector((state) => state.runBoard);
-  const boardInfo = useSelector((state) => state.boardInfo);
+
+  const isRunning = board.id == runBoard;
 
   const scriptsNames = useMemo(() => {
     return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
@@ -97,6 +103,8 @@ export default function BoardEditor({ board, onChange }) {
   }, [board]);
 
   const scriptDialog = useDialog();
+
+  const [boardInfo, setBoardInfo] = useState({});
 
   // Zoom
   const zoomClickHandler = useCallback((value) => {
@@ -138,7 +146,7 @@ export default function BoardEditor({ board, onChange }) {
       return;
     }
 
-    if (runBoard === board.id) {
+    if (isRunning) {
       e.stopPropagation();
 
       const item = getItem(items, id);
@@ -152,9 +160,9 @@ export default function BoardEditor({ board, onChange }) {
 
       ipcRendererSend(UPDATE_BOARD_INFO, data);
     }
-  }, [board, runBoard, boardInfo]);
+  }, [board, isRunning, boardInfo]);
   const itemMouseUpHandler = useCallback((e, id) => {
-    if (runBoard === board.id) {
+    if (isRunning) {
       e.stopPropagation();
 
       const item = getItem(items, id);
@@ -170,7 +178,7 @@ export default function BoardEditor({ board, onChange }) {
         ipcRendererSend(UPDATE_BOARD_INFO, data);
       }
     }
-  }, [board, runBoard, boardInfo]);
+  }, [board, isRunning, boardInfo]);
   const itemChangeLayerUpClick = useCallback((id) => {
     onChange({ items: doChangeItemLayer(items, layers, id, 1) });
   }, [onChange, board]);
@@ -224,6 +232,15 @@ export default function BoardEditor({ board, onChange }) {
     itemChangeLayerDownClick,
   ]);
 
+  // Zoom container & trackers
+  const updateBoardInfoHandler = useCallback((e, data) => {
+    setBoardInfo(data);
+  }, []);
+  useEffect(() => {
+    ipcRendererListen(UPDATE_BOARD_INFO, updateBoardInfoHandler);
+    return () => ipcRendererClear(UPDATE_BOARD_INFO, updateBoardInfoHandler);
+  }, [updateBoardInfoHandler]);
+
   // Layers
   const addLayerAtTopClickHandler = useCallback(() => {
     onChange({ layers: doAddLayer(layers, 'max') });
@@ -248,13 +265,22 @@ export default function BoardEditor({ board, onChange }) {
       <BoardLayer
         id={id}
         items={itemsByLayer[id]}
+        boardInfo={boardInfo}
         scriptsNames={scriptsNames}
         onItemMouseDown={itemMouseDownHandler}
         onItemMouseUp={itemMouseUpHandler}
         onItemContextMenu={itemContextMenuHandler}
       />
     );
-  }, [board, itemsByLayer, scriptsNames, itemMouseDownHandler, itemMouseUpHandler, itemContextMenuHandler]);
+  }, [
+    board,
+    itemsByLayer,
+    boardInfo,
+    scriptsNames,
+    itemMouseDownHandler,
+    itemMouseUpHandler,
+    itemContextMenuHandler,
+  ]);
 
   return (
     <>

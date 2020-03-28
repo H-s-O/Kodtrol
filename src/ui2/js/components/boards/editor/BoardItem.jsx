@@ -1,15 +1,17 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import Color from 'color';
 
-const BlockLabel = styled.span`
+import { ITEM_LABELS, ITEM_SCRIPT } from '../../../../../common/js/constants/items';
+
+const StyledBlockLabel = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow-x: hidden;
   margin: 0px 2px;
 `;
 
-const BlockHeader = styled.div`
+const StyledBlockHeader = styled.div`
   display: flex;
   justify-content: center;
   padding: 2px;
@@ -20,7 +22,40 @@ const BlockHeader = styled.div`
   border-bottom-width: 1px;
 `;
 
-const BlockContainer = styled.div`
+const StyledBlockBody = styled.div`
+  flex-grow: 1;
+`;
+
+const statusAnim = keyframes`
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 28px 0;
+  }
+`;
+
+const StyledBlockStatus = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  ${({ active }) => active && css`
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0),
+      rgba(0, 0, 0, 0),
+      ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'} 10px,
+      ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'} 20px
+    );
+    background-size: 28px 28px;
+    animation: ${statusAnim} .5s linear infinite;
+  `}
+`;
+
+const StyledBlockContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
   border-radius: 3px;
   color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
@@ -36,19 +71,43 @@ const BlockContainer = styled.div`
   }
 `;
 
-export default function BoardItem({ item, scriptsNames, ...otherProps }) {
-  const { id, name, color, script, media } = item;
+const BoardScript = ({ script, scriptsNames, active, ...otherProps }) => {
+  const { name, color, script: scriptId, behavior } = script;
 
   return (
-    <BlockContainer
+    <StyledBlockContainer
       color={color}
       {...otherProps}
     >
-      <BlockHeader>
-        <BlockLabel>
-          {name || scriptsNames[script]}
-        </BlockLabel>
-      </BlockHeader>
-    </BlockContainer>
+      <StyledBlockHeader>
+        <StyledBlockLabel>
+          {name || scriptsNames[scriptId]} [{ITEM_LABELS[behavior]}]
+        </StyledBlockLabel>
+      </StyledBlockHeader>
+      <StyledBlockBody>
+        <StyledBlockStatus
+          color={color}
+          active={active}
+        />
+      </StyledBlockBody>
+    </StyledBlockContainer>
   );
-}
+};
+
+export default function BoardItem({ item, scriptsNames, ...otherProps }) {
+  const type = item.type;
+
+  if (type === ITEM_SCRIPT) {
+    return (
+      <BoardScript
+        script={item}
+        scriptsNames={scriptsNames}
+        {...otherProps}
+      />
+    );
+  }
+
+  // @TODO medias ?
+
+  return null;
+};
