@@ -191,6 +191,9 @@ const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
   const parsedCurve = useMemo(() => parseCurve(curveData), [curveData]);
   const realCount = useMemo(() => parsedCurve.filter(({ extra }) => !extra).length, [parsedCurve]);
 
+  const containerDoubleClickHandler = useCallback((e) => {
+    e.stopPropagation();
+  });
   const containerClickHandler = useCallback((e) => {
     e.stopPropagation();
 
@@ -232,6 +235,7 @@ const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
       <StyledBlockBody>
         <StyledCurveContainer
           onClick={containerClickHandler}
+          onDoubleClick={containerDoubleClickHandler}
         >
           {(parsedCurve.length > 0) && (
             <>
