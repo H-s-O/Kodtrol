@@ -11,11 +11,20 @@ import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import { ICON_LAYER, ICON_SCRIPT } from '../../../../../common/js/constants/icons';
-import { DIALOG_EDIT } from '../../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT, DIALOG_ADD } from '../../../../../common/js/constants/dialogs';
 import { ITEM_SCRIPT, ITEM_BEHAVIOR_TOGGLE } from '../../../../../common/js/constants/items';
 import useDialog from '../../../lib/useDialog';
 import BoardScriptDialog from './BoardScriptDialog';
-import { getItem, doUpdateItem, doAddItem, doDeleteItem, canChangeItemLayerUp, canChangeItemLayerDown, doChangeItemLayer } from '../../../../../common/js/lib/itemOperations';
+import {
+  getItem,
+  doUpdateItem,
+  doAddItem,
+  doDeleteItem,
+  canChangeItemLayerUp,
+  canChangeItemLayerDown,
+  doChangeItemLayer,
+  canPasteItem,
+} from '../../../../../common/js/lib/itemOperations';
 import { ipcRendererSend, ipcRendererListen, ipcRendererClear } from '../../../lib/ipcRenderer';
 import { UPDATE_BOARD_INFO } from '../../../../../common/js/constants/events';
 
@@ -57,11 +66,13 @@ const BoardLayer = ({
     <BoardLayerContainer>
       {items.map((item) => {
         const active = boardInfo && boardInfo.activeItems && item.id in boardInfo.activeItems;
+        const status = (boardInfo && boardInfo.itemsStatus && item.id in boardInfo.itemsStatus) ? boardInfo.itemsStatus[item.id] : 0;
         return (
           <BoardItem
             key={item.id}
             item={item}
             active={active}
+            status={status}
             scriptsNames={scriptsNames}
             onMouseDown={(e) => onItemMouseDown(e, item.id)}
             onMouseUp={(e) => onItemMouseUp(e, item.id)}
@@ -104,7 +115,11 @@ export default function BoardEditor({ board, onChange }) {
 
   const scriptDialog = useDialog();
 
-  const [boardInfo, setBoardInfo] = useState({});
+  const [boardInfo, setBoardInfo] = useState(null);
+  if (!isRunning && boardInfo) {
+    // Clear boardInfo if stopped running
+    setBoardInfo(null);
+  }
 
   // Zoom
   const zoomClickHandler = useCallback((value) => {
@@ -115,8 +130,8 @@ export default function BoardEditor({ board, onChange }) {
   }, [onChange, board]);
 
   // Scripts
-  const addScriptClickHandler = useCallback(() => {
-    scriptDialog.show();
+  const addScriptClickHandler = useCallback((initial = null) => {
+    initial ? scriptDialog.show(DIALOG_ADD, initial) : scriptDialog.show();
   }, [scriptDialog]);
   const editScriptClickHandler = useCallback((id) => {
     const script = getItem(items, id);
@@ -192,7 +207,7 @@ export default function BoardEditor({ board, onChange }) {
 
     const template = [
       {
-        label: 'Move',
+        label: 'Move item',
         submenu: [
           {
             label: 'To layer above',
@@ -280,6 +295,30 @@ export default function BoardEditor({ board, onChange }) {
     itemMouseDownHandler,
     itemMouseUpHandler,
     itemContextMenuHandler,
+  ]);
+  const layerContextMenuRenderer = useCallback((template, e, id) => {
+    template[0].submenu.unshift({
+      type: 'separator',
+    });
+    template[0].submenu.unshift({
+      label: 'Script block here...',
+      click: () => addScriptClickHandler({ layer: id })
+    });
+    template.splice(1, 0, ...[
+      {
+        label: 'Paste',
+        submenu: [
+          {
+            label: 'Item here',
+            enabled: canPasteItem('item'),
+            // click: () => itemPasteClick(id, inTime),
+          },
+        ],
+      },
+    ]);
+    return template;
+  }, [
+    addScriptClickHandler,
   ]);
 
   return (
@@ -395,6 +434,7 @@ export default function BoardEditor({ board, onChange }) {
             <LayerEditor
               layers={layers}
               renderLayerChildren={layerChildrenRenderer}
+              renderLayerContextMenu={layerContextMenuRenderer}
               onChange={layersChangerHandler}
               onDelete={layersDeleteHandler}
             />

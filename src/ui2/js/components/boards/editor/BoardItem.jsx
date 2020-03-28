@@ -3,6 +3,7 @@ import styled, { keyframes, css } from 'styled-components';
 import Color from 'color';
 
 import { ITEM_LABELS, ITEM_SCRIPT } from '../../../../../common/js/constants/items';
+import blockPercentToOpacity from '../../../lib/blockPercentToOpacity';
 
 const StyledBlockLabel = styled.span`
   text-overflow: ellipsis;
@@ -43,8 +44,8 @@ const StyledBlockStatus = styled.div`
   ${({ active }) => active && css`
     background-image: repeating-linear-gradient(
       -45deg,
-      rgba(0, 0, 0, 0),
-      rgba(0, 0, 0, 0),
+      transparent,
+      transparent 10px,
       ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'} 10px,
       ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'} 20px
     );
@@ -71,7 +72,7 @@ const StyledBlockContainer = styled.div`
   }
 `;
 
-const BoardScript = ({ script, scriptsNames, active, ...otherProps }) => {
+const BoardScript = ({ script, scriptsNames, active, status, ...otherProps }) => {
   const { name, color, script: scriptId, behavior } = script;
 
   return (
@@ -87,7 +88,10 @@ const BoardScript = ({ script, scriptsNames, active, ...otherProps }) => {
       <StyledBlockBody>
         <StyledBlockStatus
           color={color}
-          active={active}
+          active={true}
+          style={{
+            opacity: blockPercentToOpacity(status),
+          }}
         />
       </StyledBlockBody>
     </StyledBlockContainer>
