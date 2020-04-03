@@ -1,5 +1,3 @@
-import { app, remote } from 'electron';
-
-const isDev = !(app || remote.app).isPackaged;
+const isDev = ('KODTROL_DEV' in process.env);
 
 export default isDev;
