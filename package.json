@@ -9,11 +9,13 @@
   "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "./build/main/kodtrol-main.js",
   "scripts": {
-    "clean": "rm -rf .cache && rm -rf ./build/*",
-    "dev": "parcel watch ./src/ui2/index.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../",
-    "build": "npx webpack --progress --config build/webpack.config.js -p",
     "start": "npx electron -r @babel/register ./src/main/kodtrol-main.js",
-    "package": "npm run build && npx electron-packager dist MyApp",
+    "dev": "npm run clear-build && parcel watch ./src/ui2/index.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../",
+    "clear-build": "npx rimraf ./build/*",
+    "build-babel": "babel ./src/main --out-dir ./build/main && babel ./src/common --out-dir ./build/common",
+    "build-parcel": "parcel build ./src/ui2/index.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../ --no-source-maps --no-minify",
+    "dist": "npx electron-builder build",
+    "build-and-dist": "npm run clear-build && npm run build-babel && npm run build-parcel && npm run dist",
     "rebuild": "npx electron-rebuild",
     "generate-screenshots": "npm start -- --screenshots ../../dev/screenshots.js --project ./dev/demo_project.json"
   },
@@ -80,11 +82,12 @@
     "@babel/preset-react": "^7.7.4",
     "@babel/register": "^7.7.7",
     "electron": "^7.1.12",
-    "electron-packager": "^11.0.1",
+    "electron-builder": "^22.4.1",
     "electron-rebuild": "^1.10.0",
     "less": "^3.11.1",
     "node-abi": "^2.15.0",
     "parcel-bundler": "^1.12.4",
-    "redux-devtools-extension": "^2.13.5"
+    "redux-devtools-extension": "^2.13.5",
+    "rimraf": "^3.0.2"
   }
 }

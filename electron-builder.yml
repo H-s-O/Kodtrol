@@ -1,0 +1,5 @@
+appId: "ca.tekunika.kodtrol"
+productName: "Kodtrol"
+copyright: "TEKUNIKA 2020"
+files:
+  - "./build"
