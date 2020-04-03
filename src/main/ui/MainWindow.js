@@ -4,6 +4,7 @@ import { BrowserWindow } from 'electron';
 import { Colors } from '@blueprintjs/core';
 
 import * as MainWindowEvent from '../events/MainWindowEvent';
+import isDev from '../../common/js/lib/isDev';
 
 export default class MainWindow extends EventEmitter {
   win = null;
@@ -29,7 +30,6 @@ export default class MainWindow extends EventEmitter {
     this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);
 
-    const isDev = true;
     if (isDev) {
       if (!MainWindow.__devToolsAdded) {
         BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/4.2.1_0'));

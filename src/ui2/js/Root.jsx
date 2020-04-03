@@ -1,7 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { composeWithDevTools } from 'redux-devtools-extension';
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, compose } from 'redux'
 import { forwardToMain, replayActionRenderer, getInitialStateRenderer } from 'electron-redux';
 
 import Main from './Main';
@@ -12,11 +11,12 @@ import resetTimelineInfoUser from '../../common/js/store/middlewares/resetTimeli
 import resetTimelineInfo from '../../common/js/store/middlewares/resetTimelineInfo';
 import resetBoardInfoUser from '../../common/js/store/middlewares/resetBoardInfoUser';
 import resetBoardInfo from '../../common/js/store/middlewares/resetBoardInfo';
+import isDev from '../../common/js/lib/isDev';
 
 const store = createStore(
   rootReducer,
   getInitialStateRenderer(),
-  composeWithDevTools(
+  (isDev ? require('redux-devtools-extension').composeWithDevTools : compose)(
     applyMiddleware(
       forwardToMain, // IMPORTANT! This goes first
       resetCurrentItems(),

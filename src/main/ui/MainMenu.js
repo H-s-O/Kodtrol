@@ -5,6 +5,7 @@ import * as MainMenuEvent from '../events/MainMenuEvent';
 import openExternalFolder from '../../common/js/lib/openExternalFolder';
 import { getCompiledScriptsDir } from '../lib/fileSystem';
 import { APP_NAME } from '../../common/js/constants/app';
+import isDev from '../../common/js/lib/isDev';
 
 export default class MainMenu extends EventEmitter {
   constructor() {
@@ -77,8 +78,7 @@ export default class MainMenu extends EventEmitter {
       },
     ];
     
-    const isDev = true;
-    if (isDev) {
+    if (true) {
       template.push({
         label: 'Dev',
         submenu: [
