@@ -4,6 +4,7 @@ import path from 'path';
 
 import { getCompiledScriptsDir, getConvertedAudiosDir } from '../lib/fileSystem';
 import * as RendererEvent from '../events/RendererEvent';
+import isDev from '../../common/js/lib/isDev';
 
 export default class Renderer extends EventEmitter {
   childProcess = null;
@@ -15,13 +16,16 @@ export default class Renderer extends EventEmitter {
 
     this.childProcess = fork(processPath, {
       env: {
+        KODTROL_DEV: process.env['KODTROL_DEV'],
         KODTROL_SCRIPTS_DIR: getCompiledScriptsDir(),
         KODTROL_AUDIOS_DIR: getConvertedAudiosDir(),
       },
-      execArgv: [
-        '-r',
-        '@babel/register',
-      ],
+      ...(isDev ? {
+        execArgv: [
+          '-r',
+          '@babel/register',
+        ],
+      } : {}),
     });
     this.childProcess.on('message', this.onMessage);
   }

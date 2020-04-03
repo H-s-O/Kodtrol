@@ -12,7 +12,7 @@
     "start": "cross-env KODTROL_DEV=true npx electron -r @babel/register ./src/main/kodtrol-main.js",
     "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch ./src/ui2/index.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../",
     "clear-build": "npx rimraf ./build/*",
-    "build-babel": "babel ./src/main --out-dir ./build/main && babel ./src/common --out-dir ./build/common",
+    "build-babel": "babel ./src/main --out-dir ./build/main && babel ./src/renderer --out-dir ./build/renderer && babel ./src/common --out-dir ./build/common",
     "build-parcel": "parcel build ./src/ui2/index.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../ --no-source-maps --no-minify",
     "dist": "npx electron-builder build",
     "build-and-dist": "npm run clear-build && npm run build-babel && npm run build-parcel && npm run dist",
