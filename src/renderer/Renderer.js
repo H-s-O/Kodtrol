@@ -16,6 +16,7 @@ import IldaDevice from './rendering/IldaDevice';
 import DmxDeviceProxy from './rendering/DmxDeviceProxy';
 import IldaDeviceProxy from './rendering/IldaDeviceProxy';
 import { IO_DMX, IO_ILDA } from '../common/js/constants/io';
+import customLog from '../common/js/lib/customLog';
 
 export default class Renderer {
   outputs = {};
@@ -37,6 +38,8 @@ export default class Renderer {
   ioUpdateTimer = null;
 
   constructor() {
+    customLog('renderer');
+
     this.providers = {
       getOutput: this.getOutput,
       getScript: this.getScript,

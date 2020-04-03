@@ -20,6 +20,7 @@ import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
 import { ipcMainListen, ipcMainClear, ipcMainSend } from './lib/ipcMain';
 import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO } from '../common/js/constants/events';
+import customLog from '../common/js/lib/customLog';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -30,6 +31,8 @@ export default class Main {
   powerSaveBlockerId = null;
 
   constructor() {
+    customLog('main');
+
     app.on('ready', this.onReady);
     app.on('window-all-closed', this.onWindowAllClosed);
     app.on('will-quit', this.onWillQuit);
