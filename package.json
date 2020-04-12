@@ -14,8 +14,9 @@
     "clear-build": "npx rimraf ./build/*",
     "build-babel": "babel ./src/main --out-dir ./build/main && babel ./src/renderer --out-dir ./build/renderer && babel ./src/common --out-dir ./build/common",
     "build-parcel": "parcel build ./src/ui2/index.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../ --no-source-maps --no-minify",
+    "build-icons": "npx electron-icon-builder --input=./src/icons/app.png --output=./build",
     "dist": "npx electron-builder build",
-    "build-and-dist": "npm run clear-build && npm run build-babel && npm run build-parcel && npm run dist",
+    "build-and-dist": "npm run clear-build && npm run build-babel && npm run build-parcel && npm run build-icons && npm run dist",
     "rebuild": "npx electron-rebuild",
     "generate-screenshots": "npm start -- --screenshots ../../dev/screenshots.js --project ./dev/demo_project.json"
   },
@@ -85,6 +86,7 @@
     "cross-env": "^7.0.2",
     "electron": "^7.1.12",
     "electron-builder": "^22.4.1",
+    "electron-icon-builder": "^1.0.2",
     "electron-rebuild": "^1.10.0",
     "less": "^3.11.1",
     "node-abi": "^2.15.0",

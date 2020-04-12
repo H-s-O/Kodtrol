@@ -3,3 +3,9 @@ productName: "Kodtrol"
 copyright: "TEKUNIKA 2020"
 files:
   - "./build"
+mac:
+  icon: "./build/icons/mac/icon.icns"
+win:
+  icon: "./build/icons/win/icon.ico"
+linux:
+  icon: "./build/icons/png"
