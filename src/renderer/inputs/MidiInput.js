@@ -1,56 +1,104 @@
-import JZZ from 'jzz';
-import midi from 'midi';
+import { Input } from 'midi';
+import { MIDI } from 'jzz';
 
 import AbstractInput from './AbstractInput';
 
 export default class MidiInput extends AbstractInput {
-  input = null;
-  messageCallback = null;
+  _input = null;
+  _device = null;
+  _messageCallback = null;
+  _received = false;
 
-  constructor(messageCallback) {
+  constructor(messageCallback, device) {
     super();
 
-    this.messageCallback = messageCallback;
+    this._messageCallback = messageCallback;
+    this._device = device;
 
-    this.create();
+    this._create();
   }
 
-  create = () => {
-    try {
-      this.input = new midi.input();
-      this.input.on('message', this.onMessage);
-      if (this.input.getPortCount()) {
-        for (let i = 0; i < this.input.getPortCount(); i++) {
-          console.log('Port', i, ': ', this.input.getPortName(i));
-        }
-        // temp: open first available port
-        this.input.openPort(0);
-        this._setStatusConnected();
-        // @TODO enable Active Sensing messages for device status detect ?
-        // this.input.ignoreTypes(true, true, false);
-      } else {
-        this._setStatusDisconnected();
-      }
-      console.log('MIDI input');
-    } catch (e) {
-      console.error(e);
+  _create = () => {
+    if (!this._input) {
+      this._input = new Input();
+    }
+
+    const portIndex = this._getPortIndex();
+    if (portIndex === null) {
+      // Device port not found
       this._setStatusDisconnected();
-      // Retry after delay
-      setTimeout(this.create, 500);
+      this._retry();
+      return;
+    }
+
+    this._input.openPort(portIndex);
+    this._input.on('message', this._onMessage);
+
+    console.log(`Connected to MIDI input "${this._device}"`);
+    this._setStatusConnected();
+  }
+
+  _retry = () => {
+    // Retry after delay
+    setTimeout(this._create, MidiInput.RETRY_DELAY);
+  }
+
+  _getPortIndex = () => {
+    if (this._input) {
+      const portCount = this._input.getPortCount();
+      for (let i = 0; i < portCount; i++) {
+        if (this._input.getPortName(i) === this._device) {
+          return i;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  _refreshStatus = () => {
+    if (!this._input) {
+      this._setStatusDisconnected();
+      return;
+    }
+
+    if (this._getPortIndex() === null) {
+      console.log(`Disconnected from MIDI input "${this._device}"`);
+      this._setStatusDisconnected();
+      this._retry();
+      return;
+    }
+
+    if (this._received) {
+      // Reset flag
+      this._received = false;
+      this._setStatusActivity();
+      return;
+    }
+
+    this._setStatusConnected();
+  }
+
+  _onMessage = (deltaTime, message) => {
+    this._received = true;
+
+    if (this._messageCallback) {
+      const midiMessage = new MIDI(message);
+      this._messageCallback(midiMessage);
     }
   }
 
-  onMessage = (deltaTime, message) => {
-    if (this.messageCallback) {
-      const midiMessage = new JZZ.MIDI(message);
-      this.messageCallback(midiMessage);
+  _destroyInput = () => {
+    if (this._input) {
+      this._input.removeAllListeners();
+      this._input.closePort();
     }
   }
 
   destroy = () => {
-    if (this.input) {
-      this.input.closePort();
-    }
-    this.input = null;
+    this._destroyInput();
+
+    this._input = null;
+    this._messageCallback = null;
   }
 }

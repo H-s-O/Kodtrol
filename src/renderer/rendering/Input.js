@@ -48,7 +48,7 @@ export default class Input {
 
     switch (this._type) {
       case IO_MIDI:
-        input = new MidiInput(this._inputMessageCallback);
+        input = new MidiInput(this._inputMessageCallback, this._device);
         break;
       case IO_OSC:
         input = new OscInput(this._inputMessageCallback, this._protocol, this._port);

@@ -23,6 +23,7 @@ import boards from './boards';
 import outputs from './outputs';
 import inputs from './inputs';
 import ioStatus from './ioStatus';
+import ioAvailable from './ioAvailable';
 import dialogs from './dialogs';
 import lastEditor from './lastEditor';
 import saveEditedItems from './top/saveEditedItems';
@@ -34,6 +35,7 @@ const standardReducers = combineReducers({
   outputs,
   inputs,
   ioStatus,
+  ioAvailable,
   devices,
   devicesFolders,
   runDevice,

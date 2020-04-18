@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { Button, Tabs, Tab, Card, Intent, Tag } from '@blueprintjs/core';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -13,7 +13,17 @@ import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
 import NumberInput from '../ui/inputs/NumberInput';
 import SelectInput from '../ui/inputs/SelectInput';
-import { IO_DMX, IO_ILDA, IO_OSC, IO_MIDI, IO_LABELS, IO_ARTNET, IO_AUDIO } from '../../../../common/js/constants/io';
+import {
+  IO_DMX,
+  IO_ILDA,
+  IO_OSC,
+  IO_MIDI,
+  IO_LABELS,
+  IO_ARTNET,
+  IO_AUDIO,
+  IO_INPUT,
+  IO_OUTPUT,
+} from '../../../../common/js/constants/io';
 import ManagedTree from '../ui/ManagedTree';
 import inputValidator from '../../../../common/js/validators/inputValidator';
 import outputValidator from '../../../../common/js/validators/outputValidator';
@@ -67,7 +77,7 @@ const ItemSecondaryLabel = ({ id, type, onDelete }) => {
   );
 }
 
-const SingleInput = ({ value, onChange }) => {
+const SingleInput = ({ value, onChange, availableItems }) => {
   const {
     name = null,
     type = null,
@@ -75,6 +85,8 @@ const SingleInput = ({ value, onChange }) => {
     port = null,
     device = null,
   } = value;
+
+  const midiInputs = useMemo(() => availableItems.filter(({ type }) => type === IO_MIDI), [availableItems]);
 
   const changeHandler = useCallback((newValue, field) => {
     onChange({ ...value, [field]: newValue });
@@ -153,7 +165,9 @@ const SingleInput = ({ value, onChange }) => {
             onChange={changeHandler}
           >
             <option value="null">--</option>
-            <option value="asdasdasd">Device 1</option>
+            {midiInputs.map(({ id, name }) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
           </SelectInput>
         </InlineFormGroup>
       )}
@@ -196,7 +210,7 @@ const getIldaDriverHelper = (driver) => {
   return null;
 }
 
-const SingleOutput = ({ value, onChange }) => {
+const SingleOutput = ({ value, onChange, availableItems }) => {
   const {
     name = null,
     type = null,
@@ -321,6 +335,7 @@ const ItemsPanel = ({
   onDelete,
   itemComponent: ItemComponent,
   listSecondaryLabelComponent: ListSecondaryLabelComponent,
+  availableItems,
 }) => {
   const [currentItemId, setCurrentItemId] = useState(value && value.length > 0 ? value[0].id : null);
 
@@ -366,6 +381,7 @@ const ItemsPanel = ({
               value={currentItem}
               onChange={onChange}
               onDelete={onDelete}
+              availableItems={availableItems}
             />
           )}
         </StyledRightColumn>
@@ -379,6 +395,14 @@ export default function ProjectConfigDialog() {
   const inputs = useSelector((state) => state.inputs);
   const outputs = useSelector((state) => state.outputs);
   const devices = useSelector((state) => state.devices);
+  const ioAvailable = useSelector((state) => state.ioAvailable);
+
+  const availableInputs = useMemo(() => {
+    return ioAvailable.filter(({ mode }) => mode === IO_INPUT);
+  }, [ioAvailable]);
+  const availableOutputs = useMemo(() => {
+    return ioAvailable.filter(({ mode }) => mode === IO_OUTPUT);
+  }, [ioAvailable]);
 
   const [currentInputs, setInputs] = useState(inputs);
   const [currentOutputs, setOutputs] = useState(outputs);
@@ -463,6 +487,7 @@ export default function ProjectConfigDialog() {
                 onDelete={deleteInputHandler}
                 itemComponent={SingleInput}
                 listSecondaryLabelComponent={ItemSecondaryLabel}
+                availableItems={availableInputs}
               />
             )}
           />
@@ -477,6 +502,7 @@ export default function ProjectConfigDialog() {
                 onDelete={deleteOutputHandler}
                 itemComponent={SingleOutput}
                 listSecondaryLabelComponent={ItemSecondaryLabel}
+                availableItems={availableOutputs}
               />
             )}
           />

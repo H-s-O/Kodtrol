@@ -10,10 +10,11 @@ import * as MainWindowEvent from './events/MainWindowEvent';
 import * as MainMenuEvent from './events/MainMenuEvent';
 import * as StoreEvent from './events/StoreEvent';
 import * as RendererEvent from './events/RendererEvent';
+import * as WatcherEvent from './events/WatcherEvent';
 import Store from './data/Store';
 import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
 import { updateBoardInfo } from '../common/js/store/actions/boardInfo';
-import { updateIOStatus } from '../common/js/store/actions/ioStatus';
+import { updateIOStatusAction } from '../common/js/store/actions/ioStatus';
 import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
@@ -21,6 +22,9 @@ import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
 import { ipcMainListen, ipcMainClear, ipcMainSend } from './lib/ipcMain';
 import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO } from '../common/js/constants/events';
 import customLog from '../common/js/lib/customLog';
+import MidiWatcher from './lib/watchers/MidiWatcher';
+import { updateIOAvailableAction } from '../common/js/store/actions/ioAvailable';
+import { IO_MIDI, IO_INPUT, IO_OUTPUT } from '../common/js/constants/io';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -29,6 +33,7 @@ export default class Main {
   store = null;
   renderer = null;
   powerSaveBlockerId = null;
+  midiWatcher = null;
 
   constructor() {
     customLog('main');
@@ -51,6 +56,7 @@ export default class Main {
 
   onReady = () => {
     this.createMainMenu();
+    this.createWatchers();
     this.run();
   }
 
@@ -367,7 +373,9 @@ export default class Main {
   }
 
   onRendererIOStatusUpdate = (status) => {
-    this.store.dispatch(updateIOStatus(status));
+    if (this.store) {
+      this.store.dispatch(updateIOStatusAction(status));
+    }
   }
 
   createMainMenu = () => {
@@ -407,6 +415,23 @@ export default class Main {
 
   onMainMenuCloseProject = () => {
     this.doCloseProjectWarn();
+  }
+
+  createWatchers = () => {
+    this.midiWatcher = new MidiWatcher();
+    this.midiWatcher.on(WatcherEvent.UPDATE, this.onMidiWatcherUpdate);
+  }
+
+  onMidiWatcherUpdate = (inputs, outputs) => {
+    if (this.store) {
+      const ioAvailable = this.store.state.ioAvailable;
+      const newList = [
+        ...ioAvailable.filter(({ type }) => type !== IO_MIDI),
+        ...inputs.map((input) => ({ ...input, type: IO_MIDI, mode: IO_INPUT })),
+        ...outputs.map((output) => ({ ...output, type: IO_MIDI, mode: IO_OUTPUT })),
+      ];
+      this.store.dispatch(updateIOAvailableAction(newList));
+    }
   }
 
   createProject = () => {

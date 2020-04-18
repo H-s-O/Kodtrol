@@ -1,34 +1,36 @@
-import * as IOStatus from '../../common/js/constants/io';
+import { IO_CONNECTED, IO_DISCONNECTED, IO_ACTIVITY } from '../../common/js/constants/io';
 
 export default class AbstractInput {
-    _status = null;
+  static RETRY_DELAY = 1000;
 
-    get status() {
-        return this._status;
-    }
+  _status = null;
 
-    refreshAndGetStatus = () => {
-        this._refreshStatus();
-        return this._status;
-    }
+  get status() {
+    return this._status;
+  }
 
-    _refreshStatus = () => {
-        // implement in subclass
-    }
+  refreshAndGetStatus = () => {
+    this._refreshStatus();
+    return this._status;
+  }
 
-    _setStatusInitial = () => {
-        this._status = null;
-    }
+  _refreshStatus = () => {
+    // implement in subclass
+  }
 
-    _setStatusConnected = () => {
-        this._status = IOStatus.IO_CONNECTED;
-    }
+  _setStatusInitial = () => {
+    this._status = null;
+  }
 
-    _setStatusDisconnected = () => {
-        this._status = IOStatus.IO_DISCONNECTED;
-    }
+  _setStatusConnected = () => {
+    this._status = IO_CONNECTED;
+  }
 
-    _setStatusActivity = () => {
-        this._status = IOStatus.IO_ACTIVITY;
-    }
+  _setStatusDisconnected = () => {
+    this._status = IO_DISCONNECTED;
+  }
+
+  _setStatusActivity = () => {
+    this._status = IO_ACTIVITY;
+  }
 }
