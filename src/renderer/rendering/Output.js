@@ -2,7 +2,8 @@ import DmxOutput from '../outputs/DmxOutput';
 import ArtnetOutput from '../outputs/ArtnetOutput';
 import IldaOutput from '../outputs/IldaOutput';
 import AudioOutput from '../outputs/AudioOutput';
-import { IO_DMX, IO_ARTNET, IO_ILDA, IO_AUDIO } from '../../common/js/constants/io';
+import MidiOutput from '../outputs/MidiOutput';
+import { IO_DMX, IO_ARTNET, IO_ILDA, IO_AUDIO, IO_MIDI } from '../../common/js/constants/io';
 
 export default class Output {
   _id = null;
@@ -58,6 +59,9 @@ export default class Output {
       case IO_AUDIO:
         output = new AudioOutput(this._driver);
         break;
+      case IO_MIDI:
+        output = new MidiOutput(this._driver);
+        break;
       default:
         throw new Error(`Unknown output type "${this._type}"`);
         break;
@@ -83,7 +87,7 @@ export default class Output {
   }
 
   buffer = (data) => {
-    // @TODO handle serial/OSC/MIDI output data
+    // @TODO handle serial/OSC output data
     this._bufferData = {
       ...this._bufferData,
       ...data,

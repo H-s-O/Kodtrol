@@ -1,6 +1,8 @@
 import { IO_CONNECTED, IO_DISCONNECTED, IO_ACTIVITY } from '../../common/js/constants/io';
 
 export default class AbstractOutput {
+  static RETRY_DELAY = 1000;
+
   _status = null;
 
   get status() {

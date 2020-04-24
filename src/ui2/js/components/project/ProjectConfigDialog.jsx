@@ -219,6 +219,8 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
     address = null,
   } = value;
 
+  const midiOutputs = useMemo(() => availableItems.filter(({ type }) => type === IO_MIDI), [availableItems]);
+
   const changeHandler = useCallback((newValue, field) => {
     onChange({ ...value, [field]: newValue });
   }, [onChange, value]);
@@ -250,6 +252,7 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
           <option value={IO_DMX}>{IO_LABELS[IO_DMX]}</option>
           <option value={IO_ARTNET}>{IO_LABELS[IO_ARTNET]}</option>
           <option value={IO_ILDA}>{IO_LABELS[IO_ILDA]}</option>
+          <option value={IO_MIDI}>{IO_LABELS[IO_MIDI]}</option>
           <option value={IO_AUDIO}>{IO_LABELS[IO_AUDIO]}</option>
         </SelectInput>
       </InlineFormGroup>
@@ -318,6 +321,24 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
             value={address}
             onChange={changeHandler}
           />
+        </InlineFormGroup>
+      )}
+      {type === IO_MIDI && (
+        <InlineFormGroup
+          label="Device"
+          helperText={!driver ? 'You must select a MIDI output device.' : undefined}
+          intent={!driver ? Intent.DANGER : undefined}
+        >
+          <SelectInput
+            name="driver"
+            value={driver}
+            onChange={changeHandler}
+          >
+            <option value="null">--</option>
+            {midiOutputs.map(({ id, name }) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
+          </SelectInput>
         </InlineFormGroup>
       )}
     </Card>

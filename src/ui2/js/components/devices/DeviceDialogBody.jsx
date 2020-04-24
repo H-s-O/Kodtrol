@@ -9,7 +9,7 @@ import TagsInput from '../ui/inputs/TagsInput';
 import DmxChannelsInput from './DmxChannelsInput';
 import CustomDivider from '../ui/CustomDivider';
 import NumberInput from '../ui/inputs/NumberInput';
-import { IO_DMX, IO_ILDA, IO_LABELS, IO_ARTNET } from '../../../../common/js/constants/io';
+import { IO_DMX, IO_ILDA, IO_LABELS, IO_ARTNET, IO_MIDI } from '../../../../common/js/constants/io';
 
 export default function DeviceDialogBody({ value, onChange }) {
   const {
@@ -18,6 +18,7 @@ export default function DeviceDialogBody({ value, onChange }) {
     output,
     tags,
     address,
+    channel,
     channels,
     scanSpeed,
   } = value;
@@ -32,6 +33,8 @@ export default function DeviceDialogBody({ value, onChange }) {
         return output.type === IO_DMX || output.type === IO_ARTNET;
       } else if (type === IO_ILDA) {
         return output.type === IO_ILDA;
+      } else if (type === IO_MIDI) {
+        return output.type === IO_MIDI;
       }
     })
   }, [outputs, type]);
@@ -62,6 +65,7 @@ export default function DeviceDialogBody({ value, onChange }) {
           <option value="null">--</option>
           <option value={IO_DMX}>{IO_LABELS[IO_DMX]}</option>
           <option value={IO_ILDA}>{IO_LABELS[IO_ILDA]}</option>
+          <option value={IO_MIDI}>{IO_LABELS[IO_MIDI]}</option>
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
@@ -138,6 +142,24 @@ export default function DeviceDialogBody({ value, onChange }) {
               name="scanSpeed"
               min={0}
               value={scanSpeed}
+              onChange={onChange}
+            />
+          </InlineFormGroup>
+        </>
+      )}
+      {type === 'midi' && (
+        <>
+          <InlineFormGroup
+            label="Channel"
+            minWidth={60}
+            helperText={!channel ? 'A MIDI device channel is mandatory.' : undefined}
+            intent={!channel ? Intent.DANGER : undefined}
+          >
+            <NumberInput
+              name="channel"
+              min={1}
+              max={16}
+              value={channel}
               onChange={onChange}
             />
           </InlineFormGroup>

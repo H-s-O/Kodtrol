@@ -15,7 +15,9 @@ import DmxDevice from './rendering/DmxDevice';
 import IldaDevice from './rendering/IldaDevice';
 import DmxDeviceProxy from './rendering/DmxDeviceProxy';
 import IldaDeviceProxy from './rendering/IldaDeviceProxy';
-import { IO_DMX, IO_ILDA } from '../common/js/constants/io';
+import MidiDevice from './rendering/MidiDevice';
+import MidiDeviceProxy from './rendering/MidiDeviceProxy';
+import { IO_DMX, IO_ILDA, IO_MIDI } from '../common/js/constants/io';
 import customLog from '../common/js/lib/customLog';
 
 export default class Renderer {
@@ -155,6 +157,8 @@ export default class Renderer {
           return new DmxDevice(this.providers, item);
         } else if (item.type === IO_ILDA) {
           return new IldaDevice(this.providers, item);
+        } else if (item.type === IO_MIDI) {
+          return new MidiDevice(this.providers, item);
         }
         throw new Error(`Unknown device type "${item.type}"`);
       },
@@ -236,6 +240,8 @@ export default class Renderer {
       return new DmxDeviceProxy(device);
     } else if (device.type === IO_ILDA) {
       return new IldaDeviceProxy(device);
+    } else if (device.type === IO_MIDI) {
+      return new MidiDeviceProxy(device);
     }
     return null;
   }
