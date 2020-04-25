@@ -219,7 +219,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       ) {
         trigger.instance.render();
 
-        triggerData[trigger.trigger] = true;
+        triggerData[trigger.name] = true;
       }
     }
 
