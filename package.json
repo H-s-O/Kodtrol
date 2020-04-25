@@ -71,6 +71,7 @@
     "redux": "^3.7.2",
     "redux-observers": "^2.0.2",
     "reselect": "^4.0.0",
+    "simplex-noise": "^2.4.0",
     "styled-components": "^4.4.1",
     "uniqid": "^4.1.1",
     "yargs": "^13.2.2"
