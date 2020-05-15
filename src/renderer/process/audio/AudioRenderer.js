@@ -14,29 +14,29 @@ export default class AudioRenderer {
     // Do not show in macOS Dock
     app.dock.hide()
 
-    app.on('ready', this.onReady);
-    app.on('window-all-closed', this.onWindowAllClosed);
+    app.on('ready', this._onReady.bind(this));
+    app.on('window-all-closed', this._onWindowAllClosed.bind(this));
 
-    process.on('SIGTERM', this.onSigTerm);
+    process.on('SIGTERM', this._onSigTerm.bind(this));
 
     process.stdin.setEncoding('utf8');
-    process.stdin.on('data', this.onData);
+    process.stdin.on('data', this._onData.bind(this));
   }
 
-  onSigTerm = () => {
-    this.destroyAudioWindow();
+  _onSigTerm() {
+    this._destroyAudioWindow();
     process.exit();
   }
 
-  onReady = () => {
-    this.createAudioWindow();
+  _onReady() {
+    this._createAudioWindow();
   }
 
-  onWindowAllClosed = () => {
+  _onWindowAllClosed() {
     // Do nothing, keep the app alive
   }
 
-  createAudioWindow = () => {
+  _createAudioWindow() {
     this._audioWindow = new BrowserWindow({
       show: false,
       skipTaskbar: true,
@@ -47,14 +47,14 @@ export default class AudioRenderer {
     });
 
     this._audioWindow.loadFile(join(__dirname, '../../../../build/audio/index.html'));
-    this._audioWindow.webContents.once('did-finish-load', this.onFinishLoad);
+    this._audioWindow.webContents.once('did-finish-load', this._onFinishLoad.bind(this));
   }
 
-  onFinishLoad = () => {
+  _onFinishLoad() {
     this._ready = true;
   }
 
-  destroyAudioWindow = () => {
+  _destroyAudioWindow() {
     if (this._audioWindow) {
       this._audioWindow.removeAllListeners();
       this._audioWindow.close();
@@ -62,7 +62,7 @@ export default class AudioRenderer {
     this._audioWindow = null;
   }
 
-  onData = (chunk) => {
+  _onData(chunk) {
     if (this._audioWindow && this._ready) {
       this._audioWindow.webContents.send('data', chunk);
     }

@@ -29,13 +29,13 @@ export default class AudioSubProcess extends EventEmitter {
     });
   }
 
-  send = (data) => {
+  send(data) {
     if (this._childProcess) {
       this._childProcess.stdin.write(JSON.stringify(data), 'utf8');
     }
   }
 
-  destroy = () => {
+  destroy() {
     if (this._childProcess) {
       this._childProcess.kill();
     }

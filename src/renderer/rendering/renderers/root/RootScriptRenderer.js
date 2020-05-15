@@ -11,7 +11,7 @@ export default class RootScriptRenderer extends BaseRootRenderer {
     this._setScriptInstance(scriptId);
   }
 
-  _setScriptInstance = (scriptId) => {
+  _setScriptInstance(scriptId) {
     this._instance = new ScriptRenderer(this._providers, scriptId);
   }
 
@@ -19,27 +19,27 @@ export default class RootScriptRenderer extends BaseRootRenderer {
     return this._instance;
   }
 
-  _getRenderingTempo = () => {
+  _getRenderingTempo() {
     return this._instance.script.tempo;
   }
 
-  _runFrame = (frameTime) => {
+  _runFrame(frameTime) {
     this._instance.render(this._currentTime);
   }
 
-  _runBeat = (beatPos) => {
+  _runBeat(beatPos) {
     const localBeatPos = timeToPPQ(this._currentTime, this._getRenderingTempo());
     this._instance.beat(beatPos, localBeatPos);
   }
 
-  _runInput = (type, data) => {
+  _runInput(type, data) {
     this._instance.input(type, data);
   }
 
-  destroy = () => {
+  destroy() {
     this._instance.destroy();
     this._instance = null;
 
-    // super.destroy(); // @TODO needs babel update
+    super.destroy();
   }
 }

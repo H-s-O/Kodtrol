@@ -19,7 +19,7 @@ export default class Output {
     this.update(sourceOutput);
   }
 
-  update = (sourceOutput) => {
+  update(sourceOutput) {
     const {
       id,
       type,
@@ -39,7 +39,7 @@ export default class Output {
     this._setOutput();
   }
 
-  _setOutput = () => {
+  _setOutput() {
     if (this._output) {
       this._output.destroy();
     }
@@ -86,7 +86,7 @@ export default class Output {
     return this._hash;
   }
 
-  buffer = (data) => {
+  buffer(data) {
     // @TODO handle serial/OSC output data
     this._bufferData = {
       ...this._bufferData,
@@ -94,14 +94,14 @@ export default class Output {
     };
   }
 
-  flush = () => {
+  flush() {
     if (this._output) {
       this._output.send(this._bufferData);
     }
     this._bufferData = {};
   }
 
-  destroy = () => {
+  destroy() {
     if (this._output) {
       this._output.destroy();
     }

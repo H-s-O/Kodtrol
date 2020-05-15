@@ -7,28 +7,30 @@ export default class IldaDevice extends AbstractDevice {
   _objects = [];
 
   constructor(providers, sourceDevice) {
-    super(providers, sourceDevice);
-    
+    super(providers);
+
     this.update(sourceDevice);
   }
-  
-  update = (sourceDevice) => {
+
+  update(sourceDevice) {
+    super.update(sourceDevice);
+
     const {
       pps,
     } = sourceDevice;
 
     this._pps = parseInt(pps);
   }
-  
+
   get pointsPerSecond() {
     return this._pps;
   }
-  
-  reset = () => {
+
+  reset() {
     this._objects = [];
   }
-  
-  sendDataToOutput = () => {
+
+  sendDataToOutput() {
     // Guard
     if (this._output) {
       const data = {
@@ -38,27 +40,27 @@ export default class IldaDevice extends AbstractDevice {
       this._output.buffer(data);
     }
   }
-  
-  addPath = (data) => {
+
+  addPath(data) {
     this._objects.push(new Path(data));
   }
 
-  addRect = (data) => {
+  addRect(data) {
     this._objects.push(new Rect(data));
   }
 
-  addLine = (data) => {
+  addLine(data) {
     this._objects.push(new Line(data));
   }
 
-  addCircle = (data) => {
+  addCircle(data) {
     this._objects.push(new Circle(data));
   }
-  
-  destroy = () => {
+
+  destroy() {
     this._pps = null;
     this._objects = null;
 
-    // super.destroy(); // @TODO needs babel update
+    super.destroy();
   }
 };

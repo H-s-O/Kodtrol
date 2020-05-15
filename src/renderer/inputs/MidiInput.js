@@ -18,7 +18,7 @@ export default class MidiInput extends AbstractInput {
     this._create();
   }
 
-  _create = () => {
+  _create() {
     if (!this._input) {
       this._input = new Input();
     }
@@ -32,18 +32,18 @@ export default class MidiInput extends AbstractInput {
     }
 
     this._input.openPort(portIndex);
-    this._input.on('message', this._onMessage);
+    this._input.on('message', this._onMessage.bind(this));
 
     console.log(`Connected to MIDI input "${this._device}"`);
     this._setStatusConnected();
   }
 
-  _retry = () => {
+  _retry() {
     // Retry after delay
-    setTimeout(this._create, MidiInput.RETRY_DELAY);
+    setTimeout(this._create.bind(this), MidiInput.RETRY_DELAY);
   }
 
-  _getPortIndex = () => {
+  _getPortIndex() {
     if (this._input) {
       const portCount = this._input.getPortCount();
       for (let i = 0; i < portCount; i++) {
@@ -56,7 +56,7 @@ export default class MidiInput extends AbstractInput {
     return null;
   }
 
-  _refreshStatus = () => {
+  _refreshStatus() {
     if (!this._input) {
       this._setStatusDisconnected();
       return;
@@ -79,7 +79,7 @@ export default class MidiInput extends AbstractInput {
     this._setStatusConnected();
   }
 
-  _onMessage = (deltaTime, message) => {
+  _onMessage(deltaTime, message) {
     this._received = true;
 
     if (this._messageCallback) {
@@ -88,17 +88,21 @@ export default class MidiInput extends AbstractInput {
     }
   }
 
-  _destroyInput = () => {
+  _destroyInput() {
     if (this._input) {
       this._input.removeAllListeners();
       this._input.closePort();
     }
   }
 
-  destroy = () => {
+  destroy() {
     this._destroyInput();
 
     this._input = null;
+    this._device = null;
     this._messageCallback = null;
+    this._received = null;
+
+    super.destroy();
   }
 }

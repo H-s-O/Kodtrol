@@ -9,7 +9,7 @@ export default class DmxDeviceProxy extends AbstractDeviceProxy {
     this._setChannelVarHelpers(this._proxyTarget.channelAliases);
   }
 
-  _setChannelVarHelpers = (channels) => {
+  _setChannelVarHelpers(channels) {
     Object.keys(channels).forEach((alias) => {
       const aliasMethodName = upperFirst(camelCase(alias));
       this[`set${aliasMethodName}FromVar`] = (varName) => {
@@ -19,7 +19,7 @@ export default class DmxDeviceProxy extends AbstractDeviceProxy {
     });
   }
 
-  setChannelFromVar = (channel, varName = null) => {
+  setChannelFromVar(channel, varName = null) {
     return this.setChannel(channel, this.getVar(varName !== null ? varName : channel));
   }
 }

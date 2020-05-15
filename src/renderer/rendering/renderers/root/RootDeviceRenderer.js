@@ -9,7 +9,7 @@ export default class RootDeviceRenderer extends BaseRootRenderer {
     this._setDeviceInstance(deviceId);
   }
 
-  _setDeviceInstance = (deviceId) => {
+  _setDeviceInstance(deviceId) {
     this._instance = this._providers.getDevice(deviceId);
   }
 
@@ -17,14 +17,14 @@ export default class RootDeviceRenderer extends BaseRootRenderer {
     return this._instance;
   }
 
-  _runFrame = (frameTime) => {
+  _runFrame(frameTime) {
     this._instance.applyTestValues();
   }
 
-  destroy = () => {
+  destroy() {
     this._instance.destroy();
     this._instance = null;
 
-    // super.destroy(); // @TODO needs babel update
+    super.destroy();
   }
 }

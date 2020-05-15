@@ -2,33 +2,40 @@ import AudioSubProcess from '../process/AudioSubProcess';
 import AbstractOutput from './AbstractOutput';
 
 export default class AudioOutput extends AbstractOutput {
-  audioSubProcess = null;
-  
+  _audioSubProcess = null;
+
   constructor(device) {
     super();
 
     // @TODO handle different audio output devices
-    this.audioSubProcess = new AudioSubProcess();
-    console.log('Audio output');
+    this._audioSubProcess = new AudioSubProcess();
+    console.log('Audio output', device);
 
     this._setStatusConnected();
   }
-  
+
   // temp
-  flush = () => {
-    
+  flush() {
+
   }
-  
-  send = (data) => {
-    if (this.audioSubProcess) {
-      this.audioSubProcess.send(data);
+
+  send(data) {
+    if (this._audioSubProcess) {
+      this._audioSubProcess.send(data);
     }
   }
-  
-  destroy = () => {
-    if (this.audioSubProcess) {
-      this.audioSubProcess.destroy();
+
+  _destroySubProcess() {
+    if (this._audioSubProcess) {
+      this._audioSubProcess.destroy();
     }
-    this.audioSubProcess = null;
+  }
+
+  destroy() {
+    this._destroySubProcess();
+
+    this._audioSubProcess = null;
+
+    super.destroy();
   }
 }

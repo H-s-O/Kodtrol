@@ -7,13 +7,11 @@ export default class AbstractDevice {
   _providers = null;
   _hash = null;
 
-  constructor(providers, sourceDevice) {
+  constructor(providers) {
     this._providers = providers;
-
-    this.update(sourceDevice);
   }
 
-  update = (sourceDevice) => {
+  update(sourceDevice) {
     const {
       id,
       name,
@@ -32,7 +30,7 @@ export default class AbstractDevice {
     this._setOutput(output);
   }
 
-  _setOutput = (outputId) => {
+  _setOutput(outputId) {
     // Guard
     if (!outputId) {
       this._output = null;
@@ -58,15 +56,15 @@ export default class AbstractDevice {
     return this._hash;
   }
 
-  isType = (type) => {
+  isType(type) {
     return this._type === type;
   }
 
-  hasTag = (tag) => {
+  hasTag(tag) {
     return this._tags.includes(tag);
   }
 
-  destroy = () => {
+  destroy() {
     this._id = null;
     this._name = null;
     this._tags = null;

@@ -9,13 +9,14 @@ export default class Timeline extends EventEmitter {
   _layers = [];
   _items = [];
   _hash = null;
-  
+
   constructor(sourceTimeline) {
     super();
+
     this.update(sourceTimeline);
   }
-  
-  update = (sourceTimeline) => {
+
+  update(sourceTimeline) {
     const {
       id,
       duration,
@@ -26,7 +27,7 @@ export default class Timeline extends EventEmitter {
       tempo,
       hash
     } = sourceTimeline;
-    
+
     this._id = id;
     this._duration = Number(duration);
     this._inTime = Number(inTime);
@@ -38,40 +39,40 @@ export default class Timeline extends EventEmitter {
 
     this.emit('updated');
   }
-  
+
   get id() {
     return this._id;
   }
-  
+
   get duration() {
     return this._duration;
   }
-  
+
   get inTime() {
     return this._inTime;
   }
-  
+
   get outTime() {
     return this._outTime;
   }
-  
+
   get layers() {
     return this._layers;
   }
-  
+
   get items() {
     return this._items;
   }
-  
+
   get tempo() {
     return this._tempo;
   }
-  
+
   get hash() {
     return this._hash;
   }
-  
-  destroy = () => {
+
+  destroy() {
     this._id = null;
     this._tempo = null;
     this._duration = null;

@@ -8,11 +8,11 @@ export default class CurveRenderer {
     this._curveData = parseCurve(curve);
   }
 
-  reset = () => {
+  reset() {
     this._started = false;
   }
 
-  render = (delta, curveInfo) => {
+  render(delta, curveInfo) {
     this._started = true;
 
     const { curvePercent } = curveInfo;
@@ -36,7 +36,8 @@ export default class CurveRenderer {
     return output;
   }
 
-  destroy = () => {
+  destroy() {
+    this._started = null;
     this._curveData = null;
   }
 }

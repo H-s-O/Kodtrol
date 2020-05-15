@@ -10,14 +10,14 @@ export default class Media {
   _providers = null;
   _hash = null;
   _duration = 0;
-  
+
   constructor(providers, sourceMedia) {
     this._providers = providers;
-    
+
     this.update(sourceMedia);
   }
-  
-  update = (sourceMedia) => {
+
+  update(sourceMedia) {
     const {
       id,
       file,
@@ -25,40 +25,46 @@ export default class Media {
       hash,
       duration,
     } = sourceMedia;
-    
+
     this._id = id;
     this._file = file;
     this._hash = hash;
     this._duration = duration;
-    
-    this.setOutput(output);
+
+    this._setOutput(output);
   }
-  
-  setOutput = (outputId) => {
+
+  _setOutput(outputId) {
+    // Guard
+    if (!outputId) {
+      this._output = null;
+      return;
+    }
+
     this._output = this._providers.getOutput(outputId);
   }
-  
+
   get id() {
     return this._id;
   }
-  
+
   get streamId() {
     return this._streamId;
   }
-  
+
   get file() {
     return this._file;
   }
 
-  get duration () {
+  get duration() {
     return this._duration;
   }
-  
+
   get outputData() {
     if (!this._active) {
-      return {}
-    };
-    
+      return {};
+    }
+
     return {
       id: this._id,
       volume: this._volume,
@@ -67,27 +73,27 @@ export default class Media {
       file: this._file,
     };
   }
-  
+
   get active() {
     return this._active;
   }
-  
+
   get hash() {
     return this._hash;
   }
-  
-  stop = () => {
+
+  stop() {
     this.reset();
     this.sendDataToOutput();
   }
-  
-  reset = () => {
+
+  reset() {
     this._streamId = null;
     this._position = 0;
     this._active = false;
   }
-  
-  sendDataToOutput = () => {
+
+  sendDataToOutput() {
     if (this._output) {
       const data = {
         [this._streamId]: this._active ? {
@@ -96,43 +102,43 @@ export default class Media {
           position: this._position,
           speed: this._speed,
           file: this._file,
-        } : { 
-          active: false,
-        },
+        } : {
+            active: false,
+          },
       };
-      
+
       this._output.buffer(data);
     }
   }
-  
-  setStreamId = (streamId) => {
+
+  setStreamId(streamId) {
     this._streamId = streamId;
   }
-  
-  setVolume = (volume) => {
+
+  setVolume(volume) {
     this._volume = volume;
   }
-  
-  setPosition = (position) => {
+
+  setPosition(position) {
     this._position = position;
   }
-  
-  setSpeed = (speed) => {
+
+  setSpeed(speed) {
     this._speed = speed;
   }
-  
-  setActive = (flag) => {
+
+  setActive(flag) {
     this._active = flag;
   }
-  
-  destroy = () => {
+
+  destroy() {
     this._id = null;
     this._file = null;
     this._volume = null;
     this._position = null;
     this._speed = null;
     this._streamId = null;
-    this._active = false;
+    this._active = null;
     this._output = null;
     this._providers = null;
     this._hash = null;

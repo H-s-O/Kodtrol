@@ -17,14 +17,14 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     this._setBoardAndItems(boardId);
   }
 
-  _setBoardAndItems = (boardId) => {
+  _setBoardAndItems(boardId) {
     this._board = this._providers.getBoard(boardId);
-    this._board.on('updated', this._onBoardUpdated);
+    this._board.on('updated', this._onBoardUpdated.bind(this));
 
     this._build();
   }
 
-  _onBoardUpdated = () => {
+  _onBoardUpdated() {
     // "Rebuild" board
 
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
@@ -35,7 +35,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     this._build();
   }
 
-  _build = () => {
+  _build() {
     // "Prepare" data
     const layersById = this._board.layers.reduce((obj, layer) => {
       return {
@@ -113,11 +113,11 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     return status;
   }
 
-  _getRenderingTempo = () => {
+  _getRenderingTempo() {
     return this._board.tempo;
   }
 
-  setActiveItems = (activeItems) => {
+  setActiveItems(activeItems) {
     const currentTime = this._currentTime;
 
     Object.entries(this._blocks).forEach(([id, block]) => {
@@ -143,7 +143,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     this._activeItems = activeItems;
   }
 
-  _runFrame = (frameTime) => {
+  _runFrame(frameTime) {
     const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       // Nothing to render
@@ -192,7 +192,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     // }
   }
 
-  _runBeat = (beatPos) => {
+  _runBeat(beatPos) {
     const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       return;
@@ -213,7 +213,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     }
   }
 
-  _runInput = (type, data) => {
+  _runInput(type, data) {
     let change = false;
     const updatedActiveItems = { ...this._activeItems };
     const triggerableItems = this._getBoardTriggerableItems();
@@ -254,7 +254,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     }
   }
 
-  _getBoardRunningItems = () => {
+  _getBoardRunningItems() {
     const itemsMap = this._itemsMap;
     const items = [
       itemsMap[0].filter((id) => this._blocks[id].active),
@@ -263,7 +263,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     return items;
   }
 
-  _getBoardTriggerableItems = () => {
+  _getBoardTriggerableItems() {
     const itemsMap = this._itemsMap;
     const items = [
       itemsMap[0].filter((id) => !!this._blocks[id].trigger),
@@ -271,26 +271,27 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     return items;
   }
 
-  resetBlocks = () => {
+  resetBlocks() {
     Object.values(this._blocks).forEach((block) => block.instance.reset());
   }
 
-  // resetAudios = () => {
+  // resetAudios  () {
   //   Object.values(this._audios).forEach((audio) => audio.instance.reset());
   // }
 
-  destroy = () => {
+  destroy() {
     if (this._board) {
       this._board.removeAllListeners();
     }
 
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
 
+    this._board = null;
     this._blocks = null;
     // this._audios = null;
+    this._activeItems = null;
     this._itemsMap = null;
-    this._board = null;
 
-    // super.destroy(); // @TODO needs babel update
+    super.destroy();
   }
 }

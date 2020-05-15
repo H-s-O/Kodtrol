@@ -6,13 +6,14 @@ export default class Board extends EventEmitter {
   _layers = [];
   _items = [];
   _hash = null;
-  
+
   constructor(sourceBoard) {
     super();
+
     this.update(sourceBoard);
   }
-  
-  update = (sourceBoard) => {
+
+  update(sourceBoard) {
     const {
       id,
       layers,
@@ -20,7 +21,7 @@ export default class Board extends EventEmitter {
       tempo,
       hash,
     } = sourceBoard;
-    
+
     this._id = id;
     this._layers = layers;
     this._items = items;
@@ -29,32 +30,32 @@ export default class Board extends EventEmitter {
 
     this.emit('updated');
   }
-  
+
   get id() {
     return this._id;
   }
-  
+
   get layers() {
     return this._layers;
   }
-  
+
   get items() {
     return this._items;
   }
-  
+
   get tempo() {
     return this._tempo;
   }
-  
+
   get hash() {
     return this._hash;
   }
-  
-  destroy = () => {
+
+  destroy() {
     this._id = null;
+    this._tempo = null;
     this._layers = null;
     this._items = null;
-    this._tempo = null;
     this._hash = null;
   }
 }

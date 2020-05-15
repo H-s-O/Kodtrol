@@ -5,19 +5,18 @@ import { IO_MIDI, IO_OSC } from '../../common/js/constants/io';
 export default class Input {
   _id = null;
   _type = null;
-  _type = null;
   _protocol = null;
   _port = null;
   _device = null;
-  _input = null;
-  _onInputCallback = null;
   _hash = null;
+  _onInputCallback = null;
+  _input = null;
 
   constructor(sourceInput, onInputCallback) {
     this.update(sourceInput, onInputCallback);
   }
 
-  update = (sourceInput, onInputCallback) => {
+  update(sourceInput, onInputCallback) {
     const {
       id,
       type,
@@ -39,7 +38,7 @@ export default class Input {
     this._setInput();
   }
 
-  _setInput = () => {
+  _setInput() {
     if (this._input) {
       this._input.destroy();
     }
@@ -77,13 +76,13 @@ export default class Input {
     return this._hash;
   }
 
-  _inputMessageCallback = (message) => {
+  _inputMessageCallback(message) {
     if (this._onInputCallback) {
       this._onInputCallback(this._type, message);
     }
   }
 
-  destroy = () => {
+  destroy() {
     if (this._input) {
       this._input.destroy();
     }
@@ -93,8 +92,8 @@ export default class Input {
     this._protocol = null;
     this._port = null;
     this._device = null;
-    this._input = null;
-    this._onInputCallback = null;
     this._hash = null;
+    this._onInputCallback = null;
+    this._input = null;
   }
 }

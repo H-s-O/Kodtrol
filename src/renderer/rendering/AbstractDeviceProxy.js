@@ -2,35 +2,35 @@ import AbstractProxy from './AbstractProxy';
 
 export default class AbstractDeviceProxy extends AbstractProxy {
   _vars = {};
-    
+
   get vars() {
     return this._vars;
   }
-  
-  resetVars = () => {
+
+  resetVars() {
     this._vars = {};
   }
-  
-  varIsSet = (name) => {
+
+  varIsSet(name) {
     return name in this._vars;
   }
 
-  getVar = (name) => {
+  getVar(name) {
     return this._vars[name];
   }
 
-  setVar = (name, value) => {
+  setVar(name, value) {
     this._vars[name] = value;
     return value;
   }
 
-  updateVar = (name, func) => {
+  updateVar(name, func) {
     return this.setVar(name, func(this.getVar(name)));
   }
-  
-  destroy = () => {
+
+  destroy() {
     this._vars = null;
 
-    // super.destroy(); // @TODO needs babel update
+    super.destroy();
   }
 }

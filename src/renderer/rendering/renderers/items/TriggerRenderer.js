@@ -5,11 +5,15 @@ export default class TriggerRenderer {
     return this._triggered;
   }
 
-  reset = () => {
+  reset() {
     this._triggered = false;
   }
 
-  render = () => {
+  render() {
     this._triggered = true;
+  }
+
+  destroy() {
+    this._triggered = null;
   }
 }

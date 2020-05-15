@@ -1,5 +1,4 @@
 import { Output } from 'midi';
-import { MIDI } from 'jzz';
 
 import AbstractOutput from './AbstractOutput';
 
@@ -37,7 +36,7 @@ export default class MidiOutput extends AbstractOutput {
 
   _retry = () => {
     // Retry after delay
-    setTimeout(this._create, MidiOutput.RETRY_DELAY);
+    setTimeout(this._create.bind(this), MidiOutput.RETRY_DELAY);
   }
 
   _getPortIndex = () => {
@@ -107,5 +106,7 @@ export default class MidiOutput extends AbstractOutput {
     this._output = null;
     this._device = null;
     this._sent = null;
+
+    super.destroy();
   }
 }
