@@ -13,6 +13,8 @@ export default class Input {
   _input = null;
 
   constructor(sourceInput, onInputCallback) {
+    this._onInputCallback = onInputCallback;
+
     this.update(sourceInput, onInputCallback);
   }
 
@@ -33,8 +35,6 @@ export default class Input {
     this._device = device;
     this._hash = hash;
 
-    this._onInputCallback = onInputCallback;
-
     this._setInput();
   }
 
@@ -47,10 +47,10 @@ export default class Input {
 
     switch (this._type) {
       case IO_MIDI:
-        input = new MidiInput(this._inputMessageCallback, this._device);
+        input = new MidiInput(this._inputMessageCallback.bind(this), this._device);
         break;
       case IO_OSC:
-        input = new OscInput(this._inputMessageCallback, this._protocol, this._port);
+        input = new OscInput(this._inputMessageCallback.bind(this), this._protocol, this._port);
         break;
       default:
         throw new Error(`Unknown input type "${this._type}"`);
