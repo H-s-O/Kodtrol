@@ -3,27 +3,27 @@ import DMX from 'dmx';
 import AbstractOutput from './AbstractOutput';
 
 export default class ArtnetOutput extends AbstractOutput {
-  output = null;
-  
+  _output = null;
+
   constructor(address) {
     super();
-    
-    this.output = new DMX();
-    this.output.addUniverse('main', 'artnet', address);
-    console.log('Art-Net output');
+
+    this._output = new DMX();
+    this._output.addUniverse('main', 'artnet', address);
+    console.log('Art-Net output', address);
   }
 
-  _refreshStatus = () => {
-    if (!this.output) {
+  _refreshStatus() {
+    if (!this._output) {
       this._setStatusInitial();
       return;
     }
 
     try {
       // Kinda hackish, but the dmx lib does not explicitly expose this
-      if (this.output.universes['main']
-        && this.output.universes['main'].dev
-        && this.output.universes['main'].dev.remoteAddress()) { // @TODO upgrade electron, so we have access to remoteAddress() for UDP
+      if (this._output.universes['main']
+        && this._output.universes['main'].dev
+        && this._output.universes['main'].dev.remoteAddress()) { // @TODO upgrade electron, so we have access to remoteAddress() for UDP
         this._setStatusConnected();
       }
     } catch (err) {
@@ -31,17 +31,23 @@ export default class ArtnetOutput extends AbstractOutput {
       this._setStatusDisconnected();
     }
   }
-  
-  send = (data) => {
-    this.output.update('main', data);
+
+  send(data) {
+    this._output.update('main', data);
   }
-  
-  destroy = () => {
-    if (this.output) {
+
+  _destroyOutput() {
+    if (this._output) {
       // Manually stop universes
-      Object.values(this.output.universes).forEach((universe) => universe.stop());
+      Object.values(this._output.universes).forEach((universe) => universe.stop());
     }
-    
-    this.output = null;
+  }
+
+  destroy() {
+    this._destroyOutput();
+
+    this._output = null;
+
+    super.destroy();
   }
 }

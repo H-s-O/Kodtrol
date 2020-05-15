@@ -37,7 +37,7 @@ export default class Renderer {
   providers = null;
   renderDelay = (1 / 40) * 1000; // @TODO configurable?
   frameTime = 0;
-  ioUpdateTimer = null;
+  _ioUpdateTimer = null;
 
   constructor() {
     customLog('renderer');
@@ -53,22 +53,22 @@ export default class Renderer {
       getMedia: this.getMedia.bind(this),
     }
 
-    process.on('SIGTERM', this.onSigTerm.bind(this));
-    process.on('message', this.onMessage.bind(this));
+    process.on('SIGTERM', this._onSigTerm.bind(this));
+    process.on('message', this._onMessage.bind(this));
 
-    this.ioUpdateTimer = setInterval(this.updateIOStatus.bind(this), 3000);
+    this._ioUpdateTimer = setInterval(this.updateIOStatus.bind(this), 3000);
 
     this.send('ready');
   }
 
-  onSigTerm() {
+  _onSigTerm() {
     this.destroy();
     process.exit();
   }
 
   destroy() {
-    if (this.ioUpdateTimer) {
-      clearInterval(this.ioUpdateTimer);
+    if (this._ioUpdateTimer) {
+      clearInterval(this._ioUpdateTimer);
     }
     if (this.inputs) {
       Object.values(this.inputs).forEach((input) => input.destroy());
@@ -81,7 +81,7 @@ export default class Renderer {
     this.outputs = null;
   }
 
-  onMessage(message) {
+  _onMessage(message) {
     if ('updateOutputs' in message) {
       const { updateOutputs } = message;
       this.updateOutputs(updateOutputs);
@@ -309,7 +309,7 @@ export default class Renderer {
     this.resetAll();
 
     if (id !== null) {
-      const renderer = new RootTimelineRenderer(this.providers, id, this.onTimelineEnded);
+      const renderer = new RootTimelineRenderer(this.providers, id, this.onTimelineEnded.bind(this));
       this.currentTimeline = renderer;
     }
 

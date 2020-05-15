@@ -24,14 +24,14 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this._setTimelineAndItems(timelineId);
   }
 
-  _setTimelineAndItems = (timelineId) => {
+  _setTimelineAndItems(timelineId) {
     this._timeline = this._providers.getTimeline(timelineId);
-    this._timeline.on('updated', this._onTimelineUpdated);
+    this._timeline.on('updated', this._onTimelineUpdated.bind(this));
 
     this._build();
   }
 
-  _onTimelineUpdated = () => {
+  _onTimelineUpdated() {
     // "Rebuild" timeline
 
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
@@ -46,7 +46,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this._build();
   }
 
-  _build = () => {
+  _build() {
     // "Prepare" data
     const layersById = this._timeline.layers.reduce((obj, layer) => {
       return {
@@ -172,7 +172,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     return this._timeline;
   }
 
-  setPosition = (position) => {
+  setPosition(position) {
     this._currentTime = position;
     this._currentBeatPos = -1;
     this.resetBlocks();
@@ -181,20 +181,20 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this.resetMedias()
   }
 
-  notifyPlay = () => {
+  notifyPlay() {
 
   }
 
-  notifyStop = () => {
+  notifyStop() {
     // Stop all medias
     Object.values(this._medias).forEach(({ instance }) => instance.stop());
   }
 
-  _getRenderingTempo = () => {
+  _getRenderingTempo() {
     return this._timeline.tempo;
   }
 
-  _runFrame = (frameTime) => {
+  _runFrame(frameTime) {
     const currentTime = this._currentTime;
     if (currentTime >= this._timeline.outTime) {
       this._currentTime = this._timeline.outTime;
@@ -298,7 +298,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     }
   }
 
-  _runBeat = (beatPos) => {
+  _runBeat(beatPos) {
     const currentTime = this._currentTime;
 
     const timeItems = this._getTimelineItemsAtTime(currentTime);
@@ -325,7 +325,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     }
   }
 
-  _runInput = (type, data) => {
+  _runInput(type, data) {
     const currentTime = this._currentTime;
 
     const timeItems = this._getTimelineItemsAtTime(currentTime);
@@ -346,7 +346,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     }
   }
 
-  _getTimelineItemsAtTime = (time) => {
+  _getTimelineItemsAtTime(time) {
     const timeMap = this._timeMap;
     const timeDivisor = this._timeDivisor;
     const timeIndex = (time / timeDivisor) >> 0;
@@ -356,30 +356,30 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     return timeMap[timeIndex];
   }
 
-  restartTimeline = () => {
+  restartTimeline() {
     this.resetBlocks();
     this.resetTriggers();
     this.resetCurves();
     this.resetMedias();
   }
 
-  resetBlocks = () => {
+  resetBlocks() {
     Object.values(this._blocks).forEach((block) => block.instance.reset());
   }
 
-  resetTriggers = () => {
+  resetTriggers() {
     Object.values(this._triggers).forEach((trigger) => trigger.instance.reset());
   }
 
-  resetCurves = () => {
+  resetCurves() {
     Object.values(this._curves).forEach((curve) => curve.instance.reset());
   }
 
-  resetMedias = () => {
+  resetMedias() {
     Object.values(this._medias).forEach((media) => media.instance.reset());
   }
 
-  destroy = () => {
+  destroy() {
     if (this._timeline) {
       this._timeline.removeAllListeners();
     }
@@ -387,13 +387,15 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
     Object.values(this._curves).forEach((curve) => curve.instance.destroy());
 
+    this._timeline = null;
     this._blocks = null;
     this._triggers = null;
     this._curves = null;
     this._medias = null;
     this._timeMap = null;
-    this._timeline = null;
+    this._timeDivisor = null;
+    this._endCallback = null;
 
-    // super.destroy(); // @TODO needs babel update
+    super.destroy();
   }
 }

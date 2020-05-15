@@ -1,43 +1,46 @@
 export default class Ticker {
-  tickCallback = null;
-  interval = null;
-  lastTime = null;
-  
+  _tickCallback = null;
+  _interval = null;
+  _lastTime = null;
+  _running = false;
+
   constructor(tickCallback) {
-    this.tickCallback = tickCallback;
+    this._tickCallback = tickCallback;
   }
-  
-  start = () => {
-    if (!this.running) {
-      this.lastTime = Date.now();
-      this.tick(true); // initial tick
-      this.interval = setInterval(this.tick, 0);
+
+  start() {
+    if (!this._running) {
+      this._lastTime = Date.now();
+      this._tick(true); // initial tick
+      this._interval = setInterval(this._tick.bind(this), 0);
     }
   }
-  
-  stop = () => {
-    if (this.running) {
-      clearInterval(this.interval);
-      this.interval = null;
+
+  stop() {
+    if (this._running) {
+      clearInterval(this._interval);
+      this._interval = null;
     }
   }
-  
+
   get running() {
-    return this.interval !== null;
+    return this._interval !== null;
   }
-  
-  tick = (initial = false) => {
+
+  _tick(initial = false) {
     const time = Date.now();
-    const diff = time - this.lastTime;
-    this.tickCallback(diff, initial);
-    this.lastTime = time;
+    const diff = time - this._lastTime;
+    this._tickCallback(diff, initial);
+    this._lastTime = time;
   }
-  
-  destroy = () => {
-    if (this.interval) {
-      clearInterval(this.interval);
-      this.interval = null;
+
+  destroy() {
+    if (this._interval) {
+      clearInterval(this._interval);
     }
-    this.tickCallback = null;
+    this._tickCallback = null;
+    this._interval = null;
+    this._lastTime = null;
+    this._running = null;
   }
 }

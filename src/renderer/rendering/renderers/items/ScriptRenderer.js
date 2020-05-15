@@ -12,24 +12,28 @@ export default class ScriptRenderer {
     this._setScriptAndDevices(scriptId);
   }
 
-  _setScriptAndDevices = (scriptId) => {
-    this._script = this._providers.getScript(scriptId);
-    this._script.on('updated', this._onScriptUpdated);
+  _setScriptAndDevices(scriptId) {
+    if (this._script) {
+      this._script.removeAllListeners();
+    }
 
-    this._reloadScriptInstance()
+    this._script = this._providers.getScript(scriptId);
+    this._script.on('updated', this._onScriptUpdated.bind(this));
 
     this._devices = this._providers.getDevices(this._script.devices);
+    
+    this._reloadScriptInstance()
   }
 
   get script() {
     return this._script;
   }
 
-  _reloadScriptInstance = () => {
+  _reloadScriptInstance() {
     this._scriptInstance = this._script.getInstance();
   }
 
-  _onScriptUpdated = () => {
+  _onScriptUpdated() {
     this._reloadScriptInstance();
 
     // Clear the started flag, so that we force a restart to
@@ -38,7 +42,7 @@ export default class ScriptRenderer {
     this._started = false;
   }
 
-  reset = () => {
+  reset() {
     this._reloadScriptInstance();
 
     Object.values(this._devices).forEach((device) => {
@@ -51,7 +55,7 @@ export default class ScriptRenderer {
     this._currentTime = 0;
   }
 
-  _start = () => {
+  _start() {
     if (!this._started) {
       if (this._script.hasStart) {
         try {
@@ -67,7 +71,7 @@ export default class ScriptRenderer {
     }
   }
 
-  render = (delta, info = {}, triggerData = {}, curveData = {}) => {
+  render(delta, info = {}, triggerData = {}, curveData = {}) {
     this._start();
 
     const script = this._script;
@@ -103,7 +107,7 @@ export default class ScriptRenderer {
     }
   }
 
-  beat = (beatPos, localBeatPos = null) => {
+  beat(beatPos, localBeatPos = null) {
     if (this._script.hasBeat) {
       this._start();
 
@@ -129,7 +133,7 @@ export default class ScriptRenderer {
     }
   }
 
-  input = (type, inputData) => {
+  input(type, inputData) {
     if (this._script.hasInput) {
       this._start();
 
@@ -144,14 +148,16 @@ export default class ScriptRenderer {
     }
   }
 
-  destroy = () => {
+  destroy() {
     if (this._script) {
       this._script.removeAllListeners();
     }
 
     this._script = null;
+    this._providers = null;
     this._scriptInstance = null;
     this._devices = null;
+    this._started = null;
     this._scriptData = null;
   }
 }

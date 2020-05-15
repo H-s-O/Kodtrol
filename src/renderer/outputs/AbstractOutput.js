@@ -9,28 +9,32 @@ export default class AbstractOutput {
     return this._status;
   }
 
-  refreshAndGetStatus = () => {
+  refreshAndGetStatus() {
     this._refreshStatus();
     return this._status;
   }
 
-  _refreshStatus = () => {
+  _refreshStatus() {
     // implement in subclass
   }
 
-  _setStatusInitial = () => {
+  _setStatusInitial() {
     this._status = null;
   }
 
-  _setStatusConnected = () => {
+  _setStatusConnected() {
     this._status = IO_CONNECTED;
   }
 
-  _setStatusDisconnected = () => {
+  _setStatusDisconnected() {
     this._status = IO_DISCONNECTED;
   }
 
-  _setStatusActivity = () => {
+  _setStatusActivity() {
     this._status = IO_ACTIVITY;
+  }
+
+  destroy() {
+    this._status = null;
   }
 }
