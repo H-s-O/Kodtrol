@@ -2,14 +2,13 @@ export default class Ticker {
   _tickCallback = null;
   _interval = null;
   _lastTime = null;
-  _running = false;
 
   constructor(tickCallback) {
     this._tickCallback = tickCallback;
   }
 
   start() {
-    if (!this._running) {
+    if (!this.running) {
       this._lastTime = Date.now();
       this._tick(true); // initial tick
       this._interval = setInterval(this._tick.bind(this), 0);
@@ -17,7 +16,7 @@ export default class Ticker {
   }
 
   stop() {
-    if (this._running) {
+    if (this.running) {
       clearInterval(this._interval);
       this._interval = null;
     }
@@ -41,6 +40,5 @@ export default class Ticker {
     this._tickCallback = null;
     this._interval = null;
     this._lastTime = null;
-    this._running = null;
   }
 }
