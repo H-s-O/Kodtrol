@@ -25,7 +25,7 @@ export default class AbstractProxy {
     }
   }
 
-  destroy = () => {
+  destroy() {
     this._proxyTarget = null;
   }
 }
