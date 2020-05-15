@@ -9,8 +9,12 @@ export default class AbstractProxy {
 
   _setProxiedMembers(target) {
     // Class methods
-    const proto = Reflect.getPrototypeOf(target);
-    const protoKeys = Reflect.ownKeys(proto);
+    let protoKeys = [];
+    let obj = target;
+    while (obj = Reflect.getPrototypeOf(obj)) {
+      const keys = Reflect.ownKeys(obj);
+      protoKeys = protoKeys.concat(keys);
+    }
 
     // Dynamically created methods
     const dynKeys = Reflect.ownKeys(target);
