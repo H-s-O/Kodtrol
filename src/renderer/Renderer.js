@@ -43,30 +43,30 @@ export default class Renderer {
     customLog('renderer');
 
     this.providers = {
-      getOutput: this.getOutput,
-      getScript: this.getScript,
-      getScripts: this.getScripts,
-      getDevice: this.getDevice,
-      getDevices: this.getDevices,
-      getTimeline: this.getTimeline,
-      getBoard: this.getBoard,
-      getMedia: this.getMedia,
+      getOutput: this.getOutput.bind(this),
+      getScript: this.getScript.bind(this),
+      getScripts: this.getScripts.bind(this),
+      getDevice: this.getDevice.bind(this),
+      getDevices: this.getDevices.bind(this),
+      getTimeline: this.getTimeline.bind(this),
+      getBoard: this.getBoard.bind(this),
+      getMedia: this.getMedia.bind(this),
     }
 
-    process.on('SIGTERM', this.onSigTerm);
-    process.on('message', this.onMessage);
+    process.on('SIGTERM', this.onSigTerm.bind(this));
+    process.on('message', this.onMessage.bind(this));
 
-    this.ioUpdateTimer = setInterval(this.updateIOStatus, 3000);
+    this.ioUpdateTimer = setInterval(this.updateIOStatus.bind(this), 3000);
 
     this.send('ready');
   }
 
-  onSigTerm = () => {
+  onSigTerm() {
     this.destroy();
     process.exit();
   }
 
-  destroy = () => {
+  destroy() {
     if (this.ioUpdateTimer) {
       clearInterval(this.ioUpdateTimer);
     }
@@ -81,7 +81,7 @@ export default class Renderer {
     this.outputs = null;
   }
 
-  onMessage = (message) => {
+  onMessage(message) {
     if ('updateOutputs' in message) {
       const { updateOutputs } = message;
       this.updateOutputs(updateOutputs);
@@ -124,7 +124,7 @@ export default class Renderer {
     }
   }
 
-  updateOutputs = (data) => {
+  updateOutputs(data) {
     this.outputs = hashComparator(
       data,
       this.outputs,
@@ -137,18 +137,18 @@ export default class Renderer {
     this.updateIOStatus();
   }
 
-  updateInputs = (data) => {
+  updateInputs(data) {
     this.inputs = hashComparator(
       data,
       this.inputs,
-      (item) => new Input(item, this.onInput),
+      (item) => new Input(item, this.onInput.bind(this)),
       (input, item) => input.update(item),
       (input) => input.destroy()
     );
     // console.log('RENDERER updateInputs', this.inputs);
   }
 
-  updateDevices = (data) => {
+  updateDevices(data) {
     this.devices = hashComparator(
       data,
       this.devices,
@@ -168,7 +168,7 @@ export default class Renderer {
     // console.log('RENDERER updateDevices', this.devices);
   }
 
-  updateScripts = (data) => {
+  updateScripts(data) {
     this.scripts = hashComparator(
       data,
       this.scripts,
@@ -179,7 +179,7 @@ export default class Renderer {
     // console.log('RENDERER updateScripts', this.scripts);
   }
 
-  updateTimelines = (data) => {
+  updateTimelines(data) {
     this.timelines = hashComparator(
       data,
       this.timelines,
@@ -190,7 +190,7 @@ export default class Renderer {
     // console.log('RENDERER updateTimelines', this.timelines);
   }
 
-  updateBoards = (data) => {
+  updateBoards(data) {
     this.boards = hashComparator(
       data,
       this.boards,
@@ -201,7 +201,7 @@ export default class Renderer {
     // console.log('RENDERER updateBoards', this.boards);
   }
 
-  updateMedias = (data) => {
+  updateMedias(data) {
     this.medias = hashComparator(
       data,
       this.medias,
@@ -212,29 +212,29 @@ export default class Renderer {
     // console.log('RENDERER updateMedias', this.medias);
   }
 
-  getOutput = (outputId) => {
+  getOutput(outputId) {
     return this.outputs[outputId];
   }
 
-  getScript = (scriptId) => {
+  getScript(scriptId) {
     return this.scripts[scriptId];
   }
 
-  getScripts = (scriptsList) => {
+  getScripts(scriptsList) {
     return scriptsList.map((id) => {
       return this.getScript(id);
     });
   }
 
-  getTimeline = (timelineId) => {
+  getTimeline(timelineId) {
     return this.timelines[timelineId];
   }
 
-  getBoard = (boardId) => {
+  getBoard(boardId) {
     return this.boards[boardId];
   }
 
-  getDevice = (deviceId) => {
+  getDevice(deviceId) {
     const device = this.devices[deviceId];
     if (device.type === IO_DMX) {
       return new DmxDeviceProxy(device);
@@ -246,13 +246,13 @@ export default class Renderer {
     return null;
   }
 
-  getDevices = (devicesList) => {
+  getDevices(devicesList) {
     return devicesList.map((id) => {
       return this.getDevice(id);
     });
   }
 
-  getMedia = (mediaId) => {
+  getMedia(mediaId) {
     const media = this.medias[mediaId];
     if (media) {
       return new MediaProxy(media);
@@ -260,7 +260,7 @@ export default class Renderer {
     return null;
   }
 
-  runDevice = (id) => {
+  runDevice(id) {
     if (id === null || (this.currentDevice && this.currentDevice.device.id !== id)) {
       if (this.currentDevice) {
         this.currentDevice.destroy();
@@ -278,7 +278,7 @@ export default class Renderer {
     console.log('RENDERER runDevice', id);
   }
 
-  runScript = (id) => {
+  runScript(id) {
     if (id === null || (this.currentScript && this.currentScript.script.id !== id)) {
       if (this.currentScript) {
         this.currentScript.destroy();
@@ -298,7 +298,7 @@ export default class Renderer {
     console.log('RENDERER runScript', id);
   }
 
-  runTimeline = (id) => {
+  runTimeline(id) {
     if (id === null || (this.currentTimeline && this.currentTimeline.id !== id)) {
       if (this.currentTimeline) {
         this.currentTimeline.destroy();
@@ -318,7 +318,7 @@ export default class Renderer {
     console.log('RENDERER runTimeline', id);
   }
 
-  runBoard = (id) => {
+  runBoard(id) {
     if (id === null || (this.currentBoard && this.currentBoard.id !== id)) {
       if (this.currentBoard) {
         this.currentBoard.destroy();
@@ -338,7 +338,7 @@ export default class Renderer {
     console.log('RENDERER runBoard', id);
   }
 
-  updateTicker = (start = true) => {
+  updateTicker(start = true) {
     if (this.ticker) {
       this.ticker.destroy();
       this.ticker = null;
@@ -348,7 +348,7 @@ export default class Renderer {
 
     if (this.currentDevice || this.currentScript || this.currentTimeline || this.currentBoard) {
       if (!this.ticker) {
-        this.ticker = new Ticker(this.tickHandler);
+        this.ticker = new Ticker(this.tickHandler.bind(this));
         if (start) {
           this.ticker.start();
         }
@@ -356,7 +356,7 @@ export default class Renderer {
     }
   }
 
-  onTimelineEnded = () => {
+  onTimelineEnded() {
     this.updateTimelinePlaybackStatus(false);
     this.send({
       'timelineInfo': {
@@ -366,7 +366,7 @@ export default class Renderer {
     });
   }
 
-  updateTimelineInfo = (data) => {
+  updateTimelineInfo(data) {
     console.log('Renderer.updateTimelineInfo', data);
 
     if (this.currentTimeline) {
@@ -384,7 +384,7 @@ export default class Renderer {
     }
   }
 
-  updateTimelinePlaybackStatus = (playing) => {
+  updateTimelinePlaybackStatus(playing) {
     if (playing && !this.ticker.running) {
       this.currentTimeline.notifyPlay();
 
@@ -399,7 +399,7 @@ export default class Renderer {
     }
   }
 
-  updateBoardInfo = (data) => {
+  updateBoardInfo(data) {
     console.log('Renderer.updateBoardInfo', data);
 
     if (this.currentBoard) {
@@ -413,7 +413,7 @@ export default class Renderer {
     }
   }
 
-  updateIOStatus = () => {
+  updateIOStatus() {
     const ioStatus = {
       ...Object.values(this.inputs).reduce((obj, input) => {
         obj[input.id] = input.inputInstance.refreshAndGetStatus();
@@ -430,11 +430,11 @@ export default class Renderer {
     });
   }
 
-  send = (data) => {
+  send(data) {
     process.send(data);
   }
 
-  tickHandler = (delta, initial = false) => {
+  tickHandler(delta, initial = false) {
     if (this.currentScript) {
       this.currentScript.tick(delta);
     }
@@ -454,7 +454,7 @@ export default class Renderer {
     this.frameTime += delta;
   }
 
-  tickerFrame = (delta) => {
+  tickerFrame(delta) {
     this.resetDevices();
 
     if (this.currentScript) {
@@ -485,7 +485,7 @@ export default class Renderer {
     this.outputAll();
   }
 
-  onInput = (type, data) => {
+  onInput(type, data) {
     if (this.currentScript) {
       this.currentScript.input(type, data);
     }
@@ -497,20 +497,20 @@ export default class Renderer {
     }
   }
 
-  resetAll = () => {
+  resetAll() {
     this.resetDevices();
     this.resetMedias();
   }
 
-  resetDevices = () => {
+  resetDevices() {
     Object.values(this.devices).forEach((device) => device.reset());
   }
 
-  resetMedias = () => {
+  resetMedias() {
     Object.values(this.medias).forEach((media) => media.reset());
   }
 
-  outputAll = () => {
+  outputAll() {
     Object.values(this.devices).forEach((device) => device.sendDataToOutput());
     Object.values(this.medias).forEach((media) => media.sendDataToOutput());
 
