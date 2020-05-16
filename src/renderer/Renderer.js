@@ -33,7 +33,7 @@ export default class Renderer {
   _currentTimeline = null;
   _currentBoard = null;
   _ticker = null;
-  _playing = false;
+  _currentTimelinePlaying = false;
   _providers = null;
   _renderDelay = (1 / 40) * 1000; // @TODO configurable?
   _frameTime = 0;
@@ -273,7 +273,7 @@ export default class Renderer {
       this._currentDevice = renderer;
     }
 
-    this.updateTicker();
+    this._updateTicker();
 
     console.log('RENDERER _runDevice', id);
   }
@@ -304,6 +304,7 @@ export default class Renderer {
         this._currentTimeline.destroy();
         this._currentTimeline = null;
       }
+      this._currentTimelinePlaying = false;
     }
 
     this._resetAll();
@@ -313,7 +314,7 @@ export default class Renderer {
       this._currentTimeline = renderer;
     }
 
-    this._updateTicker(false);
+    this._updateTicker();
 
     console.log('RENDERER _runTimeline', id);
   }
@@ -338,20 +339,21 @@ export default class Renderer {
     console.log('RENDERER _runBoard', id);
   }
 
-  _updateTicker(start = true) {
-    if (this._ticker) {
-      this._ticker.destroy();
-      this._ticker = null;
-    }
-
-    this._frameTime = 0;
-
+  _updateTicker() {
     if (this._currentDevice || this._currentScript || this._currentTimeline || this._currentBoard) {
       if (!this._ticker) {
+        console.log('RENDERER _updateTicker create');
+
+        this._frameTime = 0;
         this._ticker = new Ticker(this._tickHandler.bind(this));
-        if (start) {
-          this._ticker.start();
-        }
+        this._ticker.start();
+      }
+    } else {
+      if (this._ticker) {
+        console.log('RENDERER _updateTicker destroy');
+
+        this._ticker.destroy();
+        this._ticker = null;
       }
     }
   }
@@ -367,7 +369,7 @@ export default class Renderer {
   }
 
   _updateTimelineInfo(data) {
-    console.log('Renderer._updateTimelineInfo', data);
+    console.log('RENDERER _updateTimelineInfo', data);
 
     if (this._currentTimeline) {
       const { playing, position } = data;
@@ -385,18 +387,15 @@ export default class Renderer {
   }
 
   _updateTimelinePlaybackStatus(playing) {
-    console.log('Renderer._updateTimelinePlaybackStatus', playing);
+    console.log('RENDERER _updateTimelinePlaybackStatus', playing);
 
-    if (playing && !this._ticker.running) {
+    if (playing && !this._currentTimelinePlaying) {
       this._currentTimeline.notifyPlay();
-
-      this._playing = true;
-      this._ticker.start();
-    } else if (!playing && this._ticker.running) {
-      this._playing = false;
-      this._ticker.stop();
-
+      this._currentTimelinePlaying = true;
+    } else if (!playing && this._currentTimelinePlaying) {
+      this._currentTimelinePlaying = false;
       this._currentTimeline.notifyStop();
+
       this._outputAll();
     }
   }
@@ -440,7 +439,7 @@ export default class Renderer {
     if (this._currentScript) {
       this._currentScript.tick(delta);
     }
-    if (this._currentTimeline) {
+    if (this._currentTimeline && this._currentTimelinePlaying) {
       this._currentTimeline.tick(delta);
     }
     if (this._currentBoard) {
@@ -462,12 +461,12 @@ export default class Renderer {
     if (this._currentScript) {
       this._currentScript.frame(delta);
     }
-    if (this._currentTimeline) {
+    if (this._currentTimeline && this._currentTimelinePlaying) {
       this._currentTimeline.frame(delta);
       this._send({
         timelineInfo: {
           position: this._currentTimeline.currentTime,
-          playing: this._playing,
+          playing: this._currentTimelinePlaying,
         },
       });
     }
@@ -491,7 +490,7 @@ export default class Renderer {
     if (this._currentScript) {
       this._currentScript.input(type, data);
     }
-    if (this._currentTimeline) {
+    if (this._currentTimeline && this._currentTimelinePlaying) {
       this._currentTimeline.input(type, data);
     }
     if (this._currentBoard) {
