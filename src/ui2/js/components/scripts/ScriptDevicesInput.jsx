@@ -37,7 +37,7 @@ const StyledTable = styled(HTMLTable)`
 // };
 
 const DeviceRow = ({
-  id,
+  device,
   index,
   deviceNumber,
   onChange,
@@ -55,8 +55,8 @@ const DeviceRow = ({
       </td>
       <td>
         <SelectInput
-          value={id}
-          onChange={(value) => onChange(index, value, 'id')}
+          value={device}
+          onChange={(value) => onChange(index, value, 'device')}
         >
           <option value="null">--</option>
           {devices.map((device, index) => {

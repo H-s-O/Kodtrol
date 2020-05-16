@@ -45,7 +45,7 @@ export default class Script extends EventEmitter {
       this._devices = [];
       return;
     }
-    this._devices = devices.map(({ id }) => id);
+    this._devices = devices.map(({ device }) => device);
   }
 
   _setScriptInstanceAndFlags(id) {
