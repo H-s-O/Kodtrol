@@ -4,6 +4,7 @@ export default class AbstractOutput {
   static RETRY_DELAY = 1000;
 
   _status = null;
+  _sent = false;
 
   get status() {
     return this._status;
@@ -20,6 +21,7 @@ export default class AbstractOutput {
 
   _setStatusInitial() {
     this._status = null;
+    this._sent = false;
   }
 
   _setStatusConnected() {
@@ -28,13 +30,23 @@ export default class AbstractOutput {
 
   _setStatusDisconnected() {
     this._status = IO_DISCONNECTED;
+    this._sent = false;
   }
 
   _setStatusActivity() {
     this._status = IO_ACTIVITY;
   }
 
+  _setSent() {
+    this._sent = true;
+  }
+
+  _resetSent() {
+    this._sent = false;
+  }
+
   destroy() {
     this._status = null;
+    this._sent = null;
   }
 }

@@ -5,7 +5,6 @@ import AbstractOutput from './AbstractOutput';
 export default class MidiOutput extends AbstractOutput {
   _output = null;
   _device = null;
-  _sent = false;
 
   constructor(device) {
     super();
@@ -24,7 +23,8 @@ export default class MidiOutput extends AbstractOutput {
     if (portIndex === null) {
       // Device port not found
       this._setStatusDisconnected();
-      this._retry();
+      // Retry after delay
+      setTimeout(this._create.bind(this), MidiOutput.RETRY_DELAY);
       return;
     }
 
@@ -32,11 +32,6 @@ export default class MidiOutput extends AbstractOutput {
 
     console.log(`Connected to MIDI output "${this._device}"`);
     this._setStatusConnected();
-  }
-
-  _retry = () => {
-    // Retry after delay
-    setTimeout(this._create.bind(this), MidiOutput.RETRY_DELAY);
   }
 
   _getPortIndex = () => {
@@ -54,20 +49,20 @@ export default class MidiOutput extends AbstractOutput {
 
   _refreshStatus = () => {
     if (!this._output) {
-      this._setStatusDisconnected();
+      this._setStatusInitial();
       return;
     }
 
     if (this._getPortIndex() === null) {
       console.log(`Disconnected from MIDI output "${this._device}"`);
       this._setStatusDisconnected();
-      this._retry();
+      this._create();
       return;
     }
 
     if (this._sent) {
       // Reset flag
-      this._sent = false;
+      this._resetSent();
       this._setStatusActivity();
       return;
     }
@@ -89,7 +84,7 @@ export default class MidiOutput extends AbstractOutput {
       }
 
       if (hasMessage) {
-        this._sent = true;
+        this._setSent();
       }
     }
   }
@@ -105,7 +100,6 @@ export default class MidiOutput extends AbstractOutput {
 
     this._output = null;
     this._device = null;
-    this._sent = null;
 
     super.destroy();
   }

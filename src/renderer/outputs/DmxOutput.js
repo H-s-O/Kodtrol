@@ -4,13 +4,43 @@ import AbstractOutput from './AbstractOutput';
 
 export default class DmxOutput extends AbstractOutput {
   _output = null;
+  _driver = null;
+  _port = null;
 
   constructor(driver, port) {
     super();
 
-    this._output = new DMX();
-    this._output.addUniverse('main', driver, port);
-    console.log('DMX output', driver, port);
+    this._driver = driver;
+    this._port = port;
+
+    this._create();
+  }
+
+  _create() {
+    this._destroyOutput();
+
+    try {
+      this._output = new DMX();
+      this._output.addUniverse('main', this._driver, this._port);
+      console.log('DmxOutput _create()', this._driver, this._port);
+    } catch (e) {
+      console.error('DmxOutput _create() error', e);
+      this._setStatusDisconnected();
+      // Retry after delay
+      setTimeout(this._create.bind(this), DmxOutput.RETRY_DELAY);
+    }
+  }
+
+  _getPortOpen() {
+    // Kinda hackish, but the dmx lib does not explicitly expose this
+    if (this._output
+      && this._output.universes['main']
+      && this._output.universes['main'].dev
+      && this._output.universes['main'].dev.isOpen) {
+      return true;
+    }
+
+    return false;
   }
 
   _refreshStatus() {
@@ -19,24 +49,39 @@ export default class DmxOutput extends AbstractOutput {
       return;
     }
 
-    // Kinda hackish, but the dmx lib does not explicitly expose this
-    if (this._output.universes['main']
-      && this._output.universes['main'].dev
-      && this._output.universes['main'].dev.isOpen) {
-      this._setStatusConnected();
-    } else {
+    if (!this._getPortOpen()) {
       this._setStatusDisconnected();
+      this._create();
+      return;
     }
+
+    if (this._sent) {
+      // Reset flag
+      this._resetSent();
+      this._setStatusActivity();
+      return;
+    }
+
+    this._setStatusConnected();
   }
 
   send(data) {
-    this._output.update('main', data);
+    if (this._output) {
+      this._output.update('main', data);
+      this._setSent();
+    }
   }
 
   _destroyOutput() {
     if (this._output) {
       // Manually stop universes
-      Object.values(this._output.universes).forEach((universe) => universe.stop());
+      Object.values(this._output.universes).forEach((universe) => {
+        universe.removeAllListeners();
+        universe.stop();
+        if (universe.dev && universe.dev.isOpen) {
+          universe.dev.close();
+        }
+      });
     }
   }
 

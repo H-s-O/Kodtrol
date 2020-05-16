@@ -22,7 +22,19 @@ export default class AudioOutput extends AbstractOutput {
   send(data) {
     if (this._audioSubProcess) {
       this._audioSubProcess.send(data);
+      this._setSent();
     }
+  }
+
+  _refreshStatus() {
+    if (this._sent) {
+      // Reset flag
+      this._resetSent();
+      this._setStatusActivity();
+      return;
+    }
+
+    this._setStatusConnected();
   }
 
   _destroySubProcess() {

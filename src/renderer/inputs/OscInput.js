@@ -37,16 +37,33 @@ export default class OscInput extends AbstractInput {
       this._server.open();
 
       this._setStatusConnected();
-      console.log('OSC input');
+      console.log('OscInput _create()', this._port);
     } catch (e) {
-      console.error(e);
+      console.error('OscInput _create() error', e);
       this._setStatusDisconnected();
-      // Retry after a delay
-      setTimeout(this._create.bind(this), 500);
+      // Retry after delay
+      setTimeout(this._create.bind(this), OscInput.RETRY_DELAY);
     }
   }
 
+  _refreshStatus() {
+    if (this._server) {
+      this._setStatusInitial();
+      return;
+    }
+
+    if (this._received) {
+      // Reset flag
+      this._resetReceived();
+      this._setStatusActivity();
+      return;
+    }
+
+    this._setStatusConnected();
+  }
+
   _onOSC(packet, info) {
+    this._setReceived();
     this._messageCallback(packet);
   }
 
