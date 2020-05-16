@@ -9,7 +9,7 @@ import DurationInput from '../../ui/inputs/DurationInput';
 import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
 
-export default function TimelineScriptDialogBody({ value = {}, onChange, layers = [], medias = [] }) {
+export default function TimelineMediaDialogBody({ value = {}, onChange, layers = [], medias = [] }) {
   const {
     media = null,
     layer = null,
@@ -24,7 +24,7 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
     <>
       <InlineFormGroup
         minWidth="100"
-        label="Script"
+        label="Media"
         helperText={!media ? 'A media is mandatory.' : undefined}
         intent={!media ? Intent.DANGER : undefined}
       >
