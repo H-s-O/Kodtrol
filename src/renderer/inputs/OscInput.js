@@ -47,7 +47,7 @@ export default class OscInput extends AbstractInput {
   }
 
   _refreshStatus() {
-    if (this._server) {
+    if (!this._server) {
       this._setStatusInitial();
       return;
     }
