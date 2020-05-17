@@ -10,6 +10,5 @@ export default (fileName, catchErrors = !isDev) => {
   }
 
   // Monkey-patch logging
-  console.log = log.log;
+  ['error', 'warn', 'info', 'log', 'verbose', 'debug', 'silly'].forEach(level => console[level] = log[level]);
 };
-
