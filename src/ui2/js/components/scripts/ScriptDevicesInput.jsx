@@ -101,7 +101,7 @@ export default function ScriptDevicesInput({ value, name, onChange, devices }) {
 
   const addHandler = useCallback(() => {
     if (typeof onChange === 'function') {
-      onChange([...displayValue, { id: null }], name);
+      onChange([...displayValue, { device: null }], name);
     }
   }, [onChange, name, displayValue]);
   const deleteHandler = useCallback((id) => {
