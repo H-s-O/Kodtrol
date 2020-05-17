@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonGroup, Button, Popover, Menu, Position, Icon } from '@blueprintjs/core';
 import uniqid from 'uniqid';
@@ -151,6 +151,7 @@ export default function TimelineEditor({ timeline, onChange }) {
   const positionTracker = useRef();
   const timelinePercent = useRef();
   const timelineInfo = useRef();
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Zoom
   const zoomClickHandler = useCallback((value) => {
@@ -468,7 +469,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     timelinePercent,
   ]);
   const itemChangeHandler = useCallback((value, id) => {
-    onChange({items: doUpdateItem(items, value)})
+    onChange({ items: doUpdateItem(items, value) })
   }, [onChange, items])
 
   // Zoom container & trackers
@@ -526,7 +527,12 @@ export default function TimelineEditor({ timeline, onChange }) {
       const percent = position / duration;
       positionTracker.current.style = `left:${percentString(percent)}`;
     }
-  }, [positionTracker.current, timelineInfo, duration]);
+    if (!isPlaying && data.playing) {
+      setIsPlaying(true);
+    } else if (isPlaying && !data.playing) {
+      setIsPlaying(false);
+    }
+  }, [positionTracker.current, timelineInfo, duration, isPlaying]);
   useEffect(() => {
     window.addEventListener('mouseup', windowMouseUpHandler);
     return () => window.removeEventListener('mouseup', windowMouseUpHandler);
@@ -614,8 +620,8 @@ export default function TimelineEditor({ timeline, onChange }) {
   ]);
 
   // Control
-  const playPauseHandler = useCallback(() => {
-    if (isRunning && focusIsGlobal()) {
+  const playPauseHandler = useCallback((e) => {
+    if (isRunning && ((e instanceof KeyboardEvent && focusIsGlobal()) || !(e instanceof KeyboardEvent))) {
       const { current } = timelineInfo;
       const data = {
         ...current,
@@ -624,8 +630,8 @@ export default function TimelineEditor({ timeline, onChange }) {
       ipcRendererSend(UPDATE_TIMELINE_INFO, data);
     }
   }, [isRunning, timelineInfo]);
-  const rewindHandler = useCallback(() => {
-    if (isRunning && focusIsGlobal()) {
+  const rewindHandler = useCallback((e) => {
+    if (isRunning && ((e instanceof KeyboardEvent && focusIsGlobal()) || !(e instanceof KeyboardEvent))) {
       const { current } = timelineInfo;
       const data = {
         ...current,
@@ -668,11 +674,13 @@ export default function TimelineEditor({ timeline, onChange }) {
               small
               icon="step-backward"
               disabled={!isRunning}
+              onClick={rewindHandler}
             />
             <Button
               small
-              icon="play"
+              icon={isPlaying ? 'pause' : 'play'}
               disabled={!isRunning}
+              onClick={playPauseHandler}
             />
           </StyledButtonGroup>
           <StyledButtonGroup>
