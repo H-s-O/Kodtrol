@@ -13,16 +13,13 @@ export default class ScriptRenderer {
   }
 
   _setScriptAndDevices(scriptId) {
-    if (this._script) {
-      this._script.removeAllListeners();
-    }
+    this._destroyScript();
 
     this._script = this._providers.getScript(scriptId);
     this._script.on('updated', this._onScriptUpdated.bind(this));
 
-    this._devices = this._providers.getDevices(this._script.devices);
-    
-    this._reloadScriptInstance()
+    this._reloadDevicesProxies();
+    this._reloadScriptInstance();
   }
 
   get script() {
@@ -33,7 +30,13 @@ export default class ScriptRenderer {
     this._scriptInstance = this._script.getInstance();
   }
 
+  _reloadDevicesProxies() {
+    this._destroyDevicesProxies();
+    this._devices = this._providers.getDevices(this._script.devices);
+  }
+
   _onScriptUpdated() {
+    this._reloadDevicesProxies();
     this._reloadScriptInstance();
 
     // Clear the started flag, so that we force a restart to
@@ -45,9 +48,11 @@ export default class ScriptRenderer {
   reset() {
     this._reloadScriptInstance();
 
-    Object.values(this._devices).forEach((device) => {
-      device.resetVars();
-    });
+    if (this._devices) {
+      Object.values(this._devices).forEach((device) => {
+        device.resetVars();
+      });
+    }
 
     this._scriptData = {};
     this._started = false;
@@ -148,10 +153,23 @@ export default class ScriptRenderer {
     }
   }
 
-  destroy() {
+  _destroyScript() {
     if (this._script) {
       this._script.removeAllListeners();
     }
+  }
+
+  _destroyDevicesProxies() {
+    if (this._devices) {
+      Object.values(this._devices).forEach((device) => {
+        device.destroy();
+      });
+    }
+  }
+
+  destroy() {
+    this._destroyScript();
+    this._destroyDevicesProxies();
 
     this._script = null;
     this._providers = null;
