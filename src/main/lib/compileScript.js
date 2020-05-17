@@ -18,8 +18,7 @@ export default ({ id, content }) => {
     const wrapperName = `Script__${id}__${safeAppVersion}`;
     const wrappedContent = `function ${wrapperName}(){\n${helpers}\n${convertedContent}\n}`;
 
-    const cwd = process.cwd();
-    const scriptRequire = `require = require('module').createRequire('${cwd}/node_modules')`;
+    const scriptRequire = `require = require('module').createRequire('${join(__dirname, '../../../node_modules')}')`;
 
     const finalContent = `${scriptRequire}\nmodule.exports = ${wrappedContent}`;
     const finalPath = getCompiledScriptPath(id);
