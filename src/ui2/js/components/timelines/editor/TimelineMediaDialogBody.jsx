@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useCallback } from 'react';
 import { Intent } from '@blueprintjs/core';
 
 import InlineFormGroup from '../../ui/InlineFormGroup';
 import TextInput from '../../ui/inputs/TextInput';
 import SelectInput from '../../ui/inputs/SelectInput';
 import DurationInput from '../../ui/inputs/DurationInput';
-import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
+import SliderInput from '../../ui/inputs/SliderInput';
+import percentString from '../../../lib/percentString';
 
 export default function TimelineMediaDialogBody({ value = {}, onChange, layers = [], medias = [] }) {
   const {
@@ -19,6 +19,8 @@ export default function TimelineMediaDialogBody({ value = {}, onChange, layers =
     color = null,
     volume = 1,
   } = value;
+
+  const sliderLabelRenderer = useCallback((value) => percentString(value))
 
   return (
     <>
@@ -107,8 +109,12 @@ export default function TimelineMediaDialogBody({ value = {}, onChange, layers =
         minWidth="100"
         label="Volume"
       >
-        <NumberInput
+        <SliderInput
           name="volume"
+          min={0}
+          max={1}
+          stepSize={0.01}
+          labelRenderer={sliderLabelRenderer}
           value={volume}
           onChange={onChange}
         />
