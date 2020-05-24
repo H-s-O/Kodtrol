@@ -1,7 +1,7 @@
 import { DAC } from '@laser-dac/core';
 import { Scene, Rect } from '@laser-dac/draw';
 import { EtherDream } from '@laser-dac/ether-dream';
-// import { Laserdock } from '@laser-dac/laserdock';
+import { Laserdock } from 'new-laserdock';
 
 import AbstractOutput from './AbstractOutput';
 
@@ -17,9 +17,9 @@ export default class IldaOutput extends AbstractOutput {
       case 'ether-dream':
         this._output.use(new EtherDream())
         break;
-      // case 'laserdock':
-      //   this._output.use(new Laserdock());
-      //   break;
+      case 'laserdock':
+        this._output.use(new Laserdock());
+        break;
       default:
         throw new Error(`Unknown ILDA driver "${driver}"`);
         break;

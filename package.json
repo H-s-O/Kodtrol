@@ -57,6 +57,7 @@
     "jzz": "^1.0.6",
     "lodash": "^4.17.15",
     "midi": "^1.0.0",
+    "new-laserdock": "git+https://github.com/H-s-O/new-laserdock.git",
     "object-hash": "^2.0.3",
     "osc": "^2.4.1",
     "prop-types": "^15.6.0",
