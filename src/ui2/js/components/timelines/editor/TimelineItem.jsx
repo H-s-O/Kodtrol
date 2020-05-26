@@ -203,17 +203,17 @@ const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
       id: uniqid(),
     };
     const newCurve = [
-      ...parsedCurve,
+      ...curveData,
       newPoint,
     ];
     onChange({ ...curve, curve: newCurve });
-  }, [onChange, parsedCurve]);
+  }, [onChange, curveData]);
   const pointClickHandler = useCallback((e, id) => {
     e.stopPropagation();
 
-    const newCurve = parsedCurve.filter((point) => point.id !== id);
+    const newCurve = curveData.filter((point) => point.id !== id);
     onChange({ ...curve, curve: newCurve });
-  }, [onChange, parsedCurve]);
+  }, [onChange, curveData]);
 
   return (
     <StyledBlockContainer
