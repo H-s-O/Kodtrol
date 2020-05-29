@@ -10,34 +10,35 @@ import TimelinesBoardsEditor from './components/TimelinesBoardsEditor';
 const StyledContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 10px);
+  height: 100%;
 `
 
 const StyledTopRow = styled.div`
+  padding-bottom: 5px;
 `
 
 const StyledBottomRow = styled.div`
   display: flex;
-  flex: 1;
-  margin-top: 5px;
-  height: 100%
+  flex-grow: 1;
 `
 
 const StyledLeftCol = styled.div`
   width: 300px;
-  margin-right: 5px;
+  height: 100%;
+  padding-right: 5px;
 `
 
 const StyledRightCol = styled.div`
   display: flex;
+  height: 100%;
   flex-direction: column;
-  flex: 1;
+  flex-grow: 1;
 `
 
 const StyledScriptsRow = styled.div`
   height: 50%;
-  margin-bottom: 5px;
-  `
+  padding-bottom: 5px;
+`
 
 const StyledTimelinesDashboardsRow = styled.div`
   height: 50%;

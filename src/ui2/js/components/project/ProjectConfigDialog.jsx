@@ -37,7 +37,7 @@ const StyledContainer = styled.div`
 `;
 
 const StyledLeftColumn = styled.div`
-  width: 250px;
+  width: 400px;
   margin-right: 10px;
 `
 
@@ -480,7 +480,7 @@ export default function ProjectConfigDialog() {
 
   return (
     <CustomDialog
-      minWidth={800}
+      minWidth={900}
       minHeight={600}
       isOpen={dialogOpen}
       title="Project Configuration"

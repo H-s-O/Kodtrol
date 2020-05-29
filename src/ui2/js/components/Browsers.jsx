@@ -94,6 +94,7 @@ export default function Browsers() {
     <FullHeightCard>
       <FullHeightTabs
         id="browsers"
+        withBorder
         selectedTabId={currentTabId}
         onChange={(newTabId) => setCurrentTabId(newTabId)}
       >

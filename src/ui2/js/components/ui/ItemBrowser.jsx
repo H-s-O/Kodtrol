@@ -6,8 +6,8 @@ import ManagedTree from '../ui/ManagedTree';
 import { deleteWarning } from '../../../../ui/js/lib/messageBoxes';
 
 const StyledContainer = styled.div`
+  width: 100%;
   height: 100%;
-  overflow: auto;
 `;
 
 export default function ItemBrowser({
