@@ -4,13 +4,10 @@ import { BrowserWindow } from 'electron';
 import { Colors } from '@blueprintjs/core';
 
 import * as MainWindowEvent from '../events/MainWindowEvent';
-import isDev from '../../common/js/lib/isDev';
 
 export default class MainWindow extends EventEmitter {
   win = null;
   contents = null;
-
-  static __devToolsAdded = false;
 
   constructor(title) {
     super();
@@ -30,14 +27,6 @@ export default class MainWindow extends EventEmitter {
     this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);
 
-    if (isDev) {
-      if (!MainWindow.__devToolsAdded) {
-        BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/4.2.1_0'));
-        BrowserWindow.addDevToolsExtension(join(__dirname, '../../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'));
-        MainWindow.__devToolsAdded = true;
-      }
-    }
-
     this.win.loadFile(join(__dirname, '../../../build/ui2/index.html'));
 
     this.contents = this.win.webContents;
@@ -53,11 +42,6 @@ export default class MainWindow extends EventEmitter {
   }
 
   onFinishLoad = () => {
-    // disable page zoom/scale
-    this.contents.setZoomFactor(1);
-    this.contents.setVisualZoomLevelLimits(1, 1);
-    this.contents.setLayoutZoomLevelLimits(0, 0);
-
     this.emit(MainWindowEvent.LOADED);
   }
 

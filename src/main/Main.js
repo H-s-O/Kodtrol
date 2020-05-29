@@ -1,4 +1,4 @@
-import { app, powerSaveBlocker, protocol } from 'electron';
+import { app, powerSaveBlocker, session } from 'electron';
 import { set, pick } from 'lodash';
 import { join } from 'path';
 
@@ -25,6 +25,7 @@ import customLog from '../common/js/lib/customLog';
 import MidiWatcher from './lib/watchers/MidiWatcher';
 import { updateIOAvailableAction } from '../common/js/store/actions/ioAvailable';
 import { IO_MIDI, IO_INPUT, IO_OUTPUT } from '../common/js/constants/io';
+import isDev from '../common/js/lib/isDev';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -34,6 +35,8 @@ export default class Main {
   renderer = null;
   powerSaveBlockerId = null;
   midiWatcher = null;
+
+  static _devExtensionsLoaded = false;
 
   constructor() {
     customLog('main');
@@ -55,6 +58,7 @@ export default class Main {
   }
 
   onReady = () => {
+    this.loadDevExtensions();
     this.createMainMenu();
     this.createWatchers();
     this.run();
@@ -64,6 +68,14 @@ export default class Main {
     // Better safe than sorry; destroy the renderer
     // on quit if it somehow survived
     this.destroyRenderer();
+  }
+
+  loadDevExtensions = () => {
+    if (isDev && !Main._devExtensionsLoaded) {
+      session.defaultSession.loadExtension(join(__dirname, '../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/4.7.0_0'));
+      session.defaultSession.loadExtension(join(__dirname, '../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'));
+      Main._devExtensionsLoaded = true;
+    }
   }
 
   run = () => {
