@@ -24,6 +24,7 @@ import {
   canChangeItemLayerDown,
   doChangeItemLayer,
   canPasteItem,
+  doDeleteItemsOfLayer,
 } from '../../../../../common/js/lib/itemOperations';
 import { ipcRendererSend, ipcRendererListen, ipcRendererClear } from '../../../lib/ipcRenderer';
 import { UPDATE_BOARD_INFO } from '../../../../../common/js/constants/events';
@@ -271,7 +272,7 @@ export default function BoardEditor({ board, onChange }) {
     deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
       .then((result) => {
         if (result) {
-          onChange({ layers: doDeleteLayer(layers, id) });
+          onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
         }
       });
   }, [onChange, board]);

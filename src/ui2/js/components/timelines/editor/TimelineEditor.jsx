@@ -21,6 +21,7 @@ import {
   canPasteItem,
   doCopy,
   doPaste,
+  doDeleteItemsOfLayer,
 } from '../../../../../common/js/lib/itemOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
@@ -557,7 +558,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
       .then((result) => {
         if (result) {
-          onChange({ layers: doDeleteLayer(layers, id) });
+          onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
         }
       });
   }, [onChange, timeline]);
