@@ -6,11 +6,14 @@ import { Laserdock } from 'new-laserdock';
 import AbstractOutput from './AbstractOutput';
 
 export default class IldaOutput extends AbstractOutput {
+  _driver = null;
   _output = null;
   _scene = null;
 
   constructor(driver, address) {
     super();
+
+    this._driver = driver;
 
     this._output = new DAC();
     switch (driver) {
@@ -39,7 +42,7 @@ export default class IldaOutput extends AbstractOutput {
       && this._output.devices[0].connection
       && this._output.devices[0].connection.client
       && this._output.devices[0].connection.client.remoteAddress) {
-      console.log(this._output.devices[0].connection.client.destroyed)
+      console.log('client.destroyed', this._output.devices[0].connection.client.destroyed)
       this._setStatusConnected();
     } else {
       this._setStatusDisconnected();
@@ -73,8 +76,8 @@ export default class IldaOutput extends AbstractOutput {
         }
       }
 
-      // As a "keep-alive", send an invisible shape
-      if (!hasObject) {
+      // As a "keep-alive" for the Ether Dream, send a sufficiently large invisible shape
+      if (this._driver === 'ether-dream' && !hasObject) {
         this._scene.add(new Rect({ x: 0, y: 0, width: 1, height: 1, color: [0, 0, 0] }))
       }
     }
@@ -88,6 +91,7 @@ export default class IldaOutput extends AbstractOutput {
       this._scene.stop();
     }
 
+    this._driver = null;
     this._output = null;
     this._scene = null;
 
