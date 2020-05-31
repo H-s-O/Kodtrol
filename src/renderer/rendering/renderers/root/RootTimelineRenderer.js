@@ -318,7 +318,12 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       ) {
         const localBeatPos = timeToPPQ(currentTime - block.inTime, tempo);
         if (localBeatPos !== block.localBeatPos) {
-          block.instance.beat(beatPos, localBeatPos);
+          // Loop the difference between two positions; will act
+          // as catch-up in case some lag occurs
+          const diff = localBeatPos - block.localBeatPos;
+          for (let i = 1; i < diff + 1; i++) {
+            block.instance.beat(beatPos, block.localBeatPos + i);
+          }
           block.localBeatPos = localBeatPos;
         }
       }

@@ -25,8 +25,8 @@ export default class BaseRootRenderer {
         // Loop the difference between two positions; will act
         // as catch-up in case some lag occurs
         const diff = beatPos - this._currentBeatPos;
-        for (let i = 0; i < diff; i++) {
-          this._runBeat(this._currentBeatPos + diff);
+        for (let i = 1; i < diff + 1; i++) {
+          this._runBeat(this._currentBeatPos + i);
         }
       }
 
