@@ -24,12 +24,20 @@ export default class RootScriptRenderer extends BaseRootRenderer {
   }
 
   _runFrame(frameTime) {
-    this._instance.render(this._currentTime);
+    this._instance.render(frameTime);
   }
 
-  _runBeat(beatPos) {
-    const localBeatPos = timeToPPQ(this._currentTime, this._getRenderingTempo());
-    this._instance.beat(beatPos, localBeatPos);
+  _runBeat(beatTime, previousBeatTime) {
+    const tempo = this._getRenderingTempo();
+    const prevBeatPos = timeToPPQ(previousBeatTime, tempo);
+    const currentBeatPos = timeToPPQ(beatTime, tempo);
+
+    // Loop the difference between two positions; will act
+    // as catch-up in case some lag occurs
+    const diff = currentBeatPos - prevBeatPos;
+    for (let i = 0; i < diff; i++) {
+      this._instance.beat(prevBeatPos + i);
+    }
   }
 
   _runInput(type, data) {

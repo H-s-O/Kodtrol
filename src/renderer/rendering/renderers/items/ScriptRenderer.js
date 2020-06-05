@@ -116,14 +116,8 @@ export default class ScriptRenderer {
     if (this._script.hasBeat) {
       this._start();
 
-      let localBeat;
-      if (localBeatPos !== null) {
-        localBeat = localBeatPos;
-      } else {
-        localBeat = beatPos;
-      }
       const beatInfo = {
-        localBeat,
+        localBeat: localBeatPos !== null ? localBeatPos : beatPos,
         globalBeat: beatPos,
       };
 

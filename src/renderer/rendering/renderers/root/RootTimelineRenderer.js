@@ -68,7 +68,6 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           [block.id]: {
             ...block,
             instance: new ScriptRenderer(this._providers, block.script),
-            localBeatPos: -1,
           },
         };
       }, {});
@@ -298,37 +297,32 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     }
   }
 
-  _runBeat(beatPos) {
-    const currentTime = this._currentTime;
-
-    const timeItems = this._getTimelineItemsAtTime(currentTime);
+  _runBeat(beatTime, previousBeatTime) {
+    const timeItems = this._getTimelineItemsAtTime(beatTime);
     if (timeItems === null) {
       return;
     }
 
     const tempo = this._getRenderingTempo();
 
+    // @TODO handle global beat diff?
+    const currentBeatPos = timeToPPQ(beatTime, tempo);
+
     const blocks = timeItems[2];
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
       if (
-        currentTime >= block.inTime
-        && currentTime <= block.outTime
+        beatTime >= block.inTime
+        && beatTime <= block.outTime
       ) {
-        const localBeatPos = timeToPPQ(currentTime - block.inTime, tempo);
-        if (localBeatPos !== block.localBeatPos) {
-          if (block.localBeatPos === -1) {
-            block.instance.beat(beatPos, localBeatPos);
-          } else {
-            // Loop the difference between two positions; will act
-            // as catch-up in case some lag occurs
-            const diff = localBeatPos - block.localBeatPos;
-            for (let i = 1; i < diff + 1; i++) {
-              block.instance.beat(beatPos, block.localBeatPos + i);
-            }
-          }
-          block.localBeatPos = localBeatPos;
+        const prevLocalBeatPos = timeToPPQ(previousBeatTime - block.inTime, tempo);
+        const currentLocalBeatPos = timeToPPQ(beatTime - block.inTime, tempo);
+        // Loop the difference between two positions; will act
+        // as catch-up in case some lag occurs
+        const diff = currentLocalBeatPos - prevLocalBeatPos;
+        for (let j = 0; j < diff; j++) {
+          block.instance.beat(currentBeatPos, prevLocalBeatPos + j);
         }
       }
     }

@@ -57,7 +57,6 @@ export default class RootBoardRenderer extends BaseRootRenderer {
           [block.id]: {
             ...block,
             instance: new ScriptRenderer(this._providers, block.script),
-            localBeatPos: -1,
             inTime: null,
             outTime: null,
             blockPercent: null,
@@ -192,28 +191,28 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     // }
   }
 
-  _runBeat(beatPos) {
+  _runBeat(beatTime, previousBeatTime) {
     const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       return;
     }
 
     const tempo = this._getRenderingTempo();
-    const currentTime = this._currentTime;
+
+    // @TODO handle global beat diff?
+    const currentBeatPos = timeToPPQ(beatTime, tempo);
 
     const blocks = boardItems[0];
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      const localBeatPos = timeToPPQ(currentTime, tempo);
-      if (localBeatPos !== block.localBeatPos) {
-        // Loop the difference between two positions; will act
-        // as catch-up in case some lag occurs
-        const diff = localBeatPos - block.localBeatPos;
-        for (let i = 1; i < diff + 1; i++) {
-          block.instance.beat(beatPos, block.localBeatPos + i);
-        }
-        block.localBeatPos = localBeatPos;
+      const prevLocalBeatPos = timeToPPQ(previousBeatTime - block.inTime, tempo);
+      const currentLocalBeatPos = timeToPPQ(beatTime - block.inTime, tempo);
+      // Loop the difference between two positions; will act
+      // as catch-up in case some lag occurs
+      const diff = currentLocalBeatPos - prevLocalBeatPos;
+      for (let j = 0; j < diff; j++) {
+        block.instance.beat(currentBeatPos, prevLocalBeatPos + j);
       }
     }
   }

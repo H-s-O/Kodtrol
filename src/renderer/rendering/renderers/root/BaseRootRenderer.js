@@ -1,9 +1,6 @@
-import timeToPPQ from '../../../lib/timeToPPQ';
-
 export default class BaseRootRenderer {
   _providers = null;
   _currentTime = 0;
-  _currentBeatPos = -1;
 
   constructor(providers) {
     this._providers = providers;
@@ -16,22 +13,7 @@ export default class BaseRootRenderer {
   tick(delta) {
     this._currentTime += delta;
 
-    const beatPos = timeToPPQ(this._currentTime, this._getRenderingTempo());
-
-    if (beatPos !== this._currentBeatPos) {
-      if (this._currentBeatPos === -1) {
-        this._runBeat(beatPos);
-      } else {
-        // Loop the difference between two positions; will act
-        // as catch-up in case some lag occurs
-        const diff = beatPos - this._currentBeatPos;
-        for (let i = 1; i < diff + 1; i++) {
-          this._runBeat(this._currentBeatPos + i);
-        }
-      }
-
-      this._currentBeatPos = beatPos;
-    }
+    this._runBeat(this._currentTime, this._currentTime - delta);
   }
 
   frame() {
@@ -46,7 +28,7 @@ export default class BaseRootRenderer {
     // implement in subclass
   }
 
-  _runBeat(beatPos) {
+  _runBeat(beatTime, previousBeatTime) {
     // implement in subclass
   }
 
@@ -61,6 +43,5 @@ export default class BaseRootRenderer {
   destroy() {
     this._providers = null;
     this._currentTime = null;
-    this._currentBeatPos = null;
   }
 }
