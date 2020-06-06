@@ -192,6 +192,7 @@ const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
   const realCount = useMemo(() => parsedCurve.filter(({ extra }) => !extra).length, [parsedCurve]);
 
   const containerDoubleClickHandler = useCallback((e) => {
+    // Prevent a timeline position change
     e.stopPropagation();
   });
   const containerClickHandler = useCallback((e) => {
@@ -203,7 +204,7 @@ const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
       id: uniqid(),
     };
     const newCurve = [
-      ...curveData,
+      ...(curveData || []),
       newPoint,
     ];
     onChange({ ...curve, curve: newCurve });
