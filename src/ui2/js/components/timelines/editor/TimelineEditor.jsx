@@ -183,7 +183,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     recordedTriggersDialog.hide();
   }, [onChange, timeline, recordedTriggersDialog]);
   const recordedTriggersHotkeyHandler = useCallback((e) => {
-    if (isRunning && recording) {
+    if (isRunning && recording && focusIsGlobal()) {
       const { key } = e;
       const newTriggers = [];
       recordedTriggers.forEach(({ hotkey, name, layer, color }) => {
