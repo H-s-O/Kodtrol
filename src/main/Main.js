@@ -1,4 +1,4 @@
-import { app, powerSaveBlocker, session } from 'electron';
+import { app, powerSaveBlocker, BrowserWindow } from 'electron';
 import { set, pick } from 'lodash';
 import { join } from 'path';
 
@@ -41,6 +41,8 @@ export default class Main {
   constructor() {
     customLog('main');
 
+    app.allowRendererProcessReuse = false;
+
     app.on('ready', this.onReady);
     app.on('window-all-closed', this.onWindowAllClosed);
     app.on('will-quit', this.onWillQuit);
@@ -72,8 +74,8 @@ export default class Main {
 
   loadDevExtensions = () => {
     if (isDev && !Main._devExtensionsLoaded) {
-      session.defaultSession.loadExtension(join(__dirname, '../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/4.7.0_0'));
-      session.defaultSession.loadExtension(join(__dirname, '../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'));
+      BrowserWindow.addDevToolsExtension(join(__dirname, '../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/4.7.0_0'));
+      BrowserWindow.addDevToolsExtension(join(__dirname, '../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'));
       Main._devExtensionsLoaded = true;
     }
   }
