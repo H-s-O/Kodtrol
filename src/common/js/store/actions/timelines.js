@@ -7,6 +7,8 @@ const excludeHashProps = [
   'name',
   'zoom',
   'zoomVert',
+  'recording',
+  'recordedTriggers',
 ];
 
 export const UPDATE_TIMELINES = 'update_timelines';
@@ -18,7 +20,7 @@ export const updateTimelinesAction = (timelines) => {
 };
 
 export const EDIT_TIMELINE = 'edit_timeline';
-export const editTimelineAction = (id, { layers, items, zoom, zoomVert, tempo, duration }) => {
+export const editTimelineAction = (id, { layers, items, zoom, zoomVert, tempo, duration, recording, recordedTriggers }) => {
   return {
     type: EDIT_TIMELINE,
     payload: {
@@ -29,6 +31,8 @@ export const editTimelineAction = (id, { layers, items, zoom, zoomVert, tempo, d
       zoomVert,
       tempo,
       duration,
+      recording,
+      recordedTriggers,
       changed: false,
     },
   };
@@ -77,6 +81,8 @@ export const createTimelineAction = (data) => {
     items: [],
     layers: [],
     tempo: null,
+    recording: false,
+    recordedTriggers: [],
     ...data,
     id: uniqid(),
   };
@@ -98,6 +104,8 @@ export const createTimelinesAction = (list) => {
       items: [],
       layers: [],
       tempo: null,
+      recording: false,
+      recordedTriggers: [],
       ...data,
       id: uniqid(),
     };

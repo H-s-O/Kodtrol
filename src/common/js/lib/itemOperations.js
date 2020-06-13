@@ -17,6 +17,11 @@ export const doAddItem = (items, item) => {
   return newItems;
 };
 
+export const doAddItems = (items, addedItems) => {
+  const newItems = [...items, ...addedItems];
+  return newItems;
+};
+
 export const doUpdateItem = (items, item) => {
   const newItems = items.map((obj) => obj.id === item.id ? item : obj);
   return newItems;

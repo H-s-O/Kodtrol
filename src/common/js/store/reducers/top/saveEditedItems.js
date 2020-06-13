@@ -26,14 +26,14 @@ export default (state, { type, payload }) => {
       break;
 
     case SAVE_EDITED_TIMELINE: {
-      const { layers, items, zoom, zoomVert } = state.editTimelines.find(({ id }) => id === payload);
+      const { layers, items, zoom, zoomVert, recording, recordedTriggers } = state.editTimelines.find(({ id }) => id === payload);
       return {
         ...state,
         editTimelines: state.editTimelines.map((timeline) => timeline.id === payload ? { ...timeline, changed: false } : timeline),
         timelines: state.timelines.map((timeline) => {
           if (timeline.id === payload) {
-            const newData = { ...timeline, layers, items, zoom, zoomVert };
-            const hash = hashDataObject(newData, ['id', 'name', 'zoom', 'zoomVert']);
+            const newData = { ...timeline, layers, items, zoom, zoomVert, recording, recordedTriggers };
+            const hash = hashDataObject(newData, ['id', 'name', 'zoom', 'zoomVert', 'recording', 'recordedTriggers']);
             return {
               ...newData,
               hash,

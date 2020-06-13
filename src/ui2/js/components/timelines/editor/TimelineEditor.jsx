@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ButtonGroup, Button, Popover, Menu, Position, Icon } from '@blueprintjs/core';
+import { ButtonGroup, Button, Popover, Menu, Position, Icon, Intent } from '@blueprintjs/core';
 import uniqid from 'uniqid';
 import { useSelector } from 'react-redux';
 import { remote } from 'electron';
@@ -12,6 +12,7 @@ import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
 import {
   doAddItem,
+  doAddItems,
   doUpdateItem,
   getItem,
   doDeleteItem,
@@ -25,13 +26,14 @@ import {
 } from '../../../../../common/js/lib/itemOperations';
 import { deleteWarning } from '../../../lib/dialogHelpers';
 import TimelineScriptDialog from './TimelineScriptDialog';
-import { DIALOG_EDIT, DIALOG_ADD } from '../../../../../common/js/constants/dialogs';
+import { DIALOG_EDIT, DIALOG_ADD, DIALOG_CONFIGURE } from '../../../../../common/js/constants/dialogs';
 import useDialog from '../../../lib/useDialog';
 import { ITEM_SCRIPT, ITEM_TRIGGER, ITEM_MEDIA, ITEM_CURVE } from '../../../../../common/js/constants/items';
 import TimelineTriggerDialog from './TimelineTriggerDialog';
 import TimelineItem from './TimelineItem';
 import TimelineMediaDialog from './TimelineMediaDialog';
 import TimelineCurveDialog from './TimelineCurveDialog';
+import TimelineRecordedTriggersDialog from './TimelineRecordedTriggersDialog';
 import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNames';
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 import { ipcRendererListen, ipcRendererClear, ipcRendererSend } from '../../../lib/ipcRenderer';
@@ -110,13 +112,14 @@ const TimelineLayer = ({
 const ZOOM_LEVELS = [1.0, 2.0, 3.0, 5.0, 8.0, 10.0];
 
 export default function TimelineEditor({ timeline, onChange }) {
-  const { duration, layers, items, zoom, zoomVert } = timeline;
+  const { duration, layers, items, zoom, zoomVert, recording, recordedTriggers } = timeline;
 
   const scripts = useSelector((state) => state.scripts);
   const medias = useSelector((state) => state.medias);
   const runTimeline = useSelector((state) => state.runTimeline);
 
   const isRunning = timeline.id == runTimeline;
+  const hasLayers = layers && layers.length > 0;
 
   const scriptsNames = useMemo(() => {
     return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
@@ -147,6 +150,7 @@ export default function TimelineEditor({ timeline, onChange }) {
   const triggerDialog = useDialog();
   const mediaDialog = useDialog();
   const curveDialog = useDialog();
+  const recordedTriggersDialog = useDialog();
 
   const mouseTracker = useRef();
   const positionTracker = useRef();
@@ -166,6 +170,40 @@ export default function TimelineEditor({ timeline, onChange }) {
   const zoomVertClickHandler = useCallback((value) => {
     onChange({ zoomVert: value });
   }, [onChange, timeline]);
+
+  // Recorded triggers
+  const recordTriggersClickHandler = useCallback(() => {
+    onChange({ recording: !recording });
+  }, [onChange, timeline]);
+  const configureRecordedTriggersClickHandler = useCallback(() => {
+    recordedTriggersDialog.show(DIALOG_CONFIGURE, { triggers: recordedTriggers });
+  }, [recordedTriggersDialog, timeline]);
+  const recordedTriggersDialogSuccessHandler = useCallback(() => {
+    onChange({ recordedTriggers: recordedTriggersDialog.value.triggers });
+    recordedTriggersDialog.hide();
+  }, [onChange, timeline, recordedTriggersDialog]);
+  const recordedTriggersHotkeyHandler = useCallback((e) => {
+    if (isRunning && recording) {
+      const { key } = e;
+      const newTriggers = [];
+      recordedTriggers.forEach(({ hotkey, name, layer, color }) => {
+        if (hotkey === key) {
+          newTriggers.push({
+            name,
+            layer,
+            color,
+            inTime: timelineInfo.current.position,
+            id: uniqid(),
+            type: ITEM_TRIGGER,
+          });
+        }
+      });
+      if (newTriggers.length) {
+        onChange({ items: doAddItems(items, newTriggers) });
+      }
+    }
+  }, [onChange, timeline, isRunning, recording, timelineInfo]);
+  useHotkeys('*', recordedTriggersHotkeyHandler);
 
   // Scripts
   const addScriptClickHandler = useCallback((initial = null) => {
@@ -690,7 +728,7 @@ export default function TimelineEditor({ timeline, onChange }) {
               position={Position.BOTTOM}
               content={(
                 <Menu>
-                  {(layers && layers.length > 0) ? (
+                  {hasLayers ? (
                     <>
                       <Menu.Item
                         icon={ICON_SCRIPT}
@@ -738,6 +776,34 @@ export default function TimelineEditor({ timeline, onChange }) {
                 small
                 icon="plus"
                 rightIcon="caret-down"
+              />
+            </Popover>
+          </StyledButtonGroup>
+          <StyledButtonGroup>
+            <Button
+              small
+              icon="record"
+              disabled={!hasLayers}
+              intent={recording ? Intent.DANGER : undefined}
+              onClick={recordTriggersClickHandler}
+            />
+            <Popover
+              minimal
+              position={Position.BOTTOM}
+              content={(
+                <Menu>
+                  <Menu.Item
+                    icon="settings"
+                    text="Configure recorded triggers..."
+                    onClick={configureRecordedTriggersClickHandler}
+                  />
+                </Menu>
+              )}
+            >
+              <Button
+                small
+                icon="caret-down"
+                disabled={!hasLayers}
               />
             </Popover>
           </StyledButtonGroup>
@@ -861,6 +927,15 @@ export default function TimelineEditor({ timeline, onChange }) {
         onChange={curveDialog.change}
         onSuccess={curveDialogSuccessHandler}
         onClose={curveDialog.hide}
+        layers={availableLayers}
+      />
+      <TimelineRecordedTriggersDialog
+        opened={recordedTriggersDialog.opened}
+        mode={recordedTriggersDialog.mode}
+        value={recordedTriggersDialog.value}
+        onChange={recordedTriggersDialog.change}
+        onSuccess={recordedTriggersDialogSuccessHandler}
+        onClose={recordedTriggersDialog.hide}
         layers={availableLayers}
       />
     </>

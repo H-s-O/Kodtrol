@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 
-import { DIALOG_DUPLICATE, DIALOG_EDIT, DIALOG_ADD } from '../../../common/js/constants/dialogs';
+import { DIALOG_DUPLICATE, DIALOG_EDIT, DIALOG_ADD, DIALOG_CONFIGURE } from '../../../common/js/constants/dialogs';
 import { PROJECT_FILE_EXTENSION } from '../../../common/js/constants/app';
 
 const { dialog } = remote;
@@ -9,6 +9,9 @@ export const getDialogTitle = (mode, label) => {
   switch (mode) {
     case DIALOG_DUPLICATE:
       return `Duplicate ${label}`;
+      break;
+    case DIALOG_CONFIGURE:
+      return `Configure ${label}`;
       break;
     case DIALOG_EDIT:
       return `Edit ${label}`;
@@ -25,6 +28,7 @@ export const getSuccessButtonLabel = (mode) => {
     case DIALOG_DUPLICATE:
       return 'Duplicate';
       break;
+    case DIALOG_CONFIGURE:
     case DIALOG_EDIT:
       return 'Save';
       break;

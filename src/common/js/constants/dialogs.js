@@ -1,6 +1,7 @@
 export const DIALOG_ADD = 'add';
 export const DIALOG_DUPLICATE = 'duplicate';
 export const DIALOG_EDIT = 'edit';
+export const DIALOG_CONFIGURE = 'configure';
 
 export const DIALOG_IMPORT_DEVICES = 1;
 export const DIALOG_IMPORT_SCRIPTS = 2;
