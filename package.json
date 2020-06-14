@@ -26,6 +26,15 @@
   "engines": {
     "node": ">=12.0.0"
   },
+  "staticFiles": {
+    "staticPath": [
+      {
+        "staticPath": "./node_modules/ace-builds/src-noconflict/",
+        "staticOutDir": "/ui2/",
+        "excludeGlob": "**/!(worker-javascript.js)"
+      }
+    ]
+  },
   "dependencies": {
     "@blueprintjs/core": "^3.28.0",
     "@blueprintjs/datetime": "^3.18.0",
@@ -85,6 +94,7 @@
     "mocha": "^7.2.0",
     "node-abi": "^2.17.0",
     "parcel-bundler": "^1.12.4",
+    "parcel-plugin-static-files-copy": "^2.4.3",
     "redux-devtools-extension": "^2.13.5",
     "rimraf": "^3.0.2"
   }
