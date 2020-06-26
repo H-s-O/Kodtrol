@@ -6,8 +6,8 @@ const providers = {
   getOutput: (id) => ({
     '7l9r6tf8vka35n1kk': { id: '7l9r6tf8vka35n1kk' },
     '7l9r6tf97ka35p445': { id: '7l9r6tf97ka35p445' },
-  }[id])
-}
+  }[id]),
+};
 
 describe('IldaDevice', function () {
   const source1 = {
@@ -29,7 +29,7 @@ describe('IldaDevice', function () {
   };
   let instance;
 
-  it('should construct without errors with initial data', function () {
+  it('should construct without errors using initial data', function () {
     instance = new IldaDevice(providers, source1);
   });
 

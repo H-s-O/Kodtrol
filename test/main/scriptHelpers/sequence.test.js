@@ -15,9 +15,11 @@ describe('Helper - sequence', function () {
     expect(sequence(source1)).to.equal(source1[0]);
   });
 
-  it('should advance properly with default ID', function () {
+  it('should advance properly and rollover with default ID', function () {
     expect(sequence(source1)).to.equal(source1[1]);
     expect(sequence(source1)).to.equal(source1[2]);
+    expect(sequence(source1)).to.equal(source1[0]);
+    expect(sequence(source1)).to.equal(source1[1]);
   });
 
   it('should reset with default ID if the array is shorter than the current index', function () {
@@ -35,9 +37,11 @@ describe('Helper - sequence', function () {
     expect(sequence(source1, 'mySequence')).to.equal(source1[0]);
   });
 
-  it('should advance properly with custom ID', function () {
+  it('should advance properly and rollover with custom ID', function () {
     expect(sequence(source1, 'mySequence')).to.equal(source1[1]);
     expect(sequence(source1, 'mySequence')).to.equal(source1[2]);
+    expect(sequence(source1, 'mySequence')).to.equal(source1[0]);
+    expect(sequence(source1, 'mySequence')).to.equal(source1[1]);
   });
 
   it('should reset with custom ID if the array is shorter than the current index', function () {

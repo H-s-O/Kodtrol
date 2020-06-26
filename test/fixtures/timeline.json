@@ -1,0 +1,20 @@
+{
+    "id": "7l9r6t17gqkb01d22m",
+    "name": "MyTimeline1",
+    "duration": 30000,
+    "inTime": 0,
+    "outTime": 30000,
+    "tempo": 120,
+    "layers": [
+        {
+            "id": "7l9r6t17h1kb01e4bs",
+            "order": 0
+        },
+        {
+            "id": "7l9r6t17hdkb01ehhs",
+            "order": 1
+        }
+    ],
+    "items": [
+    ]
+}
