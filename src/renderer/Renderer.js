@@ -19,6 +19,8 @@ import MidiDevice from './rendering/MidiDevice';
 import MidiDeviceProxy from './rendering/MidiDeviceProxy';
 import { IO_DMX, IO_ILDA, IO_MIDI } from '../common/js/constants/io';
 import customLog from '../common/js/lib/customLog';
+import { app } from 'electron';
+import isDev from '../common/js/lib/isDev';
 
 export default class Renderer {
   _outputs = {};
@@ -42,6 +44,18 @@ export default class Renderer {
   constructor() {
     customLog('renderer');
 
+    if (!isDev) {
+      // Do not show in macOS Dock
+      app.dock.hide()
+    }
+
+    app.once('ready', this._onReady.bind(this));
+
+    process.on('SIGTERM', this._onSigTerm.bind(this));
+    process.on('message', this._onMessage.bind(this));
+  }
+
+  _onReady() {
     this._providers = {
       getOutput: this._getOutput.bind(this),
       getScript: this._getScript.bind(this),
@@ -51,10 +65,7 @@ export default class Renderer {
       getTimeline: this._getTimeline.bind(this),
       getBoard: this._getBoard.bind(this),
       getMedia: this._getMedia.bind(this),
-    }
-
-    process.on('SIGTERM', this._onSigTerm.bind(this));
-    process.on('message', this._onMessage.bind(this));
+    };
 
     this._ioUpdateTimer = setInterval(this._updateIOStatus.bind(this), 3000);
 
@@ -301,6 +312,7 @@ export default class Renderer {
   _runTimeline(id) {
     if (id === null || (this._currentTimeline && this._currentTimeline.id !== id)) {
       if (this._currentTimeline) {
+        this._currentTimeline.notifyStop();
         this._currentTimeline.destroy();
         this._currentTimeline = null;
       }

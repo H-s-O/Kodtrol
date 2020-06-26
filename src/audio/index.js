@@ -5,18 +5,16 @@ const instances = {};
 
 ipcRenderer.on('data', (e, data) => {
   try {
-    const dataObj = JSON.parse(data);
-
     for (let streamId in instances) {
-      if (!dataObj || !(streamId in dataObj)) {
+      if (!data || !(streamId in data)) {
         instances[streamId].unload();
         delete instances[streamId];
       }
     }
 
-    if (dataObj) {
-      for (let streamId in dataObj) {
-        const { active, position, volume, file } = dataObj[streamId];
+    if (data) {
+      for (let streamId in data) {
+        const { active, position, volume, file } = data[streamId];
         // Guard
         if (!file) {
           continue;

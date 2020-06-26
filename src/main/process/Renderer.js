@@ -1,33 +1,35 @@
 import EventEmitter from 'events';
-import { fork } from 'child_process';
+import { spawn } from 'child_process';
 import path from 'path';
+import electron from 'electron';
 
 import { getCompiledScriptsDir, getConvertedAudiosDir } from '../lib/fileSystem';
 import * as RendererEvent from '../events/RendererEvent';
 import isDev from '../../common/js/lib/isDev';
 
 export default class Renderer extends EventEmitter {
-  childProcess = null;
+  _childProcess = null;
 
   constructor() {
     super();
 
     const processPath = path.join(__dirname, '../../renderer/kodtrol-renderer.js');
-
-    this.childProcess = fork(processPath, {
+console.log(electron)
+    this._childProcess = spawn(electron, [
+      ...(isDev ? [
+        '-r',
+        '@babel/register',
+      ] : []),
+      processPath,
+    ], {
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
       env: {
         KODTROL_DEV: process.env['KODTROL_DEV'],
         KODTROL_SCRIPTS_DIR: getCompiledScriptsDir(),
         KODTROL_AUDIOS_DIR: getConvertedAudiosDir(),
-      },
-      ...(isDev ? {
-        execArgv: [
-          '-r',
-          '@babel/register',
-        ],
-      } : {}),
+      }
     });
-    this.childProcess.on('message', this.onMessage);
+    this._childProcess.on('message', this.onMessage);
   }
 
   onMessage = (message) => {
@@ -49,20 +51,20 @@ export default class Renderer extends EventEmitter {
   }
 
   send = (data) => {
-    if (this.childProcess) {
-      if (!this.childProcess.connected) {
+    if (this._childProcess) {
+      if (!this._childProcess.connected) {
         console.error('Renderer subprocess not connected!');
         return;
       }
 
-      this.childProcess.send(data);
+      this._childProcess.send(data);
     }
   }
 
   destroy = () => {
-    if (this.childProcess) {
-      this.childProcess.kill();
+    if (this._childProcess) {
+      this._childProcess.kill();
     }
-    this.childProcess = null;
+    this._childProcess = null;
   }
 }
