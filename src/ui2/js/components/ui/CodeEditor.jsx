@@ -6,9 +6,11 @@ import 'ace-builds/src-noconflict/theme-tomorrow_night_eighties';
 
 export default function CodeEditor(props) {
   const editorRef = useCallback((ref) => {
-    // Disable missing semicolon warning
-    // @see https://github.com/ajaxorg/ace/issues/1754#issuecomment-43173900
-    ref.editor.session.$worker.send("changeOptions", [{ asi: true }]);
+    if (ref && ref.editor) {
+      // Disable missing semicolon warning
+      // @see https://github.com/ajaxorg/ace/issues/1754#issuecomment-43173900
+      ref.editor.session.$worker.send("changeOptions", [{ asi: true }]);
+    }
   }, []);
 
   return (
