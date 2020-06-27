@@ -457,6 +457,7 @@ export default class Renderer {
 
   _tickerFrame(delta) {
     this._resetDevices();
+    this._resetMedias();
 
     if (this._currentScript) {
       this._currentScript.frame(delta);

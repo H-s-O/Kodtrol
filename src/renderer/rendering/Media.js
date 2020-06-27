@@ -1,15 +1,11 @@
 export default class Media {
+  _providers = null;
   _id = null;
   _file = null;
-  _volume = 1;
-  _position = 0;
-  _speed = 1;
-  _streamId = null;
-  _active = false;
-  _output = null;
-  _providers = null;
-  _hash = null;
   _duration = 0;
+  _output = null;
+  _hash = null;
+  _streams = {};
 
   constructor(providers, sourceMedia) {
     this._providers = providers;
@@ -42,14 +38,20 @@ export default class Media {
     }
 
     this._output = this._providers.getOutput(outputId);
+    // @TODO maybe move to Renderer instead of sending directly through here
+    this._output.outputInstance.once('ready', () => {
+      console.log('media output ready');
+
+      this._output.outputInstance.send({
+        media: {
+          [this._id]: this._file,
+        }
+      });
+    });
   }
 
   get id() {
     return this._id;
-  }
-
-  get streamId() {
-    return this._streamId;
   }
 
   get file() {
@@ -60,88 +62,34 @@ export default class Media {
     return this._duration;
   }
 
-  get outputData() {
-    if (!this._active) {
-      return {};
-    }
-
-    return {
-      id: this._id,
-      volume: this._volume,
-      position: this._position,
-      speed: this._speed,
-      file: this._file,
-    };
-  }
-
-  get active() {
-    return this._active;
-  }
-
   get hash() {
     return this._hash;
   }
 
-  stop() {
-    this.reset();
-    this.sendDataToOutput();
-  }
-
   reset() {
-    this._streamId = null;
-    this._position = 0;
-    this._active = false;
+    this._streams = {};
   }
 
   sendDataToOutput() {
     if (this._output) {
-      const data = {
-        [this._streamId]: this._active ? {
-          active: true,
-          volume: this._volume,
-          position: this._position,
-          speed: this._speed,
-          file: this._file,
-        } : {
-            active: false,
-          },
-      };
-
-      this._output.buffer(data);
+      this._output.buffer(this._streams);
     }
   }
 
-  setStreamId(streamId) {
-    this._streamId = streamId;
-  }
-
-  setVolume(volume) {
-    this._volume = volume;
-  }
-
-  setPosition(position) {
-    this._position = position;
-  }
-
-  setSpeed(speed) {
-    this._speed = speed;
-  }
-
-  setActive(flag) {
-    this._active = flag;
+  setStream(streamId, info) {
+    this._streams[streamId] = {
+      ...info,
+      media: this._id,
+    };
   }
 
   destroy() {
+    this._providers = null;
     this._id = null;
     this._file = null;
-    this._volume = null;
-    this._position = null;
-    this._speed = null;
-    this._streamId = null;
-    this._active = null;
-    this._output = null;
-    this._providers = null;
-    this._hash = null;
     this._duration = null;
+    this._output = null;
+    this._hash = null;
+    this._streams = null;
   }
 }

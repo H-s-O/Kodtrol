@@ -2,47 +2,87 @@ import { Howl } from 'howler';
 import { ipcRenderer } from 'electron';
 
 const instances = {};
+const streams = {};
 
-ipcRenderer.on('data', (e, data) => {
+const handleMedia = (dataObj) => {
   try {
-    const dataObj = JSON.parse(data);
+    for (let mediaId in dataObj) {
+      if (mediaId in instances) {
+        instances[mediaId].unload();
+        delete instances[mediaId];
+      }
 
-    for (let streamId in instances) {
+      const file = dataObj[mediaId];
+
+      // Guard
+      if (!file) {
+        continue;
+      }
+
+      instances[mediaId] = new Howl({
+        src: `file://${file}`,
+        html5: true, // As per Howler's docs, does not require loading the entire file before playing
+      });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+const handleRender = (dataObj) => {
+  try {
+    for (let streamId in streams) {
       if (!dataObj || !(streamId in dataObj)) {
-        instances[streamId].unload();
-        delete instances[streamId];
+        instances[streams[streamId].media].stop(streams[streamId].id);
+        delete streams[streamId];
       }
     }
 
     if (dataObj) {
       for (let streamId in dataObj) {
-        const { active, position, volume, file } = dataObj[streamId];
+        const { playing, position, volume, media, force } = dataObj[streamId];
         // Guard
-        if (!file) {
+        if (!media) {
           continue;
         }
 
-        let instance;
-        if (!(streamId in instances)) {
-          instance = new Howl({
-            src: `file://${file}`,
-            html5: true, // As per Howler's docs, does not require loading the entire file before playing
-          });
-          instances[streamId] = instance;
+        let stream;
+        if (!(streamId in streams)) {
+          stream = streams[streamId] = {
+            media,
+            id: instances[media].play(),
+          };
         } else {
-          instance = instances[streamId];
+          stream = streams[streamId];
         }
 
-        if (active) {
-          if (!instance.playing()) {
-            instance.play();
-            instance.volume(volume);
-            instance.seek(position / 1000);
+        const instance = instances[media];
+        const id = stream.id;
+
+        if (playing) {
+          if (!instance.playing(id) || force) {
+            instance.play(id);
+            instance.volume(volume, id);
+            instance.seek(position / 1000, id);
           }
         } else {
-          instance.pause();
+          instance.pause(id);
         }
       }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+ipcRenderer.on('data', (e, data) => {
+  console.log("index", data);
+  try {
+    const dataObj = JSON.parse(data);
+    if ('media' in dataObj) {
+      handleMedia(dataObj.media);
+    } else {
+      handleRender(dataObj);
     }
   } catch (err) {
     console.error(err);

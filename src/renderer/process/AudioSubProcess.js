@@ -21,12 +21,20 @@ export default class AudioSubProcess extends EventEmitter {
       ] : []),
       processPath,
     ], {
-      stdio: ['pipe', 'inherit', 'inherit'],
+      stdio: ['pipe', 'pipe', 'inherit'],
       env: {
         KODTROL_DEV: process.env['KODTROL_DEV'],
         KODTROL_AUDIOS_DIR: getConvertedAudiosDir(),
       },
     });
+    this._childProcess.stdout.setEncoding('utf8');
+    this._childProcess.stdout.on('data', this._onData.bind(this));
+  }
+
+  _onData(chunk) {
+    if (chunk === 'ready') {
+      this.emit('ready');
+    }
   }
 
   send(data) {
@@ -37,6 +45,7 @@ export default class AudioSubProcess extends EventEmitter {
 
   destroy() {
     if (this._childProcess) {
+      this._childProcess.stdout.removeAllListeners();
       this._childProcess.kill();
     }
     this._childProcess = null;

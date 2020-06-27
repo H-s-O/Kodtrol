@@ -1,3 +1,5 @@
+import EventEmitter from 'events';
+
 import DmxOutput from '../outputs/DmxOutput';
 import ArtnetOutput from '../outputs/ArtnetOutput';
 import IldaOutput from '../outputs/IldaOutput';
@@ -103,6 +105,9 @@ export default class Output {
 
   destroy() {
     if (this._output) {
+      if (this._output instanceof EventEmitter) {
+        this._output.removeAllListeners();
+      }
       this._output.destroy();
     }
 
