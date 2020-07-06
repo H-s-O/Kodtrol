@@ -53,8 +53,6 @@ export default class ScriptRenderer extends EventEmitter {
 
     // Clear the started flag, so that we force a restart to
     // handle possibly new content from start() hook
-    this._scriptData = {};
-    this._scriptError = null;
     this._started = false;
   }
 
@@ -67,7 +65,6 @@ export default class ScriptRenderer extends EventEmitter {
       });
     }
 
-    this._scriptData = {};
     this._started = false;
     this._currentBeatPos = -1;
     this._currentTime = 0;
