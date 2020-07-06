@@ -48,6 +48,14 @@ export default class Script extends EventEmitter {
     this._devices = devices.map(({ device }) => device);
   }
 
+  _handleError(err) {
+    console.error(err);
+
+    const message = `${err.name}: ${err.message}`;
+
+    this.emit('load_error', { message, script: this.id });
+  }
+
   _setScriptInstanceAndFlags(id) {
     const scriptPath = getCompiledScriptPath(id);
 
@@ -64,7 +72,7 @@ export default class Script extends EventEmitter {
       this._hasBeat = typeof scriptInstance.beat === 'function';
       this._hasInput = typeof scriptInstance.input === 'function';
     } catch (e) {
-      console.error(e);
+      this._handleError(e);
     }
   }
 
@@ -76,7 +84,7 @@ export default class Script extends EventEmitter {
       const instance = new (require(scriptPath))();
       return instance;
     } catch (e) {
-      console.error(e);
+      this._handleError(e);
       return null;
     }
   }

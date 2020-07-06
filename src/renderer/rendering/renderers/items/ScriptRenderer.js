@@ -76,7 +76,7 @@ export default class ScriptRenderer extends EventEmitter {
   _handleError(err, hook) {
     console.error(err);
 
-    const message = err instanceof Error ? err.message : err;
+    const message = err instanceof Error ? `${err.name}: ${err.message}` : err;
 
     this._scriptError = message;
     this.emit('script_error', { message, hook, script: this.script.id })
@@ -100,7 +100,7 @@ export default class ScriptRenderer extends EventEmitter {
 
   render(delta, info = {}, triggerData = {}, curveData = {}) {
     // Cancel if an error occured
-    if (this._scriptError) {
+    if (this._scriptError || !this._scriptInstance) {
       return;
     }
 
@@ -141,7 +141,7 @@ export default class ScriptRenderer extends EventEmitter {
 
   beat(beatPos, localBeatPos = null) {
     // Cancel if an error occured
-    if (this._scriptError) {
+    if (this._scriptError || !this._scriptInstance) {
       return;
     }
 
@@ -166,7 +166,7 @@ export default class ScriptRenderer extends EventEmitter {
 
   input(type, inputData) {
     // Cancel if an error occured
-    if (this._scriptError) {
+    if (this._scriptError || !this._scriptInstance) {
       return;
     }
 

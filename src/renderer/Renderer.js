@@ -172,9 +172,16 @@ export default class Renderer {
     this._scripts = hashComparator(
       data,
       this._scripts,
-      (item) => new Script(item),
+      (item) => {
+        const script = new Script(item);
+        script.on('load_error', this._onScriptError.bind(this))
+        return script;
+      },
       (script, item) => script.update(item),
-      (script) => script.destroy()
+      (script) => {
+        script.removeAllListeners();
+        script.destroy();
+      }
     );
     // console.log('RENDERER _updateScripts', this._scripts);
   }
@@ -343,7 +350,7 @@ export default class Renderer {
   }
 
   _onScriptError(info) {
-    console.log('-------- ERROR', info)
+    this._send({ 'scriptError': info });
   }
 
   _updateTicker() {
