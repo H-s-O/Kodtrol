@@ -290,6 +290,7 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootScriptRenderer(this._providers, id);
+      renderer.on('script_error', this._onScriptError.bind(this))
       this._currentScript = renderer;
     }
 
@@ -311,6 +312,7 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootTimelineRenderer(this._providers, id, this._onTimelineEnded.bind(this));
+      renderer.on('script_error', this._onScriptError.bind(this))
       this._currentTimeline = renderer;
     }
 
@@ -331,12 +333,17 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootBoardRenderer(this._providers, id);
+      renderer.on('script_error', this._onScriptError.bind(this))
       this._currentBoard = renderer;
     }
 
     this._updateTicker();
 
     console.log('RENDERER _runBoard', id);
+  }
+
+  _onScriptError(info) {
+    console.log('-------- ERROR', info)
   }
 
   _updateTicker() {
