@@ -387,7 +387,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
   destroy() {
     if (this._timeline) {
-      this._timeline.removeAllListeners();
+      this._timeline.removeAllListeners('updated');
     }
 
     Object.values(this._blocks).forEach((block) => {

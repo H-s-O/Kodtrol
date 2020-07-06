@@ -288,7 +288,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
 
   destroy() {
     if (this._board) {
-      this._board.removeAllListeners();
+      this._board.removeAllListeners('updated');
     }
 
     Object.values(this._blocks).forEach((block) => {

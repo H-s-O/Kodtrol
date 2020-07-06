@@ -186,7 +186,7 @@ export default class ScriptRenderer extends EventEmitter {
 
   _destroyScript() {
     if (this._script) {
-      this._script.removeAllListeners();
+      this._script.removeAllListeners('updated');
     }
   }
 
