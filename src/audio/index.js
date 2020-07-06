@@ -21,7 +21,7 @@ const handleMedia = (dataObj) => {
 
       instances[mediaId] = new Howl({
         src: `file://${file}`,
-        html5: true, // As per Howler's docs, does not require loading the entire file before playing
+        // html5: true, // As per Howler's docs, does not require loading the entire file before playing
       });
     }
   } catch (err) {
