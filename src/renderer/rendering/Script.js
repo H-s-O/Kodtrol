@@ -34,7 +34,7 @@ export default class Script extends EventEmitter {
     this._tempo = Number(tempo);
 
     this._setDevices(devices, devicesGroups);
-    this._setScriptInstanceAndFlags(id);
+    this._setScriptFlags(id);
 
     this.emit('updated');
   }
@@ -56,7 +56,7 @@ export default class Script extends EventEmitter {
     this.emit('load_error', { message, script: this.id });
   }
 
-  _setScriptInstanceAndFlags(id) {
+  _setScriptFlags(id) {
     const scriptPath = getCompiledScriptPath(id);
 
     // clear existing cached module before attempting load
@@ -77,14 +77,12 @@ export default class Script extends EventEmitter {
   }
 
   getInstance() {
-    // @TODO
     const scriptPath = getCompiledScriptPath(this._id);
 
     try {
       const instance = new (require(scriptPath))();
       return instance;
     } catch (e) {
-      this._handleError(e);
       return null;
     }
   }
