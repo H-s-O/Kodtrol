@@ -65,6 +65,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       .reduce((obj, block) => {
         const instance = new ScriptRenderer(this._providers, block.script);
         instance.on('script_error', this._forwardEvent('script_error', { block: block.id, timeline: this._timeline.id }));
+        instance.on('script_log', this._forwardEvent('script_log', { block: block.id, timeline: this._timeline.id }));
 
         return {
           ...obj,
