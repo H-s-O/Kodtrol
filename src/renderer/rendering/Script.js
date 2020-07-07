@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import { EOL } from 'os';
 
 import { getCompiledScriptPath } from '../lib/fileSystem';
 
@@ -51,7 +52,7 @@ export default class Script extends EventEmitter {
   _handleError(err) {
     console.error(err);
 
-    const message = `${err.name}: ${err.message}`;
+    const message = err.stack.split(EOL).slice(1, 5).join(EOL);
 
     this.emit('load_error', { message, script: this.id });
   }

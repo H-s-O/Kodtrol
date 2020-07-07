@@ -7,14 +7,17 @@ import { ipcRendererListen, ipcRendererClear } from '../lib/ipcRenderer';
 import { SCRIPT_ERROR } from '../../../common/js/constants/events';
 import { ICON_TIMELINE, ICON_BOARD, ICON_SCRIPT } from '../../../common/js/constants/icons';
 
-const StyledParagraph = styled.p`
+const StyledTitle = styled.p`
   margin: 0;
+  font-weight: bold;
 `
 
 const StyledHr = styled.hr`
   border: 0;
   border-top: 1px solid #FFF;
 `
+
+const StyledMessage = styled.pre``;
 
 export default function ScriptsErrorsContainer() {
   const scripts = useSelector((state) => state.scripts);
@@ -50,9 +53,9 @@ export default function ScriptsErrorsContainer() {
         intent: Intent.DANGER,
         message: (
           <>
-            <StyledParagraph><strong>{breadcrumb}</strong></StyledParagraph>
+            <StyledTitle>{breadcrumb}</StyledTitle>
             <StyledHr />
-            <StyledParagraph><em>{message}</em></StyledParagraph>
+            <StyledMessage>{message}</StyledMessage>
           </>
         )
       });
@@ -67,6 +70,7 @@ export default function ScriptsErrorsContainer() {
   return (
     <Toaster
       ref={ref}
+      maxToasts={5}
     />
   )
 }
