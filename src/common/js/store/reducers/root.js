@@ -26,6 +26,7 @@ import ioStatus from './ioStatus';
 import ioAvailable from './ioAvailable';
 import dialogs from './dialogs';
 import lastEditor from './lastEditor';
+import console from './console';
 import saveEditedItems from './top/saveEditedItems';
 import setActiveEditor from './top/setActiveEditor';
 import trackLastEditor from './top/trackLastEditor';
@@ -57,6 +58,7 @@ const standardReducers = combineReducers({
   modals,
   dialogs,
   lastEditor,
+  console,
 });
 
 export default (previousState, action) => {

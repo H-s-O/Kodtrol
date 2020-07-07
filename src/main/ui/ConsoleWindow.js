@@ -8,15 +8,17 @@ import * as ConsoleWindowEvent from '../events/ConsoleWindowEvent';
 export default class ConsoleWindow extends EventEmitter {
   win = null;
   contents = null;
+  visible = false;
 
   constructor() {
     super();
 
     this.win = new BrowserWindow({
       title: 'Console',
+      show: false,
       maximizable: false,
-      width: 400,
-      height: 900,
+      minWidth: 400,
+      minHeight: 400,
       backgroundColor: Colors.DARK_GRAY3,
       show: false,
       webPreferences: {
@@ -33,12 +35,8 @@ export default class ConsoleWindow extends EventEmitter {
     this.contents.once('did-finish-load', this.onFinishLoad);
   }
 
-  get browserWindow() {
-    return this.win;
-  }
-
   onReadyToShow = () => {
-    this.win.show();
+    this._updateVisibility();
   }
 
   onFinishLoad = () => {
@@ -54,6 +52,21 @@ export default class ConsoleWindow extends EventEmitter {
 
   onClosed = () => {
     this.emit(ConsoleWindowEvent.CLOSED);
+  }
+
+  setVisible = (flag) => {
+    this.visible = flag;
+    this._updateVisibility();
+  }
+
+  _updateVisibility = () => {
+    if (this.win) {
+      if (this.visible) {
+        this.win.showInactive()
+      } else {
+        this.win.hide();
+      }
+    }
   }
 
   send = (channel, ...data) => {

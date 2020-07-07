@@ -28,6 +28,7 @@ import { updateIOAvailableAction } from '../common/js/store/actions/ioAvailable'
 import { IO_MIDI, IO_INPUT, IO_OUTPUT } from '../common/js/constants/io';
 import isDev from '../common/js/lib/isDev';
 import ConsoleWindow from './ui/ConsoleWindow';
+import { setConsoleClosedAction } from '../common/js/store/actions/console';
 
 export default class Main {
   currentProjectFilePath = null;
@@ -134,6 +135,7 @@ export default class Main {
     this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
     this.store.on(StoreEvent.BOARD_INFO_USER_CHANGED, this.onBoardInfoUserChanged);
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
+    this.store.on(StoreEvent.CONSOLE_CHANGED, this.onConsoleChanged);
   }
 
   destroyStore = () => {
@@ -229,6 +231,12 @@ export default class Main {
   onContentSaved = () => {
     console.log('onContentSaved');
     this.saveProject();
+  }
+
+  onConsoleChanged = () => {
+    if (this.consoleWindow) {
+      this.consoleWindow.setVisible(this.store.state.console);
+    }
   }
 
   onRunDevice = () => {
@@ -332,7 +340,7 @@ export default class Main {
   }
 
   onConsoleWindowClosing = () => {
-    this.consoleWindow.browserWindow.hide();
+    this.store.dispatch(setConsoleClosedAction());
   }
 
   destroyConsoleWindow = () => {

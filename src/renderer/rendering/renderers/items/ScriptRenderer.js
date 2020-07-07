@@ -80,7 +80,7 @@ export default class ScriptRenderer extends EventEmitter {
   }
 
   _handleLog(data) {
-    this.emit('script_log', { time: Date.now(), data: data.join(', '), script: this.script.id })
+    this.emit('script_log', { time: Date.now(), data: data.join(' '), script: this.script.id })
   }
 
   _start() {

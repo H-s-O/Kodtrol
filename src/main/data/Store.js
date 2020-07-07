@@ -113,6 +113,12 @@ export default class Store extends EventEmitter {
       },
       this.onBoardInfoUserChange
     );
+    const consoleObserver = observer(
+      (state) => {
+        return state.console;
+      },
+      this.onConsoleChange
+    );
 
     observe(this.store, [
       outputsObserver,
@@ -128,6 +134,7 @@ export default class Store extends EventEmitter {
       runBoardObserver,
       timelineInfoUserObserver,
       boardInfoUserObserver,
+      consoleObserver,
     ]);
     replayActionMain(this.store);
   }
@@ -194,6 +201,10 @@ export default class Store extends EventEmitter {
 
   onBoardInfoUserChange = (dispatch, current, previous) => {
     this.emit(StoreEvent.BOARD_INFO_USER_CHANGED);
+  }
+
+  onConsoleChange = (dispatch, current, previous) => {
+    this.emit(StoreEvent.CONSOLE_CHANGED);
   }
 
   dispatch = (action) => {

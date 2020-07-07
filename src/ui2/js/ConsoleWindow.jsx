@@ -13,6 +13,8 @@ const StyledContainer = styled.div`
 `
 
 const StyledTopRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 5px;
 `;
 
@@ -81,6 +83,7 @@ export default function ConsoleWindow() {
             <Button
               small
               icon="eraser"
+              title="Clear console"
               onClick={clearClickHandler}
             />
           </ButtonGroup>
