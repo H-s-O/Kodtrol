@@ -1,12 +1,17 @@
-export default class ScriptRenderer {
+import EventEmitter from 'events';
+
+export default class ScriptRenderer extends EventEmitter {
   _providers = null;
   _script = null;
   _scriptInstance = null;
   _devices = null;
   _started = false;
   _scriptData = {};
+  _scriptError = null;
 
   constructor(providers, scriptId) {
+    super();
+
     this._providers = providers;
 
     this._setScriptAndDevices(scriptId);
@@ -26,7 +31,14 @@ export default class ScriptRenderer {
     return this._script;
   }
 
+  get error() {
+    return this._scriptError;
+  }
+
   _reloadScriptInstance() {
+    this._scriptData = {};
+    this._scriptError = null;
+
     this._scriptInstance = this._script.getInstance();
   }
 
@@ -41,7 +53,6 @@ export default class ScriptRenderer {
 
     // Clear the started flag, so that we force a restart to
     // handle possibly new content from start() hook
-    this._scriptData = {};
     this._started = false;
   }
 
@@ -54,10 +65,18 @@ export default class ScriptRenderer {
       });
     }
 
-    this._scriptData = {};
     this._started = false;
     this._currentBeatPos = -1;
     this._currentTime = 0;
+  }
+
+  _handleError(err, hook) {
+    console.error(err);
+
+    const message = err instanceof Error ? `${err.name}: ${err.message}` : err;
+
+    this._scriptError = message;
+    this.emit('script_error', { message, hook, script: this.script.id })
   }
 
   _start() {
@@ -69,7 +88,7 @@ export default class ScriptRenderer {
             this._scriptData = data;
           }
         } catch (err) {
-          console.error(err); // @TODO feedback to UI
+          this._handleError(err, 'start')
         }
       }
       this._started = true;
@@ -77,6 +96,11 @@ export default class ScriptRenderer {
   }
 
   render(delta, info = {}, triggerData = {}, curveData = {}) {
+    // Cancel if an error occured
+    if (this._scriptError || !this._scriptInstance) {
+      return;
+    }
+
     this._start();
 
     const script = this._script;
@@ -89,7 +113,7 @@ export default class ScriptRenderer {
           this._scriptData = data;
         }
       } catch (err) {
-        console.error(err); // @TODO feedback to UI
+        this._handleError(err, 'leadInFrame')
       }
     } else if (script.hasLeadOutFrame && blockPercent !== null && blockPercent > 1) {
       try {
@@ -98,7 +122,7 @@ export default class ScriptRenderer {
           this._scriptData = data;
         }
       } catch (err) {
-        console.error(err); // @TODO feedback to UI
+        this._handleError(err, 'leadOutFrame')
       }
     } else if (script.hasFrame && (blockPercent === null || (blockPercent >= 0 && blockPercent <= 1))) {
       try {
@@ -107,12 +131,17 @@ export default class ScriptRenderer {
           this._scriptData = data;
         }
       } catch (err) {
-        console.error(err); // @TODO feedback to UI
+        this._handleError(err, 'frame')
       }
     }
   }
 
   beat(beatPos, localBeatPos = null) {
+    // Cancel if an error occured
+    if (this._scriptError || !this._scriptInstance) {
+      return;
+    }
+
     if (this._script.hasBeat) {
       this._start();
 
@@ -127,12 +156,17 @@ export default class ScriptRenderer {
           this._scriptData = data;
         }
       } catch (err) {
-        console.error(err); // @TODO feedback to UI
+        this._handleError(err, 'beat')
       }
     }
   }
 
   input(type, inputData) {
+    // Cancel if an error occured
+    if (this._scriptError || !this._scriptInstance) {
+      return;
+    }
+
     if (this._script.hasInput) {
       this._start();
 
@@ -142,14 +176,14 @@ export default class ScriptRenderer {
           this._scriptData = data;
         }
       } catch (err) {
-        console.error(err); // @TODO feedback to UI
+        this._handleError(err, 'input')
       }
     }
   }
 
   _destroyScript() {
     if (this._script) {
-      this._script.removeAllListeners();
+      this._script.removeAllListeners('updated');
     }
   }
 
@@ -171,5 +205,6 @@ export default class ScriptRenderer {
     this._devices = null;
     this._started = null;
     this._scriptData = null;
+    this._scriptError = null;
   }
 }

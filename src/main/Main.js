@@ -20,7 +20,7 @@ import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
 import { ipcMainListen, ipcMainClear, ipcMainSend } from './lib/ipcMain';
-import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO } from '../common/js/constants/events';
+import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO, SCRIPT_ERROR } from '../common/js/constants/events';
 import customLog from '../common/js/lib/customLog';
 import MidiWatcher from './lib/watchers/MidiWatcher';
 import { updateIOAvailableAction } from '../common/js/store/actions/ioAvailable';
@@ -353,6 +353,7 @@ export default class Main {
     this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
     this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
     this.renderer.on(RendererEvent.IO_STATUS_UPDATE, this.onRendererIOStatusUpdate);
+    this.renderer.on(RendererEvent.SCRIPT_ERROR, this.onRendererScriptError);
   }
 
   destroyRenderer = () => {
@@ -389,6 +390,12 @@ export default class Main {
   onRendererIOStatusUpdate = (status) => {
     if (this.store) {
       this.store.dispatch(updateIOStatusAction(status));
+    }
+  }
+
+  onRendererScriptError = (info) => {
+    if (this.mainWindow) {
+      this.mainWindow.send(SCRIPT_ERROR, info);
     }
   }
 

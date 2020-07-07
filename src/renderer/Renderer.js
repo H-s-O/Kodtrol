@@ -172,9 +172,16 @@ export default class Renderer {
     this._scripts = hashComparator(
       data,
       this._scripts,
-      (item) => new Script(item),
+      (item) => {
+        const script = new Script(item);
+        script.on('load_error', this._onScriptError.bind(this))
+        return script;
+      },
       (script, item) => script.update(item),
-      (script) => script.destroy()
+      (script) => {
+        script.removeAllListeners();
+        script.destroy();
+      }
     );
     // console.log('RENDERER _updateScripts', this._scripts);
   }
@@ -290,6 +297,7 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootScriptRenderer(this._providers, id);
+      renderer.on('script_error', this._onScriptError.bind(this))
       this._currentScript = renderer;
     }
 
@@ -311,6 +319,7 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootTimelineRenderer(this._providers, id, this._onTimelineEnded.bind(this));
+      renderer.on('script_error', this._onScriptError.bind(this))
       this._currentTimeline = renderer;
     }
 
@@ -331,12 +340,17 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootBoardRenderer(this._providers, id);
+      renderer.on('script_error', this._onScriptError.bind(this))
       this._currentBoard = renderer;
     }
 
     this._updateTicker();
 
     console.log('RENDERER _runBoard', id);
+  }
+
+  _onScriptError(info) {
+    this._send({ 'scriptError': info });
   }
 
   _updateTicker() {

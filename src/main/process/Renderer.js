@@ -44,6 +44,9 @@ export default class Renderer extends EventEmitter {
         if ('ioStatus' in message) {
           this.emit(RendererEvent.IO_STATUS_UPDATE, message.ioStatus);
         }
+        if ('scriptError' in message) {
+          this.emit(RendererEvent.SCRIPT_ERROR, message.scriptError);
+        }
       }
     }
   }

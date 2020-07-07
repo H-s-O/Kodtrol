@@ -63,11 +63,14 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this._blocks = timelineItems
       .filter(({ type }) => type === ITEM_SCRIPT)
       .reduce((obj, block) => {
+        const instance = new ScriptRenderer(this._providers, block.script);
+        instance.on('script_error', this._forwardEvent('script_error', { block: block.id, timeline: this._timeline.id }));
+
         return {
           ...obj,
           [block.id]: {
             ...block,
-            instance: new ScriptRenderer(this._providers, block.script),
+            instance,
           },
         };
       }, {});
@@ -384,10 +387,13 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
   destroy() {
     if (this._timeline) {
-      this._timeline.removeAllListeners();
+      this._timeline.removeAllListeners('updated');
     }
 
-    Object.values(this._blocks).forEach((block) => block.instance.destroy());
+    Object.values(this._blocks).forEach((block) => {
+      block.instance.removeAllListeners();
+      block.instance.destroy();
+    });
     Object.values(this._curves).forEach((curve) => curve.instance.destroy());
 
     this._timeline = null;

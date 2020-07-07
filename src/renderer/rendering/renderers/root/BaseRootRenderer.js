@@ -1,8 +1,12 @@
-export default class BaseRootRenderer {
+import EventEmitter from 'events';
+
+export default class BaseRootRenderer extends EventEmitter {
   _providers = null;
   _currentTime = 0;
 
   constructor(providers) {
+    super();
+
     this._providers = providers;
   }
 
@@ -38,6 +42,10 @@ export default class BaseRootRenderer {
 
   _getRenderingTempo() {
     // implement in subclass
+  }
+
+  _forwardEvent(eventName, additionalInfo = null) {
+    return (info) => this.emit(eventName, additionalInfo ? { ...info, ...additionalInfo } : info);
   }
 
   destroy() {
