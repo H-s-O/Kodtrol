@@ -10,6 +10,9 @@ export default class AudioRenderer {
     // this allows us to play audio normally
     // @see https://github.com/electron/electron/issues/13525#issuecomment-410923391
     app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+    // Disable hardware keys for media playback control
+    // @see https://github.com/electron/electron/issues/21731#issuecomment-589543405
+    app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling');
 
     // Do not show in macOS Dock
     app.dock.hide()
