@@ -77,13 +77,14 @@ export default class Script extends EventEmitter {
     }
   }
 
-  getInstance() {
+  getInstance(...constructorArgs) {
     const scriptPath = getCompiledScriptPath(this._id);
 
     try {
-      const instance = new (require(scriptPath))();
+      const instance = new (require(scriptPath))(...constructorArgs);
       return instance;
     } catch (e) {
+      console.error(e);
       return null;
     }
   }

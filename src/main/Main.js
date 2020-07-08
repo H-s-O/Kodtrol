@@ -7,6 +7,7 @@ import { readAppConfig, writeAppConfig, writeJson, readJson, writeFile, ensureDi
 import MainWindow from './ui/MainWindow';
 import MainMenu from './ui/MainMenu';
 import * as MainWindowEvent from './events/MainWindowEvent';
+import * as ConsoleWindowEvent from './events/ConsoleWindowEvent';
 import * as MainMenuEvent from './events/MainMenuEvent';
 import * as StoreEvent from './events/StoreEvent';
 import * as RendererEvent from './events/RendererEvent';
@@ -20,16 +21,19 @@ import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
 import { ipcMainListen, ipcMainClear, ipcMainSend } from './lib/ipcMain';
-import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO, SCRIPT_ERROR } from '../common/js/constants/events';
+import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO, SCRIPT_ERROR, SCRIPT_LOG } from '../common/js/constants/events';
 import customLog from '../common/js/lib/customLog';
 import MidiWatcher from './lib/watchers/MidiWatcher';
 import { updateIOAvailableAction } from '../common/js/store/actions/ioAvailable';
 import { IO_MIDI, IO_INPUT, IO_OUTPUT } from '../common/js/constants/io';
 import isDev from '../common/js/lib/isDev';
+import ConsoleWindow from './ui/ConsoleWindow';
+import { setConsoleClosedAction } from '../common/js/store/actions/console';
 
 export default class Main {
   currentProjectFilePath = null;
   mainWindow = null;
+  consoleWindow = null;
   mainMenu = null
   store = null;
   renderer = null;
@@ -111,6 +115,7 @@ export default class Main {
 
     this.createRenderer();
     this.createMainWindow();
+    this.createConsoleWindow();
     this.setupEventListeners();
   }
 
@@ -130,6 +135,7 @@ export default class Main {
     this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
     this.store.on(StoreEvent.BOARD_INFO_USER_CHANGED, this.onBoardInfoUserChanged);
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
+    this.store.on(StoreEvent.CONSOLE_CHANGED, this.onConsoleChanged);
   }
 
   destroyStore = () => {
@@ -227,6 +233,12 @@ export default class Main {
     this.saveProject();
   }
 
+  onConsoleChanged = () => {
+    if (this.consoleWindow) {
+      this.consoleWindow.setVisible(this.store.state.console);
+    }
+  }
+
   onRunDevice = () => {
     const { runDevice } = this.store.state;
 
@@ -322,6 +334,23 @@ export default class Main {
     }
   }
 
+  createConsoleWindow = () => {
+    this.consoleWindow = new ConsoleWindow();
+    this.consoleWindow.on(ConsoleWindowEvent.CLOSING, this.onConsoleWindowClosing);
+  }
+
+  onConsoleWindowClosing = () => {
+    this.store.dispatch(setConsoleClosedAction());
+  }
+
+  destroyConsoleWindow = () => {
+    if (this.consoleWindow) {
+      this.consoleWindow.removeAllListeners();
+      this.consoleWindow.destroy();
+      this.consoleWindow = null;
+    }
+  }
+
   setupEventListeners = () => {
     ipcMainListen(UPDATE_TIMELINE_INFO, this.onUpdateTimelineInfo)
     ipcMainListen(UPDATE_BOARD_INFO, this.onUpdateBoardInfo)
@@ -354,6 +383,7 @@ export default class Main {
     this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
     this.renderer.on(RendererEvent.IO_STATUS_UPDATE, this.onRendererIOStatusUpdate);
     this.renderer.on(RendererEvent.SCRIPT_ERROR, this.onRendererScriptError);
+    this.renderer.on(RendererEvent.SCRIPT_LOG, this.onRendererScriptLog);
   }
 
   destroyRenderer = () => {
@@ -396,6 +426,12 @@ export default class Main {
   onRendererScriptError = (info) => {
     if (this.mainWindow) {
       this.mainWindow.send(SCRIPT_ERROR, info);
+    }
+  }
+
+  onRendererScriptLog = (data) => {
+    if (this.consoleWindow) {
+      this.consoleWindow.send(SCRIPT_LOG, data);
     }
   }
 
@@ -506,6 +542,7 @@ export default class Main {
 
   closeProject = () => {
     this.removeEventListeners();
+    this.destroyConsoleWindow();
     this.destroyMainWindow();
     this.destroyStore();
     this.destroyRenderer();

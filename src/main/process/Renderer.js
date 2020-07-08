@@ -47,6 +47,9 @@ export default class Renderer extends EventEmitter {
         if ('scriptError' in message) {
           this.emit(RendererEvent.SCRIPT_ERROR, message.scriptError);
         }
+        if ('scriptLog' in message) {
+          this.emit(RendererEvent.SCRIPT_LOG, message.scriptLog);
+        }
       }
     }
   }

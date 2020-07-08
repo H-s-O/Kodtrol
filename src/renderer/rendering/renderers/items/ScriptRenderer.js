@@ -39,7 +39,7 @@ export default class ScriptRenderer extends EventEmitter {
     this._scriptData = {};
     this._scriptError = null;
 
-    this._scriptInstance = this._script.getInstance();
+    this._scriptInstance = this._script.getInstance(this._handleLog.bind(this));
   }
 
   _reloadDevicesProxies() {
@@ -77,6 +77,10 @@ export default class ScriptRenderer extends EventEmitter {
 
     this._scriptError = message;
     this.emit('script_error', { message, hook, script: this.script.id })
+  }
+
+  _handleLog(data) {
+    this.emit('script_log', { time: Date.now(), data: data.join(' '), script: this.script.id })
   }
 
   _start() {

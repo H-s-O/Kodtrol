@@ -7,6 +7,7 @@ import { IO_DISCONNECTED, IO_CONNECTED, IO_ACTIVITY } from '../../../common/js/c
 import TagGroup from './ui/TagGroup';
 import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT, ICON_DEVICE, ICON_INPUT, ICON_OUTPUT } from '../../../common/js/constants/icons';
 import { showConfigDialogAction } from '../../../common/js/store/actions/dialogs';
+import { toggleConsoleAction } from '../../../common/js/store/actions/console';
 
 const StyledNavbar = styled(Navbar)`
   padding: 0px 10px;
@@ -88,6 +89,7 @@ export default function MainNav() {
   const inputs = useSelector((state) => state.inputs);
   const outputs = useSelector((state) => state.outputs);
   const ioStatus = useSelector((state) => state.ioStatus);
+  const console = useSelector((state) => state.console);
 
   const devicesNames = useMemo(() => {
     return devices.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
@@ -106,6 +108,9 @@ export default function MainNav() {
   const openConfigClickHandler = useCallback(() => {
     dispatch(showConfigDialogAction());
   });
+  const toggleConsoleClickHandler = useCallback(() => {
+    dispatch(toggleConsoleAction());
+  })
 
   return (
     <StyledNavbar>
@@ -156,6 +161,14 @@ export default function MainNav() {
           statuses={ioStatus}
           rightIcon={ICON_OUTPUT}
           defaultText="No outputs"
+        />
+        <StyledNavbar.Divider />
+        <Button
+          small
+          icon="console"
+          title="Toggle console window"
+          active={console}
+          onClick={toggleConsoleClickHandler}
         />
         <StyledNavbar.Divider />
         <Button

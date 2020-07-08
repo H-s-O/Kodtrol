@@ -16,7 +16,7 @@ export default ({ id, content }) => {
 
     const safeAppVersion = appVersion.replace(/\./g, '_');
     const wrapperName = `Script__${id}__${safeAppVersion}`;
-    const wrappedContent = `function ${wrapperName}(){\n${helpers}\n${convertedContent}\n}`;
+    const wrappedContent = `function ${wrapperName}(logCallback){\nconst __logCallback=logCallback;\n${helpers}\n${convertedContent}\n}`;
 
     const scriptRequire = `require = require('module').createRequire('${join(__dirname, '../../../node_modules')}')`;
 

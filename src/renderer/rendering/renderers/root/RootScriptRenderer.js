@@ -14,6 +14,7 @@ export default class RootScriptRenderer extends BaseRootRenderer {
   _setScriptInstance(scriptId) {
     this._instance = new ScriptRenderer(this._providers, scriptId);
     this._instance.on('script_error', this._forwardEvent('script_error'))
+    this._instance.on('script_log', this._forwardEvent('script_log'))
   }
 
   get script() {
