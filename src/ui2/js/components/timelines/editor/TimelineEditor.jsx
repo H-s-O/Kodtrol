@@ -158,6 +158,14 @@ export default function TimelineEditor({ timeline, onChange }) {
   const timelineInfo = useRef();
   const [isPlaying, setIsPlaying] = useState(false);
 
+  if (!isRunning) {
+    // Reset isPlaying and clear timelineInfo if not running
+    if (isPlaying) {
+      setIsPlaying(false);
+    }
+    timelineInfo.current = { playing: false, position: 0 };
+  }
+
   // Zoom
   const zoomClickHandler = useCallback((value) => {
     // Hide and reset the position of the mouse tracker, which
@@ -560,18 +568,20 @@ export default function TimelineEditor({ timeline, onChange }) {
     }
   }, [dragContent.current, items, duration, onChange]);
   const updateTimelineInfoHandler = useCallback((e, data) => {
-    timelineInfo.current = data;
-    if (positionTracker.current) {
-      const { position } = data;
-      const percent = position / duration;
-      positionTracker.current.style = `left:${percentString(percent)}`;
+    if (isRunning) {
+      timelineInfo.current = data;
+      if (positionTracker.current) {
+        const { position } = data;
+        const percent = position / duration;
+        positionTracker.current.style = `left:${percentString(percent)}`;
+      }
+      if (!isPlaying && data.playing) {
+        setIsPlaying(true);
+      } else if (isPlaying && !data.playing) {
+        setIsPlaying(false);
+      }
     }
-    if (!isPlaying && data.playing) {
-      setIsPlaying(true);
-    } else if (isPlaying && !data.playing) {
-      setIsPlaying(false);
-    }
-  }, [positionTracker.current, timelineInfo, duration, isPlaying]);
+  }, [positionTracker.current, timelineInfo, duration, isRunning, isPlaying]);
   useEffect(() => {
     window.addEventListener('mouseup', windowMouseUpHandler);
     return () => window.removeEventListener('mouseup', windowMouseUpHandler);
