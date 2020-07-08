@@ -19,7 +19,6 @@ const defaultValue = {
   file: null,
   name: null,
   duration: null,
-  codec: null,
   output: null,
 };
 

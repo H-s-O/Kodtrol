@@ -1,14 +1,18 @@
-import { remote } from 'electron';
-
-const ffprobe = remote.require('ffprobe');
-const ffprobeStatic = remote.require('ffprobe-static');
+import { Howl } from 'howler';
 
 export default (filePath) => new Promise((resolve, reject) => {
-  ffprobe(filePath, { path: ffprobeStatic.path }, (err, result) => {
-    if (err) {
+  const h = new Howl({
+    src: filePath,
+    preload: 'metadata',
+    html5: true,
+    onload: () => {
+      const duration = h.duration() * 1000;
+      resolve({ duration })
+      h.unload();
+    },
+    onloaderror: (id, err) => {
       reject(err);
-    } else {
-      resolve(result);
+      h.unload();
     }
   });
 });

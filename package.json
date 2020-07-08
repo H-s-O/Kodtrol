@@ -53,8 +53,6 @@
     "eases": "^1.0.8",
     "electron-log": "^4.2.0",
     "electron-redux": "^1.5.2",
-    "ffprobe": "^1.1.0",
-    "ffprobe-static": "^3.0.0",
     "fs-extra": "^5.0.0",
     "glob": "^7.1.6",
     "howler": "^2.2.0",
