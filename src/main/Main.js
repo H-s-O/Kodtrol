@@ -13,16 +13,13 @@ import * as StoreEvent from './events/StoreEvent';
 import * as RendererEvent from './events/RendererEvent';
 import * as WatcherEvent from './events/WatcherEvent';
 import Store from './data/Store';
-import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
-import { updateBoardInfo } from '../common/js/store/actions/boardInfo';
 import { updateIOStatusAction } from '../common/js/store/actions/ioStatus';
 import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
-import { ipcMainListen, ipcMainClear, ipcMainSend } from './lib/ipcMain';
+import { ipcMainListen, ipcMainClear } from './lib/ipcMain';
 import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO, SCRIPT_ERROR, SCRIPT_LOG } from '../common/js/constants/events';
-import customLog from '../common/js/lib/customLog';
 import MidiWatcher from './lib/watchers/MidiWatcher';
 import { updateIOAvailableAction } from '../common/js/store/actions/ioAvailable';
 import { IO_MIDI, IO_INPUT, IO_OUTPUT } from '../common/js/constants/io';
@@ -43,8 +40,6 @@ export default class Main {
   static _devExtensionsLoaded = false;
 
   constructor() {
-    customLog('main');
-
     app.allowRendererProcessReuse = false;
 
     app.on('ready', this.onReady);

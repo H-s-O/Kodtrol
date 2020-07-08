@@ -6,6 +6,8 @@ export default class AudioRenderer {
   _ready = false;
 
   constructor() {
+    app.allowRendererProcessReuse = false;
+
     // Set the Autoplay Policy to not require user interaction;
     // this allows us to play audio normally
     // @see https://github.com/electron/electron/issues/13525#issuecomment-410923391

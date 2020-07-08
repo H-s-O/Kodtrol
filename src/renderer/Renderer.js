@@ -18,7 +18,6 @@ import IldaDeviceProxy from './rendering/IldaDeviceProxy';
 import MidiDevice from './rendering/MidiDevice';
 import MidiDeviceProxy from './rendering/MidiDeviceProxy';
 import { IO_DMX, IO_ILDA, IO_MIDI } from '../common/js/constants/io';
-import customLog from '../common/js/lib/customLog';
 
 export default class Renderer {
   _outputs = {};
@@ -40,8 +39,6 @@ export default class Renderer {
   _ioUpdateTimer = null;
 
   constructor() {
-    customLog('renderer');
-
     this._providers = {
       getOutput: this._getOutput.bind(this),
       getScript: this._getScript.bind(this),
@@ -288,6 +285,7 @@ export default class Renderer {
   _runScript(id) {
     if (id === null || (this._currentScript && this._currentScript.script.id !== id)) {
       if (this._currentScript) {
+        this._currentScript.removeAllListeners();
         this._currentScript.destroy();
         this._currentScript = null;
       }
@@ -310,6 +308,7 @@ export default class Renderer {
   _runTimeline(id) {
     if (id === null || (this._currentTimeline && this._currentTimeline.id !== id)) {
       if (this._currentTimeline) {
+        this._currentTimeline.removeAllListeners();
         this._currentTimeline.destroy();
         this._currentTimeline = null;
       }
@@ -334,6 +333,7 @@ export default class Renderer {
   _runBoard(id) {
     if (id === null || (this._currentBoard && this._currentBoard.id !== id)) {
       if (this._currentBoard) {
+        this._currentBoard.removeAllListeners();
         this._currentBoard.destroy();
         this._currentBoard = null;
       }
@@ -354,11 +354,11 @@ export default class Renderer {
   }
 
   _onScriptError(info) {
-    this._send({ 'scriptError': info });
+    this._send({ scriptError: info });
   }
 
   _onScriptLog(log) {
-    this._send({ 'scriptLog': log });
+    this._send({ scriptLog: log });
   }
 
   _updateTicker() {
@@ -383,9 +383,9 @@ export default class Renderer {
   _onTimelineEnded() {
     this._updateTimelinePlaybackStatus(false);
     this._send({
-      'timelineInfo': {
-        'playing': false,
-        'position': this._currentTimeline.currentTime,
+      timelineInfo: {
+        playing: false,
+        position: this._currentTimeline.currentTime,
       },
     });
   }
@@ -403,7 +403,7 @@ export default class Renderer {
         this._currentTimeline.setPosition(position);
       }
       this._send({
-        'timelineInfo': data,
+        timelineInfo: data,
       });
     }
   }
@@ -431,7 +431,7 @@ export default class Renderer {
         this._currentBoard.setActiveItems(activeItems);
       }
       this._send({
-        'boardInfo': data
+        boardInfo: data
       });
     }
   }
@@ -447,7 +447,7 @@ export default class Renderer {
         return obj;
       }, {}),
     }
-    // console.log('RENDERER _updateIOStatus', ioStatus);
+
     this._send({
       ioStatus,
     });
