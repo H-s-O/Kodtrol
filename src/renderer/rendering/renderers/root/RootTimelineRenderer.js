@@ -199,9 +199,10 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
   _runFrame(frameTime) {
     const currentTime = this._currentTime;
-    if (currentTime >= this._timeline.outTime) {
-      this._currentTime = this._timeline.outTime;
-      this._endCallback();
+    const duration = this._timeline.duration;
+    if (currentTime >= duration) {
+      this._currentTime = duration;
+      this.emit('end', duration);
       return;
     }
 

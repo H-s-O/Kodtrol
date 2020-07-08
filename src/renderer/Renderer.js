@@ -320,6 +320,7 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootTimelineRenderer(this._providers, id, this._onTimelineEnded.bind(this));
+      renderer.on('end', this._onTimelineEnded.bind(this));
       renderer.on('script_error', this._onScriptError.bind(this))
       renderer.on('script_log', this._onScriptLog.bind(this))
       this._currentTimeline = renderer;
