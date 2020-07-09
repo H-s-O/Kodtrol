@@ -57,7 +57,7 @@
     "glob": "^7.1.6",
     "howler": "^2.2.0",
     "jzz": "^1.0.6",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "midi": "^1.0.0",
     "new-laserdock": "git+https://github.com/H-s-O/new-laserdock.git",
     "object-hash": "^2.0.3",
