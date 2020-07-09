@@ -328,13 +328,15 @@ export default function TimelineEditor({ timeline, onChange }) {
     e.stopPropagation();
 
     element.classList.add('active');
-    document.body.style = 'cursor:ew-resize;';
+    document.body.style = mode === 'inOutTime' ? 'cursor:ew-resize;' : 'cursor:col-resize;';
     dragContent.current = {
+      changed: false,
+      startPercent: timelinePercent.current,
       item: getItem(items, id),
       mode,
       element,
     };
-  }, [dragContent, items]);
+  }, [dragContent, items, timelinePercent]);
   const itemChangeLayerUpClick = useCallback((id) => {
     onChange({ items: doChangeItemLayer(items, layers, id, 1) });
   }, [onChange, items, layers]);
@@ -527,19 +529,28 @@ export default function TimelineEditor({ timeline, onChange }) {
     const percent = getContainerPercent(e);
     timelinePercent.current = percent;
     if (dragContent.current) {
-      const { mode, element, item } = dragContent.current;
+      const { mode, element, item, startPercent } = dragContent.current;
+
+      let effectivePercent;
 
       if (mode === 'inTime') {
         if (item.type === ITEM_TRIGGER) {
-          element.style = `left:${percentString(percent)}`;
+          effectivePercent = percent;
+          element.style = `left:${percentString(effectivePercent)}`;
         } else {
-          element.style = `left:${percentString(percent)};width:${percentString((item.outTime / duration) - percent)}`;
+          effectivePercent = Math.min(percent, (item.outTime / duration));
+          element.style = `left:${percentString(effectivePercent)};width:${percentString((item.outTime / duration) - effectivePercent)}`;
         }
       } else if (mode === 'outTime') {
-        element.style = `left:${percentString(item.inTime / duration)};width:${percentString(percent - (item.inTime / duration))}`;
+        effectivePercent = Math.max((item.inTime / duration), percent);
+        element.style = `left:${percentString(item.inTime / duration)};width:${percentString(effectivePercent - (item.inTime / duration))}`;
+      } else if (mode === 'inOutTime') {
+        effectivePercent = Math.max(0, Math.min(1 - ((item.outTime - item.inTime) / duration), percent - (startPercent - (item.inTime / duration))));
+        element.style = `left:${percentString(effectivePercent)};width:${percentString((item.outTime - item.inTime) / duration)}`;
       }
 
-      dragContent.current.percent = percent;
+      dragContent.current.percent = effectivePercent;
+      dragContent.current.changed = true;
     }
   }, [mouseTracker.current, dragContent.current, timelinePercent, duration]);
   const zoomContainerDoubleClickHandler = useCallback((e) => {
@@ -554,12 +565,16 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [isRunning, timelinePercent, timelineInfo, duration]);
   const windowMouseUpHandler = useCallback((e) => {
     if (dragContent.current) {
-      const { mode, element, item, percent } = dragContent.current;
+      const { mode, element, item, percent, changed } = dragContent.current;
 
-      if (mode === 'inTime') {
-        onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent) }) });
-      } else if (mode === 'outTime') {
-        onChange({ items: doUpdateItem(items, { ...item, outTime: Math.round(duration * percent) }) });
+      if (changed) {
+        if (mode === 'inTime') {
+          onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent) }) });
+        } else if (mode === 'outTime') {
+          onChange({ items: doUpdateItem(items, { ...item, outTime: Math.round(duration * percent) }) });
+        } else if (mode === 'inOutTime') {
+          onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent), outTime: Math.round((duration * percent) + (item.outTime - item.inTime)) }) });
+        }
       }
 
       element.classList.remove('active');
