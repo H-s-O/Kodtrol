@@ -1,6 +1,8 @@
 import appVersion from '../../lib/appVersion'
 
-export default (state = appVersion, {type, payload}) => {
+const defaultState = appVersion;
+
+export default (state = defaultState, { type, payload }) => {
   switch (type) {
     default:
       return state;

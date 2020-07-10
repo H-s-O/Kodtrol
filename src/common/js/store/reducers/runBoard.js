@@ -1,4 +1,4 @@
-import { RUN_BOARD, STOP_BOARD } from "../actions/boards";
+import { RUN_BOARD, STOP_BOARD } from '../actions/boards';
 
 const defaultState = null;
 

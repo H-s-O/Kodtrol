@@ -127,8 +127,6 @@ export default class Main {
     this.store.on(StoreEvent.RUN_SCRIPT, this.onRunScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
     this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
-    this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
-    this.store.on(StoreEvent.BOARD_INFO_USER_CHANGED, this.onBoardInfoUserChanged);
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
     this.store.on(StoreEvent.CONSOLE_CHANGED, this.onConsoleChanged);
   }
@@ -280,26 +278,6 @@ export default class Main {
     }
 
     this.updatePower();
-  }
-
-  onTimelineInfoUserChanged = () => {
-    const { timelineInfoUser } = this.store.state;
-
-    if (this.renderer && timelineInfoUser !== null) {
-      this.renderer.send({
-        timelineInfoUser,
-      });
-    }
-  }
-
-  onBoardInfoUserChanged = () => {
-    const { boardInfoUser } = this.store.state;
-
-    if (this.renderer && boardInfoUser !== null) {
-      this.renderer.send({
-        boardInfoUser,
-      });
-    }
   }
 
   createMainWindow = () => {

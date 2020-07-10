@@ -1,4 +1,4 @@
-import { RUN_SCRIPT, STOP_SCRIPT } from "../actions/scripts";
+import { RUN_SCRIPT, STOP_SCRIPT } from '../actions/scripts';
 
 const defaultState = null;
 

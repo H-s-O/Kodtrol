@@ -1,24 +1,61 @@
-export { default as fileVersion } from './fileVersion';
-export { default as devices } from './devices';
-export { default as devicesFolders } from './devicesFolders';
-export { default as editTimelines } from './editTimelines';
-export { default as editScripts } from './editScripts';
-export { default as editBoards } from './editBoards';
-export { default as scripts } from './scripts';
-export { default as scriptsFolders } from './scriptsFolders';
-export { default as medias } from './medias';
-export { default as timelineInfo } from './timelineInfo';
-export { default as timelineInfoUser } from './timelineInfoUser';
-export { default as boardInfo } from './boardInfo';
-export { default as boardInfoUser } from './boardInfoUser';
-export { default as timelines } from './timelines';
-export { default as modals } from './modals';
-export { default as runDevice } from './runDevice';
-export { default as runScript } from './runScript';
-export { default as runTimeline } from './runTimeline';
-export { default as runBoard } from './runBoard';
-export { default as boards } from './boards';
-export { default as outputs } from './outputs';
-export { default as inputs } from './inputs';
-export { default as ioStatus } from './ioStatus';
-export { default as dialogs } from './dialogs';
+import { combineReducers } from 'redux';
+
+import fileVersion from './fileVersion';
+import devices from './devices';
+import devicesFolders from './devicesFolders';
+import editTimelines from './editTimelines';
+import editScripts from './editScripts';
+import editBoards from './editBoards';
+import scripts from './scripts';
+import scriptsFolders from './scriptsFolders';
+import medias from './medias';
+import timelines from './timelines';
+import runDevice from './runDevice';
+import runScript from './runScript';
+import runTimeline from './runTimeline';
+import runBoard from './runBoard';
+import boards from './boards';
+import outputs from './outputs';
+import inputs from './inputs';
+import ioStatus from './ioStatus';
+import ioAvailable from './ioAvailable';
+import dialogs from './dialogs';
+import lastEditor from './lastEditor';
+import console from './console';
+import saveEditedItems from './top/saveEditedItems';
+import setActiveEditor from './top/setActiveEditor';
+import trackLastEditor from './top/trackLastEditor';
+
+const standardReducers = combineReducers({
+  fileVersion,
+  outputs,
+  inputs,
+  ioStatus,
+  ioAvailable,
+  devices,
+  devicesFolders,
+  runDevice,
+  scripts,
+  scriptsFolders,
+  editScripts,
+  runScript,
+  timelines,
+  editTimelines,
+  runTimeline,
+  boards,
+  editBoards,
+  runBoard,
+  medias,
+  dialogs,
+  lastEditor,
+  console,
+});
+
+export default (previousState, action) => {
+  let newState;
+  newState = standardReducers(previousState, action);
+  newState = saveEditedItems(newState, action);
+  newState = setActiveEditor(newState, action);
+  newState = trackLastEditor(newState, action);
+  return newState;
+};

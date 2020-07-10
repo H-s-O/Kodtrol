@@ -5,14 +5,8 @@ import { forwardToRenderer, replayActionMain } from 'electron-redux';
 import { observer, observe } from 'redux-observers'
 
 import * as StoreEvent from '../events/StoreEvent';
-import rootReducer from '../../common/js/store/reducers/root';
-import resetRunningItems from '../../common/js/store/middlewares/resetRunningItems';
-import resetCurrentItems from '../../common/js/store/middlewares/resetCurrentItems';
-import resetTimelineInfoUser from '../../common/js/store/middlewares/resetTimelineInfoUser';
-import resetTimelineInfo from '../../common/js/store/middlewares/resetTimelineInfo';
-import resetBoardInfoUser from '../../common/js/store/middlewares/resetBoardInfoUser';
-import resetBoardInfo from '../../common/js/store/middlewares/resetBoardInfo';
-import saveableContentCallback from '../../common/js/store/middlewares/saveableContentCallback';
+import reducers from '../../common/js/store/reducers/index';
+import saveableContentCallback from './saveableContentCallback';
 
 export default class Store extends EventEmitter {
   store = null;
@@ -21,15 +15,9 @@ export default class Store extends EventEmitter {
     super();
 
     this.store = createStore(
-      rootReducer,
+      reducers,
       initialState || {},
       applyMiddleware(
-        resetCurrentItems(),
-        resetRunningItems(),
-        resetTimelineInfo(),
-        resetTimelineInfoUser(),
-        resetBoardInfo(),
-        resetBoardInfoUser(),
         saveableContentCallback(this.onSaveableContent),
         forwardToRenderer, // IMPORTANT! This goes last
       ),
@@ -101,18 +89,6 @@ export default class Store extends EventEmitter {
       },
       this.onRunBoard,
     );
-    const timelineInfoUserObserver = observer(
-      (state) => {
-        return state.timelineInfoUser;
-      },
-      this.onTimelineInfoUserChange
-    );
-    const boardInfoUserObserver = observer(
-      (state) => {
-        return state.boardInfoUser;
-      },
-      this.onBoardInfoUserChange
-    );
     const consoleObserver = observer(
       (state) => {
         return state.console;
@@ -132,8 +108,6 @@ export default class Store extends EventEmitter {
       runScriptObserver,
       runTimelineObserver,
       runBoardObserver,
-      timelineInfoUserObserver,
-      boardInfoUserObserver,
       consoleObserver,
     ]);
     replayActionMain(this.store);
@@ -193,14 +167,6 @@ export default class Store extends EventEmitter {
 
   onRunBoard = (dispatch, current, previous) => {
     this.emit(StoreEvent.RUN_BOARD);
-  }
-
-  onTimelineInfoUserChange = (dispatch, current, previous) => {
-    this.emit(StoreEvent.TIMELINE_INFO_USER_CHANGED);
-  }
-
-  onBoardInfoUserChange = (dispatch, current, previous) => {
-    this.emit(StoreEvent.BOARD_INFO_USER_CHANGED);
   }
 
   onConsoleChange = (dispatch, current, previous) => {

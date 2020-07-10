@@ -1,4 +1,4 @@
-import { CREATE_SCRIPT_FOLDER, DELETE_SCRIPT_FOLDER } from "../actions/scripts";
+import { CREATE_SCRIPT_FOLDER, DELETE_SCRIPT_FOLDER } from '../actions/scripts';
 
 const defaultState = [];
 
