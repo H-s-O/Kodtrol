@@ -53,34 +53,61 @@ export default (state, { type, payload }) => {
 
     case CLOSE_TIMELINE:
       {
-        const payloadId = typeof payload === 'object' ? payload.id : payload;
-        const currentActive = state.editTimelines.find(({ active }) => active);
-        return {
-          ...state,
-          editTimelines: state.editTimelines.map((timeline) => ({
-            ...timeline,
-            active: currentActive && payloadId !== currentActive.id ? timeline.id === currentActive.id : false,
-          })),
-          ...(!currentActive ? {
-            editBoards: state.editBoards.map((board, index) => index === 0 ? { ...board, active: true } : board),
-          } : undefined)
+        // If currently active is a board, do nothing
+        if (state.editBoards.find(({ active }) => active)) {
+          return state;
         }
+        // If there's no edit timelines, switch to first board if existing
+        else if (state.editTimelines.length === 0) {
+          return {
+            ...state,
+            editBoards: state.editBoards.map((board, index) => ({
+              ...board,
+              active: index === 0,
+            })),
+          };
+        }
+        // Switch to first timeline if there's no more active timeline
+        else if (!state.editTimelines.find(({ active }) => active)) {
+          return {
+            ...state,
+            editTimelines: state.editTimelines.map((timeline, index) => ({
+              ...timeline,
+              active: index === 0,
+            })),
+          };
+        }
+        return state;
       }
       break;
+
     case CLOSE_BOARD:
       {
-        const payloadId = typeof payload === 'object' ? payload.id : payload;
-        const currentActive = state.editBoards.find(({ active }) => active);
-        return {
-          ...state,
-          editBoards: state.editBoards.map((board) => ({
-            ...board,
-            active: currentActive && payloadId !== currentActive.id ? board.id === currentActive.id : false,
-          })),
-          ...(!currentActive ? {
-            editTimelines: state.editTimelines.map((timeline, index) => index === 0 ? { ...timeline, active: true } : timeline),
-          } : undefined)
+        // If currently active is timeline, do nothing
+        if (state.editTimelines.find(({ active }) => active)) {
+          return state;
         }
+        // If there's no edit boards, switch to last timeline if existing
+        else if (state.editBoards.length === 0) {
+          return {
+            ...state,
+            editTimelines: state.editTimelines.map((timeline, index) => ({
+              ...timeline,
+              active: index === state.editTimelines.length - 1,
+            })),
+          };
+        }
+        // Switch to first board if there's no more active board
+        else if (!state.editBoards.find(({ active }) => active)) {
+          return {
+            ...state,
+            editBoards: state.editBoards.map((board, index) => ({
+              ...board,
+              active: index === 0,
+            })),
+          };
+        }
+        return state;
       }
       break;
 
