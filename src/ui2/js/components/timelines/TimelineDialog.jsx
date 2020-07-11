@@ -68,6 +68,7 @@ export default function TimelineDialog() {
       title={title}
       icon={ICON_TIMELINE}
       onClose={closeHandler}
+      className="timeline-dialog"
     >
       <DialogBody>
         <TimelineDialogBody

@@ -91,9 +91,8 @@ export default class MainWindow extends EventEmitter {
         width: Math.round(bounds.width),
         height: Math.round(bounds.height),
       };
-      this.contents.capturePage(roundedBounds, (image) => {
-        callback(null, image);
-      })
+      const image = await this.contents.capturePage(roundedBounds);
+      callback(null, image);
     }
   }
 

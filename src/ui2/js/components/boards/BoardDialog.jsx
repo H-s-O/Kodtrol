@@ -67,6 +67,7 @@ export default function BoardDialog() {
       title={title}
       icon={ICON_TIMELINE}
       onClose={closeHandler}
+      className="board-dialog"
     >
       <DialogBody>
         <BoardDialogBody

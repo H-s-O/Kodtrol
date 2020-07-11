@@ -69,6 +69,7 @@ export default function MediaDialog() {
       title={title}
       icon={ICON_MEDIA}
       onClose={closeHandler}
+      className="media-dialog"
     >
       <DialogBody>
         <MediaDialogBody

@@ -545,11 +545,17 @@ export default class Main {
     }
   }
 
-  generateScreenshots = (data) => {
+  generateScreenshots = async (data) => {
+    console.info('=== Begin generating screenshots... ===');
+
     const dir = './dev/screenshots/';
     ensureDir(dir);
 
-    data.forEach(async ({ selector, file, dispatchIn, dispatchOut }) => {
+    for (let i = 0; i < data.length; i++) {
+      const { selector, file, dispatchIn, dispatchOut } = data[i];
+
+      console.info(`Generating screenshot for ${selector}`);
+
       try {
         if (dispatchIn) {
           await new Promise((resolve, reject) => {
@@ -567,7 +573,7 @@ export default class Main {
             const pngData = image.toPNG();
             const filePath = join(dir, file);
             writeFile(filePath, pngData);
-            console.info(`Generated screenshot for ${selector} to file ${filePath}`);
+            console.info(`Success: ${filePath}`);
             resolve();
           });
         });
@@ -579,8 +585,10 @@ export default class Main {
           });
         }
       } catch (e) {
-        console.error(`Error while generating screenshot for ${selector} : ${e}`);
+        console.error(`Error: ${e}`);
       }
-    });
+    }
+
+    console.info('=== Screenshots generation complete! ===');
   }
 }

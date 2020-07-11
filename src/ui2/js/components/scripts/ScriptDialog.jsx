@@ -74,6 +74,7 @@ export default function ScriptDialog() {
       title={title}
       icon={ICON_SCRIPT}
       onClose={closeHandler}
+      className="script-dialog"
     >
       <DialogBody>
         <ScriptDialogBody

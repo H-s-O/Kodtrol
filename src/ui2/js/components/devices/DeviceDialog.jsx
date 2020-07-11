@@ -74,6 +74,7 @@ export default function DeviceDialog() {
       title={title}
       icon={ICON_DEVICE}
       onClose={closeHandler}
+      className="device-dialog"
     >
       <DialogBody>
         <DeviceDialogBody
