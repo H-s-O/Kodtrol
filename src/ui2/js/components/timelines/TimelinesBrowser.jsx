@@ -7,7 +7,7 @@ import ItemBrowser from '../ui/ItemBrowser';
 import { showTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 
-const TimelineLabel = ({ name, id, activeItemId }) => {
+const TimelineLabel = ({ item: { name, id }, activeItemId }) => {
   return (
     <>
       {name}
@@ -22,7 +22,7 @@ const TimelineLabel = ({ name, id, activeItemId }) => {
   )
 }
 
-const TimelineSecondaryLabel = ({ id, activeItemId }) => {
+const TimelineSecondaryLabel = ({ item: { id }, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();

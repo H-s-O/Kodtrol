@@ -7,7 +7,7 @@ import ItemBrowser from '../ui/ItemBrowser';
 import { showScriptDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 
-const ScriptLabel = ({ name, id, activeItemId }) => {
+const ScriptLabel = ({ item: { name, id }, activeItemId }) => {
   return (
     <>
       {name}
@@ -22,7 +22,7 @@ const ScriptLabel = ({ name, id, activeItemId }) => {
   )
 }
 
-const ScriptSecondaryLabel = ({ id, activeItemId }) => {
+const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();

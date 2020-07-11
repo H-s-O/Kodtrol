@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import ManagedTree from '../ui/ManagedTree';
 import { deleteWarning } from '../../../../ui/js/lib/messageBoxes';
 
+const DEFAULT_ITEM_PROPS_FILTER = ({ id, name }) => ({ id, name });
+
 const StyledContainer = styled.div`
   width: 100%;
   height: 100%;
@@ -21,7 +23,7 @@ export default function ItemBrowser({
   deleteCallback,
   itemLabelComponent: LabelComponent,
   itemSecondaryLabelComponent: SecondaryLabelComponent,
-  extraComponentProp,
+  itemPropsFilter = DEFAULT_ITEM_PROPS_FILTER,
 }) {
   const editPropsClickHandler = useCallback((id) => {
     if (editPropsCallback) {
@@ -79,28 +81,25 @@ export default function ItemBrowser({
   const treeItems = useMemo(() => {
     return items.map((item) => {
       const { id, name } = item;
+      const filteredProps = itemPropsFilter(item);
       return {
         id,
         key: id,
         label: !LabelComponent ? name : (
           <LabelComponent
-            id={id}
-            name={name}
+            item={filteredProps}
             activeItemId={activeItemId}
-            {...(extraComponentProp ? { [extraComponentProp]: item[extraComponentProp] } : undefined)}
           />
         ),
         secondaryLabel: SecondaryLabelComponent && (
           <SecondaryLabelComponent
-            id={id}
-            name={name}
+            item={filteredProps}
             activeItemId={activeItemId}
-            {...(extraComponentProp ? { [extraComponentProp]: item[extraComponentProp] } : undefined)}
           />
         ),
       };
     });
-  }, [items, activeItemId, LabelComponent, SecondaryLabelComponent, extraComponentProp]);
+  }, [items, activeItemId, LabelComponent, SecondaryLabelComponent, itemPropsFilter]);
   const treeFolders = useMemo(() => {
     return folders.map(({ id, name }) => ({
       id,

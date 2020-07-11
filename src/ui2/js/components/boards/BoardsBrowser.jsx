@@ -7,7 +7,7 @@ import ItemBrowser from '../ui/ItemBrowser';
 import { showBoardDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 
-const BoardLabel = ({ name, id, activeItemId }) => {
+const BoardLabel = ({ item: { name, id }, activeItemId }) => {
   return (
     <>
       {name}
@@ -22,7 +22,7 @@ const BoardLabel = ({ name, id, activeItemId }) => {
   )
 }
 
-const BoardSecondaryLabel = ({ id, activeItemId }) => {
+const BoardSecondaryLabel = ({ item: { id }, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();

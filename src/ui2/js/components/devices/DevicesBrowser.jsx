@@ -7,8 +7,11 @@ import { deleteDeviceAction, runDeviceAction, stopDeviceAction } from '../../../
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 import ItemBrowser from '../ui/ItemBrowser';
 import TagGroup from '../ui/TagGroup';
+import { IO_DMX, IO_ARTNET } from '../../../../common/js/constants/io';
 
-const DeviceLabel = ({ name, id, activeItemId }) => {
+const itemPropsFilter = ({ id, name, type, tags }) => ({ id, name, type, tags });
+
+const DeviceLabel = ({ item: { name, id }, activeItemId }) => {
   return (
     <>
       {name}
@@ -23,7 +26,7 @@ const DeviceLabel = ({ name, id, activeItemId }) => {
   );
 }
 
-const DeviceSecondaryLabel = ({ id, tags, activeItemId }) => {
+const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();
@@ -51,24 +54,27 @@ const DeviceSecondaryLabel = ({ id, tags, activeItemId }) => {
           );
         })}
       </TagGroup>
-      {id !== activeItemId ? (
-        <Button
-          small
-          minimal
-          icon="eye-open"
-          onClick={runHandler}
-          onDoubleClick={doubleClickHandler}
-        />
-      ) : (
+      {(type === IO_DMX || type === IO_ARTNET) ? (
+        id !== activeItemId ? (
           <Button
             small
             minimal
-            icon="eye-off"
-            intent={Intent.DANGER}
-            onClick={stopHandler}
+            icon="eye-open"
+            onClick={runHandler}
             onDoubleClick={doubleClickHandler}
           />
-        )}
+        ) : (
+            <Button
+              small
+              minimal
+              icon="eye-off"
+              intent={Intent.DANGER}
+              onClick={stopHandler}
+              onDoubleClick={doubleClickHandler}
+            />
+          )
+      ) : null
+      }
     </>
   );
 }
@@ -102,7 +108,7 @@ export default function DevicesBrowser() {
       deleteCallback={deleteCallback}
       itemLabelComponent={DeviceLabel}
       itemSecondaryLabelComponent={DeviceSecondaryLabel}
-      extraComponentProp="tags"
+      itemPropsFilter={itemPropsFilter}
     />
   );
 }

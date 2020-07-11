@@ -7,7 +7,9 @@ import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/d
 import ItemBrowser from '../ui/ItemBrowser';
 import { deleteMediaAction } from '../../../../common/js/store/actions/medias';
 
-const MediaLabel = ({name, file}) => {
+const itemPropsFilter = ({  name, file }) => ({ name, file })
+
+const MediaLabel = ({ item: { name, file } }) => {
   return name ? name : basename(file);
 }
 
@@ -37,7 +39,7 @@ export default function MediasBrowser() {
       duplicateCallback={duplicateCallback}
       deleteCallback={deleteCallback}
       itemLabelComponent={MediaLabel}
-      extraComponentProp="file"
+      itemPropsFilter={itemPropsFilter}
     />
   );
 }
