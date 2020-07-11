@@ -1,7 +1,7 @@
 import { DAC } from '@laser-dac/core';
 import { Scene, Rect } from '@laser-dac/draw';
 import { EtherDream } from '@laser-dac/ether-dream';
-import { Laserdock } from 'new-laserdock';
+import { Laserdock } from '@laser-dac/laserdock';
 
 import AbstractOutput from './AbstractOutput';
 
