@@ -4,3 +4,4 @@
 /node_modules
 /test*.js
 /dev/screenshots/*
+/dev/helpers_doc.json

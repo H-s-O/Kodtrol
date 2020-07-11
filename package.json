@@ -19,6 +19,7 @@
     "build-and-dist": "npm run clear-build && npm run build-babel && npm run build-parcel && npm run build-icons && npm run dist",
     "rebuild": "npx electron-rebuild",
     "generate-screenshots": "npm start -- --screenshots ../../dev/screenshots.js --project ./dev/demo_project.json",
+    "generate-helpers-doc": "jsdoc -c jsdoc-conf.json > ./dev/helpers_doc.json",
     "test": "mocha --recursive -r @babel/register"
   },
   "author": "HsO <hugostonge@gmail.com>",
@@ -88,6 +89,7 @@
     "electron-builder": "^22.6.1",
     "electron-icon-builder": "^1.0.2",
     "electron-rebuild": "^1.11.0",
+    "jsdoc": "^3.6.4",
     "less": "^3.11.1",
     "mocha": "^7.2.0",
     "node-abi": "^2.17.0",
