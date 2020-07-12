@@ -105,12 +105,12 @@ export default class ScriptRenderer extends EventEmitter {
       return;
     }
 
-    this._start();
-
     const script = this._script;
     const blockPercent = 'blockPercent' in info ? info.blockPercent : null;
 
     if (script.hasLeadInFrame && blockPercent !== null && blockPercent < 0) {
+      this._start();
+
       try {
         const data = this._scriptInstance.leadInFrame(this._devices, this._scriptData, info, triggerData, curveData);
         if (typeof data !== 'undefined') {
@@ -120,6 +120,8 @@ export default class ScriptRenderer extends EventEmitter {
         this._handleError(err, 'leadInFrame')
       }
     } else if (script.hasLeadOutFrame && blockPercent !== null && blockPercent > 1) {
+      this._start();
+
       try {
         const data = this._scriptInstance.leadOutFrame(this._devices, this._scriptData, info, triggerData, curveData);
         if (typeof data !== 'undefined') {
@@ -129,6 +131,8 @@ export default class ScriptRenderer extends EventEmitter {
         this._handleError(err, 'leadOutFrame')
       }
     } else if (script.hasFrame && (blockPercent === null || (blockPercent >= 0 && blockPercent <= 1))) {
+      this._start();
+
       try {
         const data = this._scriptInstance.frame(this._devices, this._scriptData, info, triggerData, curveData);
         if (typeof data !== 'undefined') {
