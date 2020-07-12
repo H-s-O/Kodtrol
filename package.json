@@ -37,7 +37,7 @@
     "dmx": "^0.2.3",
     "domready": "^1.0.8",
     "eases": "^1.0.8",
-    "electron": "^6.0.12",
+    "electron": "^7.2.4",
     "electron-redux": "^1.4.0",
     "ffprobe": "^1.1.0",
     "ffprobe-static": "^3.0.0",
