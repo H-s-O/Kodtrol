@@ -492,11 +492,11 @@ export default function ProjectConfigDialog() {
           id="config"
           defaultSelectedTabId="inputs"
         >
-          <Tab
+          {/* <Tab
             id="general"
             title="General"
             disabled
-          />
+          /> */}
           <Tab
             id="inputs"
             title="Inputs"

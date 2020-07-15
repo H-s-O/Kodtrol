@@ -104,11 +104,11 @@ export default function ScriptsEditor() {
               />
             </Tab>
           ))}
-          <FullHeightTabs.Expander />
+          {/* <FullHeightTabs.Expander />
           <Button
             small
             icon="settings"
-          />
+          /> */}
         </FullHeightTabs>
       ) : (
           <NonIdealState
