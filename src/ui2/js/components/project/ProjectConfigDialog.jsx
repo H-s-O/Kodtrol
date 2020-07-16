@@ -217,6 +217,7 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
     driver = null,
     port = null,
     address = null,
+    dacRate = null,
   } = value;
 
   const midiOutputs = useMemo(() => availableItems.filter(({ type }) => type === IO_MIDI), [availableItems]);
@@ -308,9 +309,33 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
               <option value="laserdock">Laserdock</option>
             </SelectInput>
           </InlineFormGroup>
+          {driver === 'ether-dream' && (
+            <InlineFormGroup
+              label="Address"
+              helperText="If no address is specified, Kodtrol will use the first Ether Dream detected on your network."
+            >
+              <TextInput
+                name="address"
+                value={address}
+                onChange={changeHandler}
+              />
+            </InlineFormGroup>
+          )}
+          <InlineFormGroup
+            label="Rate"
+            helperText="DAC rate, in thousands of points per second (kpps)."
+            intent={!dacRate ? Intent.DANGER : undefined}
+          >
+            <NumberInput
+              name="dacRate"
+              min={0}
+              value={dacRate}
+              onChange={changeHandler}
+            />
+          </InlineFormGroup>
         </>
       )}
-      {(type === IO_ARTNET || type === IO_ILDA) && (
+      {type === IO_ARTNET && (
         <InlineFormGroup
           label="Address"
           helperText={!address ? 'An Art-Net output address is mandatory.' : undefined}

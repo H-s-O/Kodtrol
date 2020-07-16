@@ -2,28 +2,29 @@ import { DAC } from '@laser-dac/core';
 import { Scene, Rect } from '@laser-dac/draw';
 import { EtherDream } from '@laser-dac/ether-dream';
 import { Laserdock } from '@laser-dac/laserdock';
-import * as LaserdockLib from '@laser-dac/laserdock/dist/LaserdockLib';
 
 import AbstractOutput from './AbstractOutput';
 
 export default class IldaOutput extends AbstractOutput {
   _driver = null;
+  _rate = null;
   _address = null;
   _output = null;
   _scene = null;
   _started = false;
 
-  constructor(driver, address) {
+  constructor(driver, rate, address) {
     super();
 
     this._driver = driver;
+    this._rate = rate;
     this._address = address;
 
     this._create();
   }
 
   _create() {
-    console.log('IldaOutput _create', this._driver, this._address);
+    console.log('IldaOutput _create', this._driver, this._rate, this._address);
 
     if (!this._output) {
       this._output = new DAC();
@@ -56,7 +57,7 @@ export default class IldaOutput extends AbstractOutput {
       this._started = true;
 
       this._scene = new Scene();
-      this._output.stream(this._scene, 20000) // @TODO
+      this._output.stream(this._scene, this._rate * 1000);
 
       this._setStatusConnected();
     } else {
@@ -83,7 +84,7 @@ export default class IldaOutput extends AbstractOutput {
     } else if (this._driver === 'laserdock') {
       // Very innacurate, but there's no way to check for device availability in the Laserdock driver
       // and attempting to call any "init" native function of the driver after a device is disconnected results
-      // in a hard crash; so for now we mark a connection as permanently active once its working.
+      // in a hard crash; so for now we mark a connection as permanently active once it's working.
       if (this._output) {
         return this._started;
       }

@@ -12,6 +12,7 @@ export default class Output {
   _port = null;
   _address = null;
   _output = null;
+  _dacRate = null;
   _bufferData = {};
   _hash = null;
 
@@ -26,6 +27,7 @@ export default class Output {
       driver,
       port,
       address,
+      dacRate,
       hash,
     } = sourceOutput;
 
@@ -34,6 +36,7 @@ export default class Output {
     this._driver = driver;
     this._port = port;
     this._address = address;
+    this._dacRate = dacRate;
     this._hash = hash;
 
     this._setOutput();
@@ -54,7 +57,7 @@ export default class Output {
         output = new ArtnetOutput(this._address);
         break;
       case IO_ILDA:
-        output = new IldaOutput(this._driver, this._address);
+        output = new IldaOutput(this._driver, this._dacRate, this._address);
         break;
       case IO_AUDIO:
         output = new AudioOutput(this._driver);
@@ -112,6 +115,7 @@ export default class Output {
     this._port = null;
     this._address = null;
     this._output = null;
+    this._dacRate = null;
     this._bufferData = null;
     this._hash = null;
   }

@@ -20,7 +20,6 @@ export default function DeviceDialogBody({ value, onChange }) {
     address,
     channel,
     channels,
-    scanSpeed,
   } = value;
 
   const outputs = useSelector((state) => state.outputs);
@@ -127,21 +126,6 @@ export default function DeviceDialogBody({ value, onChange }) {
             <DmxChannelsInput
               name="channels"
               value={channels}
-              onChange={onChange}
-            />
-          </InlineFormGroup>
-        </>
-      )}
-      {type === 'ilda' && (
-        <>
-          <InlineFormGroup
-            label="KPPS"
-            helperText="Laser scan speed, in thousands of points per second."
-          >
-            <NumberInput
-              name="scanSpeed"
-              min={0}
-              value={scanSpeed}
               onChange={onChange}
             />
           </InlineFormGroup>
