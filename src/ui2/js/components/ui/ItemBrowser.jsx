@@ -3,7 +3,7 @@ import { remote } from 'electron';
 import styled from 'styled-components';
 
 import ManagedTree from '../ui/ManagedTree';
-import { deleteWarning } from '../../../../ui/js/lib/messageBoxes';
+import { deleteWarning } from '../../lib/messageBoxes';
 
 const DEFAULT_ITEM_PROPS_FILTER = ({ id, name }) => ({ id, name });
 

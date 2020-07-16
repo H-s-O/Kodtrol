@@ -38,7 +38,7 @@ import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNa
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 import { ipcRendererListen, ipcRendererClear, ipcRendererSend } from '../../../lib/ipcRenderer';
 import { UPDATE_TIMELINE_INFO } from '../../../../../common/js/constants/events';
-import focusIsGlobal from '../../../../../ui/js/lib/focusIsGlobal';
+import focusIsGlobal from '../../../lib/focusIsGlobal';
 
 const StyledContainer = styled.div`
   display: flex;

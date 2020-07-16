@@ -27,7 +27,7 @@ import {
 import ManagedTree from '../ui/ManagedTree';
 import inputValidator from '../../../../common/js/validators/inputValidator';
 import outputValidator from '../../../../common/js/validators/outputValidator';
-import { deleteWarning } from '../../../../ui/js/lib/messageBoxes';
+import { deleteWarning } from '../../lib/messageBoxes';
 import { saveInputsAction } from '../../../../common/js/store/actions/inputs';
 import { saveOutputsAction } from '../../../../common/js/store/actions/outputs';
 
