@@ -9,6 +9,7 @@ import ScriptEditorTab from './scripts/ScriptEditorTab';
 import FullHeightTabs from './ui/FullHeightTabs';
 import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction, runScriptAction } from '../../../common/js/store/actions/scripts';
 import { ICON_SCRIPT } from '../../../common/js/constants/icons';
+import { closeWarning } from '../lib/messageBoxes';
 
 const StyledIcon = styled(Icon)`
   margin-right: 3px;
@@ -69,8 +70,17 @@ export default function ScriptsEditor() {
     }
   }, [dispatch, activeScript, lastEditor]);
   const closeHandler = useCallback((id) => {
-    dispatch(closeScriptAction(id));
-  }, [dispatch]);
+    const editScript = editScripts.find((script) => script.id === id);
+    if (editScript.changed) {
+      closeWarning(`Are you sure you want to close "${scriptsNames[id]}"?`, 'Unsaved changes will be lost.', (result) => {
+        if (result) {
+          dispatch(closeScriptAction(id));
+        }
+      });
+    } else {
+      dispatch(closeScriptAction(id));
+    }
+  }, [dispatch, scriptsNames, editScripts]);
   const tabChangeHandler = useCallback((id) => {
     dispatch(focusEditedScriptAction(id));
   }, [dispatch]);

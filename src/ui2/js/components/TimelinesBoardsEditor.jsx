@@ -11,6 +11,7 @@ import TimelineEditorTab from './timelines/TimelineEditorTab';
 import BoardEditorTab from './boards/BoardEditorTab';
 import { closeTimelineAction, focusEditedTimelineAction, saveEditedTimelineAction, runTimelineAction } from '../../../common/js/store/actions/timelines';
 import { closeBoardAction, focusEditedBoardAction, saveEditedBoardAction, runBoardAction } from '../../../common/js/store/actions/boards';
+import { closeWarning } from '../lib/messageBoxes';
 
 const StyledDivider = styled.div`
   width: 1px;
@@ -80,11 +81,29 @@ export default function TimelinesBoardsEditor() {
 
   const dispatch = useDispatch();
   const closeTimelineHandler = useCallback((id) => {
-    dispatch(closeTimelineAction(id));
-  }, [dispatch]);
+    const editTimeline = editTimelines.find((timeline) => timeline.id === id);
+    if (editTimeline.changed) {
+      closeWarning(`Are you sure you want to close "${timelinesNames[id]}"?`, 'Unsaved changes will be lost.', (result) => {
+        if (result) {
+          dispatch(closeTimelineAction(id));
+        }
+      })
+    } else {
+      dispatch(closeTimelineAction(id));
+    }
+  }, [dispatch, timelinesNames, editTimelines]);
   const closeBoardHandler = useCallback((id) => {
-    dispatch(closeBoardAction(id));
-  }, [dispatch]);
+    const editBoard = editBoards.find((board) => board.id === id);
+    if (editBoard.changed) {
+      closeWarning(`Are you sure you want to close "${boardsNames[id]}"?`, 'Unsaved changes will be lost.', (result) => {
+        if (result) {
+          dispatch(closeBoardAction(id));
+        }
+      })
+    } else {
+      dispatch(closeBoardAction(id));
+    }
+  }, [dispatch, boardsNames, editBoards]);
   const tabChangeHandler = useCallback((id) => {
     if (editTimelines.find((timeline) => timeline.id === id)) {
       dispatch(focusEditedTimelineAction(id));
