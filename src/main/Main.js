@@ -19,18 +19,20 @@ import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
 import { ipcMainListen, ipcMainClear } from './lib/ipcMain';
-import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO, SCRIPT_ERROR, SCRIPT_LOG } from '../common/js/constants/events';
+import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO, SCRIPT_ERROR, SCRIPT_LOG, TRIGGER_CREATE_PROJECT, TRIGGER_LOAD_PROJECT, TRIGGER_QUIT } from '../common/js/constants/events';
 import MidiWatcher from './lib/watchers/MidiWatcher';
 import { updateIOAvailableAction } from '../common/js/store/actions/ioAvailable';
 import { IO_MIDI, IO_INPUT, IO_OUTPUT } from '../common/js/constants/io';
 import isDev from '../common/js/lib/isDev';
 import ConsoleWindow from './ui/ConsoleWindow';
 import { setConsoleClosedAction } from '../common/js/store/actions/console';
+import SplashWindow from './ui/SplashWindow';
 
 export default class Main {
   currentProjectFilePath = null;
   mainWindow = null;
   consoleWindow = null;
+  splashWindow = null;
   mainMenu = null
   store = null;
   renderer = null;
@@ -59,13 +61,17 @@ export default class Main {
   }
 
   onReady = () => {
+    MainMenu.setEmpty();
+
     this.loadDevExtensions();
-    this.createMainMenu();
+    this.setupEventListeners();
     this.createWatchers();
     this.run();
   }
 
   onWillQuit = () => {
+    this.removeEventListeners();
+
     // Better safe than sorry; destroy the renderer
     // on quit if it somehow survived
     this.destroyRenderer();
@@ -89,10 +95,15 @@ export default class Main {
     const configCurrentProject = readAppConfig('currentProjectFilePath');
     if (configCurrentProject) {
       this.loadProject(configCurrentProject);
+      return;
     }
+
+    this.createSplashWindow();
   }
 
   loadProject = (path, init = false, save = true) => {
+    this.destroySplashWindow();
+
     this.currentProjectFilePath = path;
 
     if (save) {
@@ -109,9 +120,9 @@ export default class Main {
     }
 
     this.createRenderer();
+    this.createMainMenu();
     this.createMainWindow();
     this.createConsoleWindow();
-    this.setupEventListeners();
   }
 
   createStore = (initialData = null) => {
@@ -280,6 +291,17 @@ export default class Main {
     this.updatePower();
   }
 
+  createSplashWindow = () => {
+    this.splashWindow = new SplashWindow();
+  }
+
+  destroySplashWindow = () => {
+    if (this.splashWindow) {
+      this.splashWindow.destroy();
+      this.splashWindow = null;
+    }
+  }
+
   createMainWindow = () => {
     this.mainWindow = new MainWindow(this.currentProjectFilePath);
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
@@ -325,8 +347,11 @@ export default class Main {
   }
 
   setupEventListeners = () => {
-    ipcMainListen(UPDATE_TIMELINE_INFO, this.onUpdateTimelineInfo)
-    ipcMainListen(UPDATE_BOARD_INFO, this.onUpdateBoardInfo)
+    ipcMainListen(UPDATE_TIMELINE_INFO, this.onUpdateTimelineInfo);
+    ipcMainListen(UPDATE_BOARD_INFO, this.onUpdateBoardInfo);
+    ipcMainListen(TRIGGER_CREATE_PROJECT, this.onTriggerCreateProject);
+    ipcMainListen(TRIGGER_LOAD_PROJECT, this.onTriggerLoadProject);
+    ipcMainListen(TRIGGER_QUIT, this.onTriggerQuit);
   }
 
   removeEventListeners = () => {
@@ -347,6 +372,26 @@ export default class Main {
         updateBoardInfo: data,
       });
     }
+  }
+
+  onTriggerCreateProject = () => {
+    if (this.hasProjectOpened) {
+      this.doCloseProjectWarn(this.createProject);
+    } else {
+      this.createProject();
+    }
+  }
+
+  onTriggerLoadProject = () => {
+    if (this.hasProjectOpened) {
+      this.doCloseProjectWarn(this.selectProjectToOpen);
+    } else {
+      this.selectProjectToOpen();
+    }
+  }
+
+  onTriggerQuit = () => {
+    app.quit();
   }
 
   createRenderer = () => {
@@ -414,6 +459,14 @@ export default class Main {
     this.mainMenu.on(MainMenuEvent.CREATE_PROJECT, this.onMainMenuCreateProject);
     this.mainMenu.on(MainMenuEvent.SAVE_PROJECT, this.onMainMenuSaveProject);
     this.mainMenu.on(MainMenuEvent.CLOSE_PROJECT, this.onMainMenuCloseProject);
+  }
+
+  destroyMainMenu = () => {
+    if (this.mainMenu) {
+      this.mainMenu.removeAllListeners();
+      this.mainMenu.destroy();
+      this.mainMenu = null;
+    }
   }
 
   onMainMenuOpenProject = () => {
@@ -514,9 +567,9 @@ export default class Main {
   }
 
   closeProject = () => {
-    this.removeEventListeners();
     this.destroyConsoleWindow();
     this.destroyMainWindow();
+    this.destroyMainMenu();
     this.destroyStore();
     this.destroyRenderer();
 
@@ -525,6 +578,8 @@ export default class Main {
     writeAppConfig(appConfig);
 
     this.currentProjectFilePath = null;
+
+    this.createSplashWindow();
   }
 
   updatePower = () => {

@@ -10,7 +10,7 @@ import isDev from '../../common/js/lib/isDev';
 export default class MainMenu extends EventEmitter {
   constructor() {
     super();
-    
+
     const template = [
       {
         label: APP_NAME,
@@ -77,7 +77,7 @@ export default class MainMenu extends EventEmitter {
         ],
       },
     ];
-    
+
     if (true) {
       template.push({
         label: 'Dev',
@@ -101,7 +101,7 @@ export default class MainMenu extends EventEmitter {
         ],
       })
     }
-    
+
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   }
@@ -109,24 +109,37 @@ export default class MainMenu extends EventEmitter {
   onRevealCompiledScriptsDirClick = () => {
     openExternalFolder(getCompiledScriptsDir());
   }
-  
+
   onCreateProjectClick = () => {
     this.emit(MainMenuEvent.CREATE_PROJECT);
   }
-  
+
   onOpenProjectClick = () => {
     this.emit(MainMenuEvent.OPEN_PROJECT);
   }
-  
+
   onAboutClick = () => {
     this.emit(MainMenuEvent.ABOUT);
   }
-  
+
   onSaveProjectClick = () => {
     this.emit(MainMenuEvent.SAVE_PROJECT);
   }
-  
+
   onCloseProjectClick = () => {
     this.emit(MainMenuEvent.CLOSE_PROJECT);
+  }
+
+  static setEmpty() {
+    const template = [
+      { role: 'appMenu' },
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+  }
+
+  destroy() {
+    MainMenu.setEmpty();
   }
 }
