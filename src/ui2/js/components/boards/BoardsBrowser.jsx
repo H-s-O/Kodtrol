@@ -6,6 +6,7 @@ import { runBoardAction, stopBoardAction, editBoardAction, deleteBoardAction, fo
 import ItemBrowser from '../ui/ItemBrowser';
 import { showBoardDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
+import contentRunning from '../../../../common/js/store/selectors/contentRunning';
 
 const BoardLabel = ({ item: { name, id }, activeItemId }) => {
   return (
@@ -67,6 +68,7 @@ export default function BoardsBrowser() {
   const boardsFolders = useSelector((state) => state.boardsFolders);
   const runBoard = useSelector((state) => state.runBoard);
   const editBoards = useSelector((state) => state.editBoards);
+  const isContentRunning = useSelector(contentRunning);
 
   const dispatch = useDispatch();
   const editCallback = useCallback((id) => {
@@ -101,6 +103,7 @@ export default function BoardsBrowser() {
       deleteCallback={deleteCallback}
       itemLabelComponent={BoardLabel}
       itemSecondaryLabelComponent={BoardSecondaryLabel}
+      enableDelete={!isContentRunning}
     />
   );
 }

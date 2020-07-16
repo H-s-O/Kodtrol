@@ -8,6 +8,7 @@ import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/d
 import ItemBrowser from '../ui/ItemBrowser';
 import TagGroup from '../ui/TagGroup';
 import { IO_DMX, IO_ARTNET } from '../../../../common/js/constants/io';
+import contentRunning from '../../../../common/js/store/selectors/contentRunning';
 
 const itemPropsFilter = ({ id, name, type, tags }) => ({ id, name, type, tags });
 
@@ -83,6 +84,7 @@ export default function DevicesBrowser() {
   const devices = useSelector((state) => state.devices);
   const devicesFolders = useSelector((state) => state.devicesFolders);
   const runDevice = useSelector((state) => state.runDevice);
+  const isContentRunning = useSelector(contentRunning);
 
   const dispatch = useDispatch();
   const editPropsCallback = useCallback((id) => {
@@ -109,6 +111,7 @@ export default function DevicesBrowser() {
       itemLabelComponent={DeviceLabel}
       itemSecondaryLabelComponent={DeviceSecondaryLabel}
       itemPropsFilter={itemPropsFilter}
+      enableDelete={!isContentRunning}
     />
   );
 }

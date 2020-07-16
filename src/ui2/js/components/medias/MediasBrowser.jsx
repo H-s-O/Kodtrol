@@ -6,6 +6,7 @@ import { showMediaDialogAction } from '../../../../common/js/store/actions/dialo
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 import ItemBrowser from '../ui/ItemBrowser';
 import { deleteMediaAction } from '../../../../common/js/store/actions/medias';
+import contentRunning from '../../../../common/js/store/selectors/contentRunning';
 
 const itemPropsFilter = ({  name, file }) => ({ name, file })
 
@@ -16,6 +17,7 @@ const MediaLabel = ({ item: { name, file } }) => {
 export default function MediasBrowser() {
   const medias = useSelector((state) => state.medias);
   const mediasFolders = useSelector((state) => state.mediasFolders);
+  const isContentRunning = useSelector(contentRunning);
 
   const dispatch = useDispatch();
   const editPropsCallback = useCallback((id) => {
@@ -40,6 +42,7 @@ export default function MediasBrowser() {
       deleteCallback={deleteCallback}
       itemLabelComponent={MediaLabel}
       itemPropsFilter={itemPropsFilter}
+      enableDelete={!isContentRunning}
     />
   );
 }

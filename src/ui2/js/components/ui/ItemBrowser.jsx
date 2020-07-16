@@ -23,6 +23,9 @@ export default function ItemBrowser({
   deleteCallback,
   itemLabelComponent: LabelComponent,
   itemSecondaryLabelComponent: SecondaryLabelComponent,
+  enableEdit = true,
+  enableDuplicate = true,
+  enableDelete = true,
   itemPropsFilter = DEFAULT_ITEM_PROPS_FILTER,
 }) {
   const editPropsClickHandler = useCallback((id) => {
@@ -52,24 +55,27 @@ export default function ItemBrowser({
         template.push({
           label: `Edit ${label} properties...`,
           click: () => editPropsClickHandler(id),
+          enabled: enableEdit,
         });
       }
       if (duplicateCallback) {
         template.push({
           label: `Duplicate ${label}...`,
           click: () => duplicateClickHandler(id),
+          enabled: enableDuplicate,
         });
       }
       if (deleteCallback) {
         template.push({
           label: `Delete ${label}...`,
           click: () => deleteClickHandler(id),
+          enabled: enableDelete,
         });
       }
     }
     const menu = remote.Menu.buildFromTemplate(template);
     menu.popup();
-  }, [editPropsCallback, duplicateCallback, deleteCallback]);
+  }, [editPropsCallback, duplicateCallback, deleteCallback, enableEdit, enableDuplicate, enableDelete]);
   const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
     if (!hasCaret) {
       if (editCallback) {

@@ -6,6 +6,7 @@ import { editTimelineAction, runTimelineAction, stopTimelineAction, deleteTimeli
 import ItemBrowser from '../ui/ItemBrowser';
 import { showTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
+import contentRunning from '../../../../common/js/store/selectors/contentRunning';
 
 const TimelineLabel = ({ item: { name, id }, activeItemId }) => {
   return (
@@ -67,6 +68,7 @@ export default function TimelinesBrowser() {
   const timelinesFolders = useSelector((state) => state.timelinesFolders);
   const runTimeline = useSelector((state) => state.runTimeline);
   const editTimelines = useSelector((state) => state.editTimelines);
+  const isContentRunning = useSelector(contentRunning);
 
   const dispatch = useDispatch();
   const editCallback = useCallback((id) => {
@@ -101,6 +103,7 @@ export default function TimelinesBrowser() {
       deleteCallback={deleteCallback}
       itemLabelComponent={TimelineLabel}
       itemSecondaryLabelComponent={TimelineSecondaryLabel}
+      enableDelete={!isContentRunning}
     />
   );
 }
