@@ -223,12 +223,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [scriptDialog, timeline]);
   const deleteScriptClickHandler = useCallback((id) => {
     const script = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete script ${getScriptName(script, scriptsNames)}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      })
+    deleteWarning(`Are you sure you want to delete script ${getScriptName(script, scriptsNames)}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [onChange, timeline, scriptsNames]);
   const scriptDialogSuccessHandler = useCallback(() => {
     if (scriptDialog.mode === DIALOG_EDIT) {
@@ -249,12 +248,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [triggerDialog, timeline]);
   const deleteTriggerClickHandler = useCallback((id) => {
     const trigger = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete trigger ${trigger.name}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      })
+    deleteWarning(`Are you sure you want to delete trigger ${trigger.name}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [onChange, timeline]);
   const triggerDialogSuccessHandler = useCallback(() => {
     if (triggerDialog.mode === DIALOG_EDIT) {
@@ -275,12 +273,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [mediaDialog, timeline]);
   const deleteMediaClickHandler = useCallback((id) => {
     const media = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete media ${mediasNames[media.media].name}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      })
+    deleteWarning(`Are you sure you want to delete media ${mediasNames[media.media].name}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [onChange, timeline, mediasNames]);
   const mediaDialogSuccessHandler = useCallback(() => {
     if (mediaDialog.mode === DIALOG_EDIT) {
@@ -301,12 +298,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [curveDialog, timeline]);
   const deleteCurveClickHandler = useCallback((id) => {
     const curve = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete curve ${curve.name}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      })
+    deleteWarning(`Are you sure you want to delete curve ${curve.name}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [onChange, timeline]);
   const curveDialogSuccessHandler = useCallback(() => {
     if (curveDialog.mode === DIALOG_EDIT) {
@@ -618,12 +614,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [onChange, timeline]);
   const layersDeleteHandler = useCallback((id) => {
     const layer = layers.find((layer) => layer.id === id);
-    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
-        }
-      });
+    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`, (result) => {
+      if (result) {
+        onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
+      }
+    });;
   }, [onChange, timeline]);
   const layerChildrenRenderer = useCallback((id) => {
     return (
