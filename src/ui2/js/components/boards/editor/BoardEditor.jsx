@@ -9,7 +9,7 @@ import LayerEditor from '../../layer_editor/LayerEditor';
 import BoardItem from './BoardItem';
 import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
-import { deleteWarning } from '../../../lib/dialogHelpers';
+import { deleteWarning } from '../../../lib/messageBoxes';
 import { ICON_LAYER, ICON_SCRIPT } from '../../../../../common/js/constants/icons';
 import { DIALOG_EDIT, DIALOG_ADD } from '../../../../../common/js/constants/dialogs';
 import { ITEM_SCRIPT, ITEM_BEHAVIOR_TOGGLE } from '../../../../../common/js/constants/items';

@@ -24,7 +24,7 @@ import {
   doPaste,
   doDeleteItemsOfLayer,
 } from '../../../../../common/js/lib/itemOperations';
-import { deleteWarning } from '../../../lib/dialogHelpers';
+import { deleteWarning } from '../../../lib/messageBoxes';
 import TimelineScriptDialog from './TimelineScriptDialog';
 import { DIALOG_EDIT, DIALOG_ADD, DIALOG_CONFIGURE } from '../../../../../common/js/constants/dialogs';
 import useDialog from '../../../lib/useDialog';
