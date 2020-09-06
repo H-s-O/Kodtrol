@@ -52,7 +52,7 @@ export default class Script extends EventEmitter {
   _handleError(err) {
     console.error(err);
 
-    const message = err.stack.split(EOL).slice(1, 5).join(EOL);
+    const message = err.stack.split('\n').slice(1, 5).join('\n');
 
     this.emit('load_error', { message, script: this.id });
   }
