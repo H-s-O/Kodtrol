@@ -1,6 +1,8 @@
 import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 
+import { isMac } from '../../../common/js/lib/platforms';
+
 export default class AudioRenderer {
   _audioWindow = null;
   _ready = false;
@@ -17,7 +19,9 @@ export default class AudioRenderer {
     app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling');
 
     // Do not show in macOS Dock
-    app.dock.hide()
+    if (isMac) {
+      app.dock.hide()
+    }
 
     app.on('ready', this._onReady.bind(this));
     app.on('window-all-closed', this._onWindowAllClosed.bind(this));
@@ -51,7 +55,7 @@ export default class AudioRenderer {
       },
     });
 
-    this._audioWindow.loadFile(join(__dirname, '../../../../build/audio/index.html'));
+    this._audioWindow.loadFile(join(__dirname, '..', '..', '..', '..', 'build', 'audio', 'index.html'));
     this._audioWindow.webContents.once('did-finish-load', this._onFinishLoad.bind(this));
   }
 

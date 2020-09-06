@@ -12,7 +12,7 @@ export default class Renderer extends EventEmitter {
   constructor() {
     super();
 
-    const processPath = path.join(__dirname, '../../renderer/kodtrol-renderer.js');
+    const processPath = path.join(__dirname, '..', '..', 'renderer', 'kodtrol-renderer.js');
 
     this.childProcess = fork(processPath, {
       env: {

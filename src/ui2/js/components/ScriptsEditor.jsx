@@ -10,6 +10,7 @@ import FullHeightTabs from './ui/FullHeightTabs';
 import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction, runScriptAction } from '../../../common/js/store/actions/scripts';
 import { ICON_SCRIPT } from '../../../common/js/constants/icons';
 import { closeWarning } from '../lib/messageBoxes';
+import { isMac } from '../../../common/js/lib/platforms';
 
 const StyledIcon = styled(Icon)`
   margin-right: 3px;
@@ -85,8 +86,8 @@ export default function ScriptsEditor() {
     dispatch(focusEditedScriptAction(id));
   }, [dispatch]);
 
-  useHotkeys('Meta+s', saveHandler);
-  useHotkeys('Meta+r', saveAndRunHandler);
+  useHotkeys(`${isMac ? 'Meta' : 'Control'}+s`, saveHandler);
+  useHotkeys(`${isMac ? 'Meta' : 'Control'}+r`, saveAndRunHandler);
 
   return (
     <FullHeightCard>

@@ -79,8 +79,8 @@ export default class Main {
 
   loadDevExtensions = () => {
     if (isDev && !Main._devExtensionsLoaded) {
-      BrowserWindow.addDevToolsExtension(join(__dirname, '../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/4.7.0_0'));
-      BrowserWindow.addDevToolsExtension(join(__dirname, '../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'));
+      BrowserWindow.addDevToolsExtension(join(__dirname, '..', '..', 'dev', 'extensions', 'fmkadmapgofadopljbjfkapdkoienihi', '4.7.0_0'));
+      BrowserWindow.addDevToolsExtension(join(__dirname, '..', '..', 'dev', 'extensions', 'lmhkpmbekcpmknklioeibfkpmmfibljd', '2.17.0_0'));
       Main._devExtensionsLoaded = true;
     }
   }
@@ -603,7 +603,7 @@ export default class Main {
   generateScreenshots = async (data) => {
     console.info('=== Begin generating screenshots... ===');
 
-    const dir = './dev/screenshots/';
+    const dir = join('.', 'dev', 'screenshots');
     ensureDir(dir);
 
     for (let i = 0; i < data.length; i++) {

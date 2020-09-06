@@ -20,7 +20,7 @@ export const getCompiledScriptsDir = () => {
 }
 
 export const getCompiledScriptPath = (scriptId) => {
-  return path.join(getCompiledScriptsDir(), `/${scriptId}.js`);
+  return path.join(getCompiledScriptsDir(), `${scriptId}.js`);
 }
 
 export const getConvertedAudiosDir = () => {

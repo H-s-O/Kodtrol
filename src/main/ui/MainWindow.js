@@ -27,7 +27,7 @@ export default class MainWindow extends EventEmitter {
     this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);
 
-    this.win.loadFile(join(__dirname, '../../../build/ui2/index.html'));
+    this.win.loadFile(join(__dirname, '..', '..', '..', 'build', 'ui2', 'index.html'));
 
     this.contents = this.win.webContents;
     this.contents.once('did-finish-load', this.onFinishLoad);

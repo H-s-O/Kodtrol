@@ -12,6 +12,7 @@ import BoardEditorTab from './boards/BoardEditorTab';
 import { closeTimelineAction, focusEditedTimelineAction, saveEditedTimelineAction, runTimelineAction } from '../../../common/js/store/actions/timelines';
 import { closeBoardAction, focusEditedBoardAction, saveEditedBoardAction, runBoardAction } from '../../../common/js/store/actions/boards';
 import { closeWarning } from '../lib/messageBoxes';
+import { isMac } from '../../../common/js/lib/platforms';
 
 const StyledDivider = styled.div`
   width: 1px;
@@ -128,8 +129,8 @@ export default function TimelinesBoardsEditor() {
     }
   }, [dispatch, activeTimeline, activeBoard, lastEditor]);
 
-  useHotkeys('Meta+s', saveHandler);
-  useHotkeys('Meta+r', saveAndRunHandler);
+  useHotkeys(`${isMac ? 'Meta' : 'Control'}+s`, saveHandler);
+  useHotkeys(`${isMac ? 'Meta' : 'Control'}+r`, saveAndRunHandler);
 
   return (
     <FullHeightCard>

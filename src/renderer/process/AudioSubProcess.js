@@ -12,7 +12,7 @@ export default class AudioSubProcess extends EventEmitter {
   constructor() {
     super();
 
-    const processPath = join(__dirname, './audio/kodtrol-audio.js');
+    const processPath = join(__dirname, '.', 'audio', 'kodtrol-audio.js');
 
     this._childProcess = spawn(electron, [
       ...(isDev ? [
