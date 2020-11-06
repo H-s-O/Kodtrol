@@ -3,10 +3,8 @@ import { ipcRenderer } from 'electron';
 
 const instances = {};
 
-ipcRenderer.on('data', (e, data) => {
+ipcRenderer.on('data', (e, dataObj) => {
   try {
-    const dataObj = JSON.parse(data);
-
     for (let streamId in instances) {
       if (!dataObj || !(streamId in dataObj)) {
         instances[streamId].unload();

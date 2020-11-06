@@ -28,8 +28,7 @@ export default class AudioRenderer {
 
     process.on('SIGTERM', this._onSigTerm.bind(this));
 
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', this._onData.bind(this));
+    process.on('message', this._onMessage.bind(this));
   }
 
   _onSigTerm() {
@@ -71,9 +70,9 @@ export default class AudioRenderer {
     this._audioWindow = null;
   }
 
-  _onData(chunk) {
+  _onMessage(message) {
     if (this._audioWindow && this._ready) {
-      this._audioWindow.webContents.send('data', chunk);
+      this._audioWindow.webContents.send('data', message);
     }
   }
 }

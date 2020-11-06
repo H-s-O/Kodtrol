@@ -21,7 +21,7 @@ export default class AudioSubProcess extends EventEmitter {
       ] : []),
       processPath,
     ], {
-      stdio: ['pipe', 'inherit', 'inherit'],
+      stdio: ['ipc', 'inherit', 'inherit'],
       env: {
         KODTROL_DEV: process.env['KODTROL_DEV'],
         KODTROL_AUDIOS_DIR: getConvertedAudiosDir(),
@@ -31,7 +31,12 @@ export default class AudioSubProcess extends EventEmitter {
 
   send(data) {
     if (this._childProcess) {
-      this._childProcess.stdin.write(JSON.stringify(data), 'utf8');
+      if (!this._childProcess.connected) {
+        console.error('Audio subprocess not connected!');
+        return;
+      }
+
+      this._childProcess.send(data);
     }
   }
 
