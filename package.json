@@ -37,9 +37,9 @@
     ]
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.28.0",
-    "@blueprintjs/datetime": "^3.18.0",
-    "@blueprintjs/select": "^3.13.1",
+    "@blueprintjs/core": "^3.35.0",
+    "@blueprintjs/datetime": "^3.19.3",
+    "@blueprintjs/select": "^3.14.3",
     "@laser-dac/core": "^0.4.1",
     "@laser-dac/draw": "^0.4.1",
     "@laser-dac/ether-dream": "^0.4.1",
