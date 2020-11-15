@@ -63,7 +63,8 @@ export default class ConsoleWindow extends EventEmitter {
   _updateVisibility = () => {
     if (this.win) {
       if (this.visible) {
-        this.win.showInactive()
+        this.win.showInactive();
+        this.win.moveTop();
       } else {
         this.win.hide();
       }
