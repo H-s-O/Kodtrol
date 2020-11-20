@@ -42,7 +42,7 @@ export default class DmxDevice extends AbstractDevice {
       if (alias) {
         return {
           ...obj,
-          [alias]: index,
+          [alias]: index + 1,
         };
       }
       return obj;
@@ -135,21 +135,21 @@ export default class DmxDevice extends AbstractDevice {
     if (typeof channel === 'string') {
       channel = this._channelAliases[channel];
     }
-    return this._channelDefaults[channel] || 0;
+    return this._channelDefaults[channel - 1] || 0;
   }
 
   getChannel(channel) {
     if (typeof channel === 'string') {
       channel = this._channelAliases[channel];
     }
-    return this._channels[channel] || 0;
+    return this._channels[channel - 1] || 0;
   }
 
   setChannel(channel, value) {
     if (typeof channel === 'string') {
       channel = this._channelAliases[channel];
     }
-    this._channels[channel] = value;
+    this._channels[channel - 1] = value;
     return value;
   }
 
