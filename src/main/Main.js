@@ -188,7 +188,9 @@ export default class Main {
 
     scripts.forEach(script => {
       console.info('Compiling script', script.id, script.name);
+      console.time('compile time');
       compileScript(script);
+      console.timeEnd('compile time');
     })
 
     if (this.renderer) {

@@ -7,7 +7,7 @@ import appVersion from '../../common/js/lib/appVersion';
 
 const helpers = glob.sync(join(__dirname, 'helpers', '*.js')).reduce((content, path) => {
   const helperContent = readFile(path, { encoding: 'utf-8' });
-  const cleanHelper = helperContent.replace(/export (default )?/g, '');
+  const cleanHelper = helperContent.replace(/export (default )?/g, '').replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
   return `${content}${EOL}${cleanHelper}`;
 }, '');
 
