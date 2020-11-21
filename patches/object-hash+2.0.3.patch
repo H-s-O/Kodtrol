@@ -1,0 +1,13 @@
+diff --git a/node_modules/object-hash/index.js b/node_modules/object-hash/index.js
+index 90c2285..4c92edc 100644
+--- a/node_modules/object-hash/index.js
++++ b/node_modules/object-hash/index.js
+@@ -239,7 +239,7 @@ function typeHasher(options, writeTo, context){
+         }
+ 
+         if (options.excludeKeys) {
+-          keys = keys.filter(function(key) { return !options.excludeKeys(key); });
++          keys = keys.filter(function(key) { return !options.excludeKeys(key, context.length); });
+         }
+ 
+         write('object:' + keys.length + ':');

@@ -20,7 +20,8 @@
     "rebuild": "npx electron-rebuild",
     "generate-screenshots": "npm start -- --screenshots ../../dev/screenshots.js --project ./dev/demo_project.json",
     "generate-helpers-doc": "jsdoc -c jsdoc-conf.json > ./dev/helpers_doc.json",
-    "test": "mocha --recursive -r @babel/register"
+    "test": "mocha --recursive -r @babel/register",
+    "postinstall": "patch-package"
   },
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",
@@ -95,6 +96,7 @@
     "node-abi": "^2.17.0",
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-static-files-copy": "^2.4.3",
+    "patch-package": "^6.2.2",
     "redux-devtools-extension": "^2.13.5",
     "rimraf": "^3.0.2"
   }
