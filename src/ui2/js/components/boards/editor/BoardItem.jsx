@@ -21,6 +21,7 @@ const StyledBlockHeader = styled.div`
   border-bottom-color: inherit;
   border-bottom-style: solid;
   border-bottom-width: 1px;
+  overflow: hidden;
 `;
 
 const StyledBlockBody = styled.div`

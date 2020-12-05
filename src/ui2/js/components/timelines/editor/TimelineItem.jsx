@@ -54,7 +54,7 @@ const StyledBlockHeader = styled.div`
   border-bottom-color: inherit;
   border-bottom-style: solid;
   border-bottom-width: 1px;
-  overflow-x: hidden;
+  overflow: hidden;
   cursor: ew-resize;
 `;
 
