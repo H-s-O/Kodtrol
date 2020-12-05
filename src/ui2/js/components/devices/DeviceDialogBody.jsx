@@ -11,7 +11,7 @@ import CustomDivider from '../ui/CustomDivider';
 import NumberInput from '../ui/inputs/NumberInput';
 import { IO_DMX, IO_ILDA, IO_LABELS, IO_ARTNET, IO_MIDI } from '../../../../common/js/constants/io';
 
-export default function DeviceDialogBody({ value, onChange }) {
+export default function DeviceDialogBody({ value, onChange, validation }) {
   const {
     name,
     type,
@@ -42,8 +42,8 @@ export default function DeviceDialogBody({ value, onChange }) {
     <>
       <InlineFormGroup
         label="Name"
-        helperText={!name ? 'A device name is mandatory.' : undefined}
-        intent={!name ? Intent.DANGER : undefined}
+        helperText={!validation.name ? 'A device name is mandatory.' : undefined}
+        intent={!validation.name ? Intent.DANGER : undefined}
       >
         <TextInput
           name="name"
@@ -53,8 +53,8 @@ export default function DeviceDialogBody({ value, onChange }) {
       </InlineFormGroup>
       <InlineFormGroup
         label="Type"
-        helperText={!type ? 'A device type is mandatory.' : undefined}
-        intent={!type ? Intent.DANGER : undefined}
+        helperText={!validation.type ? 'A device type is mandatory.' : undefined}
+        intent={!validation.type ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="type"
@@ -103,13 +103,13 @@ export default function DeviceDialogBody({ value, onChange }) {
       {type && (
         <CustomDivider />
       )}
-      {type === 'dmx' && (
+      {type === IO_DMX && (
         <>
           <InlineFormGroup
             label="Address"
             minWidth={60}
-            helperText={!address ? 'A DMX address is mandatory.' : undefined}
-            intent={!address ? Intent.DANGER : undefined}
+            helperText={!validation.address ? 'A DMX address is mandatory.' : undefined}
+            intent={!validation.address ? Intent.DANGER : undefined}
           >
             <NumberInput
               name="address"
@@ -131,13 +131,13 @@ export default function DeviceDialogBody({ value, onChange }) {
           </InlineFormGroup>
         </>
       )}
-      {type === 'midi' && (
+      {type === IO_MIDI && (
         <>
           <InlineFormGroup
             label="Channel"
             minWidth={60}
-            helperText={!channel ? 'A MIDI device channel is mandatory.' : undefined}
-            intent={!channel ? Intent.DANGER : undefined}
+            helperText={!validation.channel ? 'A MIDI device channel is mandatory.' : undefined}
+            intent={!validation.channel ? Intent.DANGER : undefined}
           >
             <NumberInput
               name="channel"

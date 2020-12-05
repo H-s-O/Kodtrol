@@ -6,7 +6,7 @@ import TextInput from '../ui/inputs/TextInput';
 import DurationInput from '../ui/inputs/DurationInput';
 import NumberInput from '../ui/inputs/NumberInput';
 
-export default function TimelineDialogBody({ value, onChange }) {
+export default function TimelineDialogBody({ value, onChange, validation }) {
   const {
     name,
     duration,
@@ -17,8 +17,8 @@ export default function TimelineDialogBody({ value, onChange }) {
     <>
       <InlineFormGroup
         label="Name"
-        helperText={!name ? 'A timeline name is mandatory.' : undefined}
-        intent={!name ? Intent.DANGER : undefined}
+        helperText={!validation.name ? 'A timeline name is mandatory.' : undefined}
+        intent={!validation.name ? Intent.DANGER : undefined}
       >
         <TextInput
           name="name"
@@ -28,8 +28,8 @@ export default function TimelineDialogBody({ value, onChange }) {
       </InlineFormGroup>
       <InlineFormGroup
         label="Duration"
-        helperText={!duration ? 'A timeline duration is mandatory.' : undefined}
-        intent={!duration ? Intent.DANGER : undefined}
+        helperText={!validation.duration ? 'A timeline duration is mandatory.' : undefined}
+        intent={!validation.duration ? Intent.DANGER : undefined}
       >
         <ControlGroup>
           <DurationInput

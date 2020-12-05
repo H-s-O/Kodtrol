@@ -80,6 +80,7 @@ export default function ScriptDialog() {
         <ScriptDialogBody
           value={bodyValue}
           onChange={changeHandler}
+          validation={bodyValid}
         />
       </DialogBody>
       <DialogFooter>
@@ -100,7 +101,7 @@ export default function ScriptDialog() {
           )}
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={successHandler}
           >
             {successLabel}

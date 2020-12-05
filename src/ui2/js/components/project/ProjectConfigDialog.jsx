@@ -518,7 +518,8 @@ export default function ProjectConfigDialog() {
     dispatch(hideConfigDialogAction());
   }, [dispatch, currentInputs, currentOutputs]);
 
-  const allValid = currentInputs.every(inputValidator) && currentOutputs.every(outputValidator);
+  const allValid = currentInputs.map(inputValidator).every(({ all_fields }) => all_fields === true)
+    && currentOutputs.map(outputValidator).every(({ all_fields }) => all_fields === true);
 
   return (
     <CustomDialog

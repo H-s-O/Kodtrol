@@ -1,6 +1,5 @@
-export default ({ name }) => {
-  if (!name) {
-    return false;
-  }
-  return true;
-}
+import { validateAll } from './validatorHelpers'
+
+export default ({ name }) => validateAll({
+  name: !!name,
+})

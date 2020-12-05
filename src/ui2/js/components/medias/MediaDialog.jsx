@@ -75,6 +75,7 @@ export default function MediaDialog() {
         <MediaDialogBody
           value={bodyValue}
           onChange={changeHandler}
+          validation={bodyValid}
         />
       </DialogBody>
       <DialogFooter>
@@ -86,7 +87,7 @@ export default function MediaDialog() {
           </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={successHandler}
           >
             {successLabel}

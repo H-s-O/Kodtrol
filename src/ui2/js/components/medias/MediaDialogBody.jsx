@@ -13,7 +13,7 @@ import supportedAudioFormats from '../../lib/supportedAudioFormats';
 
 const ACCEPT_AUDIO = supportedAudioFormats.map((format) => `.${format}`).join(',');
 
-export default function MediaDialogBody({ value, onChange }) {
+export default function MediaDialogBody({ value, onChange, validation }) {
   const {
     file,
     name,
@@ -54,8 +54,8 @@ export default function MediaDialogBody({ value, onChange }) {
     <>
       <InlineFormGroup
         label="File"
-        helperText={!file ? 'A file is mandatory.' : undefined}
-        intent={!file ? Intent.DANGER : undefined}
+        helperText={!validation.file ? 'A file is mandatory.' : undefined}
+        intent={!validation.file ? Intent.DANGER : undefined}
       >
         <FileInput
           fill
@@ -69,6 +69,7 @@ export default function MediaDialogBody({ value, onChange }) {
       </InlineFormGroup>
       <InlineFormGroup
         label="Duration"
+        intent={!validation.duration ? Intent.DANGER : undefined}
       >
         {!file ? (
           <TextInput
@@ -77,7 +78,7 @@ export default function MediaDialogBody({ value, onChange }) {
             leftIcon="info-sign"
             value="<unknown>"
           />
-        ) : !duration ? (
+        ) : duration === null ? (
           <Spinner
             size={Spinner.SIZE_SMALL}
           />
