@@ -12,6 +12,7 @@ export default function NumberInput({ value, name, onChange, ...otherProps }) {
 
   return (
     <NumericInput
+      asyncControl
       value={displayValue}
       onValueChange={changeHandler}
       clampValueOnBlur
