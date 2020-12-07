@@ -1,9 +1,8 @@
-export default ({ script, layer, inTime, outTime }) => {
-  if (!script || !layer) {
-    return false;
-  }
-  if (isNaN(inTime) || isNaN(outTime)) {
-    return false;
-  }
-  return true;
-}
+import { validateAll } from './validatorHelpers';
+
+export default ({ script, layer, inTime, outTime }, maxTime) => validateAll({
+  layer: !!layer,
+  script: !!script,
+  inTime: inTime >= 0 && inTime < outTime,
+  outTime: outTime <= maxTime && outTime > inTime,
+});

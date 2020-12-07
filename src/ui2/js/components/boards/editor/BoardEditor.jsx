@@ -335,7 +335,7 @@ export default function BoardEditor({ board, onChange }) {
                       <Menu.Item
                         icon={ICON_SCRIPT}
                         text="Add Script block..."
-                        onClick={addScriptClickHandler}
+                        onClick={() => addScriptClickHandler()}
                       />
                       <Menu.Divider />
                       <Menu.Item

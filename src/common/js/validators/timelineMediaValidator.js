@@ -1,9 +1,9 @@
-export default ({ media, layer, inTime, outTime, volume }) => {
-  if (!media || !layer) {
-    return false;
-  }
-  if (isNaN(inTime) || isNaN(outTime) || isNaN(volume)) {
-    return false;
-  }
-  return true;
-}
+import { validateAll } from './validatorHelpers';
+
+export default ({ media, layer, inTime, outTime, volume }, maxTime) => validateAll({
+  media: !!media,
+  layer: !!layer,
+  inTime: inTime >= 0 && inTime < outTime,
+  outTime: outTime <= maxTime && outTime > inTime,
+  volume: volume >= 0 && volume <= 1,
+});

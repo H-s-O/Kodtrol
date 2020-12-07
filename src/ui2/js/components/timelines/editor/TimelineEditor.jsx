@@ -674,7 +674,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     timelinePercent,
     addScriptClickHandler,
     addTriggerClickHandler,
-    // addCurveClickHandler,
+    addCurveClickHandler,
     addMediaClickHandler,
   ]);
 
@@ -753,22 +753,22 @@ export default function TimelineEditor({ timeline, onChange }) {
                       <Menu.Item
                         icon={ICON_SCRIPT}
                         text="Add Script block..."
-                        onClick={addScriptClickHandler}
+                        onClick={() => addScriptClickHandler()}
                       />
                       <Menu.Item
                         icon={ICON_TRIGGER}
                         text="Add Trigger..."
-                        onClick={addTriggerClickHandler}
+                        onClick={() => addTriggerClickHandler()}
                       />
                       <Menu.Item
                         icon={ICON_CURVE}
                         text="Add Curve block..."
-                        onClick={addCurveClickHandler}
+                        onClick={() => addCurveClickHandler()}
                       />
                       <Menu.Item
                         icon={ICON_MEDIA}
                         text="Add Media block..."
-                        onClick={addMediaClickHandler}
+                        onClick={() => addMediaClickHandler()}
                       />
                       <Menu.Divider />
                       <Menu.Item
@@ -920,6 +920,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onClose={scriptDialog.hide}
         layers={availableLayers}
         scripts={availableScripts}
+        duration={duration}
       />
       <TimelineTriggerDialog
         opened={triggerDialog.opened}
@@ -929,6 +930,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onSuccess={triggerDialogSuccessHandler}
         onClose={triggerDialog.hide}
         layers={availableLayers}
+        duration={duration}
       />
       <TimelineMediaDialog
         opened={mediaDialog.opened}
@@ -939,6 +941,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onClose={mediaDialog.hide}
         layers={availableLayers}
         medias={availableMedias}
+        duration={duration}
       />
       <TimelineCurveDialog
         opened={curveDialog.opened}
@@ -948,6 +951,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onSuccess={curveDialogSuccessHandler}
         onClose={curveDialog.hide}
         layers={availableLayers}
+        duration={duration}
       />
       <TimelineRecordedTriggersDialog
         opened={recordedTriggersDialog.opened}

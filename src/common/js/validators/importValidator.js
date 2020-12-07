@@ -7,4 +7,4 @@ export default ({ devices, scripts, medias, timelines, boards }, mode) => valida
   medias: mode === DIALOG_IMPORT_MEDIAS ? !!medias && medias.length > 0 : true,
   timelines: mode === DIALOG_IMPORT_TIMELINES ? !!timelines && timelines.length > 0 : true,
   boards: mode === DIALOG_IMPORT_BOARDS ? !!boards && boards.length > 0 : true,
-})
+});

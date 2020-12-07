@@ -1,9 +1,8 @@
-export default ({ script, layer, behavior, trigger, triggerSource }) => {
-  if (!script || !layer || !behavior) {
-    return false;
-  }
-  if (trigger && !triggerSource) {
-    return false;
-  }
-  return true;
-}
+import { validateAll } from './validatorHelpers';
+
+export default ({ script, layer, behavior, trigger, triggerSource }) => validateAll({
+  script: !!script,
+  layer: !!layer,
+  behavior: !!behavior,
+  triggerSource: trigger ? !!triggerSource : true,
+})

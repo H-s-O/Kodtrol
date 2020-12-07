@@ -15,17 +15,17 @@ import {
   ITEM_BEHAVIOR_TOGGLE,
 } from '../../../../../common/js/constants/items';
 
-export default function BoardScriptDialogBody({ value = {}, onChange, layers = [], scripts = [] }) {
+export default function BoardScriptDialogBody({ value, onChange, validation, layers = [], scripts = [] }) {
   const {
-    script = null,
-    layer = null,
-    name = null,
-    behavior = null,
-    trigger = null,
-    triggerSource = null,
-    leadInTime = null,
-    leadOutTime = null,
-    color = null,
+    script,
+    layer,
+    name,
+    behavior,
+    trigger,
+    triggerSource,
+    leadInTime,
+    leadOutTime,
+    color,
   } = value;
 
   return (
@@ -33,8 +33,8 @@ export default function BoardScriptDialogBody({ value = {}, onChange, layers = [
       <InlineFormGroup
         minWidth="100"
         label="Script"
-        helperText={!script ? 'A script is mandatory.' : undefined}
-        intent={!script ? Intent.DANGER : undefined}
+        helperText={!validation.script ? 'A script is mandatory.' : undefined}
+        intent={!validation.script ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="script"
@@ -57,8 +57,8 @@ export default function BoardScriptDialogBody({ value = {}, onChange, layers = [
       <InlineFormGroup
         minWidth="100"
         label="Layer"
-        helperText={!layer ? 'A layer is mandatory.' : undefined}
-        intent={!layer ? Intent.DANGER : undefined}
+        helperText={!validation.layer ? 'A layer is mandatory.' : undefined}
+        intent={!validation.layer ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="layer"
@@ -92,8 +92,8 @@ export default function BoardScriptDialogBody({ value = {}, onChange, layers = [
       <InlineFormGroup
         minWidth="100"
         label="Behavior"
-        helperText={!behavior ? 'A behavior is mandatory.' : undefined}
-        intent={!behavior ? Intent.DANGER : undefined}
+        helperText={!validation.behavior ? 'A behavior is mandatory.' : undefined}
+        intent={!validation.behavior ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="behavior"
@@ -114,7 +114,7 @@ export default function BoardScriptDialogBody({ value = {}, onChange, layers = [
           value={trigger}
           onChange={onChange}
         >
-          <option value="null">--</option>
+          <option value="null">&lt;none&gt;</option>
           <option value={ITEM_TRIGGER_MIDI_NOTE}>{ITEM_LABELS[ITEM_TRIGGER_MIDI_NOTE]}</option>
           <option value={ITEM_TRIGGER_MIDI_CC}>{ITEM_LABELS[ITEM_TRIGGER_MIDI_CC]}</option>
         </SelectInput>
@@ -123,14 +123,14 @@ export default function BoardScriptDialogBody({ value = {}, onChange, layers = [
         <InlineFormGroup
           minWidth="100"
           label="Trigger source"
-          helperText={!triggerSource ? 'An external trigger source is mandatory.' : undefined}
-          intent={!triggerSource ? Intent.DANGER : undefined}
+          helperText={!validation.triggerSource ? 'An external trigger source is mandatory.' : undefined}
+          intent={!validation.triggerSource ? Intent.DANGER : undefined}
         >
           <TextInput
             name="triggerSource"
             value={triggerSource}
             onChange={onChange}
-            placeholder="MIDI note name or CC channel"
+            placeholder={trigger === ITEM_TRIGGER_MIDI_NOTE ? 'MIDI note name' : 'MIDI CC channel'}
           />
         </InlineFormGroup>
       )}

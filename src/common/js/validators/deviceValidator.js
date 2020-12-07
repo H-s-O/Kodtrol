@@ -6,4 +6,4 @@ export default ({ name, type, address, channel }) => validateAll({
   type: !!type,
   address: type === IO_DMX ? address > 0 : true,
   channel: type === IO_MIDI ? channel > 0 : true,
-})
+});

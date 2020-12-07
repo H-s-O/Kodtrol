@@ -9,16 +9,16 @@ import DurationInput from '../../ui/inputs/DurationInput';
 import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
 
-export default function TimelineScriptDialogBody({ value = {}, onChange, layers = [], scripts = [] }) {
+export default function TimelineScriptDialogBody({ value, onChange, validation, layers = [], scripts = [] }) {
   const {
-    script = null,
-    layer = null,
-    name = null,
-    inTime = null,
-    outTime = null,
-    leadInTime = null,
-    leadOutTime = null,
-    color = null,
+    script,
+    layer,
+    name,
+    inTime,
+    outTime,
+    leadInTime,
+    leadOutTime,
+    color,
   } = value;
 
   return (
@@ -26,8 +26,8 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       <InlineFormGroup
         minWidth="100"
         label="Script"
-        helperText={!script ? 'A script is mandatory.' : undefined}
-        intent={!script ? Intent.DANGER : undefined}
+        helperText={!validation.script ? 'A script is mandatory.' : undefined}
+        intent={!validation.script ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="script"
@@ -49,8 +49,8 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       <InlineFormGroup
         minWidth="100"
         label="Layer"
-        helperText={!layer ? 'A layer is mandatory.' : undefined}
-        intent={!layer ? Intent.DANGER : undefined}
+        helperText={!validation.layer ? 'A layer is mandatory.' : undefined}
+        intent={!validation.layer ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="layer"
@@ -83,8 +83,8 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       <InlineFormGroup
         minWidth="100"
         label="In time"
-        helperText={inTime === null ? 'An in time is mandatory.' : undefined}
-        intent={inTime === null ? Intent.DANGER : undefined}
+        helperText={!validation.inTime ? 'A valid in time is mandatory.' : undefined}
+        intent={!validation.inTime ? Intent.DANGER : undefined}
       >
         <DurationInput
           name="inTime"
@@ -108,8 +108,8 @@ export default function TimelineScriptDialogBody({ value = {}, onChange, layers 
       <InlineFormGroup
         minWidth="100"
         label="Out time"
-        helperText={outTime === null ? 'A out time is mandatory.' : undefined}
-        intent={outTime === null ? Intent.DANGER : undefined}
+        helperText={!validation.outTime ? 'A valid out time is mandatory.' : undefined}
+        intent={!validation.outTime ? Intent.DANGER : undefined}
       >
         <DurationInput
           name="outTime"

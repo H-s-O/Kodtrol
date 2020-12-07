@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import DialogBody from '../../ui/DialogBody';
@@ -9,9 +9,25 @@ import { ICON_MEDIA } from '../../../../../common/js/constants/icons';
 import TimelineMediaDialogBody from './TimelineMediaDialogBody';
 import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
 import timelineMediaValidator from '../../../../../common/js/validators/timelineMediaValidator';
+import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
 
-export default function TimelineMediaDialog({ opened, mode, value, layers, medias, onChange, onSuccess, onClose }) {
-  const bodyValid = value && timelineMediaValidator(value);
+const defaultValue = {
+  media: null,
+  layer: null,
+  name: null,
+  inTime: 0,
+  outTime: 0,
+  color: null,
+  volume: 1,
+};
+
+export default function TimelineMediaDialog({ opened, mode, value, layers, medias, duration, onChange, onSuccess, onClose }) {
+  const bodyValue = value || defaultValue;
+  const bodyValid = timelineMediaValidator(bodyValue, duration);
+
+  const changeHandler = useCallback((value, field) => {
+    onChange(mergeDialogBody(bodyValue, value, field));
+  }, [onChange, bodyValue]);
 
   return (
     <CustomDialog
@@ -22,8 +38,9 @@ export default function TimelineMediaDialog({ opened, mode, value, layers, media
     >
       <DialogBody>
         <TimelineMediaDialogBody
-          value={value}
-          onChange={onChange}
+          value={bodyValue}
+          onChange={changeHandler}
+          validation={bodyValid}
           layers={layers}
           medias={medias}
         />
@@ -37,7 +54,7 @@ export default function TimelineMediaDialog({ opened, mode, value, layers, media
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

@@ -8,4 +8,4 @@ export default ({ name, type, driver, port, address, dacRate }) => validateAll({
   port: type === IO_DMX ? !!port : true,
   address: type === IO_ARTNET ? !!address : true,
   dacRate: type === IO_ILDA ? !!dacRate : true,
-})
+});
