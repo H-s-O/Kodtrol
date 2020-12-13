@@ -61,6 +61,7 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
             small
             minimal
             icon="eye-open"
+            title="Test device"
             onClick={runHandler}
             onDoubleClick={doubleClickHandler}
           />
@@ -70,6 +71,7 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
               minimal
               icon="eye-off"
               intent={Intent.DANGER}
+              title="Stop testing device"
               onClick={stopHandler}
               onDoubleClick={doubleClickHandler}
             />

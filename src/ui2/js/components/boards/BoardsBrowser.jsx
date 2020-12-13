@@ -44,7 +44,7 @@ const BoardSecondaryLabel = ({ item: { id }, activeItemId }) => {
         minimal
         icon="eye-off"
         intent={Intent.DANGER}
-        title="Stop running timeline"
+        title="Stop running board"
         onClick={stopHandler}
         onDoubleClick={doubleClickHandler}
       />
@@ -56,7 +56,7 @@ const BoardSecondaryLabel = ({ item: { id }, activeItemId }) => {
       small
       minimal
       icon="eye-open"
-      title="Run timeline"
+      title="Run board"
       onClick={runHandler}
       onDoubleClick={doubleClickHandler}
     />

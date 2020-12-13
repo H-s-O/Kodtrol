@@ -174,6 +174,7 @@ export default function MainNav() {
         <Button
           small
           icon="cog"
+          title="Open project configuration"
           onClick={openConfigClickHandler}
         />
       </StyledNavbar.Group>
