@@ -21,7 +21,7 @@
     "generate-screenshots": "npm start -- --screenshots ../../dev/screenshots.js --project ./dev/demo_project.json",
     "generate-helpers-doc": "jsdoc -c jsdoc-conf.json > ./dev/helpers_doc.json",
     "test": "mocha --recursive -r @babel/register",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && copy-files-from-to"
   },
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",
@@ -37,6 +37,12 @@
       }
     ]
   },
+  "copyFiles": [
+    {
+      "from": "patches_bin/liblaserdocklib.so",
+      "to": "node_modules/@laser-dac/laserdock/sdk/liblaserdocklib.so"
+    }
+  ],
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/datetime": "^3.20.0",
@@ -86,6 +92,7 @@
     "@babel/preset-react": "^7.10.4",
     "@babel/register": "^7.11.5",
     "chai": "^4.2.0",
+    "copy-files-from-to": "^3.2.0",
     "cross-env": "^7.0.2",
     "electron": "^8.3.1",
     "electron-builder": "^22.6.1",
