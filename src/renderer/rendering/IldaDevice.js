@@ -1,6 +1,15 @@
-import { Path, Rect, Line, Circle } from '@laser-dac/draw';
+import { basename, join } from 'path';
+import glob from 'glob';
+import { Path, Rect, Line, Circle, HersheyFont, loadHersheyFont } from '@laser-dac/draw';
 
 import AbstractDevice from './AbstractDevice';
+
+const FONTS_DIR = join(__dirname, '..', 'hershey_fonts');
+const FONTS = glob.sync(join(FONTS_DIR, '*.jhf')).reduce((obj, fontPath) => {
+  const name = basename(fontPath, '.jhf');
+  obj[name] = loadHersheyFont(fontPath);
+  return obj;
+}, {});
 
 export default class IldaDevice extends AbstractDevice {
   _pps = null;
@@ -55,6 +64,15 @@ export default class IldaDevice extends AbstractDevice {
 
   addCircle(data) {
     this._objects.push(new Circle(data));
+  }
+
+  addText(data) {
+    // Guard
+    if (!(data.font in FONTS)) {
+      throw new Error(`Font "${data.font}" does not exists`);
+    }
+    const font = FONTS[data.font];
+    this._objects.push(new HersheyFont({ ...data, font }))
   }
 
   destroy() {
