@@ -91,13 +91,14 @@ export default function Browsers() {
   }, [currentTabId, dispatch]);
 
   return (
-    <FullHeightCard>
+    <FullHeightCard
+      className="browsers-tabs"
+    >
       <FullHeightTabs
         id="browsers"
         withBorder
         selectedTabId={currentTabId}
         onChange={(newTabId) => setCurrentTabId(newTabId)}
-        className="browsers-tabs"
       >
         <Tab
           id="devices"

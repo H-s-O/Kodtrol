@@ -90,7 +90,9 @@ export default function ScriptsEditor() {
   useHotkeys(`${isMac ? 'Meta' : 'Control'}+r`, saveAndRunHandler);
 
   return (
-    <FullHeightCard>
+    <FullHeightCard
+      className="scripts-tabs"
+    >
       {editScripts && editScripts.length ? (
         <FullHeightTabs
           id="scripts_editor"

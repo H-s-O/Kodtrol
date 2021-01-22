@@ -11,6 +11,9 @@ import {
   showBoardDialogAction,
   hideBoardDialogAction,
 } from '../src/common/js/store/actions/dialogs';
+import {
+  editScriptAction,
+} from '../src/common/js/store/actions/scripts';
 
 export default [
   {
@@ -67,5 +70,19 @@ export default [
     file: 'add_board_dialog.png',
     dispatchIn: showBoardDialogAction(DIALOG_ADD),
     dispatchOut: hideBoardDialogAction(false),
+  },
+  {
+    selector: '.scripts-tabs',
+    file: 'scripts.png',
+  },
+  {
+    selector: '.scripts-tabs',
+    file: 'scripts_editor.png',
+    dispatchIn: editScriptAction('A', { content: '' }),
+    dispatchOut: hideBoardDialogAction(false),
+  },
+  {
+    selector: '.timelines-boards-tabs',
+    file: 'timelines_boards.png',
   },
 ];

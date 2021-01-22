@@ -133,7 +133,9 @@ export default function TimelinesBoardsEditor() {
   useHotkeys(`${isMac ? 'Meta' : 'Control'}+r`, saveAndRunHandler);
 
   return (
-    <FullHeightCard>
+    <FullHeightCard
+      className="timelines-boards-tabs"
+    >
       {((editTimelines && editTimelines.length > 0) || (editBoards && editBoards.length > 0)) ? (
         <FullHeightTabs
           id="timelines_boards_editor"
