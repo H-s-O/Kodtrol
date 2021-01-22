@@ -96,6 +96,34 @@ export default class MainWindow extends EventEmitter {
     }
   }
 
+  virtualClick = async (selector, callback) => {
+    if (this.contents) {
+      const js = `
+        (function() {
+          try {
+            let b = document.querySelector('${selector}').getBoundingClientRect();
+            return {
+              x: b.x + (b.width / 2),
+              y: b.y + (b.height / 2)
+            };
+          } catch (e) {
+            return e.message;
+          }
+        })()`;
+      const pos = await this.contents.executeJavaScript(js);
+      if (typeof pos === 'string') {
+        callback(pos);
+      }
+      const roundedPos = {
+        x: Math.round(pos.x),
+        y: Math.round(pos.y),
+      };
+      this.contents.sendInputEvent({ type: 'mouseDown', button: 'left', clickCount: 1, x: roundedPos.x, y: roundedPos.y });
+      this.contents.sendInputEvent({ type: 'mouseUp', button: 'left', clickCount: 1, x: roundedPos.x, y: roundedPos.y });
+      callback(null);
+    }
+  }
+
   destroy = () => {
     if (this.win) {
       this.win.removeAllListeners();

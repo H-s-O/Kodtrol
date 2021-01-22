@@ -97,6 +97,7 @@ export default function Browsers() {
         withBorder
         selectedTabId={currentTabId}
         onChange={(newTabId) => setCurrentTabId(newTabId)}
+        className="browsers-tabs"
       >
         <Tab
           id="devices"

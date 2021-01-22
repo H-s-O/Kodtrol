@@ -609,7 +609,7 @@ export default class Main {
     ensureDir(dir);
 
     for (let i = 0; i < data.length; i++) {
-      const { selector, file, dispatchIn, dispatchOut } = data[i];
+      const { selector, file, dispatchIn, dispatchOut, clickIn } = data[i];
 
       console.info(`Generating screenshot for ${selector}`);
 
@@ -617,6 +617,18 @@ export default class Main {
         if (dispatchIn) {
           await new Promise((resolve, reject) => {
             this.store.dispatch(dispatchIn);
+            setTimeout(resolve, 1500);
+          });
+        }
+
+        if (clickIn) {
+          await new Promise((resolve, reject) => {
+            this.mainWindow.virtualClick(clickIn, (err) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+            });
             setTimeout(resolve, 1500);
           });
         }
