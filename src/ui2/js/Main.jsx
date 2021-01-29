@@ -6,6 +6,7 @@ import Browsers from './components/Browsers';
 import DialogsContainer from './components/DialogsContainer';
 import ScriptsEditor from './components/ScriptsEditor';
 import TimelinesBoardsEditor from './components/TimelinesBoardsEditor';
+import ScriptsErrorsContainer from './components/ScriptsErrorsContainer';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -66,6 +67,7 @@ export default function Main(props) {
         </StyledBottomRow>
       </StyledContainer>
       <DialogsContainer />
+      <ScriptsErrorsContainer />
     </>
   );
 }

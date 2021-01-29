@@ -1,26 +1,34 @@
 import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 
+import { isMac } from '../../../common/js/lib/platforms';
+
 export default class AudioRenderer {
   _audioWindow = null;
   _ready = false;
 
   constructor() {
+    app.allowRendererProcessReuse = false;
+
     // Set the Autoplay Policy to not require user interaction;
     // this allows us to play audio normally
     // @see https://github.com/electron/electron/issues/13525#issuecomment-410923391
     app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+    // Disable hardware keys for media playback control
+    // @see https://github.com/electron/electron/issues/21731#issuecomment-589543405
+    app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling');
 
     // Do not show in macOS Dock
-    app.dock.hide()
+    if (isMac) {
+      app.dock.hide()
+    }
 
     app.on('ready', this._onReady.bind(this));
     app.on('window-all-closed', this._onWindowAllClosed.bind(this));
 
     process.on('SIGTERM', this._onSigTerm.bind(this));
 
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', this._onData.bind(this));
+    process.on('message', this._onMessage.bind(this));
   }
 
   _onSigTerm() {
@@ -47,7 +55,7 @@ export default class AudioRenderer {
     });
     this._audioWindow.webContents.openDevTools();
 
-    this._audioWindow.loadFile(join(__dirname, '../../../../build/audio/index.html'));
+    this._audioWindow.loadFile(join(__dirname, '..', '..', '..', '..', 'build', 'audio', 'index.html'));
     this._audioWindow.webContents.once('did-finish-load', this._onFinishLoad.bind(this));
   }
 
@@ -64,9 +72,9 @@ export default class AudioRenderer {
     this._audioWindow = null;
   }
 
-  _onData(chunk) {
+  _onMessage(message) {
     if (this._audioWindow && this._ready) {
-      this._audioWindow.webContents.send('data', chunk);
+      this._audioWindow.webContents.send('data', message);
     }
   }
 }

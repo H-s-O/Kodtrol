@@ -24,7 +24,7 @@ import {
   doPaste,
   doDeleteItemsOfLayer,
 } from '../../../../../common/js/lib/itemOperations';
-import { deleteWarning } from '../../../lib/dialogHelpers';
+import { deleteWarning } from '../../../lib/messageBoxes';
 import TimelineScriptDialog from './TimelineScriptDialog';
 import { DIALOG_EDIT, DIALOG_ADD, DIALOG_CONFIGURE } from '../../../../../common/js/constants/dialogs';
 import useDialog from '../../../lib/useDialog';
@@ -38,7 +38,7 @@ import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNa
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 import { ipcRendererListen, ipcRendererClear, ipcRendererSend } from '../../../lib/ipcRenderer';
 import { UPDATE_TIMELINE_INFO } from '../../../../../common/js/constants/events';
-import focusIsGlobal from '../../../../../ui/js/lib/focusIsGlobal';
+import focusIsGlobal from '../../../lib/focusIsGlobal';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -158,6 +158,14 @@ export default function TimelineEditor({ timeline, onChange }) {
   const timelineInfo = useRef();
   const [isPlaying, setIsPlaying] = useState(false);
 
+  if (!isRunning) {
+    // Reset isPlaying and clear timelineInfo if not running
+    if (isPlaying) {
+      setIsPlaying(false);
+    }
+    timelineInfo.current = { playing: false, position: 0 };
+  }
+
   // Zoom
   const zoomClickHandler = useCallback((value) => {
     // Hide and reset the position of the mouse tracker, which
@@ -215,12 +223,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [scriptDialog, timeline]);
   const deleteScriptClickHandler = useCallback((id) => {
     const script = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete script ${getScriptName(script, scriptsNames)}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      })
+    deleteWarning(`Are you sure you want to delete script ${getScriptName(script, scriptsNames)}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [onChange, timeline, scriptsNames]);
   const scriptDialogSuccessHandler = useCallback(() => {
     if (scriptDialog.mode === DIALOG_EDIT) {
@@ -241,12 +248,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [triggerDialog, timeline]);
   const deleteTriggerClickHandler = useCallback((id) => {
     const trigger = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete trigger ${trigger.name}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      })
+    deleteWarning(`Are you sure you want to delete trigger ${trigger.name}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [onChange, timeline]);
   const triggerDialogSuccessHandler = useCallback(() => {
     if (triggerDialog.mode === DIALOG_EDIT) {
@@ -267,12 +273,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [mediaDialog, timeline]);
   const deleteMediaClickHandler = useCallback((id) => {
     const media = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete media ${mediasNames[media.media].name}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      })
+    deleteWarning(`Are you sure you want to delete media ${mediasNames[media.media].name}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [onChange, timeline, mediasNames]);
   const mediaDialogSuccessHandler = useCallback(() => {
     if (mediaDialog.mode === DIALOG_EDIT) {
@@ -293,12 +298,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [curveDialog, timeline]);
   const deleteCurveClickHandler = useCallback((id) => {
     const curve = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete curve ${curve.name}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      })
+    deleteWarning(`Are you sure you want to delete curve ${curve.name}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [onChange, timeline]);
   const curveDialogSuccessHandler = useCallback(() => {
     if (curveDialog.mode === DIALOG_EDIT) {
@@ -320,13 +324,15 @@ export default function TimelineEditor({ timeline, onChange }) {
     e.stopPropagation();
 
     element.classList.add('active');
-    document.body.style = 'cursor:ew-resize;';
+    document.body.style = mode === 'inOutTime' ? 'cursor:ew-resize;' : 'cursor:col-resize;';
     dragContent.current = {
+      changed: false,
+      startPercent: timelinePercent.current,
       item: getItem(items, id),
       mode,
       element,
     };
-  }, [dragContent, items]);
+  }, [dragContent, items, timelinePercent]);
   const itemChangeLayerUpClick = useCallback((id) => {
     onChange({ items: doChangeItemLayer(items, layers, id, 1) });
   }, [onChange, items, layers]);
@@ -519,19 +525,28 @@ export default function TimelineEditor({ timeline, onChange }) {
     const percent = getContainerPercent(e);
     timelinePercent.current = percent;
     if (dragContent.current) {
-      const { mode, element, item } = dragContent.current;
+      const { mode, element, item, startPercent } = dragContent.current;
+
+      let effectivePercent;
 
       if (mode === 'inTime') {
         if (item.type === ITEM_TRIGGER) {
-          element.style = `left:${percentString(percent)}`;
+          effectivePercent = percent;
+          element.style = `left:${percentString(effectivePercent)}`;
         } else {
-          element.style = `left:${percentString(percent)};width:${percentString((item.outTime / duration) - percent)}`;
+          effectivePercent = Math.min(percent, (item.outTime / duration));
+          element.style = `left:${percentString(effectivePercent)};width:${percentString((item.outTime / duration) - effectivePercent)}`;
         }
       } else if (mode === 'outTime') {
-        element.style = `left:${percentString(item.inTime / duration)};width:${percentString(percent - (item.inTime / duration))}`;
+        effectivePercent = Math.max((item.inTime / duration), percent);
+        element.style = `left:${percentString(item.inTime / duration)};width:${percentString(effectivePercent - (item.inTime / duration))}`;
+      } else if (mode === 'inOutTime') {
+        effectivePercent = Math.max(0, Math.min(1 - ((item.outTime - item.inTime) / duration), percent - (startPercent - (item.inTime / duration))));
+        element.style = `left:${percentString(effectivePercent)};width:${percentString((item.outTime - item.inTime) / duration)}`;
       }
 
-      dragContent.current.percent = percent;
+      dragContent.current.percent = effectivePercent;
+      dragContent.current.changed = true;
     }
   }, [mouseTracker.current, dragContent.current, timelinePercent, duration]);
   const zoomContainerDoubleClickHandler = useCallback((e) => {
@@ -546,12 +561,16 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [isRunning, timelinePercent, timelineInfo, duration]);
   const windowMouseUpHandler = useCallback((e) => {
     if (dragContent.current) {
-      const { mode, element, item, percent } = dragContent.current;
+      const { mode, element, item, percent, changed } = dragContent.current;
 
-      if (mode === 'inTime') {
-        onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent) }) });
-      } else if (mode === 'outTime') {
-        onChange({ items: doUpdateItem(items, { ...item, outTime: Math.round(duration * percent) }) });
+      if (changed) {
+        if (mode === 'inTime') {
+          onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent) }) });
+        } else if (mode === 'outTime') {
+          onChange({ items: doUpdateItem(items, { ...item, outTime: Math.round(duration * percent) }) });
+        } else if (mode === 'inOutTime') {
+          onChange({ items: doUpdateItem(items, { ...item, inTime: Math.round(duration * percent), outTime: Math.round((duration * percent) + (item.outTime - item.inTime)) }) });
+        }
       }
 
       element.classList.remove('active');
@@ -560,18 +579,20 @@ export default function TimelineEditor({ timeline, onChange }) {
     }
   }, [dragContent.current, items, duration, onChange]);
   const updateTimelineInfoHandler = useCallback((e, data) => {
-    timelineInfo.current = data;
-    if (positionTracker.current) {
-      const { position } = data;
-      const percent = position / duration;
-      positionTracker.current.style = `left:${percentString(percent)}`;
+    if (isRunning) {
+      timelineInfo.current = data;
+      if (positionTracker.current) {
+        const { position } = data;
+        const percent = position / duration;
+        positionTracker.current.style = `left:${percentString(percent)}`;
+      }
+      if (!isPlaying && data.playing) {
+        setIsPlaying(true);
+      } else if (isPlaying && !data.playing) {
+        setIsPlaying(false);
+      }
     }
-    if (!isPlaying && data.playing) {
-      setIsPlaying(true);
-    } else if (isPlaying && !data.playing) {
-      setIsPlaying(false);
-    }
-  }, [positionTracker.current, timelineInfo, duration, isPlaying]);
+  }, [positionTracker.current, timelineInfo, duration, isRunning, isPlaying]);
   useEffect(() => {
     window.addEventListener('mouseup', windowMouseUpHandler);
     return () => window.removeEventListener('mouseup', windowMouseUpHandler);
@@ -593,12 +614,11 @@ export default function TimelineEditor({ timeline, onChange }) {
   }, [onChange, timeline]);
   const layersDeleteHandler = useCallback((id) => {
     const layer = layers.find((layer) => layer.id === id);
-    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
-        }
-      });
+    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`, (result) => {
+      if (result) {
+        onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
+      }
+    });;
   }, [onChange, timeline]);
   const layerChildrenRenderer = useCallback((id) => {
     return (
@@ -654,7 +674,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     timelinePercent,
     addScriptClickHandler,
     addTriggerClickHandler,
-    // addCurveClickHandler,
+    addCurveClickHandler,
     addMediaClickHandler,
   ]);
 
@@ -733,22 +753,22 @@ export default function TimelineEditor({ timeline, onChange }) {
                       <Menu.Item
                         icon={ICON_SCRIPT}
                         text="Add Script block..."
-                        onClick={addScriptClickHandler}
+                        onClick={() => addScriptClickHandler()}
                       />
                       <Menu.Item
                         icon={ICON_TRIGGER}
                         text="Add Trigger..."
-                        onClick={addTriggerClickHandler}
+                        onClick={() => addTriggerClickHandler()}
                       />
                       <Menu.Item
                         icon={ICON_CURVE}
                         text="Add Curve block..."
-                        onClick={addCurveClickHandler}
+                        onClick={() => addCurveClickHandler()}
                       />
                       <Menu.Item
                         icon={ICON_MEDIA}
                         text="Add Media block..."
-                        onClick={addMediaClickHandler}
+                        onClick={() => addMediaClickHandler()}
                       />
                       <Menu.Divider />
                       <Menu.Item
@@ -900,6 +920,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onClose={scriptDialog.hide}
         layers={availableLayers}
         scripts={availableScripts}
+        duration={duration}
       />
       <TimelineTriggerDialog
         opened={triggerDialog.opened}
@@ -909,6 +930,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onSuccess={triggerDialogSuccessHandler}
         onClose={triggerDialog.hide}
         layers={availableLayers}
+        duration={duration}
       />
       <TimelineMediaDialog
         opened={mediaDialog.opened}
@@ -919,6 +941,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onClose={mediaDialog.hide}
         layers={availableLayers}
         medias={availableMedias}
+        duration={duration}
       />
       <TimelineCurveDialog
         opened={curveDialog.opened}
@@ -928,6 +951,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onSuccess={curveDialogSuccessHandler}
         onClose={curveDialog.hide}
         layers={availableLayers}
+        duration={duration}
       />
       <TimelineRecordedTriggersDialog
         opened={recordedTriggersDialog.opened}

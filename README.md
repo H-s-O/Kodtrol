@@ -12,13 +12,13 @@ There is no executable build yet. Still an Electron noob. See "Local development
 - MIDI timecode sync
 - Helpers Hub (where users can post their script helpers and share them)
 - Manual and docs on [kodtrol.com](http://kodtrol.com)
-- Display a nice first time "welcome" screen
 
 ## Local development / run from source
 
 **Requirements**
 - Node.js >= 10.x.x
 - npm >= 3.6.x
+- Linux only: `libasound2-dev` package
 
 Clone the repository and `cd` into it.  
 Then:
@@ -31,5 +31,4 @@ And in another terminal, run:
 ```
 npm start
 ```
-Note that when starting the app the first time, you won't have an active project 
-preloaded yet. Just go to *File > Create project...* to create one.
+If all goes well, you should see the Welcome Screen allowing you to create a new project or open an existing one.

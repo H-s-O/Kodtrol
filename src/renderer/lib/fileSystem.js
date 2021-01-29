@@ -9,9 +9,9 @@ export const getConvertedAudiosDir = () => {
 }
 
 export const getCompiledScriptPath = (scriptId) => {
-  return path.join(getCompiledScriptsDir(), `/${scriptId}.js`);
+  return path.join(getCompiledScriptsDir(), `${scriptId}.js`);
 }
 
 export const getConvertedAudioPath = (audioId) => {
-  return path.join(getConvertedAudiosDir(), `/${audioId}.pcm`);
+  return path.join(getConvertedAudiosDir(), `${audioId}.pcm`);
 }

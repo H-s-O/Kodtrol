@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import DialogBody from '../../ui/DialogBody';
@@ -9,9 +9,26 @@ import { ICON_SCRIPT } from '../../../../../common/js/constants/icons';
 import TimelineScriptDialogBody from './TimelineScriptDialogBody';
 import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
 import timelineScriptValidator from '../../../../../common/js/validators/timelineScriptValidator';
+import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
 
-export default function TimelineScriptDialog({ opened, mode, value, layers, scripts, onChange, onSuccess, onClose }) {
-  const bodyValid = value && timelineScriptValidator(value);
+const defaultValue = {
+  script: null,
+  layer: null,
+  name: null,
+  inTime: 0,
+  outTime: 0,
+  leadInTime: null,
+  leadOutTime: null,
+  color: null,
+};
+
+export default function TimelineScriptDialog({ opened, mode, value, layers, scripts, duration, onChange, onSuccess, onClose }) {
+  const bodyValue = value || defaultValue;
+  const bodyValid = timelineScriptValidator(bodyValue, duration);
+
+  const changeHandler = useCallback((value, field) => {
+    onChange(mergeDialogBody(bodyValue, value, field));
+  }, [onChange, bodyValue]);
 
   return (
     <CustomDialog
@@ -22,8 +39,9 @@ export default function TimelineScriptDialog({ opened, mode, value, layers, scri
     >
       <DialogBody>
         <TimelineScriptDialogBody
-          value={value}
-          onChange={onChange}
+          value={bodyValue}
+          onChange={changeHandler}
+          validation={bodyValid}
           layers={layers}
           scripts={scripts}
         />
@@ -37,7 +55,7 @@ export default function TimelineScriptDialog({ opened, mode, value, layers, scri
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

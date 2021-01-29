@@ -12,7 +12,7 @@ export default class AudioSubProcess extends EventEmitter {
   constructor() {
     super();
 
-    const processPath = join(__dirname, './audio/kodtrol-audio.js');
+    const processPath = join(__dirname, '.', 'audio', 'kodtrol-audio.js');
 
     this._childProcess = spawn(electron, [
       ...(isDev ? [
@@ -21,7 +21,7 @@ export default class AudioSubProcess extends EventEmitter {
       ] : []),
       processPath,
     ], {
-      stdio: ['pipe', 'pipe', 'inherit'],
+      stdio: ['ipc', 'pipe', 'inherit'],
       env: {
         KODTROL_DEV: process.env['KODTROL_DEV'],
         KODTROL_AUDIOS_DIR: getConvertedAudiosDir(),
@@ -39,7 +39,12 @@ export default class AudioSubProcess extends EventEmitter {
 
   send(data) {
     if (this._childProcess) {
-      this._childProcess.stdin.write(JSON.stringify(data), 'utf8');
+      if (!this._childProcess.connected) {
+        console.error('Audio subprocess not connected!');
+        return;
+      }
+
+      this._childProcess.send(data);
     }
   }
 

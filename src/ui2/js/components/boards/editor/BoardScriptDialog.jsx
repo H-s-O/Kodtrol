@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import DialogBody from '../../ui/DialogBody';
@@ -9,9 +9,27 @@ import { ICON_SCRIPT } from '../../../../../common/js/constants/icons';
 import BoardScriptDialogBody from './BoardScriptDialogBody';
 import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
 import boardScriptValidator from '../../../../../common/js/validators/boardScriptValidator';
+import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
+
+const defaultValue = {
+  script: null,
+  layer: null,
+  name: null,
+  behavior: null,
+  trigger: null,
+  triggerSource: null,
+  leadInTime: null,
+  leadOutTime: null,
+  color: null,
+}
 
 export default function BoardScriptDialog({ opened, mode, value, layers, scripts, onChange, onSuccess, onClose }) {
-  const bodyValid = value && boardScriptValidator(value);
+  const bodyValue = value || defaultValue;
+  const bodyValid = boardScriptValidator(bodyValue);
+
+  const changeHandler = useCallback((value, field) => {
+    onChange(mergeDialogBody(bodyValue, value, field));
+  }, [onChange, bodyValue]);
 
   return (
     <CustomDialog
@@ -22,8 +40,9 @@ export default function BoardScriptDialog({ opened, mode, value, layers, scripts
     >
       <DialogBody>
         <BoardScriptDialogBody
-          value={value}
-          onChange={onChange}
+          value={bodyValue}
+          onChange={changeHandler}
+          validation={bodyValid}
           layers={layers}
           scripts={scripts}
         />
@@ -37,7 +56,7 @@ export default function BoardScriptDialog({ opened, mode, value, layers, scripts
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

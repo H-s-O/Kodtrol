@@ -9,6 +9,5 @@ export const RUN_DEVICE = 'run_device';
 export const RUN_SCRIPT = 'run_script';
 export const RUN_TIMELINE = 'run_timeline';
 export const RUN_BOARD = 'run_board';
-export const TIMELINE_INFO_USER_CHANGED = 'timeline_info_user_changed';
-export const BOARD_INFO_USER_CHANGED = 'board_info_user_changed';
 export const CONTENT_SAVED = 'content_saved';
+export const CONSOLE_CHANGED = 'console_changed';

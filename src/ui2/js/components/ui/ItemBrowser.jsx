@@ -3,7 +3,9 @@ import { remote } from 'electron';
 import styled from 'styled-components';
 
 import ManagedTree from '../ui/ManagedTree';
-import { deleteWarning } from '../../../../ui/js/lib/messageBoxes';
+import { deleteWarning } from '../../lib/messageBoxes';
+
+const DEFAULT_ITEM_PROPS_FILTER = ({ id, name }) => ({ id, name });
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -21,7 +23,10 @@ export default function ItemBrowser({
   deleteCallback,
   itemLabelComponent: LabelComponent,
   itemSecondaryLabelComponent: SecondaryLabelComponent,
-  extraComponentProp,
+  enableEdit = true,
+  enableDuplicate = true,
+  enableDelete = true,
+  itemPropsFilter = DEFAULT_ITEM_PROPS_FILTER,
 }) {
   const editPropsClickHandler = useCallback((id) => {
     if (editPropsCallback) {
@@ -50,24 +55,27 @@ export default function ItemBrowser({
         template.push({
           label: `Edit ${label} properties...`,
           click: () => editPropsClickHandler(id),
+          enabled: enableEdit,
         });
       }
       if (duplicateCallback) {
         template.push({
           label: `Duplicate ${label}...`,
           click: () => duplicateClickHandler(id),
+          enabled: enableDuplicate,
         });
       }
       if (deleteCallback) {
         template.push({
           label: `Delete ${label}...`,
           click: () => deleteClickHandler(id),
+          enabled: enableDelete,
         });
       }
     }
     const menu = remote.Menu.buildFromTemplate(template);
     menu.popup();
-  }, [editPropsCallback, duplicateCallback, deleteCallback]);
+  }, [editPropsCallback, duplicateCallback, deleteCallback, enableEdit, enableDuplicate, enableDelete]);
   const nodeDoubleClickHandler = useCallback(({ id, hasCaret }) => {
     if (!hasCaret) {
       if (editCallback) {
@@ -79,28 +87,25 @@ export default function ItemBrowser({
   const treeItems = useMemo(() => {
     return items.map((item) => {
       const { id, name } = item;
+      const filteredProps = itemPropsFilter(item);
       return {
         id,
         key: id,
         label: !LabelComponent ? name : (
           <LabelComponent
-            id={id}
-            name={name}
+            item={filteredProps}
             activeItemId={activeItemId}
-            {...(extraComponentProp ? { [extraComponentProp]: item[extraComponentProp] } : undefined)}
           />
         ),
         secondaryLabel: SecondaryLabelComponent && (
           <SecondaryLabelComponent
-            id={id}
-            name={name}
+            item={filteredProps}
             activeItemId={activeItemId}
-            {...(extraComponentProp ? { [extraComponentProp]: item[extraComponentProp] } : undefined)}
           />
         ),
       };
     });
-  }, [items, activeItemId, LabelComponent, SecondaryLabelComponent, extraComponentProp]);
+  }, [items, activeItemId, LabelComponent, SecondaryLabelComponent, itemPropsFilter]);
   const treeFolders = useMemo(() => {
     return folders.map(({ id, name }) => ({
       id,

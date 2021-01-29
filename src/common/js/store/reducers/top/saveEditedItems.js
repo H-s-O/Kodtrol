@@ -33,7 +33,7 @@ export default (state, { type, payload }) => {
         timelines: state.timelines.map((timeline) => {
           if (timeline.id === payload) {
             const newData = { ...timeline, layers, items, zoom, zoomVert, recording, recordedTriggers };
-            const hash = hashDataObject(newData, ['id', 'name', 'zoom', 'zoomVert', 'recording', 'recordedTriggers']);
+            const hash = hashDataObject(newData, ['id:1', 'name', 'zoom', 'zoomVert', 'recording', 'recordedTriggers']);
             return {
               ...newData,
               hash,
@@ -53,7 +53,7 @@ export default (state, { type, payload }) => {
         boards: state.boards.map((board) => {
           if (board.id === payload) {
             const newData = { ...board, layers, items, zoom, zoomVert };
-            const hash = hashDataObject(newData, ['id', 'name', 'zoom', 'zoomVert']);
+            const hash = hashDataObject(newData, ['id:1', 'name', 'zoom', 'zoomVert']);
             return {
               ...newData,
               hash,

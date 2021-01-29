@@ -5,7 +5,7 @@ import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
 import NumberInput from '../ui/inputs/NumberInput';
 
-export default function BoardDialogBody({ value, onChange }) {
+export default function BoardDialogBody({ value, onChange, validation }) {
   const {
     name,
     tempo,
@@ -15,8 +15,8 @@ export default function BoardDialogBody({ value, onChange }) {
     <>
       <InlineFormGroup
         label="Name"
-        helperText={!name ? 'A board name is mandatory.' : undefined}
-        intent={!name ? Intent.DANGER : undefined}
+        helperText={!validation.name ? 'A board name is mandatory.' : undefined}
+        intent={!validation.name ? Intent.DANGER : undefined}
       >
         <TextInput
           name="name"

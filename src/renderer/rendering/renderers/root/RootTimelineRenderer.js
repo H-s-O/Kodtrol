@@ -64,11 +64,15 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this._blocks = timelineItems
       .filter(({ type }) => type === ITEM_SCRIPT)
       .reduce((obj, block) => {
+        const instance = new ScriptRenderer(this._providers, block.script);
+        instance.on('script_error', this._forwardEvent('script_error', { block: block.id, timeline: this._timeline.id }));
+        instance.on('script_log', this._forwardEvent('script_log', { block: block.id, timeline: this._timeline.id }));
+
         return {
           ...obj,
           [block.id]: {
             ...block,
-            instance: new ScriptRenderer(this._providers, block.script),
+            instance,
           },
         };
       }, {});
@@ -196,9 +200,10 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
   _runFrame(frameTime) {
     const currentTime = this._currentTime;
-    if (currentTime >= this._timeline.outTime) {
-      this._currentTime = this._timeline.outTime;
-      this._endCallback();
+    const duration = this._timeline.duration;
+    if (currentTime >= duration) {
+      this._currentTime = duration;
+      this.emit('end', duration);
       return;
     }
 
@@ -385,10 +390,13 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
   destroy() {
     if (this._timeline) {
-      this._timeline.removeAllListeners();
+      this._timeline.removeAllListeners('updated');
     }
 
-    Object.values(this._blocks).forEach((block) => block.instance.destroy());
+    Object.values(this._blocks).forEach((block) => {
+      block.instance.removeAllListeners();
+      block.instance.destroy();
+    });
     Object.values(this._curves).forEach((curve) => curve.instance.destroy());
 
     this._timeline = null;

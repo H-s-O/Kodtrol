@@ -7,29 +7,32 @@ import { readAppConfig, writeAppConfig, writeJson, readJson, writeFile, ensureDi
 import MainWindow from './ui/MainWindow';
 import MainMenu from './ui/MainMenu';
 import * as MainWindowEvent from './events/MainWindowEvent';
+import * as ConsoleWindowEvent from './events/ConsoleWindowEvent';
 import * as MainMenuEvent from './events/MainMenuEvent';
 import * as StoreEvent from './events/StoreEvent';
 import * as RendererEvent from './events/RendererEvent';
 import * as WatcherEvent from './events/WatcherEvent';
 import Store from './data/Store';
-import { updateTimelineInfo } from '../common/js/store/actions/timelineInfo';
-import { updateBoardInfo } from '../common/js/store/actions/boardInfo';
 import { updateIOStatusAction } from '../common/js/store/actions/ioStatus';
 import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
-import { ipcMainListen, ipcMainClear, ipcMainSend } from './lib/ipcMain';
-import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO } from '../common/js/constants/events';
-import customLog from '../common/js/lib/customLog';
+import { ipcMainListen, ipcMainClear } from './lib/ipcMain';
+import { UPDATE_TIMELINE_INFO, UPDATE_BOARD_INFO, SCRIPT_ERROR, SCRIPT_LOG, TRIGGER_CREATE_PROJECT, TRIGGER_LOAD_PROJECT, TRIGGER_QUIT } from '../common/js/constants/events';
 import MidiWatcher from './lib/watchers/MidiWatcher';
 import { updateIOAvailableAction } from '../common/js/store/actions/ioAvailable';
 import { IO_MIDI, IO_INPUT, IO_OUTPUT } from '../common/js/constants/io';
 import isDev from '../common/js/lib/isDev';
+import ConsoleWindow from './ui/ConsoleWindow';
+import { setConsoleClosedAction } from '../common/js/store/actions/console';
+import SplashWindow from './ui/SplashWindow';
 
 export default class Main {
   currentProjectFilePath = null;
   mainWindow = null;
+  consoleWindow = null;
+  splashWindow = null;
   mainMenu = null
   store = null;
   renderer = null;
@@ -39,8 +42,6 @@ export default class Main {
   static _devExtensionsLoaded = false;
 
   constructor() {
-    customLog('main');
-
     app.allowRendererProcessReuse = false;
 
     app.on('ready', this.onReady);
@@ -60,13 +61,17 @@ export default class Main {
   }
 
   onReady = () => {
+    MainMenu.setEmpty();
+
     this.loadDevExtensions();
-    this.createMainMenu();
+    this.setupEventListeners();
     this.createWatchers();
     this.run();
   }
 
   onWillQuit = () => {
+    this.removeEventListeners();
+
     // Better safe than sorry; destroy the renderer
     // on quit if it somehow survived
     this.destroyRenderer();
@@ -74,8 +79,8 @@ export default class Main {
 
   loadDevExtensions = () => {
     if (isDev && !Main._devExtensionsLoaded) {
-      BrowserWindow.addDevToolsExtension(join(__dirname, '../../dev/extensions/fmkadmapgofadopljbjfkapdkoienihi/4.7.0_0'));
-      BrowserWindow.addDevToolsExtension(join(__dirname, '../../dev/extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'));
+      BrowserWindow.addDevToolsExtension(join(__dirname, '..', '..', 'dev', 'extensions', 'fmkadmapgofadopljbjfkapdkoienihi', '4.7.0_0'));
+      BrowserWindow.addDevToolsExtension(join(__dirname, '..', '..', 'dev', 'extensions', 'lmhkpmbekcpmknklioeibfkpmmfibljd', '2.17.0_0'));
       Main._devExtensionsLoaded = true;
     }
   }
@@ -90,10 +95,15 @@ export default class Main {
     const configCurrentProject = readAppConfig('currentProjectFilePath');
     if (configCurrentProject) {
       this.loadProject(configCurrentProject);
+      return;
     }
+
+    this.createSplashWindow();
   }
 
   loadProject = (path, init = false, save = true) => {
+    this.destroySplashWindow();
+
     this.currentProjectFilePath = path;
 
     if (save) {
@@ -110,8 +120,9 @@ export default class Main {
     }
 
     this.createRenderer();
+    this.createMainMenu();
     this.createMainWindow();
-    this.setupEventListeners();
+    this.createConsoleWindow();
   }
 
   createStore = (initialData = null) => {
@@ -127,9 +138,8 @@ export default class Main {
     this.store.on(StoreEvent.RUN_SCRIPT, this.onRunScript);
     this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
     this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
-    this.store.on(StoreEvent.TIMELINE_INFO_USER_CHANGED, this.onTimelineInfoUserChanged);
-    this.store.on(StoreEvent.BOARD_INFO_USER_CHANGED, this.onBoardInfoUserChanged);
     this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
+    this.store.on(StoreEvent.CONSOLE_CHANGED, this.onConsoleChanged);
   }
 
   destroyStore = () => {
@@ -178,7 +188,9 @@ export default class Main {
 
     scripts.forEach(script => {
       console.info('Compiling script', script.id, script.name);
+      console.time('compile time');
       compileScript(script);
+      console.timeEnd('compile time');
     })
 
     if (this.renderer) {
@@ -225,6 +237,12 @@ export default class Main {
   onContentSaved = () => {
     console.log('onContentSaved');
     this.saveProject();
+  }
+
+  onConsoleChanged = () => {
+    if (this.consoleWindow) {
+      this.consoleWindow.setVisible(this.store.state.console);
+    }
   }
 
   onRunDevice = () => {
@@ -275,23 +293,14 @@ export default class Main {
     this.updatePower();
   }
 
-  onTimelineInfoUserChanged = () => {
-    const { timelineInfoUser } = this.store.state;
-
-    if (this.renderer && timelineInfoUser !== null) {
-      this.renderer.send({
-        timelineInfoUser,
-      });
-    }
+  createSplashWindow = () => {
+    this.splashWindow = new SplashWindow();
   }
 
-  onBoardInfoUserChanged = () => {
-    const { boardInfoUser } = this.store.state;
-
-    if (this.renderer && boardInfoUser !== null) {
-      this.renderer.send({
-        boardInfoUser,
-      });
+  destroySplashWindow = () => {
+    if (this.splashWindow) {
+      this.splashWindow.destroy();
+      this.splashWindow = null;
     }
   }
 
@@ -322,9 +331,29 @@ export default class Main {
     }
   }
 
+  createConsoleWindow = () => {
+    this.consoleWindow = new ConsoleWindow();
+    this.consoleWindow.on(ConsoleWindowEvent.CLOSING, this.onConsoleWindowClosing);
+  }
+
+  onConsoleWindowClosing = () => {
+    this.store.dispatch(setConsoleClosedAction());
+  }
+
+  destroyConsoleWindow = () => {
+    if (this.consoleWindow) {
+      this.consoleWindow.removeAllListeners();
+      this.consoleWindow.destroy();
+      this.consoleWindow = null;
+    }
+  }
+
   setupEventListeners = () => {
-    ipcMainListen(UPDATE_TIMELINE_INFO, this.onUpdateTimelineInfo)
-    ipcMainListen(UPDATE_BOARD_INFO, this.onUpdateBoardInfo)
+    ipcMainListen(UPDATE_TIMELINE_INFO, this.onUpdateTimelineInfo);
+    ipcMainListen(UPDATE_BOARD_INFO, this.onUpdateBoardInfo);
+    ipcMainListen(TRIGGER_CREATE_PROJECT, this.onTriggerCreateProject);
+    ipcMainListen(TRIGGER_LOAD_PROJECT, this.onTriggerLoadProject);
+    ipcMainListen(TRIGGER_QUIT, this.onTriggerQuit);
   }
 
   removeEventListeners = () => {
@@ -347,12 +376,34 @@ export default class Main {
     }
   }
 
+  onTriggerCreateProject = () => {
+    if (this.hasProjectOpened) {
+      this.doCloseProjectWarn(this.createProject);
+    } else {
+      this.createProject();
+    }
+  }
+
+  onTriggerLoadProject = () => {
+    if (this.hasProjectOpened) {
+      this.doCloseProjectWarn(this.selectProjectToOpen);
+    } else {
+      this.selectProjectToOpen();
+    }
+  }
+
+  onTriggerQuit = () => {
+    app.quit();
+  }
+
   createRenderer = () => {
     this.renderer = new Renderer();
     this.renderer.on(RendererEvent.READY, this.onRendererReady);
     this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
     this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
     this.renderer.on(RendererEvent.IO_STATUS_UPDATE, this.onRendererIOStatusUpdate);
+    this.renderer.on(RendererEvent.SCRIPT_ERROR, this.onRendererScriptError);
+    this.renderer.on(RendererEvent.SCRIPT_LOG, this.onRendererScriptLog);
   }
 
   destroyRenderer = () => {
@@ -392,12 +443,32 @@ export default class Main {
     }
   }
 
+  onRendererScriptError = (info) => {
+    if (this.mainWindow) {
+      this.mainWindow.send(SCRIPT_ERROR, info);
+    }
+  }
+
+  onRendererScriptLog = (data) => {
+    if (this.consoleWindow) {
+      this.consoleWindow.send(SCRIPT_LOG, data);
+    }
+  }
+
   createMainMenu = () => {
     this.mainMenu = new MainMenu();
     this.mainMenu.on(MainMenuEvent.OPEN_PROJECT, this.onMainMenuOpenProject);
     this.mainMenu.on(MainMenuEvent.CREATE_PROJECT, this.onMainMenuCreateProject);
     this.mainMenu.on(MainMenuEvent.SAVE_PROJECT, this.onMainMenuSaveProject);
     this.mainMenu.on(MainMenuEvent.CLOSE_PROJECT, this.onMainMenuCloseProject);
+  }
+
+  destroyMainMenu = () => {
+    if (this.mainMenu) {
+      this.mainMenu.removeAllListeners();
+      this.mainMenu.destroy();
+      this.mainMenu = null;
+    }
   }
 
   onMainMenuOpenProject = () => {
@@ -498,8 +569,9 @@ export default class Main {
   }
 
   closeProject = () => {
-    this.removeEventListeners();
+    this.destroyConsoleWindow();
     this.destroyMainWindow();
+    this.destroyMainMenu();
     this.destroyStore();
     this.destroyRenderer();
 
@@ -508,6 +580,8 @@ export default class Main {
     writeAppConfig(appConfig);
 
     this.currentProjectFilePath = null;
+
+    this.createSplashWindow();
   }
 
   updatePower = () => {
@@ -528,15 +602,33 @@ export default class Main {
     }
   }
 
-  generateScreenshots = (data) => {
-    const dir = './dev/screenshots/';
+  generateScreenshots = async (data) => {
+    console.info('=== Begin generating screenshots... ===');
+
+    const dir = join('.', 'dev', 'screenshots');
     ensureDir(dir);
 
-    data.forEach(async ({ selector, file, dispatchIn, dispatchOut }) => {
+    for (let i = 0; i < data.length; i++) {
+      const { selector, file, dispatchIn, dispatchOut, clickIn } = data[i];
+
+      console.info(`Generating screenshot for ${selector}`);
+
       try {
         if (dispatchIn) {
           await new Promise((resolve, reject) => {
             this.store.dispatch(dispatchIn);
+            setTimeout(resolve, 1500);
+          });
+        }
+
+        if (clickIn) {
+          await new Promise((resolve, reject) => {
+            this.mainWindow.virtualClick(clickIn, (err) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+            });
             setTimeout(resolve, 1500);
           });
         }
@@ -550,7 +642,7 @@ export default class Main {
             const pngData = image.toPNG();
             const filePath = join(dir, file);
             writeFile(filePath, pngData);
-            console.info(`Generated screenshot for ${selector} to file ${filePath}`);
+            console.info(`Success: ${filePath}`);
             resolve();
           });
         });
@@ -562,8 +654,10 @@ export default class Main {
           });
         }
       } catch (e) {
-        console.error(`Error while generating screenshot for ${selector} : ${e}`);
+        console.error(`Error: ${e}`);
       }
-    });
+    }
+
+    console.info('=== Screenshots generation complete! ===');
   }
 }

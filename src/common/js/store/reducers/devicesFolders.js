@@ -1,4 +1,4 @@
-import { CREATE_DEVICE_FOLDER, DELETE_DEVICE_FOLDER } from "../actions/devices";
+import { CREATE_DEVICE_FOLDER, DELETE_DEVICE_FOLDER } from '../actions/devices';
 
 const defaultState = [];
 

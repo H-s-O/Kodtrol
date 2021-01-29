@@ -91,7 +91,9 @@ export default function Browsers() {
   }, [currentTabId, dispatch]);
 
   return (
-    <FullHeightCard>
+    <FullHeightCard
+      className="browsers-tabs"
+    >
       <FullHeightTabs
         id="browsers"
         withBorder
@@ -185,11 +187,11 @@ export default function Browsers() {
             position={Position.BOTTOM_RIGHT}
             content={
               <Menu>
-                <Menu.Item
+                {/* <Menu.Item
                   text={`Add ${getTabLabel(currentTabId)} folder`}
                   icon="folder-new"
                 />
-                <Menu.Divider />
+                <Menu.Divider /> */}
                 <Menu.Item
                   text={`Import ${getTabLabel(currentTabId)}(s) from project...`}
                   icon="import"

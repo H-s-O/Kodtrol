@@ -1,0 +1,12 @@
+{
+    "opts": {
+        "package": "./package.json",
+        "recurse": true,
+        "explain": true
+    },
+    "source": {
+        "include": [
+            "./src/main/lib/helpers"
+        ]
+    }
+}

@@ -1,6 +1,7 @@
 import uniqid from 'uniqid';
 
 import { hashDataObject } from '../../lib/hash';
+import { SCRIPT_TEMPLATE } from '../../constants/app';
 
 const excludeHashProps = [
   'id',
@@ -65,7 +66,7 @@ export const closeScriptAction = (id) => {
 export const CREATE_SCRIPT = 'create_script';
 export const createScriptAction = (data) => {
   const newData = {
-    content: '',
+    content: SCRIPT_TEMPLATE,
     tempo: null,
     devices: [],
     devicesGroups: [],

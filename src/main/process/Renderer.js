@@ -12,7 +12,7 @@ export default class Renderer extends EventEmitter {
   constructor() {
     super();
 
-    const processPath = path.join(__dirname, '../../renderer/kodtrol-renderer.js');
+    const processPath = path.join(__dirname, '..', '..', 'renderer', 'kodtrol-renderer.js');
 
     this.childProcess = fork(processPath, {
       env: {
@@ -43,6 +43,12 @@ export default class Renderer extends EventEmitter {
         }
         if ('ioStatus' in message) {
           this.emit(RendererEvent.IO_STATUS_UPDATE, message.ioStatus);
+        }
+        if ('scriptError' in message) {
+          this.emit(RendererEvent.SCRIPT_ERROR, message.scriptError);
+        }
+        if ('scriptLog' in message) {
+          this.emit(RendererEvent.SCRIPT_LOG, message.scriptLog);
         }
       }
     }

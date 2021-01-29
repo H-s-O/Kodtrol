@@ -9,7 +9,7 @@ import LayerEditor from '../../layer_editor/LayerEditor';
 import BoardItem from './BoardItem';
 import percentString from '../../../lib/percentString';
 import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
-import { deleteWarning } from '../../../lib/dialogHelpers';
+import { deleteWarning } from '../../../lib/messageBoxes';
 import { ICON_LAYER, ICON_SCRIPT } from '../../../../../common/js/constants/icons';
 import { DIALOG_EDIT, DIALOG_ADD } from '../../../../../common/js/constants/dialogs';
 import { ITEM_SCRIPT, ITEM_BEHAVIOR_TOGGLE } from '../../../../../common/js/constants/items';
@@ -139,12 +139,11 @@ export default function BoardEditor({ board, onChange }) {
     scriptDialog.show(DIALOG_EDIT, script);
   }, [scriptDialog, board]);
   const deleteScriptClickHandler = useCallback((id) => {
-    deleteWarning(`Are you sure you want to delete script block ${'name'}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ items: doDeleteItem(items, id) });
-        }
-      });
+    deleteWarning(`Are you sure you want to delete script block ${'name'}?`, (result) => {
+      if (result) {
+        onChange({ items: doDeleteItem(items, id) });
+      }
+    });
   }, [board]);
   const scriptDialogSuccessHandler = useCallback(() => {
     if (scriptDialog.mode === DIALOG_EDIT) {
@@ -269,12 +268,11 @@ export default function BoardEditor({ board, onChange }) {
   }, [onChange, board]);
   const layersDeleteHandler = useCallback((id) => {
     const layer = layers.find((layer) => layer.id === id);
-    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`)
-      .then((result) => {
-        if (result) {
-          onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
-        }
-      });
+    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`, (result) => {
+      if (result) {
+        onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
+      }
+    });
   }, [onChange, board]);
   const layerChildrenRenderer = useCallback((id) => {
     return (
@@ -337,7 +335,7 @@ export default function BoardEditor({ board, onChange }) {
                       <Menu.Item
                         icon={ICON_SCRIPT}
                         text="Add Script block..."
-                        onClick={addScriptClickHandler}
+                        onClick={() => addScriptClickHandler()}
                       />
                       <Menu.Divider />
                       <Menu.Item

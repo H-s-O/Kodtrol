@@ -19,7 +19,6 @@ const defaultValue = {
   file: null,
   name: null,
   duration: null,
-  codec: null,
   output: null,
 };
 
@@ -70,11 +69,13 @@ export default function MediaDialog() {
       title={title}
       icon={ICON_MEDIA}
       onClose={closeHandler}
+      className="media-dialog"
     >
       <DialogBody>
         <MediaDialogBody
           value={bodyValue}
           onChange={changeHandler}
+          validation={bodyValid}
         />
       </DialogBody>
       <DialogFooter>
@@ -86,7 +87,7 @@ export default function MediaDialog() {
           </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={successHandler}
           >
             {successLabel}

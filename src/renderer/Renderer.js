@@ -18,7 +18,6 @@ import IldaDeviceProxy from './rendering/IldaDeviceProxy';
 import MidiDevice from './rendering/MidiDevice';
 import MidiDeviceProxy from './rendering/MidiDeviceProxy';
 import { IO_DMX, IO_ILDA, IO_MIDI } from '../common/js/constants/io';
-import customLog from '../common/js/lib/customLog';
 
 export default class Renderer {
   _outputs = {};
@@ -40,8 +39,6 @@ export default class Renderer {
   _ioUpdateTimer = null;
 
   constructor() {
-    customLog('renderer');
-
     this._providers = {
       getOutput: this._getOutput.bind(this),
       getScript: this._getScript.bind(this),
@@ -172,9 +169,16 @@ export default class Renderer {
     this._scripts = hashComparator(
       data,
       this._scripts,
-      (item) => new Script(item),
+      (item) => {
+        const script = new Script(item);
+        script.on('load_error', this._onScriptError.bind(this))
+        return script;
+      },
       (script, item) => script.update(item),
-      (script) => script.destroy()
+      (script) => {
+        script.removeAllListeners();
+        script.destroy();
+      }
     );
     // console.log('RENDERER _updateScripts', this._scripts);
   }
@@ -281,6 +285,7 @@ export default class Renderer {
   _runScript(id) {
     if (id === null || (this._currentScript && this._currentScript.script.id !== id)) {
       if (this._currentScript) {
+        this._currentScript.removeAllListeners();
         this._currentScript.destroy();
         this._currentScript = null;
       }
@@ -290,6 +295,8 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootScriptRenderer(this._providers, id);
+      renderer.on('script_error', this._onScriptError.bind(this))
+      renderer.on('script_log', this._onScriptLog.bind(this))
       this._currentScript = renderer;
     }
 
@@ -301,6 +308,7 @@ export default class Renderer {
   _runTimeline(id) {
     if (id === null || (this._currentTimeline && this._currentTimeline.id !== id)) {
       if (this._currentTimeline) {
+        this._currentTimeline.removeAllListeners();
         this._currentTimeline.destroy();
         this._currentTimeline = null;
       }
@@ -311,6 +319,9 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootTimelineRenderer(this._providers, id, this._onTimelineEnded.bind(this));
+      renderer.on('end', this._onTimelineEnded.bind(this));
+      renderer.on('script_error', this._onScriptError.bind(this))
+      renderer.on('script_log', this._onScriptLog.bind(this))
       this._currentTimeline = renderer;
     }
 
@@ -322,6 +333,7 @@ export default class Renderer {
   _runBoard(id) {
     if (id === null || (this._currentBoard && this._currentBoard.id !== id)) {
       if (this._currentBoard) {
+        this._currentBoard.removeAllListeners();
         this._currentBoard.destroy();
         this._currentBoard = null;
       }
@@ -331,12 +343,22 @@ export default class Renderer {
 
     if (id !== null) {
       const renderer = new RootBoardRenderer(this._providers, id);
+      renderer.on('script_error', this._onScriptError.bind(this))
+      renderer.on('script_log', this._onScriptLog.bind(this))
       this._currentBoard = renderer;
     }
 
     this._updateTicker();
 
     console.log('RENDERER _runBoard', id);
+  }
+
+  _onScriptError(info) {
+    this._send({ scriptError: info });
+  }
+
+  _onScriptLog(log) {
+    this._send({ scriptLog: log });
   }
 
   _updateTicker() {
@@ -361,9 +383,9 @@ export default class Renderer {
   _onTimelineEnded() {
     this._updateTimelinePlaybackStatus(false);
     this._send({
-      'timelineInfo': {
-        'playing': false,
-        'position': this._currentTimeline.currentTime,
+      timelineInfo: {
+        playing: false,
+        position: this._currentTimeline.currentTime,
       },
     });
   }
@@ -381,7 +403,7 @@ export default class Renderer {
         this._currentTimeline.setPosition(position);
       }
       this._send({
-        'timelineInfo': data,
+        timelineInfo: data,
       });
     }
   }
@@ -409,7 +431,7 @@ export default class Renderer {
         this._currentBoard.setActiveItems(activeItems);
       }
       this._send({
-        'boardInfo': data
+        boardInfo: data
       });
     }
   }
@@ -425,7 +447,7 @@ export default class Renderer {
         return obj;
       }, {}),
     }
-    // console.log('RENDERER _updateIOStatus', ioStatus);
+
     this._send({
       ioStatus,
     });

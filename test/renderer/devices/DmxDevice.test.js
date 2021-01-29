@@ -26,6 +26,11 @@ describe('DmxDevice', function () {
     tags: ['tag1'],
     address: 24,
     output: '7l9r6tf97ka35p445',
+    channels: [
+      { defaultValue: 0, alias: 'first' },
+      { defaultValue: 127 },
+      { defaultValue: 255, alias: 'third' },
+    ],
   };
   let instance;
 
@@ -61,6 +66,24 @@ describe('DmxDevice', function () {
   it('should have proper method results after update', function () {
     expect(instance.hasTag(source2.tags[0])).to.be.true;
     expect(instance.hasTag('nope')).to.be.false;
+  });
+
+  it('should set the proper numerical channel', function () {
+    instance.setChannel(1, 42);
+    expect(instance.channels['0']).to.equal(42);
+  });
+
+  it('should set the proper aliased channel', function () {
+    instance.setChannel('third', 11);
+    expect(instance.channels['2']).to.equal(11);
+  });
+
+  it('should get the proper numerical channel default', function () {
+    expect(instance.getChannelDefault(1)).to.equal(source2.channels[0].defaultValue);
+  });
+
+  it('should get the proper aliased channel default', function () {
+    expect(instance.getChannelDefault('first')).to.equal(source2.channels[0].defaultValue);
   });
 
   it('should destroy without errors', function () {

@@ -7,12 +7,12 @@ import SelectInput from '../../ui/inputs/SelectInput';
 import DurationInput from '../../ui/inputs/DurationInput';
 import ColorInput from '../../ui/inputs/ColorInput';
 
-export default function TimelineTriggerDialogBody({ value = {}, onChange, layers = [] }) {
+export default function TimelineTriggerDialogBody({ value, onChange, validation, layers = [] }) {
   const {
-    layer = null,
-    name = null,
-    inTime = null,
-    color = null,
+    layer,
+    name,
+    inTime,
+    color,
   } = value;
 
   return (
@@ -20,8 +20,8 @@ export default function TimelineTriggerDialogBody({ value = {}, onChange, layers
       <InlineFormGroup
         minWidth="100"
         label="Layer"
-        helperText={!layer ? 'A layer is mandatory.' : undefined}
-        intent={!layer ? Intent.DANGER : undefined}
+        helperText={!validation.layer ? 'A layer is mandatory.' : undefined}
+        intent={!validation.layer ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="layer"
@@ -43,8 +43,8 @@ export default function TimelineTriggerDialogBody({ value = {}, onChange, layers
       <InlineFormGroup
         minWidth="100"
         label="Name"
-        helperText={!name ? 'A trigger name is mandatory.' : undefined}
-        intent={!name ? Intent.DANGER : undefined}
+        helperText={!validation.name ? 'A trigger name is mandatory.' : undefined}
+        intent={!validation.name ? Intent.DANGER : undefined}
       >
         <TextInput
           name="name"
@@ -55,8 +55,8 @@ export default function TimelineTriggerDialogBody({ value = {}, onChange, layers
       <InlineFormGroup
         minWidth="100"
         label="Time"
-        helperText={inTime === null ? 'A trigger time is mandatory.' : undefined}
-        intent={inTime === null ? Intent.DANGER : undefined}
+        helperText={!validation.inTime ? 'A valid trigger time is mandatory.' : undefined}
+        intent={!validation.inTime ? Intent.DANGER : undefined}
       >
         <DurationInput
           name="inTime"

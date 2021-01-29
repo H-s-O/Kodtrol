@@ -1,4 +1,4 @@
-import { RUN_TIMELINE, STOP_TIMELINE } from "../actions/timelines";
+import { RUN_TIMELINE, STOP_TIMELINE } from '../actions/timelines';
 
 const defaultState = null;
 

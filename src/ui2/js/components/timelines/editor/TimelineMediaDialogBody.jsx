@@ -9,26 +9,24 @@ import ColorInput from '../../ui/inputs/ColorInput';
 import SliderInput from '../../ui/inputs/SliderInput';
 import percentString from '../../../lib/percentString';
 
-export default function TimelineMediaDialogBody({ value = {}, onChange, layers = [], medias = [] }) {
+export default function TimelineMediaDialogBody({ value, onChange, validation, layers = [], medias = [] }) {
   const {
-    media = null,
-    layer = null,
-    name = null,
-    inTime = null,
-    outTime = null,
-    color = null,
-    volume = 1,
+    media,
+    layer,
+    name,
+    inTime,
+    outTime,
+    color,
+    volume,
   } = value;
-
-  const sliderLabelRenderer = useCallback((value) => percentString(value))
 
   return (
     <>
       <InlineFormGroup
         minWidth="100"
         label="Media"
-        helperText={!media ? 'A media is mandatory.' : undefined}
-        intent={!media ? Intent.DANGER : undefined}
+        helperText={!validation.media ? 'A media is mandatory.' : undefined}
+        intent={!validation.media ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="media"
@@ -50,8 +48,8 @@ export default function TimelineMediaDialogBody({ value = {}, onChange, layers =
       <InlineFormGroup
         minWidth="100"
         label="Layer"
-        helperText={!layer ? 'A layer is mandatory.' : undefined}
-        intent={!layer ? Intent.DANGER : undefined}
+        helperText={!validation.layer ? 'A layer is mandatory.' : undefined}
+        intent={!validation.layer ? Intent.DANGER : undefined}
       >
         <SelectInput
           name="layer"
@@ -84,8 +82,8 @@ export default function TimelineMediaDialogBody({ value = {}, onChange, layers =
       <InlineFormGroup
         minWidth="100"
         label="In time"
-        helperText={inTime === null ? 'An in time is mandatory.' : undefined}
-        intent={inTime === null ? Intent.DANGER : undefined}
+        helperText={!validation.inTime ? 'A valid in time is mandatory.' : undefined}
+        intent={!validation.inTime ? Intent.DANGER : undefined}
       >
         <DurationInput
           name="inTime"
@@ -96,8 +94,8 @@ export default function TimelineMediaDialogBody({ value = {}, onChange, layers =
       <InlineFormGroup
         minWidth="100"
         label="Out time"
-        helperText={outTime === null ? 'A out time is mandatory.' : undefined}
-        intent={outTime === null ? Intent.DANGER : undefined}
+        helperText={!validation.outTime ? 'A valid out time is mandatory.' : undefined}
+        intent={!validation.outTime ? Intent.DANGER : undefined}
       >
         <DurationInput
           name="outTime"
@@ -114,7 +112,7 @@ export default function TimelineMediaDialogBody({ value = {}, onChange, layers =
           min={0}
           max={1}
           stepSize={0.01}
-          labelRenderer={sliderLabelRenderer}
+          labelRenderer={percentString}
           value={volume}
           onChange={onChange}
         />

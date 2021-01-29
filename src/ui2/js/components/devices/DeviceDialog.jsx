@@ -74,11 +74,13 @@ export default function DeviceDialog() {
       title={title}
       icon={ICON_DEVICE}
       onClose={closeHandler}
+      className="device-dialog"
     >
       <DialogBody>
         <DeviceDialogBody
           value={bodyValue}
           onChange={changeHandler}
+          validation={bodyValid}
         />
       </DialogBody>
       <DialogFooter>
@@ -99,7 +101,7 @@ export default function DeviceDialog() {
           )}
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={successHandler}
           >
             {successLabel}

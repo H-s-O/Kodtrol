@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import DialogBody from '../../ui/DialogBody';
@@ -9,9 +9,22 @@ import { ICON_TRIGGER } from '../../../../../common/js/constants/icons';
 import TimelineTriggerDialogBody from './TimelineTriggerDialogBody';
 import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
 import timelineTriggerValidator from '../../../../../common/js/validators/timelineTriggerValidator';
+import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
 
-export default function TimelineTriggerDialog({ opened, mode, value, layers, onChange, onSuccess, onClose }) {
-  const bodyValid = value && timelineTriggerValidator(value);
+const defaultValue = {
+  layer: null,
+  name: null,
+  inTime: 0,
+  color: null,
+};
+
+export default function TimelineTriggerDialog({ opened, mode, value, layers, duration, onChange, onSuccess, onClose }) {
+  const bodyValue = value || defaultValue;
+  const bodyValid = timelineTriggerValidator(bodyValue, duration);
+
+  const changeHandler = useCallback((value, field) => {
+    onChange(mergeDialogBody(bodyValue, value, field));
+  }, [onChange, bodyValue]);
 
   return (
     <CustomDialog
@@ -22,8 +35,9 @@ export default function TimelineTriggerDialog({ opened, mode, value, layers, onC
     >
       <DialogBody>
         <TimelineTriggerDialogBody
-          value={value}
-          onChange={onChange}
+          value={bodyValue}
+          onChange={changeHandler}
+          validation={bodyValid}
           layers={layers}
         />
       </DialogBody>
@@ -36,7 +50,7 @@ export default function TimelineTriggerDialog({ opened, mode, value, layers, onC
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

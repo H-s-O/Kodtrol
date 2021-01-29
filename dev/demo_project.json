@@ -2,13 +2,17 @@
     "devices": [
         {
             "id": "A",
-            "name": "Demo device 1"
+            "name": "Demo device 1",
+            "type": "dmx",
+            "tags": []
         }
     ],
     "scripts": [
         {
             "id": "A",
-            "name": "Demo script 1"
+            "name": "Demo script 1",
+            "content": "",
+            "devices": []
         }
     ],
     "timelines": [

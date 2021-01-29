@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import { EOL } from 'os';
 
 import { getCompiledScriptPath } from '../lib/fileSystem';
 
@@ -34,7 +35,7 @@ export default class Script extends EventEmitter {
     this._tempo = Number(tempo);
 
     this._setDevices(devices, devicesGroups);
-    this._setScriptInstanceAndFlags(id);
+    this._setScriptFlags(id);
 
     this.emit('updated');
   }
@@ -48,7 +49,15 @@ export default class Script extends EventEmitter {
     this._devices = devices.map(({ device }) => device);
   }
 
-  _setScriptInstanceAndFlags(id) {
+  _handleError(err) {
+    console.error(err);
+
+    const message = err.stack.split('\n').slice(1, 5).join('\n');
+
+    this.emit('load_error', { message, script: this.id });
+  }
+
+  _setScriptFlags(id) {
     const scriptPath = getCompiledScriptPath(id);
 
     // clear existing cached module before attempting load
@@ -64,16 +73,15 @@ export default class Script extends EventEmitter {
       this._hasBeat = typeof scriptInstance.beat === 'function';
       this._hasInput = typeof scriptInstance.input === 'function';
     } catch (e) {
-      console.error(e);
+      this._handleError(e);
     }
   }
 
-  getInstance() {
-    // @TODO
+  getInstance(...constructorArgs) {
     const scriptPath = getCompiledScriptPath(this._id);
 
     try {
-      const instance = new (require(scriptPath))();
+      const instance = new (require(scriptPath))(...constructorArgs);
       return instance;
     } catch (e) {
       console.error(e);

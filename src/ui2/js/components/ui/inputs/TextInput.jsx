@@ -13,6 +13,7 @@ export default function TextInput({ value, onChange, ...otherProps }) {
 
   return (
     <InputGroup
+      asyncControl
       value={displayValue}
       onChange={changeHandler}
       {...otherProps}

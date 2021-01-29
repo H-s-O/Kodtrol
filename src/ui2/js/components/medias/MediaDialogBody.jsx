@@ -9,14 +9,16 @@ import SelectInput from '../ui/inputs/SelectInput';
 import mediaInfo from '../../lib/mediaInfo';
 import DurationInput from '../ui/inputs/DurationInput';
 import { IO_AUDIO } from '../../../../common/js/constants/io';
+import supportedAudioFormats from '../../lib/supportedAudioFormats';
 
-export default function MediaDialogBody({ value, onChange }) {
+const ACCEPT_AUDIO = supportedAudioFormats.map((format) => `.${format}`).join(',');
+
+export default function MediaDialogBody({ value, onChange, validation }) {
   const {
     file,
     name,
     output,
     duration,
-    codec,
   } = value;
 
   const outputs = useSelector((state) => state.outputs);
@@ -30,7 +32,6 @@ export default function MediaDialogBody({ value, onChange }) {
     onChange({
       file: value,
       duration: null,
-      codec: null,
     });
     setFileChanged(true);
   }, [onChange]);
@@ -39,13 +40,7 @@ export default function MediaDialogBody({ value, onChange }) {
     if (file && fileChanged) {
       mediaInfo(file)
         .then((info) => {
-          const { streams } = info;
-          const [firstStream] = streams;
-          const { duration_ts, codec_long_name } = firstStream;
-          onChange({
-            duration: duration_ts,
-            codec: codec_long_name,
-          });
+          onChange(info);
           setFileChanged(false);
         })
         .catch((err) => {
@@ -59,14 +54,14 @@ export default function MediaDialogBody({ value, onChange }) {
     <>
       <InlineFormGroup
         label="File"
-        helperText={!file ? 'A file is mandatory.' : undefined}
-        intent={!file ? Intent.DANGER : undefined}
+        helperText={!validation.file ? 'A file is mandatory.' : undefined}
+        intent={!validation.file ? Intent.DANGER : undefined}
       >
         <FileInput
           fill
           name="file"
           inputProps={{
-            accept: '.mp3,.wav',
+            accept: ACCEPT_AUDIO,
           }}
           value={file}
           onChange={fileChangeHandler}
@@ -74,6 +69,7 @@ export default function MediaDialogBody({ value, onChange }) {
       </InlineFormGroup>
       <InlineFormGroup
         label="Duration"
+        intent={!validation.duration ? Intent.DANGER : undefined}
       >
         {!file ? (
           <TextInput
@@ -82,7 +78,7 @@ export default function MediaDialogBody({ value, onChange }) {
             leftIcon="info-sign"
             value="<unknown>"
           />
-        ) : !duration ? (
+        ) : duration === null ? (
           <Spinner
             size={Spinner.SIZE_SMALL}
           />
@@ -91,29 +87,6 @@ export default function MediaDialogBody({ value, onChange }) {
                 disabled
                 leftIcon="info-sign"
                 value={duration}
-              />
-            )
-        }
-      </InlineFormGroup>
-      <InlineFormGroup
-        label="Codec"
-      >
-        {!file ? (
-          <TextInput
-            readOnly
-            disabled
-            leftIcon="info-sign"
-            value="<unknown>"
-          />
-        ) : !codec ? (
-          <Spinner
-            size={Spinner.SIZE_SMALL}
-          />
-        ) : (
-              <TextInput
-                readOnly
-                leftIcon="info-sign"
-                value={codec}
               />
             )
         }

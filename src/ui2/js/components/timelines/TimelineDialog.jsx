@@ -68,11 +68,13 @@ export default function TimelineDialog() {
       title={title}
       icon={ICON_TIMELINE}
       onClose={closeHandler}
+      className="timeline-dialog"
     >
       <DialogBody>
         <TimelineDialogBody
           value={bodyValue}
           onChange={changeHandler}
+          validation={bodyValid}
         />
       </DialogBody>
       <DialogFooter>
@@ -84,7 +86,7 @@ export default function TimelineDialog() {
           </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={successHandler}
           >
             {successLabel}

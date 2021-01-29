@@ -52,11 +52,15 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     this._blocks = boardItems
       .filter(({ type }) => type === ITEM_SCRIPT)
       .reduce((obj, block) => {
+        const instance = new ScriptRenderer(this._providers, block.script);
+        instance.on('script_error', this._forwardEvent('script_error', { block: block.id, board: this._board.id }));
+        instance.on('script_log', this._forwardEvent('script_log', { block: block.id, board: this._board.id }));
+
         return {
           ...obj,
           [block.id]: {
             ...block,
-            instance: new ScriptRenderer(this._providers, block.script),
+            instance,
             inTime: null,
             outTime: null,
             blockPercent: null,
@@ -285,10 +289,13 @@ export default class RootBoardRenderer extends BaseRootRenderer {
 
   destroy() {
     if (this._board) {
-      this._board.removeAllListeners();
+      this._board.removeAllListeners('updated');
     }
 
-    Object.values(this._blocks).forEach((block) => block.instance.destroy());
+    Object.values(this._blocks).forEach((block) => {
+      block.instance.removeAllListeners();
+      block.instance.destroy();
+    });
 
     this._board = null;
     this._blocks = null;

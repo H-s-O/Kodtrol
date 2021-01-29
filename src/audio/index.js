@@ -75,10 +75,8 @@ const handleRender = (dataObj) => {
   }
 }
 
-ipcRenderer.on('data', (e, data) => {
-  console.log("index", data);
+ipcRenderer.on('data', (e, dataObj) => {
   try {
-    const dataObj = JSON.parse(data);
     if ('media' in dataObj) {
       handleMedia(dataObj.media);
     } else {

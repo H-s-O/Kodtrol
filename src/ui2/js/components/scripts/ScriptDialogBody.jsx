@@ -7,7 +7,7 @@ import TextInput from '../ui/inputs/TextInput';
 import NumberInput from '../ui/inputs/NumberInput';
 import ScriptDevicesInput from './ScriptDevicesInput';
 
-export default function ScriptDialogBody({ value, onChange }) {
+export default function ScriptDialogBody({ value, onChange, validation }) {
   const {
     name,
     tempo,
@@ -24,8 +24,8 @@ export default function ScriptDialogBody({ value, onChange }) {
     <>
       <InlineFormGroup
         label="Name"
-        helperText={!name ? 'A script name is mandatory.' : undefined}
-        intent={!name ? Intent.DANGER : undefined}
+        helperText={!validation.name ? 'A script name is mandatory.' : undefined}
+        intent={!validation.name ? Intent.DANGER : undefined}
       >
         <TextInput
           name="name"
@@ -47,6 +47,7 @@ export default function ScriptDialogBody({ value, onChange }) {
       </InlineFormGroup>
       <InlineFormGroup
         label="Devices"
+        helperText={!devices || devices.length === 0 ? 'You may leave the device list empty and add devices later at any time.' : undefined}
       >
         <ScriptDevicesInput
           name="devices"

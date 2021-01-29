@@ -6,8 +6,9 @@ import { editScriptAction, runScriptAction, stopScriptAction, deleteScriptAction
 import ItemBrowser from '../ui/ItemBrowser';
 import { showScriptDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
+import contentRunning from '../../../../common/js/store/selectors/contentRunning';
 
-const ScriptLabel = ({ name, id, activeItemId }) => {
+const ScriptLabel = ({ item: { name, id }, activeItemId }) => {
   return (
     <>
       {name}
@@ -22,7 +23,7 @@ const ScriptLabel = ({ name, id, activeItemId }) => {
   )
 }
 
-const ScriptSecondaryLabel = ({ id, activeItemId }) => {
+const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
   const dispatch = useDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();
@@ -67,6 +68,7 @@ export default function ScriptsBrowser() {
   const scriptsFolders = useSelector((state) => state.scriptsFolders);
   const runScript = useSelector((state) => state.runScript);
   const editScripts = useSelector((state) => state.editScripts);
+  const isContentRunning = useSelector(contentRunning);
 
   const dispatch = useDispatch();
   const editCallback = useCallback((id) => {
@@ -101,6 +103,7 @@ export default function ScriptsBrowser() {
       deleteCallback={deleteCallback}
       itemLabelComponent={ScriptLabel}
       itemSecondaryLabelComponent={ScriptSecondaryLabel}
+      enableDelete={!isContentRunning}
     />
   );
 }

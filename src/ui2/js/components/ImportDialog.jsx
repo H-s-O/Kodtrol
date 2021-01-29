@@ -49,7 +49,7 @@ export default function ImportDialog() {
   const dialogValue = useSelector((state) => state.dialogs.importDialogValue);
 
   const bodyValue = dialogValue || defaultValue;
-  const bodyValid = importValidator(bodyValue);
+  const bodyValid = importValidator(bodyValue, dialogMode);
   const { devices, scripts, medias, timelines, boards } = bodyValue;
 
   const [file, setFile] = useState(null);
@@ -230,7 +230,7 @@ export default function ImportDialog() {
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={successHandler}
           >
             Import

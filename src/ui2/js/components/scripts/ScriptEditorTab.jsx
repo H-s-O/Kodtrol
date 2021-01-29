@@ -16,7 +16,7 @@ export default function ScriptEditor({ id }) {
   return (
     <CodeEditor
       value={content}
-      name={`aceeditor-${id}`}
+      name={`script-editor-${id}`}
       onChange={changeHandler}
     />
   )

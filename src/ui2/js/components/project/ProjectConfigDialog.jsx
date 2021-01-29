@@ -27,7 +27,7 @@ import {
 import ManagedTree from '../ui/ManagedTree';
 import inputValidator from '../../../../common/js/validators/inputValidator';
 import outputValidator from '../../../../common/js/validators/outputValidator';
-import { deleteWarning } from '../../../../ui/js/lib/messageBoxes';
+import { deleteWarning } from '../../lib/messageBoxes';
 import { saveInputsAction } from '../../../../common/js/store/actions/inputs';
 import { saveOutputsAction } from '../../../../common/js/store/actions/outputs';
 
@@ -217,6 +217,7 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
     driver = null,
     port = null,
     address = null,
+    dacRate = null,
   } = value;
 
   const midiOutputs = useMemo(() => availableItems.filter(({ type }) => type === IO_MIDI), [availableItems]);
@@ -308,9 +309,33 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
               <option value="laserdock">Laserdock</option>
             </SelectInput>
           </InlineFormGroup>
+          {driver === 'ether-dream' && (
+            <InlineFormGroup
+              label="Address"
+              helperText="If no address is specified, Kodtrol will use the first Ether Dream detected on your network."
+            >
+              <TextInput
+                name="address"
+                value={address}
+                onChange={changeHandler}
+              />
+            </InlineFormGroup>
+          )}
+          <InlineFormGroup
+            label="Rate"
+            helperText="DAC rate, in thousands of points per second (kpps)."
+            intent={!dacRate ? Intent.DANGER : undefined}
+          >
+            <NumberInput
+              name="dacRate"
+              min={0}
+              value={dacRate}
+              onChange={changeHandler}
+            />
+          </InlineFormGroup>
         </>
       )}
-      {(type === IO_ARTNET || type === IO_ILDA) && (
+      {type === IO_ARTNET && (
         <InlineFormGroup
           label="Address"
           helperText={!address ? 'An Art-Net output address is mandatory.' : undefined}
@@ -354,21 +379,21 @@ const ItemsPanel = ({
   onAdd,
   onChange,
   onDelete,
+  onSelect,
   itemComponent: ItemComponent,
   listSecondaryLabelComponent: ListSecondaryLabelComponent,
   availableItems,
+  selectedItemId = null,
 }) => {
-  const [currentItemId, setCurrentItemId] = useState(value && value.length > 0 ? value[0].id : null);
-
   const nodeClickHandler = useCallback(({ id }) => {
-    setCurrentItemId(id);
-  });
+    onSelect(id);
+  }, [onSelect]);
 
-  const currentItem = value.find((item) => item.id == currentItemId);
+  const currentItem = value.find((item) => item.id === selectedItemId);
   const treeItems = value.map(({ id, name, type }) => ({
     id,
     key: id,
-    isSelected: id === currentItemId,
+    isSelected: id === selectedItemId,
     label: getItemListName(name),
     secondaryLabel: ListSecondaryLabelComponent ? (
       <ListSecondaryLabelComponent
@@ -427,14 +452,21 @@ export default function ProjectConfigDialog() {
 
   const [currentInputs, setInputs] = useState(inputs);
   const [currentOutputs, setOutputs] = useState(outputs);
+  const [selectedInputId, setSelectedInputId] = useState(inputs && inputs.length > 0 ? inputs[0].id : null)
+  const [selectedOutputId, setSelectedOutputId] = useState(outputs && outputs.length > 0 ? outputs[0].id : null)
+
   const addInputHandler = useCallback(() => {
-    setInputs([...currentInputs, { id: uniqid() }]);
+    const newId = uniqid();
+    setInputs([...currentInputs, { id: newId }]);
+    setSelectedInputId(newId);
   }, [currentInputs]);
   const changeInputHandler = useCallback((value) => {
     setInputs(currentInputs.map((item) => item.id === value.id ? value : item));
   }, [currentInputs]);
   const addOutputHandler = useCallback(() => {
-    setOutputs([...currentOutputs, { id: uniqid() }]);
+    const newId = uniqid();
+    setOutputs([...currentOutputs, { id: newId }]);
+    setSelectedOutputId(newId);
   }, [currentOutputs]);
   const changeOutputHandler = useCallback((value) => {
     setOutputs(currentOutputs.map((item) => item.id === value.id ? value : item));
@@ -445,7 +477,9 @@ export default function ProjectConfigDialog() {
 
     deleteWarning(message, (result) => {
       if (result) {
-        setInputs(currentInputs.filter((item) => item.id !== id));
+        const newInputs = currentInputs.filter((item) => item.id !== id);
+        setInputs(newInputs);
+        setSelectedInputId(newInputs.length > 0 ? newInputs[0].id : null);
       }
     });
   }, [currentInputs]);
@@ -457,10 +491,18 @@ export default function ProjectConfigDialog() {
 
     deleteWarning(message, detail, (result) => {
       if (result) {
-        setOutputs(currentOutputs.filter((item) => item.id !== id));
+        const newOutputs = currentOutputs.filter((item) => item.id !== id);
+        setOutputs(newOutputs);
+        setSelectedOutputId(newOutputs.length > 0 ? newOutputs[0].id : null);
       }
     });
   }, [currentOutputs, devices]);
+  const selectInputHander = useCallback((id) => {
+    setSelectedInputId(id);
+  }, []);
+  const selectOutputHander = useCallback((id) => {
+    setSelectedOutputId(id);
+  }, []);
 
   const dispatch = useDispatch();
   const closeHandler = useCallback(() => {
@@ -476,7 +518,8 @@ export default function ProjectConfigDialog() {
     dispatch(hideConfigDialogAction());
   }, [dispatch, currentInputs, currentOutputs]);
 
-  const allValid = currentInputs.every(inputValidator) && currentOutputs.every(outputValidator);
+  const allValid = currentInputs.map(inputValidator).every(({ all_fields }) => all_fields === true)
+    && currentOutputs.map(outputValidator).every(({ all_fields }) => all_fields === true);
 
   return (
     <CustomDialog
@@ -492,11 +535,11 @@ export default function ProjectConfigDialog() {
           id="config"
           defaultSelectedTabId="inputs"
         >
-          <Tab
+          {/* <Tab
             id="general"
             title="General"
             disabled
-          />
+          /> */}
           <Tab
             id="inputs"
             title="Inputs"
@@ -506,9 +549,11 @@ export default function ProjectConfigDialog() {
                 onAdd={addInputHandler}
                 onChange={changeInputHandler}
                 onDelete={deleteInputHandler}
+                onSelect={selectInputHander}
                 itemComponent={SingleInput}
                 listSecondaryLabelComponent={ItemSecondaryLabel}
                 availableItems={availableInputs}
+                selectedItemId={selectedInputId}
               />
             )}
           />
@@ -521,9 +566,11 @@ export default function ProjectConfigDialog() {
                 onAdd={addOutputHandler}
                 onChange={changeOutputHandler}
                 onDelete={deleteOutputHandler}
+                onSelect={selectOutputHander}
                 itemComponent={SingleOutput}
                 listSecondaryLabelComponent={ItemSecondaryLabel}
                 availableItems={availableOutputs}
+                selectedItemId={selectedOutputId}
               />
             )}
           />

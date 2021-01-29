@@ -17,6 +17,8 @@ const StyledBlockLabel = styled.span`
 `;
 
 const StyledBlockAnchor = styled.div`
+  cursor: col-resize;
+
   ${({ left }) => left && `
     border-right-width: 10px;
     border-right-style: solid;
@@ -52,7 +54,8 @@ const StyledBlockHeader = styled.div`
   border-bottom-color: inherit;
   border-bottom-style: solid;
   border-bottom-width: 1px;
-  overflow-x: hidden;
+  overflow: hidden;
+  cursor: ew-resize;
 `;
 
 const StyledBlockBody = styled.div`
@@ -90,6 +93,7 @@ const StyledPointContainer = styled.div`
   background-color: ${({ color }) => color};
   overflow-x: hidden;
   color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
+  cursor: col-resize;
 
   &:hover, &.active {
     overflow-x: visible;
@@ -112,6 +116,7 @@ const StyledCurveContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
+  cursor: crosshair;
 `;
 
 const StyledCurve = styled.svg`
@@ -136,6 +141,7 @@ const StyledCurvePoint = styled.div`
   margin-top: -4px;
   border-radius: 4px;
   background-color: ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
+  cursor: initial;
 
   &:hover {
     outline: 1px solid ${({ color }) => Color(color).isDark() ? '#FFF' : '#000'};
@@ -153,7 +159,9 @@ const TimelineScript = ({ script, scriptsNames, onDrag, onChange, ...otherProps 
       color={color}
       {...otherProps}
     >
-      <StyledBlockHeader>
+      <StyledBlockHeader
+        onMouseDown={(e) => onDrag(e, container.current, 'inOutTime')}
+      >
         <StyledBlockAnchor
           left
           onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
@@ -222,7 +230,9 @@ const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
       color={color}
       {...otherProps}
     >
-      <StyledBlockHeader>
+      <StyledBlockHeader
+        onMouseDown={(e) => onDrag(e, container.current, 'inOutTime')}
+      >
         <StyledBlockAnchor
           left
           onMouseDown={(e) => onDrag(e, container.current, 'inTime')}
@@ -317,7 +327,9 @@ const TimelineMedia = ({ media, mediasNames, onDrag, onChange, ...otherProps }) 
       color={color}
       {...otherProps}
     >
-      <StyledBlockHeader>
+      <StyledBlockHeader
+        onMouseDown={(e) => onDrag(e, container.current, 'inOutTime')}
+      >
         <StyledBlockAnchor
           left
           onMouseDown={(e) => onDrag(e, container.current, 'inTime')}

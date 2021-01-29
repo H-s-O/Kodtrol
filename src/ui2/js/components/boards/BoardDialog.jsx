@@ -67,11 +67,13 @@ export default function BoardDialog() {
       title={title}
       icon={ICON_TIMELINE}
       onClose={closeHandler}
+      className="board-dialog"
     >
       <DialogBody>
         <BoardDialogBody
           value={bodyValue}
           onChange={changeHandler}
+          validation={bodyValid}
         />
       </DialogBody>
       <DialogFooter>
@@ -83,7 +85,7 @@ export default function BoardDialog() {
           </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={successHandler}
           >
             {successLabel}
