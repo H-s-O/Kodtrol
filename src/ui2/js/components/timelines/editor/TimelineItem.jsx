@@ -296,13 +296,16 @@ const TimelineMedia = ({ media, mediasNames, onDrag, onChange, ...otherProps }) 
   const [loading, setLoading] = useState(false);
   const [waveformWidth, setWaveformWidth] = useState(null);
   const [waveformData, setWaveformData] = useState(null);
+  const [waveformFile, setWaveformFile] = useState(null);
 
-  const instance = useRef(new AudioSVGWaveform(`file://${file}`));
+  const instance = useRef();
+
   useEffect(() => {
-    if (!waveformData && !loading) {
+    if ((!!file && file !== waveformFile) && !loading) {
       setLoading(true);
+      setWaveformFile(file);
 
-      console.log(instance)
+      instance.current = new AudioSVGWaveform(`file://${file}`);
       instance.current.loadFromUrl().then(() => {
         const waveform = instance.current.getPath();
 
@@ -317,7 +320,7 @@ const TimelineMedia = ({ media, mediasNames, onDrag, onChange, ...otherProps }) 
         setLoading(false);
       })
     }
-  }, [instance, loading, waveformData]);
+  }, [instance, file, waveformFile, loading]);
 
   const container = useRef();
 
@@ -341,7 +344,7 @@ const TimelineMedia = ({ media, mediasNames, onDrag, onChange, ...otherProps }) 
         />
       </StyledBlockHeader>
       <StyledBlockBody>
-        {(waveformData && waveformWidth) && (
+        {((waveformData && waveformWidth) && !loading) && (
           <StyledWaveform
             viewBox={`0 -1 ${waveformWidth} 2`}
             preserveAspectRatio="none"
