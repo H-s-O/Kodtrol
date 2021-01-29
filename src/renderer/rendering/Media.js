@@ -38,16 +38,6 @@ export default class Media {
     }
 
     this._output = this._providers.getOutput(outputId);
-    // @TODO maybe move to Renderer instead of sending directly through here
-    this._output.outputInstance.once('ready', () => {
-      console.log('media output ready');
-
-      this._output.outputInstance.send({
-        media: {
-          [this._id]: this._file,
-        }
-      });
-    });
   }
 
   get id() {
@@ -64,6 +54,10 @@ export default class Media {
 
   get hash() {
     return this._hash;
+  }
+
+  get output() {
+    return this._output;
   }
 
   reset() {

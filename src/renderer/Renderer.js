@@ -18,6 +18,8 @@ import IldaDeviceProxy from './rendering/IldaDeviceProxy';
 import MidiDevice from './rendering/MidiDevice';
 import MidiDeviceProxy from './rendering/MidiDeviceProxy';
 import { IO_DMX, IO_ILDA, IO_MIDI } from '../common/js/constants/io';
+import { READY } from './events/OutputEvent';
+import AudioOutput from './outputs/AudioOutput';
 
 export default class Renderer {
   _outputs = {};
@@ -125,9 +127,16 @@ export default class Renderer {
     this._outputs = hashComparator(
       data,
       this._outputs,
-      (item) => new Output(item),
+      (item) => {
+        const output = new Output(item);
+        output.on(READY, this._onOutputReady.bind(this, output));
+        return output;
+      },
       (output, item) => output.update(item),
-      (output) => output.destroy()
+      (output) => {
+        output.removeAllListeners();
+        output.destroy();
+      }
     );
     // console.log('RENDERER _updateOutputs', this._outputs);
 
@@ -214,6 +223,37 @@ export default class Renderer {
       (media) => media.destroy()
     );
     // console.log('RENDERER _updateMedias', this._medias);
+
+    this._notifyMediasToOutputs();
+  }
+
+  _onOutputReady(output) {
+    if (output.outputInstance instanceof AudioOutput) {
+      this._notifyMediasToOutputs();
+    }
+  }
+
+  _notifyMediasToOutputs() {
+    const outputsMedias = Object.values(this._medias).reduce((data, media) => {
+      // Guard
+      if (!media.output) {
+        return data;
+      }
+      return {
+        ...data,
+        [media.output.id]: {
+          ...data[media.output.id],
+          [media.id]: media.file,
+        }
+      }
+    }, {});
+
+    Object.entries(outputsMedias).forEach(([outputId, media]) => {
+      const output = this._getOutput(outputId);
+      if (output) {
+        output.outputInstance.send({ media });
+      }
+    });
   }
 
   _getOutput(outputId) {

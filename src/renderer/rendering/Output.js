@@ -6,8 +6,9 @@ import IldaOutput from '../outputs/IldaOutput';
 import AudioOutput from '../outputs/AudioOutput';
 import MidiOutput from '../outputs/MidiOutput';
 import { IO_DMX, IO_ARTNET, IO_ILDA, IO_AUDIO, IO_MIDI } from '../../common/js/constants/io';
+import { READY } from '../events/OutputEvent';
 
-export default class Output {
+export default class Output extends EventEmitter {
   _id = null;
   _type = null;
   _driver = null;
@@ -19,6 +20,8 @@ export default class Output {
   _hash = null;
 
   constructor(sourceOutput) {
+    super();
+
     this.update(sourceOutput);
   }
 
@@ -45,9 +48,7 @@ export default class Output {
   }
 
   _setOutput() {
-    if (this._output) {
-      this._output.destroy();
-    }
+    this._destroyOutput();
 
     let output = null;
 
@@ -70,6 +71,10 @@ export default class Output {
       default:
         throw new Error(`Unknown output type "${this._type}"`);
         break;
+    }
+
+    if (output instanceof EventEmitter) {
+      output.once(READY, this._onOutputReady.bind(this));
     }
 
     this._output = output;
@@ -106,13 +111,21 @@ export default class Output {
     this._bufferData = {};
   }
 
-  destroy() {
+  _onOutputReady() {
+    this.emit(READY);
+  }
+
+  _destroyOutput() {
     if (this._output) {
       if (this._output instanceof EventEmitter) {
         this._output.removeAllListeners();
       }
       this._output.destroy();
     }
+  }
+
+  destroy() {
+    this._destroyOutput();
 
     this._id = null;
     this._type = null;

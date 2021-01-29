@@ -5,24 +5,29 @@ const instances = {};
 const streams = {};
 
 const handleMedia = (dataObj) => {
+  console.log('handleMedia', dataObj);
+
   try {
-    for (let mediaId in dataObj) {
-      if (mediaId in instances) {
+    for (let mediaId in instances) {
+      if (!dataObj || !(mediaId in dataObj) || instances[mediaId]._src[0] !== dataObj[mediaId]) {
         instances[mediaId].unload();
         delete instances[mediaId];
       }
+    }
 
+    for (let mediaId in dataObj) {
       const file = dataObj[mediaId];
-
       // Guard
       if (!file) {
         continue;
       }
 
-      instances[mediaId] = new Howl({
-        src: `file://${file}`,
-        // html5: true, // As per Howler's docs, does not require loading the entire file before playing
-      });
+      if (!(mediaId in instances)) {
+        instances[mediaId] = new Howl({
+          src: `file://${file}`,
+          html5: true, // As per Howler's docs, does not require loading the entire file before playing
+        });
+      }
     }
   } catch (err) {
     console.error(err);
@@ -30,6 +35,8 @@ const handleMedia = (dataObj) => {
 }
 
 const handleRender = (dataObj) => {
+  console.log('handleRender', dataObj);
+
   try {
     for (let streamId in streams) {
       if (!dataObj || !(streamId in dataObj)) {
@@ -58,14 +65,11 @@ const handleRender = (dataObj) => {
 
         const instance = instances[media];
         const id = stream.id;
-
-        if (playing) {
-          if (!instance.playing(id) || force) {
-            instance.play(id);
-            instance.volume(volume, id);
-            instance.seek(position / 1000, id);
-          }
-        } else {
+        if ((playing && !instance.playing(id)) || force) {
+          instance.play(id);
+          instance.volume(volume, id);
+          instance.seek(position / 1000, id);
+        } else if ((!playing && instance.playing(id)) || force) {
           instance.pause(id);
         }
       }
