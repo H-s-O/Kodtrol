@@ -5,13 +5,19 @@ const instances = {};
 const streams = {};
 
 const handleMedia = (dataObj) => {
-  console.log('handleMedia', dataObj);
+  // console.log('handleMedia', dataObj);
 
   try {
     for (let mediaId in instances) {
       if (!dataObj || !(mediaId in dataObj) || instances[mediaId]._src[0] !== dataObj[mediaId]) {
         instances[mediaId].unload();
         delete instances[mediaId];
+
+        for (let streamId in streams) {
+          if (streams[streamId].media === mediaId) {
+            delete streams[streamId];
+          }
+        }
       }
     }
 
@@ -35,7 +41,7 @@ const handleMedia = (dataObj) => {
 }
 
 const handleRender = (dataObj) => {
-  console.log('handleRender', dataObj);
+  // console.log('handleRender', dataObj);
 
   try {
     for (let streamId in streams) {
@@ -55,10 +61,9 @@ const handleRender = (dataObj) => {
 
         let stream;
         if (!(streamId in streams)) {
-          stream = streams[streamId] = {
-            media,
-            id: instances[media].play(),
-          };
+          const id = instances[media].play();
+          instances[media].pause(id);
+          stream = streams[streamId] = { media, id };
         } else {
           stream = streams[streamId];
         }
@@ -69,7 +74,7 @@ const handleRender = (dataObj) => {
           instance.play(id);
           instance.volume(volume, id);
           instance.seek(position / 1000, id);
-        } else if ((!playing && instance.playing(id)) || force) {
+        } else if ((!playing && instance.playing(id))) {
           instance.pause(id);
         }
       }
