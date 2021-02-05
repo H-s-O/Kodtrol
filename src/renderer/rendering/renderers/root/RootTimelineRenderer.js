@@ -36,6 +36,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
 
     Object.values(this._blocks).forEach((block) => block.instance.destroy());
     Object.values(this._curves).forEach((curve) => curve.instance.destroy());
+    Object.values(this._medias).forEach((media) => media.instance.destroy());
 
     this._blocks = null;
     this._triggers = null;

@@ -46,13 +46,14 @@ export default class AudioRenderer {
 
   _createAudioWindow() {
     this._audioWindow = new BrowserWindow({
-      show: false,
+      // show: false,
       skipTaskbar: true,
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false,
       },
     });
+    this._audioWindow.webContents.openDevTools();
 
     this._audioWindow.loadFile(join(__dirname, '..', '..', '..', '..', 'build', 'audio', 'index.html'));
     this._audioWindow.webContents.once('did-finish-load', this._onFinishLoad.bind(this));
@@ -60,6 +61,7 @@ export default class AudioRenderer {
 
   _onFinishLoad() {
     this._ready = true;
+    process.stdout.write('ready');
   }
 
   _destroyAudioWindow() {

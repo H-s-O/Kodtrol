@@ -9,14 +9,14 @@ export default class AudioOutput extends AbstractOutput {
 
     // @TODO handle different audio output devices
     this._audioSubProcess = new AudioSubProcess();
+    this._audioSubProcess.once('ready', this._onSubProcessReady.bind(this));
     console.log('Audio output', device);
 
-    this._setStatusConnected();
   }
 
-  // temp
-  flush() {
-
+  _onSubProcessReady() {
+    this.emit('ready');
+    this._setStatusConnected();
   }
 
   send(data) {

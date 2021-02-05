@@ -1,27 +1,20 @@
-import uniqid from 'uniqid';
-
 export default class AudioRenderer {
   _media = null;
   _providers = null;
-
   _started = false;
   _volume = 1;
-  _streamId = null;
   _duration = 0;
-  _id = null;
 
   constructor(providers, sourceAudio) {
     this._providers = providers;
 
     const {
-      id,
       volume,
       inTime,
       outTime,
       media,
     } = sourceAudio;
 
-    this._id = id;
     this._volume = Number(volume);
     this._duration = Number(outTime) - Number(inTime);
 
@@ -34,28 +27,45 @@ export default class AudioRenderer {
 
   reset() {
     this._started = false;
-    this._streamId = null;
   }
 
   render(delta, blockInfo) {
     const { mediaPercent } = blockInfo;
-    if (!this._started) {
-      this._streamId = uniqid();
+
+    if (this._media) {
+      this._media.setPlaying(true);
+
+      const position = mediaPercent * this._duration;
+      const volume = this._volume;
+
+      this._media.setVolume(volume);
+      this._media.setPosition(position, !this._started);
     }
 
     this._started = true;
-
-    const position = mediaPercent * this._duration;
-    const volume = this._volume;
-
-    this._media.setActive(true);
-    this._media.setVolume(volume);
-    this._media.setPosition(position);
-    this._media.setStreamId(this._streamId); // hack
   }
 
   stop() {
     this.reset();
-    this._media.stop();
+
+    if (this._media) {
+      this._media.setPlaying(false);
+    }
+  }
+
+  _destroyMediaProxy() {
+    if (this._media) {
+      this._media.destroy();
+    }
+  }
+
+  destroy() {
+    this._destroyMediaProxy();
+
+    this._media = null;
+    this._providers = null;
+    this._started = null;
+    this._volume = null;
+    this._duration = null;
   }
 }
