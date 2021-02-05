@@ -46,7 +46,7 @@ export default class AudioRenderer {
 
   _createAudioWindow() {
     this._audioWindow = new BrowserWindow({
-      // show: false,
+      show: false,
       skipTaskbar: true,
       webPreferences: {
         nodeIntegration: true,
