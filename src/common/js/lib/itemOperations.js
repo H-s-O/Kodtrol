@@ -1,6 +1,6 @@
 import uniqid from 'uniqid';
 
-import { clipboardGetMode, clipboardPut, clipboardGetValue } from '../../../ui2/js/lib/customClipboard';
+import { clipboardGetMode, clipboardPut, clipboardGetValue } from '../../../ui/js/lib/customClipboard';
 
 export const getItem = (items, itemId) => {
   const item = items.find(({ id }) => id === itemId);

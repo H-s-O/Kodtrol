@@ -31,7 +31,7 @@ export default class SplashWindow extends EventEmitter {
     // this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);
 
-    this.win.loadFile(join(__dirname, '..', '..', '..', 'build', 'ui2', 'splash.html'));
+    this.win.loadFile(join(__dirname, '..', '..', '..', 'build', 'ui', 'splash.html'));
 
     this.contents = this.win.webContents;
     this.contents.once('did-finish-load', this.onFinishLoad);

@@ -1,3 +1,3 @@
 export default () => {
-    return window.document.activeElement === window.document.body;
-}
+  return window.document.activeElement === window.document.body;
+};

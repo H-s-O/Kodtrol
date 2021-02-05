@@ -30,7 +30,7 @@ export default class ConsoleWindow extends EventEmitter {
     this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);
 
-    this.win.loadFile(join(__dirname, '..', '..', '..', 'build', 'ui2', 'console.html'));
+    this.win.loadFile(join(__dirname, '..', '..', '..', 'build', 'ui', 'console.html'));
 
     this.contents = this.win.webContents;
     this.contents.once('did-finish-load', this.onFinishLoad);
