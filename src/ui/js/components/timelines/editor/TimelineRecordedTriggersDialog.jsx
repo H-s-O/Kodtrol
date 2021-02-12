@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import DialogBody from '../../ui/DialogBody';
@@ -7,11 +7,20 @@ import CustomDialog from '../../ui/CustomDialog';
 import DialogFooterActions from '../../ui/DialogFooterActions';
 import TimelineRecordedTriggersDialogBody from './TimelineRecordedTriggersDialogBody';
 import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
-import timelineScriptValidator from '../../../../../common/js/validators/timelineScriptValidator';
+import timelineRecordedTriggersValidator from '../../../../../common/js/validators/timelineRecordedTriggersValidator';
+import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
+
+const defaultValue = {
+  triggers: [],
+};
 
 export default function TimelineRecordedTriggersDialog({ opened, mode, value, layers, onChange, onSuccess, onClose }) {
-  // const bodyValid = value && timelineScriptValidator(value);
-  const bodyValid = true;
+  const bodyValue = value || defaultValue;
+  const bodyValid = timelineRecordedTriggersValidator(bodyValue);
+
+  const changeHandler = useCallback((value, field) => {
+    onChange(mergeDialogBody(bodyValue, value, field));
+  }, [onChange, bodyValue]);
 
   return (
     <CustomDialog
@@ -22,8 +31,9 @@ export default function TimelineRecordedTriggersDialog({ opened, mode, value, la
     >
       <DialogBody>
         <TimelineRecordedTriggersDialogBody
-          value={value}
-          onChange={onChange}
+          value={bodyValue}
+          onChange={changeHandler}
+          validation={bodyValid}
           layers={layers}
         />
       </DialogBody>
@@ -32,11 +42,11 @@ export default function TimelineRecordedTriggersDialog({ opened, mode, value, la
           <Button
             onClick={onClose}
           >
-            Close
+            Cancel
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid}
+            disabled={!bodyValid.all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

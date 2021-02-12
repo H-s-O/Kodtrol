@@ -52,11 +52,7 @@ const TriggerRow = ({
   return (
     <tr>
       <td>
-        <CheckboxInput
-          inline
-        >
-          {triggerNumber}
-        </CheckboxInput>
+        {triggerNumber}
       </td>
       <td>
         <TextInput
@@ -146,11 +142,7 @@ export default function TriggersListInput({ value, name, layers, onChange }) {
         <>
           <thead>
             <tr>
-              <td>
-                <CheckboxInput
-                  inline
-                />
-              </td>
+              <td>#</td>
               <td>Hotkey</td>
               <td>Name</td>
               <td>Layer</td>

@@ -3,16 +3,16 @@ import React from 'react';
 import InlineFormGroup from '../../ui/InlineFormGroup';
 import TriggersListInput from './TriggersListInput';
 
-export default function TimelineTriggerDialogBody({ value = {}, onChange, layers = [] }) {
+export default function TimelineTriggerDialogBody({ value, onChange, validation, layers = [] }) {
   const {
-    triggers = null,
+    triggers,
   } = value;
 
   return (
     <>
       <InlineFormGroup
         label="Triggers"
-        helperText="When trigger recording is enabled, pressing an assigned hotkey will insert at the timeline's playback position the corresponding named trigger on the selected layer."
+        helperText="When trigger recording is active, pressing a trigger hotkey will insert at the timeline's playback position and on the configured layer the corresponding named trigger."
       >
         <TriggersListInput
           name="triggers"
