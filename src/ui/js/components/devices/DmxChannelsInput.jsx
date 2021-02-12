@@ -44,11 +44,7 @@ const ChannelRow = ({
   return (
     <tr>
       <td>
-        <CheckboxInput
-          inline
-        >
-          {channelNumber}
-        </CheckboxInput>
+        {channelNumber}
       </td>
       <td>
         <TextInput
@@ -146,11 +142,7 @@ export default function DmxChannelsInput({ value, name, onChange }) {
         <>
           <thead>
             <tr>
-              <td>
-                <CheckboxInput
-                  inline
-                />
-              </td>
+              <td>#</td>
               <td>Name</td>
               <td>Default value</td>
               <td>Test value</td>
