@@ -83,7 +83,7 @@
     "yargs": "^13.3.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.11.6",
+    "@babel/cli": "^7.12.16",
     "@babel/core": "^7.11.6",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.10.4",
@@ -94,7 +94,7 @@
     "chai": "^4.2.0",
     "copy-files-from-to": "^3.2.0",
     "cross-env": "^7.0.2",
-    "electron": "^8.3.1",
+    "electron": "^8.5.5",
     "electron-builder": "^22.6.1",
     "electron-icon-builder": "^1.0.2",
     "electron-rebuild": "^1.11.0",
