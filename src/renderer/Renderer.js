@@ -356,6 +356,7 @@ export default class Renderer {
     }
 
     this._resetAll();
+    this._outputAll();
 
     if (id !== null) {
       const renderer = new RootTimelineRenderer(this._providers, id, this._onTimelineEnded.bind(this));
@@ -380,6 +381,7 @@ export default class Renderer {
     }
 
     this._resetAll();
+    this._outputAll();
 
     if (id !== null) {
       const renderer = new RootBoardRenderer(this._providers, id);
