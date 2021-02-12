@@ -377,19 +377,11 @@ export default class Main {
   }
 
   onTriggerCreateProject = () => {
-    if (this.hasProjectOpened) {
-      this.doCloseProjectWarn(this.createProject);
-    } else {
-      this.createProject();
-    }
+    this.createProject(this.splashWindow.browserWindow);
   }
 
   onTriggerLoadProject = () => {
-    if (this.hasProjectOpened) {
-      this.doCloseProjectWarn(this.selectProjectToOpen);
-    } else {
-      this.selectProjectToOpen();
-    }
+    this.selectProjectToOpen(this.splashWindow.browserWindow);
   }
 
   onTriggerQuit = () => {
@@ -479,8 +471,8 @@ export default class Main {
     }
   }
 
-  selectProjectToOpen = () => {
-    const projectPath = openProjectDialog();
+  selectProjectToOpen = (window = null) => {
+    const projectPath = openProjectDialog(window);
     if (projectPath !== null) {
       this.loadProject(projectPath);
     }
@@ -519,8 +511,8 @@ export default class Main {
     }
   }
 
-  createProject = () => {
-    const projectPath = createProjectDialog();
+  createProject = (window = null) => {
+    const projectPath = createProjectDialog(window);
     if (projectPath !== null) {
       const finalPath = `${projectPath}.${PROJECT_FILE_EXTENSION}`;
 

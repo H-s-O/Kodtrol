@@ -37,6 +37,10 @@ export default class SplashWindow extends EventEmitter {
     this.contents.once('did-finish-load', this.onFinishLoad);
   }
 
+  get browserWindow() {
+    return this.win;
+  }
+
   onReadyToShow = () => {
     this.win.show();
   }
