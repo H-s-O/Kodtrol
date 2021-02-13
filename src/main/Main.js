@@ -1,6 +1,6 @@
 import { app, powerSaveBlocker, BrowserWindow } from 'electron';
 import { set, pick } from 'lodash';
-import { join } from 'path';
+import { basename, join } from 'path';
 
 import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
 import { readAppConfig, writeAppConfig, writeJson, readJson, writeFile, ensureDir, getCompiledScriptsDir } from './lib/fileSystem';
@@ -305,7 +305,7 @@ export default class Main {
   }
 
   createMainWindow = () => {
-    this.mainWindow = new MainWindow(this.currentProjectFilePath);
+    this.mainWindow = new MainWindow(basename(this.currentProjectFilePath, `.${PROJECT_FILE_EXTENSION}`));
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
     this.mainWindow.on(MainWindowEvent.LOADED, this.onMainWindowLoaded);
   }
