@@ -6,7 +6,6 @@ export default class ScriptRenderer extends EventEmitter {
   _scriptInstance = null;
   _devices = null;
   _started = false;
-  _scriptData = {};
   _scriptError = null;
 
   constructor(providers, scriptId) {
@@ -36,9 +35,7 @@ export default class ScriptRenderer extends EventEmitter {
   }
 
   _reloadScriptInstance() {
-    this._scriptData = {};
     this._scriptError = null;
-
     this._scriptInstance = this._script.getInstance(this._handleLog.bind(this));
   }
 
@@ -87,10 +84,7 @@ export default class ScriptRenderer extends EventEmitter {
     if (!this._started) {
       if (this._script.hasStart) {
         try {
-          const data = this._scriptInstance.start(this._devices);
-          if (typeof data !== 'undefined') {
-            this._scriptData = data;
-          }
+          this._scriptInstance.start(this._devices);
         } catch (err) {
           this._handleError(err, 'start')
         }
@@ -112,10 +106,7 @@ export default class ScriptRenderer extends EventEmitter {
       this._start();
 
       try {
-        const data = this._scriptInstance.leadInFrame(this._devices, this._scriptData, info, triggerData, curveData);
-        if (typeof data !== 'undefined') {
-          this._scriptData = data;
-        }
+        this._scriptInstance.leadInFrame(this._devices, info, triggerData, curveData);
       } catch (err) {
         this._handleError(err, 'leadInFrame')
       }
@@ -123,10 +114,7 @@ export default class ScriptRenderer extends EventEmitter {
       this._start();
 
       try {
-        const data = this._scriptInstance.leadOutFrame(this._devices, this._scriptData, info, triggerData, curveData);
-        if (typeof data !== 'undefined') {
-          this._scriptData = data;
-        }
+        this._scriptInstance.leadOutFrame(this._devices, info, triggerData, curveData);
       } catch (err) {
         this._handleError(err, 'leadOutFrame')
       }
@@ -134,10 +122,7 @@ export default class ScriptRenderer extends EventEmitter {
       this._start();
 
       try {
-        const data = this._scriptInstance.frame(this._devices, this._scriptData, info, triggerData, curveData);
-        if (typeof data !== 'undefined') {
-          this._scriptData = data;
-        }
+        this._scriptInstance.frame(this._devices, info, triggerData, curveData);
       } catch (err) {
         this._handleError(err, 'frame')
       }
@@ -159,10 +144,7 @@ export default class ScriptRenderer extends EventEmitter {
       };
 
       try {
-        const data = this._scriptInstance.beat(this._devices, beatInfo, this._scriptData);
-        if (typeof data !== 'undefined') {
-          this._scriptData = data;
-        }
+        this._scriptInstance.beat(this._devices, beatInfo);
       } catch (err) {
         this._handleError(err, 'beat')
       }
@@ -179,10 +161,7 @@ export default class ScriptRenderer extends EventEmitter {
       this._start();
 
       try {
-        const data = this._scriptInstance.input(this._devices, type, inputData, this._scriptData);
-        if (typeof data !== 'undefined') {
-          this._scriptData = data;
-        }
+        this._scriptInstance.input(this._devices, type, inputData);
       } catch (err) {
         this._handleError(err, 'input')
       }
@@ -212,7 +191,6 @@ export default class ScriptRenderer extends EventEmitter {
     this._scriptInstance = null;
     this._devices = null;
     this._started = null;
-    this._scriptData = null;
     this._scriptError = null;
   }
 }
