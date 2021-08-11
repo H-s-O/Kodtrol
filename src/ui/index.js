@@ -2,6 +2,7 @@ import domready from 'domready';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import { isWin } from '../common/js/lib/platforms';
 import Root from './js/Root';
 
 domready(() => {
@@ -21,8 +22,10 @@ window.addEventListener('keydown', (e) => {
 
 // Hack to fix Chromium's bug on Windows where a "mousemove" event is always emitted
 // after a "contextmenu" event whether the mouse actually moved or not
-window.addEventListener('contextmenu', () => {
-  window.addEventListener('mousemove', (e) => {
-    e.stopImmediatePropagation()
-  }, { capture: true, once: true })
-}, { capture: true })
+if (isWin) {
+  window.addEventListener('contextmenu', () => {
+    window.addEventListener('mousemove', (e) => {
+      e.stopImmediatePropagation()
+    }, { capture: true, once: true })
+  }, { capture: true })
+}
