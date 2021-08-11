@@ -5,17 +5,17 @@ export const SCRIPT_TEMPLATE =
 `// function start(devices) {
 // }
 
-// function leadInFrame(devices, scriptData, { /* block info */ }, { /* triggers */ }, { /* curves */ }) {
+// function leadInFrame(devices, { /* block info */ }, { /* triggers */ }, { /* curves */ }) {
 // }
 
-// function frame(devices, scriptData, { /* block info */ }, { /* triggers */ }, { /* curves */ }) {
+// function frame(devices, { /* block info */ }, { /* triggers */ }, { /* curves */ }) {
 // }
 
-// function leadOutFrame(devices, scriptData, { /* block info */ }, { /* triggers */ }, { /* curves */ }) {
+// function leadOutFrame(devices, { /* block info */ }, { /* triggers */ }, { /* curves */ }) {
 // }
 
-// function beat(devices, { localBeat, globalBeat }, scriptData) {
+// function beat(devices, { localBeat, globalBeat }) {
 // }
 
-// function input(devices, inputType, inputData, scriptData) {
+// function input(devices, inputType, inputData) {
 // }`;
