@@ -18,3 +18,11 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault();
   }
 });
+
+// Hack to fix Chromium's bug on Windows where a "mousemove" event is always emitted
+// after a "contextmenu" event whether the mouse actually moved or not
+window.addEventListener('contextmenu', () => {
+  window.addEventListener('mousemove', (e) => {
+    e.stopImmediatePropagation()
+  }, { capture: true, once: true })
+}, { capture: true })
