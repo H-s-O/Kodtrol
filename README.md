@@ -1,10 +1,11 @@
 # Kodtrol
 ![Kodtrol screenshot](screenshot.png)
-
-(Curious to see what the project in this screenshot looks like? [Here it is](https://youtu.be/CueEGW6SlJ0).)
+Above is a screenshot of a demo song project, [LOOK MUM NO COMPUTER - GRANDMA'S MONEY](https://youtu.be/CueEGW6SlJ0)  
+Other demos:
+- [Mr.Kitty - give/take](https://youtu.be/cN45Z7AZOg0)
+- [Ladytron - The Island](https://youtu.be/ogRdrisVTpc)
 
 # ⚠️ Note: this software is still in alpha stage. Use at your own risk; expect breaking changes without prior notice.
-There is no executable build yet. Still an Electron noob. See "Local development / run from source" below.
 
 ## Features roadmap (in no particular order)
 - [Open Fixture Library](https://open-fixture-library.org/) integration
@@ -32,3 +33,12 @@ And in another terminal, run:
 npm start
 ```
 If all goes well, you should see the Welcome Screen allowing you to create a new project or open an existing one.
+
+## Local release build
+Make sure you have installed the requirements from *Local development* above, then:
+```
+npm install
+npm run rebuild
+npm run build-and-dist
+```
+The build will be generated in the `dist` folder.
