@@ -51,6 +51,7 @@ export default class AudioRenderer {
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false,
+        contextIsolation: false,
       },
     });
     this._audioWindow.webContents.openDevTools();

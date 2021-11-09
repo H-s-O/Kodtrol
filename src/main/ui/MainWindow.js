@@ -21,6 +21,8 @@ export default class MainWindow extends EventEmitter {
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false, // Allows fetch() to use "file" scheme
+        contextIsolation: false,
+        enableRemoteModule: true,
       }
     });
     this.win.on('close', this.onClose);

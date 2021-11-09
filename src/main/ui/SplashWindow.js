@@ -24,6 +24,7 @@ export default class SplashWindow extends EventEmitter {
       backgroundColor: Colors.DARK_GRAY3,
       webPreferences: {
         nodeIntegration: true,
+        contextIsolation: false,
       }
     });
     this.win.removeMenu();

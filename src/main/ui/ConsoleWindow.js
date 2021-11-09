@@ -23,6 +23,7 @@ export default class ConsoleWindow extends EventEmitter {
       show: false,
       webPreferences: {
         nodeIntegration: true,
+        contextIsolation: false,
       }
     });
     this.win.removeMenu();
