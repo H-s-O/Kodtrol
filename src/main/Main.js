@@ -1,4 +1,4 @@
-import { app, powerSaveBlocker, BrowserWindow } from 'electron';
+import { app, powerSaveBlocker, BrowserWindow, MessageChannelMain } from 'electron';
 import { set, pick } from 'lodash';
 import { basename, join } from 'path';
 
@@ -14,7 +14,7 @@ import * as RendererEvent from './events/RendererEvent';
 import * as WatcherEvent from './events/WatcherEvent';
 import Store from './data/Store';
 import { updateIOStatusAction } from '../common/js/store/actions/ioStatus';
-import Renderer from './process/Renderer';
+// import Renderer from './process/Renderer';
 import { screenshotsFile, projectFile } from './lib/commandLine';
 import compileScript from './lib/compileScript';
 import { PROJECT_FILE_EXTENSION } from '../common/js/constants/app';
@@ -27,10 +27,12 @@ import isDev from '../common/js/lib/isDev';
 import ConsoleWindow from './ui/ConsoleWindow';
 import { setConsoleClosedAction } from '../common/js/store/actions/console';
 import SplashWindow from './ui/SplashWindow';
+import EngineWindow from './ui/EngineWindow';
 
 export default class Main {
   currentProjectFilePath = null;
   mainWindow = null;
+  engineWindow = null;
   consoleWindow = null;
   splashWindow = null;
   mainMenu = null
@@ -38,6 +40,7 @@ export default class Main {
   renderer = null;
   powerSaveBlockerId = null;
   midiWatcher = null;
+  messageChannelMain = null
 
   static _devExtensionsLoaded = false;
 
@@ -63,7 +66,9 @@ export default class Main {
   onReady = () => {
     MainMenu.setEmpty();
 
-    this.loadDevExtensions();
+    this.messageChannelMain = new MessageChannelMain();
+
+    // this.loadDevExtensions();
     this.setupEventListeners();
     this.createWatchers();
     this.run();
@@ -119,9 +124,10 @@ export default class Main {
       this.createStore(data);
     }
 
-    this.createRenderer();
+    // this.createRenderer();
+    this.createEngineWindow(this.messageChannelMain.port1);
     this.createMainMenu();
-    this.createMainWindow();
+    this.createMainWindow(this.messageChannelMain.port2);
     this.createConsoleWindow();
   }
 
@@ -153,9 +159,9 @@ export default class Main {
   onOutputsChanged = () => {
     const { outputs } = this.store.state;
 
-    if (this.renderer) {
+    if (this.engineWindow) {
       console.log('updateOutputs');
-      this.renderer.send({
+      this.engineWindow.send({
         updateOutputs: outputs,
       });
     }
@@ -164,9 +170,9 @@ export default class Main {
   onInputsChanged = () => {
     const { inputs } = this.store.state;
 
-    if (this.renderer) {
+    if (this.engineWindow) {
       console.log('updateInputs');
-      this.renderer.send({
+      this.engineWindow.send({
         updateInputs: inputs,
       });
     }
@@ -175,9 +181,9 @@ export default class Main {
   onDevicesChanged = () => {
     const { devices } = this.store.state;
 
-    if (this.renderer) {
+    if (this.engineWindow) {
       console.log('updateDevices');
-      this.renderer.send({
+      this.engineWindow.send({
         updateDevices: devices,
       });
     }
@@ -193,9 +199,9 @@ export default class Main {
       console.timeEnd('compile time');
     })
 
-    if (this.renderer) {
+    if (this.engineWindow) {
       console.log('updateScripts');
-      this.renderer.send({
+      this.engineWindow.send({
         updateScripts: scripts,
       });
     }
@@ -204,9 +210,9 @@ export default class Main {
   onMediasChanged = () => {
     const { medias } = this.store.state;
 
-    if (this.renderer) {
+    if (this.engineWindow) {
       console.log('updateMedias');
-      this.renderer.send({
+      this.engineWindow.send({
         updateMedias: medias,
       });
     }
@@ -215,9 +221,9 @@ export default class Main {
   onTimelinesChanged = () => {
     const { timelines } = this.store.state;
 
-    if (this.renderer) {
+    if (this.engineWindow) {
       console.log('updateTimelines');
-      this.renderer.send({
+      this.engineWindow.send({
         updateTimelines: timelines,
       });
     }
@@ -226,9 +232,9 @@ export default class Main {
   onBoardsChanged = () => {
     const { boards } = this.store.state;
 
-    if (this.renderer) {
+    if (this.engineWindow) {
       console.log('updateBoards');
-      this.renderer.send({
+      this.engineWindow.send({
         updateBoards: boards,
       });
     }
@@ -248,8 +254,8 @@ export default class Main {
   onRunDevice = () => {
     const { runDevice } = this.store.state;
 
-    if (this.renderer) {
-      this.renderer.send({
+    if (this.engineWindow) {
+      this.engineWindow.send({
         runDevice,
       });
     }
@@ -260,8 +266,8 @@ export default class Main {
   onRunScript = () => {
     const { runScript } = this.store.state;
 
-    if (this.renderer) {
-      this.renderer.send({
+    if (this.engineWindow) {
+      this.engineWindow.send({
         runScript,
       });
     }
@@ -272,8 +278,8 @@ export default class Main {
   onRunTimeline = () => {
     const { runTimeline } = this.store.state;
 
-    if (this.renderer) {
-      this.renderer.send({
+    if (this.engineWindow) {
+      this.engineWindow.send({
         runTimeline,
       });
     }
@@ -284,8 +290,8 @@ export default class Main {
   onRunBoard = () => {
     const { runBoard } = this.store.state;
 
-    if (this.renderer) {
-      this.renderer.send({
+    if (this.engineWindow) {
+      this.engineWindow.send({
         runBoard,
       });
     }
@@ -304,8 +310,8 @@ export default class Main {
     }
   }
 
-  createMainWindow = () => {
-    this.mainWindow = new MainWindow(basename(this.currentProjectFilePath, `.${PROJECT_FILE_EXTENSION}`));
+  createMainWindow = (messagePort) => {
+    this.mainWindow = new MainWindow(messagePort, basename(this.currentProjectFilePath, `.${PROJECT_FILE_EXTENSION}`));
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
     this.mainWindow.on(MainWindowEvent.LOADED, this.onMainWindowLoaded);
   }
@@ -329,6 +335,23 @@ export default class Main {
       const { default: data } = require(screenshots);
       this.generateScreenshots(data);
     }
+  }
+
+  createEngineWindow = (messagePort) => {
+    this.engineWindow = new EngineWindow(messagePort);
+    this.engineWindow.on('loaded', this.onEngineWindowLoaded);
+  }
+
+  destroyEngineWindow = () => {
+    if (this.engineWindow) {
+      this.engineWindow.destroy();
+      this.engineWindow = null;
+    }
+  }
+
+  onEngineWindowLoaded = () => {
+    // temp
+    this.onRendererReady();
   }
 
   createConsoleWindow = () => {
@@ -361,16 +384,16 @@ export default class Main {
   }
 
   onUpdateTimelineInfo = (event, data) => {
-    if (this.renderer) {
-      this.renderer.send({
+    if (this.engineWindow) {
+      this.engineWindow.send({
         updateTimelineInfo: data,
       });
     }
   }
 
   onUpdateBoardInfo = (event, data) => {
-    if (this.renderer) {
-      this.renderer.send({
+    if (this.engineWindow) {
+      this.engineWindow.send({
         updateBoardInfo: data,
       });
     }

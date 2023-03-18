@@ -1,3 +1,5 @@
+import { ipcRenderer } from 'electron';
+
 import Ticker from './lib/Ticker';
 import RootDeviceRenderer from './rendering/renderers/root/RootDeviceRenderer';
 import RootScriptRenderer from './rendering/renderers/root/RootScriptRenderer';
@@ -52,18 +54,23 @@ export default class Renderer {
       getMedia: this._getMedia.bind(this),
     }
 
-    process.on('SIGTERM', this._onSigTerm.bind(this));
-    process.on('message', this._onMessage.bind(this));
+    // process.on('SIGTERM', this._onSigTerm.bind(this));
+    // process.on('message', this._onMessage.bind(this));
+
+    ipcRenderer.on('message', (evt, data) => {
+      console.log('ipcRenderer message', evt, data)
+      this._onMessage(data)
+    })
 
     this._ioUpdateTimer = setInterval(this._updateIOStatus.bind(this), 3000);
 
     this._send('ready');
   }
 
-  _onSigTerm() {
-    this._destroy();
-    process.exit();
-  }
+  // _onSigTerm() {
+  //   this._destroy();
+  //   process.exit();
+  // }
 
   _destroy() {
     if (this._ioUpdateTimer) {
@@ -496,7 +503,8 @@ export default class Renderer {
   }
 
   _send(data) {
-    process.send(data);
+
+    // process.send(data);
   }
 
   _tickHandler(delta, initial = false) {

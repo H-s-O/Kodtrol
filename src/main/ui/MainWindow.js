@@ -9,7 +9,7 @@ export default class MainWindow extends EventEmitter {
   win = null;
   contents = null;
 
-  constructor(title) {
+  constructor(messagePort, title) {
     super();
 
     this.win = new BrowserWindow({
@@ -28,6 +28,9 @@ export default class MainWindow extends EventEmitter {
     this.win.on('close', this.onClose);
     this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);
+
+    // temp
+    this.win.once('ready-to-show', () => this.win.webContents.postMessage('port', null, [messagePort]));
 
     this.win.loadFile(join(__dirname, '..', '..', '..', 'build', 'ui', 'index.html'));
 
