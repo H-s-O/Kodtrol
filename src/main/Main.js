@@ -340,6 +340,12 @@ export default class Main {
   createEngineWindow = (messagePort) => {
     this.engineWindow = new EngineWindow(messagePort);
     this.engineWindow.on('loaded', this.onEngineWindowLoaded);
+    // this.renderer.on(RendererEvent.READY, this.onRendererReady);
+    this.engineWindow.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
+    this.engineWindow.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
+    this.engineWindow.on(RendererEvent.IO_STATUS_UPDATE, this.onRendererIOStatusUpdate);
+    this.engineWindow.on(RendererEvent.SCRIPT_ERROR, this.onRendererScriptError);
+    this.engineWindow.on(RendererEvent.SCRIPT_LOG, this.onRendererScriptLog);
   }
 
   destroyEngineWindow = () => {

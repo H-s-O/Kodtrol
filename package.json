@@ -10,7 +10,7 @@
   "main": "./build/main/kodtrol-main.js",
   "scripts": {
     "start": "cross-env KODTROL_DEV=true npx electron -r @babel/register ./src/main/kodtrol-main.js",
-    "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch ./src/ui/index.html ./src/ui/console.html ./src/ui/splash.html ./src/audio/index.html ./src/_renderer/engine.html --target electron --out-dir ./build --public-url ../",
+    "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch ./src/ui/index.html ./src/ui/console.html ./src/ui/splash.html ./src/audio/index.html ./src/_renderer/engine.html ./src/_renderer/engine-preload.js --target electron --out-dir ./build --public-url ../",
     "clear-build": "npx rimraf ./build/*",
     "build-babel": "babel ./src/main --ignore 'src/main/lib/helpers/*.js' --copy-files --out-dir ./build/main && babel ./src/renderer --out-dir ./build/renderer && babel ./src/common --out-dir ./build/common",
     "build-parcel": "parcel build ./src/ui/index.html ./src/ui/console.html ./src/ui/splash.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../ --no-source-maps --no-minify",

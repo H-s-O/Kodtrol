@@ -58,7 +58,7 @@ export default class Renderer {
     // process.on('message', this._onMessage.bind(this));
 
     ipcRenderer.on('message', (evt, data) => {
-      console.log('ipcRenderer message', evt, data)
+      // console.log('ipcRenderer message', evt, data)
       this._onMessage(data)
     })
 
@@ -503,6 +503,9 @@ export default class Renderer {
   }
 
   _send(data) {
+    // temp
+    ipcRenderer.send('engine-message', data)
+
 
     // process.send(data);
   }
