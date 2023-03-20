@@ -53,6 +53,7 @@ export default class AudioOutput extends AbstractOutput {
         if (!(mediaId in this._instances)) {
           this._instances[mediaId] = new Howl({
             src: `file://${file}`,
+            preload: true,
             html5: true, // As per Howler's docs, does not require loading the entire file before playing
           });
         }
