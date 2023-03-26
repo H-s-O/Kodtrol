@@ -311,7 +311,7 @@ export default class Main {
   }
 
   createMainWindow = (messagePort) => {
-    this.mainWindow = new MainWindow(messagePort, basename(this.currentProjectFilePath, `.${PROJECT_FILE_EXTENSION}`));
+    this.mainWindow = new MainWindow(messagePort, this.currentProjectFilePath, basename(this.currentProjectFilePath, `.${PROJECT_FILE_EXTENSION}`));
     this.mainWindow.on(MainWindowEvent.CLOSING, this.onMainWindowClosing);
     this.mainWindow.on(MainWindowEvent.LOADED, this.onMainWindowLoaded);
   }
@@ -594,7 +594,8 @@ export default class Main {
     this.destroyMainWindow();
     this.destroyMainMenu();
     this.destroyStore();
-    this.destroyRenderer();
+    this.destroyEngineWindow();
+    // this.destroyRenderer();
 
     const appConfig = readAppConfig();
     set(appConfig, 'currentProjectFilePath', null);

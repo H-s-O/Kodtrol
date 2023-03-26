@@ -12,10 +12,12 @@ domready(() => {
   );
 });
 
+kodtrol.readProjectFile().then((projectData) => console.log('projectData', projectData))
+
 // Hack to disable annoying spacebar scroll behavior
 // @see https://stackoverflow.com/a/22559917
 window.addEventListener('keydown', (e) => {
-  if (e.keyCode === 32 && e.target === document.body) {
+  if (e.key === ' ' && e.target === document.body) {
     e.preventDefault();
   }
 });

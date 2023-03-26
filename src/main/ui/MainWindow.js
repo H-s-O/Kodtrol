@@ -9,7 +9,7 @@ export default class MainWindow extends EventEmitter {
   win = null;
   contents = null;
 
-  constructor(messagePort, title) {
+  constructor(messagePort, projectFilePath, title) {
     super();
 
     this.win = new BrowserWindow({
@@ -23,6 +23,10 @@ export default class MainWindow extends EventEmitter {
         webSecurity: false, // Allows fetch() to use "file" scheme
         contextIsolation: false,
         enableRemoteModule: true,
+        preload: join(__dirname, '..', '..', '..', 'build', 'ui', 'index-preload.js'),
+        additionalArguments: [`--kodtrol=${JSON.stringify({
+          projectFilePath
+        })}`],
       }
     });
     this.win.on('close', this.onClose);

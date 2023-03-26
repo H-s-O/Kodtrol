@@ -24,6 +24,7 @@ import { READY } from './events/OutputEvent';
 import AudioOutput from './outputs/AudioOutput';
 
 export default class Renderer {
+  _messagePort = null;
   _outputs = {};
   _inputs = {};
   _devices = {};
@@ -42,7 +43,10 @@ export default class Renderer {
   _frameTime = 0;
   _ioUpdateTimer = null;
 
-  constructor() {
+  constructor(messagePort) {
+    this._messagePort = messagePort;
+    console.log('messagePort', messagePort)
+
     this._providers = {
       getOutput: this._getOutput.bind(this),
       getScript: this._getScript.bind(this),
@@ -85,6 +89,7 @@ export default class Renderer {
 
     this._inputs = null;
     this._outputs = null;
+    this._messagePort = null;
   }
 
   _onMessage(message) {
