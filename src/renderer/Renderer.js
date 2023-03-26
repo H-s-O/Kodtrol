@@ -45,7 +45,7 @@ export default class Renderer {
 
   constructor(messagePort) {
     this._messagePort = messagePort;
-    console.log('messagePort', messagePort)
+    this._messagePort.onmessage = (msg) => this._onMessage(msg.data);
 
     this._providers = {
       getOutput: this._getOutput.bind(this),
@@ -61,10 +61,10 @@ export default class Renderer {
     // process.on('SIGTERM', this._onSigTerm.bind(this));
     // process.on('message', this._onMessage.bind(this));
 
-    ipcRenderer.on('message', (evt, data) => {
-      // console.log('ipcRenderer message', evt, data)
-      this._onMessage(data)
-    })
+    // ipcRenderer.on('message', (evt, data) => {
+    //   // console.log('ipcRenderer message', evt, data)
+    //   this._onMessage(data)
+    // })
 
     this._ioUpdateTimer = setInterval(this._updateIOStatus.bind(this), 3000);
 
@@ -93,6 +93,8 @@ export default class Renderer {
   }
 
   _onMessage(message) {
+    console.log('_onMessage', message)
+
     if ('updateOutputs' in message) {
       const { updateOutputs } = message;
       this._updateOutputs(updateOutputs);
@@ -132,6 +134,8 @@ export default class Renderer {
     } else if ('updateBoardInfo' in message) {
       const { updateBoardInfo } = message;
       this._updateBoardInfo(updateBoardInfo);
+    } else {
+      console.warn('unknown message:', message)
     }
   }
 
@@ -509,10 +513,12 @@ export default class Renderer {
 
   _send(data) {
     // temp
-    ipcRenderer.send('engine-message', data)
+    // ipcRenderer.send('engine-message', data)
 
 
     // process.send(data);
+
+    this._messagePort.postMessage(data)
   }
 
   _tickHandler(delta, initial = false) {

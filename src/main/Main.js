@@ -117,12 +117,12 @@ export default class Main {
       writeAppConfig(appConfig);
     }
 
-    if (init) {
-      this.createStore();
-    } else {
-      const data = readJson(this.currentProjectFilePath);
-      this.createStore(data);
-    }
+    // if (init) {
+    //   this.createStore();
+    // } else {
+    //   const data = readJson(this.currentProjectFilePath);
+    //   this.createStore(data);
+    // }
 
     // this.createRenderer();
     this.createEngineWindow(this.messageChannelMain.port1);
@@ -131,22 +131,22 @@ export default class Main {
     this.createConsoleWindow();
   }
 
-  createStore = (initialData = null) => {
-    this.store = new Store(initialData);
-    this.store.on(StoreEvent.OUTPUTS_CHANGED, this.onOutputsChanged);
-    this.store.on(StoreEvent.INPUTS_CHANGED, this.onInputsChanged);
-    this.store.on(StoreEvent.DEVICES_CHANGED, this.onDevicesChanged);
-    this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
-    this.store.on(StoreEvent.MEDIAS_CHANGED, this.onMediasChanged);
-    this.store.on(StoreEvent.TIMELINES_CHANGED, this.onTimelinesChanged);
-    this.store.on(StoreEvent.BOARDS_CHANGED, this.onBoardsChanged);
-    this.store.on(StoreEvent.RUN_DEVICE, this.onRunDevice);
-    this.store.on(StoreEvent.RUN_SCRIPT, this.onRunScript);
-    this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
-    this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
-    this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
-    this.store.on(StoreEvent.CONSOLE_CHANGED, this.onConsoleChanged);
-  }
+  // createStore = (initialData = null) => {
+  //   this.store = new Store(initialData);
+  //   this.store.on(StoreEvent.OUTPUTS_CHANGED, this.onOutputsChanged);
+  //   this.store.on(StoreEvent.INPUTS_CHANGED, this.onInputsChanged);
+  //   this.store.on(StoreEvent.DEVICES_CHANGED, this.onDevicesChanged);
+  //   this.store.on(StoreEvent.SCRIPTS_CHANGED, this.onScriptsChanged);
+  //   this.store.on(StoreEvent.MEDIAS_CHANGED, this.onMediasChanged);
+  //   this.store.on(StoreEvent.TIMELINES_CHANGED, this.onTimelinesChanged);
+  //   this.store.on(StoreEvent.BOARDS_CHANGED, this.onBoardsChanged);
+  //   this.store.on(StoreEvent.RUN_DEVICE, this.onRunDevice);
+  //   this.store.on(StoreEvent.RUN_SCRIPT, this.onRunScript);
+  //   this.store.on(StoreEvent.RUN_TIMELINE, this.onRunTimeline);
+  //   this.store.on(StoreEvent.RUN_BOARD, this.onRunBoard);
+  //   this.store.on(StoreEvent.CONTENT_SAVED, this.onContentSaved);
+  //   this.store.on(StoreEvent.CONSOLE_CHANGED, this.onConsoleChanged);
+  // }
 
   destroyStore = () => {
     if (this.store) {
@@ -339,7 +339,7 @@ export default class Main {
 
   createEngineWindow = (messagePort) => {
     this.engineWindow = new EngineWindow(messagePort);
-    this.engineWindow.on('loaded', this.onEngineWindowLoaded);
+    // this.engineWindow.on('loaded', this.onEngineWindowLoaded);
     // this.renderer.on(RendererEvent.READY, this.onRendererReady);
     this.engineWindow.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
     this.engineWindow.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
@@ -355,10 +355,10 @@ export default class Main {
     }
   }
 
-  onEngineWindowLoaded = () => {
-    // temp
-    this.onRendererReady();
-  }
+  // onEngineWindowLoaded = () => {
+  //   // temp
+  //   this.onRendererReady();
+  // }
 
   createConsoleWindow = () => {
     this.consoleWindow = new ConsoleWindow();
@@ -419,7 +419,7 @@ export default class Main {
 
   createRenderer = () => {
     this.renderer = new Renderer();
-    this.renderer.on(RendererEvent.READY, this.onRendererReady);
+    // this.renderer.on(RendererEvent.READY, this.onRendererReady);
     this.renderer.on(RendererEvent.TIMELINE_INFO_UPDATE, this.onRendererTimelineInfoUpdate);
     this.renderer.on(RendererEvent.BOARD_INFO_UPDATE, this.onRendererBoardInfoUpdate);
     this.renderer.on(RendererEvent.IO_STATUS_UPDATE, this.onRendererIOStatusUpdate);
@@ -435,16 +435,16 @@ export default class Main {
     }
   }
 
-  onRendererReady = () => {
-    // Force an initial data update to the renderer
-    this.onOutputsChanged();
-    this.onInputsChanged();
-    this.onDevicesChanged();
-    this.onScriptsChanged();
-    this.onMediasChanged();
-    this.onTimelinesChanged();
-    this.onBoardsChanged();
-  }
+  // onRendererReady = () => {
+  //   // Force an initial data update to the renderer
+  //   this.onOutputsChanged();
+  //   this.onInputsChanged();
+  //   this.onDevicesChanged();
+  //   this.onScriptsChanged();
+  //   this.onMediasChanged();
+  //   this.onTimelinesChanged();
+  //   this.onBoardsChanged();
+  // }
 
   onRendererTimelineInfoUpdate = (info) => {
     if (this.mainWindow) {

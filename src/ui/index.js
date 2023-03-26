@@ -6,13 +6,15 @@ import { isWin } from '../common/js/lib/platforms';
 import Root from './js/Root';
 
 domready(() => {
-  ReactDOM.render(
-    <Root />,
-    document.getElementById('root'),
-  );
+  window.kodtrol.ready()
+    .then(() => window.kodtrol.readProjectFile())
+    .then((projectData) => {
+      ReactDOM.render(
+        <Root projectData={projectData} />,
+        document.getElementById('root'),
+      );
+    });
 });
-
-kodtrol.readProjectFile().then((projectData) => console.log('projectData', projectData))
 
 // Hack to disable annoying spacebar scroll behavior
 // @see https://stackoverflow.com/a/22559917
