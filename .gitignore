@@ -1,6 +1,6 @@
 .DS_Store
 /.vscode
-/.cache
+/.parcel-cache
 /node_modules
 /test*.js
 /dev/screenshots/*
