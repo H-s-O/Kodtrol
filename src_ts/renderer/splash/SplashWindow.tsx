@@ -1,10 +1,10 @@
+/// <reference path="splash-preload.d.ts" />
+
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
 import { Button, Intent } from '@blueprintjs/core'
 
 import FullHeightCard from '../../../src/ui/js/components/ui/FullHeightCard'
-// import { ipcRendererSend } from './lib/ipcRenderer'
-// import { TRIGGER_CREATE_PROJECT, TRIGGER_QUIT, TRIGGER_LOAD_PROJECT } from '../../common/js/constants/events'
 import { APP_NAME } from '../../common/constants'
 
 const StyledContainer = styled.div`
@@ -25,13 +25,13 @@ const StyledButtonsContainer = styled.div`
 
 export default function SplashWindow() {
   const createClickHandler = useCallback(() => {
-    // ipcRendererSend(TRIGGER_CREATE_PROJECT);
+    window.kodtrol.mainRequestCreateProject()
   }, [])
   const loadClickHandler = useCallback(() => {
-    // ipcRendererSend(TRIGGER_LOAD_PROJECT);
+    window.kodtrol.mainRequestLoadProject()
   }, [])
   const quitClickHandler = useCallback(() => {
-    // ipcRendererSend(TRIGGER_QUIT);
+    window.kodtrol.mainRequestQuit()
   }, [])
 
   return (

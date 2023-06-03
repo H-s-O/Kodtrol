@@ -1,10 +1,16 @@
-import { app } from 'electron'
+import { app, ipcMain } from 'electron'
 import { join } from 'path'
 import { nextTick } from 'process'
 
 import SplashWindow from './ui/SplashWindow'
 import EditorWindow from './ui/EditorWindow'
 import EngineWindow from './ui/EngineWindows'
+import {
+  APP_NAME,
+  IPC_MAIN_CHANNEL_CREATE_PROJECT,
+  IPC_MAIN_CHANNEL_LOAD_PROJECT,
+  IPC_MAIN_CHANNEL_QUIT,
+} from '../common/constants'
 
 class Main {
   private _splashWindow?: SplashWindow
@@ -13,12 +19,30 @@ class Main {
   private _currentProjectFile?: string
 
   constructor() {
+    app.setName(APP_NAME)
+
     app.once('ready', this._onAppReady.bind(this))
     app.once('will-quit', this._onWillQuit.bind(this))
   }
 
   private _onAppReady(): void {
+    ipcMain.handle(IPC_MAIN_CHANNEL_QUIT, this._requestedQuit.bind(this))
+    ipcMain.handle(IPC_MAIN_CHANNEL_CREATE_PROJECT, this._requestedCreateProject.bind(this))
+    ipcMain.handle(IPC_MAIN_CHANNEL_LOAD_PROJECT, this._requestedLoadProject.bind(this))
+
     nextTick(this._uiLogic.bind(this))
+  }
+
+  private _requestedQuit(): void {
+    app.quit()
+  }
+
+  private _requestedCreateProject(): void {
+    console.log('create project')
+  }
+
+  private _requestedLoadProject(): void {
+    console.log('load project')
   }
 
   private _uiLogic(): void {
@@ -27,7 +51,7 @@ class Main {
       // Open the splash window
       this._createSplashWindow()
     } else {
-      
+
     }
   }
 
@@ -68,6 +92,10 @@ class Main {
   }
 
   private _onWillQuit(): void {
+    ipcMain.removeHandler(IPC_MAIN_CHANNEL_QUIT)
+    ipcMain.removeHandler(IPC_MAIN_CHANNEL_CREATE_PROJECT)
+    ipcMain.removeHandler(IPC_MAIN_CHANNEL_LOAD_PROJECT)
+
     console.info('now quitting')
   }
 }
