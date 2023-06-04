@@ -1,6 +1,7 @@
-import { MenuItemConstructorOptions } from 'electron'
+import { MenuItemConstructorOptions } from 'electron';
+import { join } from 'path';
 
-import BaseWindow from './BaseWindow'
+import BaseWindow from './BaseWindow';
 
 class EditorWindow extends BaseWindow {
   constructor() {
@@ -8,12 +9,13 @@ class EditorWindow extends BaseWindow {
       id: 'editorwindow',
       defaultWidth: 1600,
       defaultHeight: 900,
-    })
+    });
+    this.loadFile(join(__dirname, '..', '..', '..', 'build', 'editor', 'editor.html'));
   }
 
   protected _generateMenu(): MenuItemConstructorOptions[] {
-    return []
+    return [];
   }
 }
 
-export default EditorWindow
+export default EditorWindow;

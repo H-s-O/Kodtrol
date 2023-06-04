@@ -17,13 +17,13 @@ class SplashWindow extends BaseWindow {
         maximizable: false,
         resizable: false,
         webPreferences: {
-          preload: join(__dirname, '..', '..', '..', 'build', 'splash-preload.js'),
+          preload: join(__dirname, '..', '..', '..', 'build', 'splash', 'splash-preload.js'),
           sandbox: false,
         },
       },
     })
     this.setMenuBarVisibility(false)
-    this.loadFile(join(__dirname, '..', '..', '..', 'build', 'splash.html'))
+    this.loadFile(join(__dirname, '..', '..', '..', 'build', 'splash', 'splash.html'))
   }
 
   protected _generateMenu(): MenuItemConstructorOptions[] {

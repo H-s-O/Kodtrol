@@ -1,3 +1,3 @@
-import Main from './Main'
+import Main from './Main';
 
-new Main()
+new Main();

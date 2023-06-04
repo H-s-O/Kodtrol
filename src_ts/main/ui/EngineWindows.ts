@@ -1,6 +1,6 @@
-import { MenuItemConstructorOptions } from 'electron'
+import { MenuItemConstructorOptions } from 'electron';
 
-import BaseWindow from './BaseWindow'
+import BaseWindow from './BaseWindow';
 
 class EngineWindow extends BaseWindow {
   constructor() {
@@ -9,12 +9,12 @@ class EngineWindow extends BaseWindow {
       defaultWidth: 640,
       defaultHeight: 480,
       showOnLoaded: false,
-    })
+    });
   }
 
   protected _generateMenu(): MenuItemConstructorOptions[] {
-    return []
+    return [];
   }
 }
 
-export default EngineWindow
+export default EngineWindow;
