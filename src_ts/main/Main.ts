@@ -40,7 +40,14 @@ class Main {
   }
 
   private _requestedCreateProject(event: IpcMainInvokeEvent): void {
-    console.log('create project');
+    createProjectDialog(BrowserWindow.fromWebContents(event.sender))
+      .then((result) => {
+        if (result) {
+          // @TODO file creation
+          this._nextProjectFile = result;
+          this._uiLogicNext();
+        }
+      });
   }
 
   private _requestedLoadProject(event: IpcMainInvokeEvent): void {
