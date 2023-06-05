@@ -9,13 +9,13 @@
   "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "./build/main/kodtrol-main.js",
   "scripts": {
-    "dev2": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch --target splash --target splash-preload --target editor --no-hmr",
+    "dev2": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch --target splash --target splash-preload --target editor --target editor-preload --no-hmr",
     "derp": "electron-webpack",
     "------------------------------------------------------------": "",
     "start": "cross-env KODTROL_DEV=true electron -r ts-node/register src_ts/main/kodtrol-main.ts",
     "dev-ts": "cross-env KODTROL_DEV=true rimraf build_ts/* && esbuild src_ts/renderer/splash/splash.html --bundle --platform=browser --loader:.html=copy --external:electron --target=chrome112.0 --outdir=build_ts",
     "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch ./src/ui/index.html ./src/ui/index-preload.js ./src/ui/console.html ./src/ui/splash.html ./src/_renderer/engine.html ./src/_renderer/engine-preload.js --target electron --dist-dir ./build --public-url ../",
-    "clear-build": "npx rimraf ./build/*",
+    "clear-build": "npx rimraf ./build/* .parcel-cache",
     "build-babel": "babel ./src/main --ignore 'src/main/lib/helpers/*.js' --copy-files --dist-dir ./build/main && babel ./src/renderer --dist-dir ./build/renderer && babel ./src/common --dist-dir ./build/common",
     "build-parcel": "parcel build ./src/ui/index.html ./src/ui/console.html ./src/ui/splash.html ./src/audio/index.html --target electron --dist-dir ./build --public-url ../ --no-source-maps --no-minify",
     "build-icons": "npx electron-icon-builder --input=./src/icons/app.png --output=./build",
@@ -47,6 +47,11 @@
       "distDir": "./build",
       "publicUrl": "./../",
       "context": "browser"
+    },
+    "editor-preload": {
+      "source": "./src_ts/renderer/editor/editor-preload.ts",
+      "distDir": "./build",
+      "context": "electron-renderer"
     }
   },
   "staticFiles": {
@@ -102,7 +107,7 @@
     "simplex-noise": "^2.4.0",
     "styled-components": "^4.4.1",
     "uniqid": "^4.1.1",
-    "yargs": "^13.3.2"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@parcel/transformer-less": "^2.9.1",
@@ -110,23 +115,31 @@
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
     "@types/styled-components": "^5.1.26",
+    "@types/uniqid": "^5.3.2",
+    "assert": "^2.0.0",
     "chai": "^4.2.0",
+    "constants-browserify": "^1.0.0",
     "copy-files-from-to": "^3.2.0",
     "cross-env": "^7.0.2",
     "electron": "^24.3.1",
     "electron-builder": "^22.6.1",
     "electron-icon-builder": "^1.0.2",
     "electron-rebuild": "^1.11.0",
+    "events": "^3.3.0",
     "jsdoc": "^3.6.4",
     "less": "^3.11.1",
     "mocha": "^7.2.0",
     "node-abi": "^2.30.1",
+    "os-browserify": "^0.3.0",
     "parcel": "^2.9.1",
     "parcel-plugin-static-files-copy": "^2.4.3",
     "patch-package": "^6.2.2",
+    "path-browserify": "^1.0.1",
     "redux-devtools-extension": "^2.13.5",
     "rimraf": "^3.0.2",
+    "stream-browserify": "^3.0.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "util": "^0.12.5"
   }
 }

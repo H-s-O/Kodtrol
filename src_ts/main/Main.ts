@@ -12,6 +12,7 @@ import {
   IPC_MAIN_CHANNEL_QUIT,
 } from '../common/constants';
 import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
+import { cliProjectFile } from './lib/cli';
 
 class Main {
   private _splashWindow?: SplashWindow;
@@ -31,6 +32,10 @@ class Main {
     ipcMain.handle(IPC_MAIN_CHANNEL_QUIT, this._requestedQuit.bind(this));
     ipcMain.handle(IPC_MAIN_CHANNEL_CREATE_PROJECT, this._requestedCreateProject.bind(this));
     ipcMain.handle(IPC_MAIN_CHANNEL_LOAD_PROJECT, this._requestedLoadProject.bind(this));
+
+    if (cliProjectFile) {
+      this._nextProjectFile = cliProjectFile;
+    }
 
     this._uiLogicNext();
   }
