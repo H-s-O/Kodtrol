@@ -1,8 +1,13 @@
-import { Menu, MenuItemConstructorOptions } from 'electron';
+import { Menu, MenuItemConstructorOptions } from 'electron/renderer';
 
-declare interface Window {
-  kodtrol: {
-    readProjectFile(): Promise<object>
-    menuFromTemplate(template: MenuItemConstructorOptions[]): Menu
+declare global {
+  interface Window {
+    kodtrol_editor: {
+      APP_VERSION: string,
+      readProjectFile(): Promise<object>
+      menuFromTemplate(template: MenuItemConstructorOptions[]): Menu
+    }
   }
 }
+
+export { };

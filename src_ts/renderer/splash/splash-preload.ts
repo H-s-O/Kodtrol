@@ -1,25 +1,25 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron/renderer';
 
 import {
   IPC_MAIN_CHANNEL_CREATE_PROJECT,
   IPC_MAIN_CHANNEL_LOAD_PROJECT,
   IPC_MAIN_CHANNEL_QUIT,
-} from '../../common/constants'
+} from '../../common/constants';
 
 const mainRequestQuit = () => {
-  ipcRenderer.invoke(IPC_MAIN_CHANNEL_QUIT)
-}
+  ipcRenderer.invoke(IPC_MAIN_CHANNEL_QUIT);
+};
 
 const mainRequestCreateProject = () => {
-  ipcRenderer.invoke(IPC_MAIN_CHANNEL_CREATE_PROJECT)
-}
+  ipcRenderer.invoke(IPC_MAIN_CHANNEL_CREATE_PROJECT);
+};
 
 const mainRequestLoadProject = () => {
-  ipcRenderer.invoke(IPC_MAIN_CHANNEL_LOAD_PROJECT)
-}
+  ipcRenderer.invoke(IPC_MAIN_CHANNEL_LOAD_PROJECT);
+};
 
-contextBridge.exposeInMainWorld('kodtrol', {
+contextBridge.exposeInMainWorld('kodtrol_splash', {
   mainRequestQuit,
   mainRequestCreateProject,
   mainRequestLoadProject,
-})
+});

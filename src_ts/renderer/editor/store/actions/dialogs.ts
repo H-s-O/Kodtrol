@@ -1,7 +1,7 @@
-import { DIALOG_ADD, DIALOG_EDIT, DIALOG_IMPORT_ALL } from '../../constants/dialogs';
+import { DialogType } from '../../constants';
 
 export const SHOW_DEVICE_DIALOG = 'show_device_dialog';
-export const showDeviceDialogAction = (mode = DIALOG_ADD, value = null, local = false) => {
+export const showDeviceDialogAction = (mode = DialogType.ADD, value = null, local = false) => {
   return {
     type: SHOW_DEVICE_DIALOG,
     payload: {
@@ -38,7 +38,7 @@ export const hideDeviceDialogAction = (local = false) => {
 //--------------------------------------------------------------------------
 
 export const SHOW_SCRIPT_DIALOG = 'show_script_dialog';
-export const showScriptDialogAction = (mode = DIALOG_ADD, value = null, local = false) => {
+export const showScriptDialogAction = (mode = DialogType.ADD, value = null, local = false) => {
   return {
     type: SHOW_SCRIPT_DIALOG,
     payload: {
@@ -75,7 +75,7 @@ export const hideScriptDialogAction = (local = false) => {
 //--------------------------------------------------------------------------
 
 export const SHOW_MEDIA_DIALOG = 'show_media_dialog';
-export const showMediaDialogAction = (mode = DIALOG_ADD, value = null, local = false) => {
+export const showMediaDialogAction = (mode = DialogType.ADD, value = null, local = false) => {
   return {
     type: SHOW_MEDIA_DIALOG,
     payload: {
@@ -112,7 +112,7 @@ export const hideMediaDialogAction = (local = false) => {
 //--------------------------------------------------------------------------
 
 export const SHOW_TIMELINE_DIALOG = 'show_timeline_dialog';
-export const showTimelineDialogAction = (mode = DIALOG_ADD, value = null, local = false) => {
+export const showTimelineDialogAction = (mode = DialogType.ADD, value = null, local = false) => {
   return {
     type: SHOW_TIMELINE_DIALOG,
     payload: {
@@ -149,7 +149,7 @@ export const hideTimelineDialogAction = (local = false) => {
 //--------------------------------------------------------------------------
 
 export const SHOW_BOARD_DIALOG = 'show_board_dialog';
-export const showBoardDialogAction = (mode = DIALOG_ADD, value = null, local = false) => {
+export const showBoardDialogAction = (mode = DialogType.ADD, value = null, local = false) => {
   return {
     type: SHOW_BOARD_DIALOG,
     payload: {
@@ -186,7 +186,7 @@ export const hideBoardDialogAction = (local = false) => {
 //--------------------------------------------------------------------------
 
 export const SHOW_CONFIG_DIALOG = 'show_config_dialog';
-export const showConfigDialogAction = (mode = DIALOG_EDIT, value = null, local = false) => {
+export const showConfigDialogAction = (mode = DialogType.EDIT, value = null, local = false) => {
   return {
     type: SHOW_CONFIG_DIALOG,
     payload: {
@@ -223,7 +223,7 @@ export const hideConfigDialogAction = (local = false) => {
 //--------------------------------------------------------------------------
 
 export const SHOW_IMPORT_DIALOG = 'show_import_dialog';
-export const showImportDialogAction = (mode = DIALOG_IMPORT_ALL, value = null, local = false) => {
+export const showImportDialogAction = (mode = DialogType.IMPORT_ALL, value = null, local = false) => {
   return {
     type: SHOW_IMPORT_DIALOG,
     payload: {

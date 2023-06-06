@@ -1,7 +1,11 @@
-declare interface Window {
-  kodtrol: {
-    mainRequestQuit(): void
-    mainRequestCreateProject(): void
-    mainRequestLoadProject(): void
+declare global {
+  interface Window {
+    kodtrol_splash: {
+      mainRequestQuit(): void
+      mainRequestCreateProject(): void
+      mainRequestLoadProject(): void
+    }
   }
 }
+
+export { };

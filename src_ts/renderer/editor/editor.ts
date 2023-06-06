@@ -9,8 +9,8 @@ const isWin = true;
 import Root from './components/Root';
 
 domready(() => {
-  window.kodtrol.readProjectFile()
-  .then((projectData) => {
+  window.kodtrol_editor.readProjectFile()
+    .then((projectData) => {
       ReactDOM.render(
         createElement(Root, { projectData }),
         document.getElementById('root'),

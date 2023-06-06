@@ -19,7 +19,7 @@ import outputs from './outputs';
 import inputs from './inputs';
 import ioStatus from './ioStatus';
 import ioAvailable from './ioAvailable';
-// import dialogs from './dialogs';
+import dialogs from './dialogs';
 import lastEditor from './lastEditor';
 import console from './console';
 import saveEditedItems from './top/saveEditedItems';
@@ -46,7 +46,7 @@ const standardReducers = combineReducers({
   editBoards,
   runBoard,
   medias,
-  // dialogs,
+  dialogs,
   lastEditor,
   console,
 });

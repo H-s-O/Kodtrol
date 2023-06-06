@@ -7,7 +7,7 @@ export const IPC_MAIN_CHANNEL_CREATE_PROJECT = 'kodtrol-ipc-main-channel-create-
 export const IPC_MAIN_CHANNEL_LOAD_PROJECT = 'kodtrol-ipc-main-channel-load-project';
 
 export const SCRIPT_TEMPLATE =
-`// function start(devices) {
+  `// function start(devices) {
 // }
 
 // function leadInFrame(devices, { /* block info */ }, { /* triggers */ }, { /* curves */ }) {
@@ -24,3 +24,10 @@ export const SCRIPT_TEMPLATE =
 
 // function input(devices, inputType, inputData) {
 // }`;
+
+
+export const enum IOStatus {
+  DISCONNECTED = 0,
+  CONNECTED = 1,
+  ACTIVITY = 2,
+};

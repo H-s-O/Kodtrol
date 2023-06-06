@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { Navbar, Button, Alignment, Tag, Intent, Classes, Icon } from '@blueprintjs/core';
 
-import { IO_DISCONNECTED, IO_CONNECTED, IO_ACTIVITY } from '../../../common/js/constants/io';
 import TagGroup from './ui/TagGroup';
-import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT, ICON_DEVICE, ICON_INPUT, ICON_OUTPUT } from '../../../common/js/constants/icons';
-import { showConfigDialogAction } from '../../../common/js/store/actions/dialogs';
-import { toggleConsoleAction } from '../../../common/js/store/actions/console';
+import { showConfigDialogAction } from '../store/actions/dialogs';
+import { toggleConsoleAction } from '../store/actions/console';
+import { IOStatus } from '../../../common/constants';
+import { IconType } from '../constants';
 
 const StyledNavbar = styled(Navbar)`
   padding: 0px 10px;
@@ -15,9 +15,9 @@ const StyledNavbar = styled(Navbar)`
 
 const getStatusIntent = (status) => {
   switch (status) {
-    case IO_DISCONNECTED: return Intent.DANGER; break;
-    case IO_CONNECTED: return Intent.SUCCESS; break;
-    case IO_ACTIVITY: return Intent.PRIMARY; break;
+    case IOStatus.DISCONNECTED: return Intent.DANGER; break;
+    case IOStatus.CONNECTED: return Intent.SUCCESS; break;
+    case IOStatus.ACTIVITY: return Intent.PRIMARY; break;
     default: return null; break;
   }
 };
@@ -65,14 +65,14 @@ const ItemStatus = ({ icon, itemId, itemNames, tooltip }) => {
       {itemId ? (
         itemNames[itemId]
       ) : (
-          <span
-            className={Classes.TEXT_MUTED}
-          >
-            <Icon
-              icon={icon}
-            />
-          </span>
-        )}
+        <span
+          className={Classes.TEXT_MUTED}
+        >
+          <Icon
+            icon={icon}
+          />
+        </span>
+      )}
     </Tag>
   );
 };
@@ -119,28 +119,28 @@ export default function MainNav() {
           Kodtrol
         </StyledNavbar.Heading>
         <ItemStatus
-          icon={ICON_DEVICE}
+          icon={IconType.DEVICE}
           itemId={runDevice}
           itemNames={devicesNames}
           tooltip="No device active"
         />
         <StyledNavbar.Divider />
         <ItemStatus
-          icon={ICON_SCRIPT}
+          icon={IconType.SCRIPT}
           itemId={runScript}
           itemNames={scriptsNames}
           tooltip="No script running"
         />
         <StyledNavbar.Divider />
         <ItemStatus
-          icon={ICON_TIMELINE}
+          icon={IconType.TIMELINE}
           itemId={runTimeline}
           itemNames={timelinesNames}
           tooltip="No timeline running"
         />
         <StyledNavbar.Divider />
         <ItemStatus
-          icon={ICON_BOARD}
+          icon={IconType.BOARD}
           itemId={runBoard}
           itemNames={boardsNames}
           tooltip="No board running"
@@ -152,14 +152,14 @@ export default function MainNav() {
         <ItemsStatuses
           items={inputs}
           statuses={ioStatus}
-          icon={ICON_INPUT}
+          icon={IconType.INPUT}
           defaultText="No inputs"
         />
         <StyledNavbar.Divider />
         <ItemsStatuses
           items={outputs}
           statuses={ioStatus}
-          rightIcon={ICON_OUTPUT}
+          rightIcon={IconType.OUTPUT}
           defaultText="No outputs"
         />
         <StyledNavbar.Divider />

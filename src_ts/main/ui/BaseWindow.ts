@@ -1,7 +1,12 @@
-import { BrowserWindow, BrowserWindowConstructorOptions, Menu, MenuItemConstructorOptions } from 'electron'
-import windowStateKeeper from 'electron-window-state'
+import {
+  BrowserWindow,
+  BrowserWindowConstructorOptions,
+  Menu,
+  MenuItemConstructorOptions,
+} from 'electron';
+import windowStateKeeper from 'electron-window-state';
 
-import { IS_MAC } from '../constants'
+import { IS_DEV, IS_MAC, IS_LINUX, IS_WINDOWS, APP_VERSION } from '../constants';
 
 type BaseWindowConstructorParams = {
   id: string
@@ -11,9 +16,9 @@ type BaseWindowConstructorParams = {
   fixedHeight?: number
   showOnLoaded?: boolean
   options?: BrowserWindowConstructorOptions
-}
+};
 abstract class BaseWindow extends BrowserWindow {
-  private _windowState?: windowStateKeeper.State
+  private _windowState?: windowStateKeeper.State;
 
   constructor({
     id,
@@ -28,7 +33,7 @@ abstract class BaseWindow extends BrowserWindow {
       defaultWidth: defaultWidth ?? fixedWidth,
       defaultHeight: defaultHeight ?? fixedHeight,
       file: `kodtrol-${id}-state2.json`,
-    })
+    });
 
     super({
       x: windowState.x,
@@ -37,30 +42,30 @@ abstract class BaseWindow extends BrowserWindow {
       height: fixedHeight ?? windowState.height,
       show: false,
       ...options,
-    })
+    });
     if (!IS_MAC) {
-      this.setMenu(Menu.buildFromTemplate(this._generateMenu()))
+      this.setMenu(Menu.buildFromTemplate(this._generateMenu()));
     }
 
-    windowState.manage(this)
+    windowState.manage(this);
 
-    this._windowState = windowState
+    this._windowState = windowState;
 
-    if (showOnLoaded) this.once('ready-to-show', this._onReady.bind(this))
-    this.once('closed', this._onClosed.bind(this))
-    if (IS_MAC) this.on('focus', this._onFocus.bind(this))
+    if (showOnLoaded) this.once('ready-to-show', this._onReady.bind(this));
+    this.once('closed', this._onClosed.bind(this));
+    if (IS_MAC) this.on('focus', this._onFocus.bind(this));
   }
 
   private _onReady(): void {
-    this.show()
+    this.show();
   }
 
   private _onFocus(): void {
-    Menu.setApplicationMenu(Menu.buildFromTemplate(this._generateMenu()))
+    Menu.setApplicationMenu(Menu.buildFromTemplate(this._generateMenu()));
   }
 
   private _onClosed(): void {
-    this._windowState = undefined
+    this._windowState = undefined;
   }
 
   protected abstract _generateMenu(): MenuItemConstructorOptions[]
@@ -76,8 +81,20 @@ abstract class BaseWindow extends BrowserWindow {
           { role: 'toggleDevTools' },
         ]
       }
-    ]
+    ];
   }
+
+  // protected static _getAdditionalArgs(): string[] {
+  //   return [
+  //     `--kodtrol=${JSON.stringify({
+  //       APP_VERSION,
+  //       IS_DEV,
+  //       IS_MAC,
+  //       IS_WINDOWS,
+  //       IS_LINUX,
+  //     })}`
+  //   ];
+  // }
 }
 
 export default BaseWindow

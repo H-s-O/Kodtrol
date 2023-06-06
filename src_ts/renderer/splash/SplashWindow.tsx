@@ -1,11 +1,11 @@
 /// <reference path="splash-preload.d.ts" />
 
-import React, { useCallback } from 'react'
-import styled from 'styled-components'
-import { Button, Intent } from '@blueprintjs/core'
+import React, { useCallback } from 'react';
+import styled from 'styled-components';
+import { Button, Intent } from '@blueprintjs/core';
 
-import FullHeightCard from '../../../src/ui/js/components/ui/FullHeightCard'
-import { APP_NAME } from '../../common/constants'
+import FullHeightCard from '../common/components/FullHeightCard';
+import { APP_NAME } from '../../common/constants';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -13,7 +13,7 @@ const StyledContainer = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
-`
+`;
 
 const StyledButtonsContainer = styled.div`
   margin-top: 40px;
@@ -21,18 +21,18 @@ const StyledButtonsContainer = styled.div`
   & > *:not(:last-child) {
     margin-right: 20px;
   }
-`
+`;
 
-export default function SplashWindow() {
+const SplashWindow = () => {
   const createClickHandler = useCallback(() => {
-    window.kodtrol.mainRequestCreateProject()
-  }, [])
+    window.kodtrol_splash.mainRequestCreateProject();
+  }, []);
   const loadClickHandler = useCallback(() => {
-    window.kodtrol.mainRequestLoadProject()
-  }, [])
+    window.kodtrol_splash.mainRequestLoadProject();
+  }, []);
   const quitClickHandler = useCallback(() => {
-    window.kodtrol.mainRequestQuit()
-  }, [])
+    window.kodtrol_splash.mainRequestQuit();
+  }, []);
 
   return (
     <FullHeightCard>
@@ -65,5 +65,7 @@ export default function SplashWindow() {
         </StyledButtonsContainer>
       </StyledContainer>
     </FullHeightCard>
-  )
-}
+  );
+};
+
+export default SplashWindow;
