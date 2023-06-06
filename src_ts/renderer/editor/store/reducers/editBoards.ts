@@ -1,8 +1,9 @@
+import { AnyAction } from 'redux';
+
 import { EDIT_BOARD, CLOSE_BOARD, UPDATE_EDITED_BOARD } from '../actions/boards';
+import { EditBoardsState } from '../../../../common/types';
 
-const defaultState = [];
-
-export default (state = defaultState, { type, payload }) => {
+export default (state: EditBoardsState = [], { type, payload }: AnyAction): EditBoardsState => {
   switch (type) {
     case EDIT_BOARD:
       return [...state, payload];

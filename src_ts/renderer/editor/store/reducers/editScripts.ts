@@ -1,8 +1,9 @@
+import { AnyAction } from 'redux';
+
+import { EditScriptsState } from '../../../../common/types';
 import { EDIT_SCRIPT, CLOSE_SCRIPT, UPDATE_EDITED_SCRIPT } from '../actions/scripts';
 
-const defaultState = [];
-
-export default (state = defaultState, { type, payload }) => {
+export default (state: EditScriptsState = [], { type, payload }: AnyAction): EditScriptsState => {
   switch (type) {
     case EDIT_SCRIPT:
       return [...state, payload];

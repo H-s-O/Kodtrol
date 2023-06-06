@@ -37,7 +37,7 @@ export const focusEditedBoardAction = (id) => {
     type: FOCUS_EDITED_BOARD,
     payload: id,
   };
-}
+};
 
 export const UPDATE_EDITED_BOARD = 'updated_edited_board';
 export const updateEditedBoardAction = (id, data) => {
@@ -48,7 +48,7 @@ export const updateEditedBoardAction = (id, data) => {
       data,
     },
   };
-}
+};
 
 export const SAVE_EDITED_BOARD = 'save_edited_board';
 export const saveEditedBoardAction = (id) => {
@@ -56,7 +56,7 @@ export const saveEditedBoardAction = (id) => {
     type: SAVE_EDITED_BOARD,
     payload: id,
   };
-}
+};
 
 export const CLOSE_BOARD = 'close_board';
 export const closeBoardAction = (id) => {

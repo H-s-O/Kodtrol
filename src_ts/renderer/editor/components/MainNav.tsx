@@ -107,10 +107,10 @@ export default function MainNav() {
   const dispatch = useDispatch();
   const openConfigClickHandler = useCallback(() => {
     dispatch(showConfigDialogAction());
-  });
+  }, []);
   const toggleConsoleClickHandler = useCallback(() => {
     dispatch(toggleConsoleAction());
-  });
+  }, []);
 
   return (
     <StyledNavbar>

@@ -2,7 +2,6 @@ import { combineReducers } from 'redux';
 
 import fileVersion from './fileVersion';
 import devices from './devices';
-import devicesFolders from './devicesFolders';
 import editTimelines from './editTimelines';
 import editScripts from './editScripts';
 import editBoards from './editBoards';
@@ -33,7 +32,6 @@ const standardReducers = combineReducers({
   ioStatus,
   ioAvailable,
   devices,
-  devicesFolders,
   runDevice,
   scripts,
   scriptsFolders,

@@ -1,3 +1,5 @@
+import { AnyAction } from 'redux';
+
 import {
   SHOW_DEVICE_DIALOG,
   UPDATE_DEVICE_DIALOG,
@@ -21,8 +23,9 @@ import {
   UPDATE_IMPORT_DIALOG,
   HIDE_IMPORT_DIALOG,
 } from '../actions/dialogs';
+import { DialogsState } from '../../../../common/types';
 
-const defaultState = {
+const defaultState: DialogsState = {
   deviceDialogOpened: false,
   deviceDialogMode: null,
   deviceDialogValue: null,
@@ -52,7 +55,7 @@ const defaultState = {
   importDialogValue: null,
 };
 
-export default (state = defaultState, { type, payload }) => {
+export default (state: DialogsState = defaultState, { type, payload }: AnyAction): DialogsState => {
   switch (type) {
     case SHOW_DEVICE_DIALOG:
       return { ...state, deviceDialogOpened: true, deviceDialogMode: payload.mode, deviceDialogValue: payload.value };

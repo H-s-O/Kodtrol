@@ -101,7 +101,7 @@ export const createDeviceFolderAction = (data) => {
       hash: hashDataObject(newData, excludeHashProps),
     },
   };
-}
+};
 
 export const DELETE_DEVICE_FOLDER = 'delete_device_folder';
 export const deleteDeviceFolderAction = (id) => {
@@ -109,4 +109,4 @@ export const deleteDeviceFolderAction = (id) => {
     type: DELETE_DEVICE_FOLDER,
     payload: id,
   };
-}
+};

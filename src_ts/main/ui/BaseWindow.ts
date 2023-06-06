@@ -7,6 +7,7 @@ import {
 import windowStateKeeper from 'electron-window-state';
 
 import { IS_DEV, IS_MAC, IS_LINUX, IS_WINDOWS, APP_VERSION } from '../constants';
+import { WindowAdditionalArgs } from '../../common/types';
 
 type BaseWindowConstructorParams = {
   id: string
@@ -17,8 +18,11 @@ type BaseWindowConstructorParams = {
   showOnLoaded?: boolean
   options?: BrowserWindowConstructorOptions
 };
-abstract class BaseWindow extends BrowserWindow {
-  private _windowState?: windowStateKeeper.State;
+
+abstract class BaseWindow {
+  public readonly window: BrowserWindow;
+
+  private _windowState: windowStateKeeper.State;
 
   constructor({
     id,
@@ -29,72 +33,69 @@ abstract class BaseWindow extends BrowserWindow {
     showOnLoaded = true,
     options = undefined
   }: BaseWindowConstructorParams) {
-    const windowState = windowStateKeeper({
+    this._windowState = windowStateKeeper({
       defaultWidth: defaultWidth ?? fixedWidth,
       defaultHeight: defaultHeight ?? fixedHeight,
       file: `kodtrol-${id}-state2.json`,
     });
 
-    super({
-      x: windowState.x,
-      y: windowState.y,
-      width: fixedWidth ?? windowState.width,
-      height: fixedHeight ?? windowState.height,
+    this.window = new BrowserWindow({
+      x: this._windowState.x,
+      y: this._windowState.y,
+      width: fixedWidth ?? this._windowState.width,
+      height: fixedHeight ?? this._windowState.height,
       show: false,
       ...options,
     });
     if (!IS_MAC) {
-      this.setMenu(Menu.buildFromTemplate(this._generateMenu()));
+      this.window.setMenu(Menu.buildFromTemplate(this._generateMenu()));
     }
 
-    windowState.manage(this);
+    this._windowState.manage(this.window);
 
-    this._windowState = windowState;
+    if (showOnLoaded) this.window.once('ready-to-show', this._onReady.bind(this));
+    if (IS_MAC) this.window.on('focus', this._onFocus.bind(this));
+  }
 
-    if (showOnLoaded) this.once('ready-to-show', this._onReady.bind(this));
-    this.once('closed', this._onClosed.bind(this));
-    if (IS_MAC) this.on('focus', this._onFocus.bind(this));
+  public destroy(): void {
+    this.window.destroy();
   }
 
   private _onReady(): void {
-    this.show();
+    this.window.show();
   }
 
   private _onFocus(): void {
     Menu.setApplicationMenu(Menu.buildFromTemplate(this._generateMenu()));
   }
 
-  private _onClosed(): void {
-    this._windowState = undefined;
-  }
-
   protected abstract _generateMenu(): MenuItemConstructorOptions[]
-
-  protected static _getWindowDevMenu(): MenuItemConstructorOptions[] {
-    return [
-      {
-        label: 'Dev',
-        submenu: [
-          { role: 'reload' },
-          { role: 'forceReload' },
-          { type: 'separator' },
-          { role: 'toggleDevTools' },
-        ]
-      }
-    ];
-  }
-
-  // protected static _getAdditionalArgs(): string[] {
-  //   return [
-  //     `--kodtrol=${JSON.stringify({
-  //       APP_VERSION,
-  //       IS_DEV,
-  //       IS_MAC,
-  //       IS_WINDOWS,
-  //       IS_LINUX,
-  //     })}`
-  //   ];
-  // }
 }
 
 export default BaseWindow
+
+export const createDevMenu = () => {
+  return [
+    {
+      label: 'Dev',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { type: 'separator' },
+        { role: 'toggleDevTools' },
+      ]
+    }
+  ] as MenuItemConstructorOptions[];
+};
+
+export const createAdditionalArgs = () => {
+  return [
+    `--kodtrol=${JSON.stringify({
+      APP_VERSION,
+      IS_DEV,
+      IS_MAC,
+      IS_WINDOWS,
+      IS_LINUX,
+    } as WindowAdditionalArgs)}`
+  ];
+};

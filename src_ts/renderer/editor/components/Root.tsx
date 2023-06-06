@@ -25,11 +25,11 @@ const createKodtrolStore = (initialData?: object) => {
   );
 
   const createSender = (toKey) => (dispatch, curr, prev) => {
-    if (window.kodtrol.messagePort) {
-      window.kodtrol.messagePort.postMessage({
-        [toKey]: curr,
-      })
-    }
+    // if (window.kodtrol.messagePort) {
+    //   window.kodtrol.messagePort.postMessage({
+    //     [toKey]: curr,
+    //   })
+    // }
   }
 
   const outputsObserver = observer(

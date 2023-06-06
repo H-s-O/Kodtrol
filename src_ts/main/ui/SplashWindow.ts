@@ -1,9 +1,9 @@
-import { join } from 'path'
-import { MenuItemConstructorOptions } from 'electron'
+import { join } from 'path';
+import { MenuItemConstructorOptions } from 'electron';
 
-import BaseWindow from './BaseWindow'
-import { APP_NAME } from '../../common/constants'
-import { IS_DEV } from '../constants'
+import BaseWindow, { createAdditionalArgs, createDevMenu } from './BaseWindow';
+import { APP_NAME } from '../../common/constants';
+import { IS_DEV } from '../constants';
 
 class SplashWindow extends BaseWindow {
   constructor() {
@@ -19,19 +19,20 @@ class SplashWindow extends BaseWindow {
         webPreferences: {
           preload: join(__dirname, '..', '..', '..', 'build', 'splash', 'splash-preload.js'),
           sandbox: false,
+          additionalArguments: createAdditionalArgs(),
         },
       },
-    })
-    this.setMenuBarVisibility(false)
-    this.loadFile(join(__dirname, '..', '..', '..', 'build', 'splash', 'splash.html'))
+    });
+    this.window.setMenuBarVisibility(false);
+    this.window.loadFile(join(__dirname, '..', '..', '..', 'build', 'splash', 'splash.html'));
   }
 
   protected _generateMenu(): MenuItemConstructorOptions[] {
     return [
       { role: 'windowMenu' },
-      ...(IS_DEV ? SplashWindow._getWindowDevMenu() : []) as MenuItemConstructorOptions[]
-    ]
+      ...(IS_DEV ? createDevMenu() : []) as MenuItemConstructorOptions[]
+    ];
   }
 }
 
-export default SplashWindow
+export default SplashWindow;

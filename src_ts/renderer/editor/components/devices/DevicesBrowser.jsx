@@ -84,7 +84,6 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
 
 export default function DevicesBrowser() {
   const devices = useSelector((state) => state.devices);
-  const devicesFolders = useSelector((state) => state.devicesFolders);
   const runDevice = useSelector((state) => state.runDevice);
   const isContentRunning = useSelector(contentRunning);
 
@@ -105,7 +104,6 @@ export default function DevicesBrowser() {
     <ItemBrowser
       label="device"
       items={devices}
-      folders={devicesFolders}
       activeItemId={runDevice}
       editPropsCallback={editPropsCallback}
       duplicateCallback={duplicateCallback}

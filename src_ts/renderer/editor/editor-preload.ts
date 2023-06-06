@@ -5,10 +5,7 @@ import {
 } from 'electron/renderer';
 import { extractAdditionalData } from '../lib/helpers';
 
-const additionalArgs = extractAdditionalData()
-console.log(additionalArgs);
-
-const APP_VERSION = '0.2.0'
+const additionalArgs = extractAdditionalData();
 
 const readProjectFile = () => {
   // @TODO
@@ -20,7 +17,7 @@ const menuFromTemplate = (template: MenuItemConstructorOptions[]) => {
 };
 
 contextBridge.exposeInMainWorld('kodtrol_editor', {
-  APP_VERSION,
+  ...additionalArgs,
   readProjectFile,
   menuFromTemplate,
 });

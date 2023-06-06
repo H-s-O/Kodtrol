@@ -113,9 +113,9 @@ class Main {
     this._splashWindow = new SplashWindow();
   }
 
-  private _destroySplashWindow(): void {
+  private _destroySplashWindow(softClose: boolean = true): void {
     if (this._splashWindow) {
-      this._splashWindow.removeAllListeners();
+      if (softClose) this._splashWindow.window.close();
       this._splashWindow.destroy();
       this._splashWindow = undefined;
     }
@@ -125,9 +125,9 @@ class Main {
     this._engineWindow = new EngineWindow();
   }
 
-  private _destroyEngineWindow(): void {
+  private _destroyEngineWindow(softClose: boolean = true): void {
     if (this._engineWindow) {
-      this._engineWindow.removeAllListeners();
+      if (softClose) this._engineWindow.window.close();
       this._engineWindow.destroy();
       this._engineWindow = undefined;
     }
@@ -135,13 +135,13 @@ class Main {
 
   private _createEditorWindow(): void {
     this._editorWindow = new EditorWindow();
-    this._editorWindow.on('close', this._onEditorWindowClose.bind(this));
+    this._editorWindow.window.on('close', this._onEditorWindowClose.bind(this));
   }
 
   private _onEditorWindowClose(event: Event): void {
     event.preventDefault();
 
-    warnBeforeClosingProject(this._editorWindow)
+    warnBeforeClosingProject(this._editorWindow?.window)
       .then((closeIt) => {
         if (closeIt) {
           this._nextProjectFile = undefined;
@@ -150,9 +150,10 @@ class Main {
       });
   }
 
-  private _destroyEditorWindow(): void {
+  private _destroyEditorWindow(softClose: boolean = true): void {
     if (this._editorWindow) {
-      this._editorWindow.removeAllListeners();
+      this._editorWindow.window.off('close', this._onEditorWindowClose.bind(this));
+      if (softClose) this._editorWindow.window.close();
       this._editorWindow.destroy();
       this._editorWindow = undefined;
     }

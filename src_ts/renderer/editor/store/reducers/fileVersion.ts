@@ -2,11 +2,9 @@
 
 import { AnyAction } from 'redux';
 
-type FileVersionState = string;
+import { FileVersionState } from '../../../../common/types';
 
-const defaultState: FileVersionState = window.kodtrol_editor.appVersion;
-
-export default (state = defaultState, { type, payload }: AnyAction) => {
+export default (state: FileVersionState = window.kodtrol_editor.APP_VERSION, { type, payload }: AnyAction): FileVersionState => {
   switch (type) {
     default:
       return state;

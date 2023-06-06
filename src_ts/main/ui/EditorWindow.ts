@@ -1,7 +1,7 @@
 import { MenuItemConstructorOptions } from 'electron';
 import { join } from 'path';
 
-import BaseWindow from './BaseWindow';
+import BaseWindow, { createAdditionalArgs, createDevMenu } from './BaseWindow';
 import { IS_DEV } from '../constants';
 
 class EditorWindow extends BaseWindow {
@@ -14,16 +14,17 @@ class EditorWindow extends BaseWindow {
         webPreferences: {
           preload: join(__dirname, '..', '..', '..', 'build', 'editor', 'editor-preload.js'),
           sandbox: false,
+          additionalArguments: createAdditionalArgs(),
         },
       },
     });
-    this.loadFile(join(__dirname, '..', '..', '..', 'build', 'editor', 'editor.html'));
+    this.window.loadFile(join(__dirname, '..', '..', '..', 'build', 'editor', 'editor.html'));
   }
 
   protected _generateMenu(): MenuItemConstructorOptions[] {
     return [
       { role: 'windowMenu' },
-      ...(IS_DEV ? EditorWindow._getWindowDevMenu() : []) as MenuItemConstructorOptions[]
+      ...(IS_DEV ? createDevMenu() : []) as MenuItemConstructorOptions[]
     ];
   }
 }

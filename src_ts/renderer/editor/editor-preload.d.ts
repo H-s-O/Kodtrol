@@ -1,12 +1,12 @@
 import { Menu, MenuItemConstructorOptions } from 'electron/renderer';
+import { WindowAdditionalArgs } from '../../common/types';
 
 declare global {
   interface Window {
     kodtrol_editor: {
-      APP_VERSION: string,
       readProjectFile(): Promise<object>
       menuFromTemplate(template: MenuItemConstructorOptions[]): Menu
-    }
+    } & WindowAdditionalArgs
   }
 }
 

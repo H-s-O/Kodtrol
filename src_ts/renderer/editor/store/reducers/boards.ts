@@ -1,3 +1,5 @@
+import { AnyAction } from 'redux';
+
 import {
   UPDATE_BOARDS,
   CREATE_BOARD,
@@ -5,10 +7,9 @@ import {
   SAVE_BOARD,
   CREATE_BOARDS,
 } from '../actions/boards';
+import { BoardsState } from '../../../../common/types';
 
-const defaultState = [];
-
-export default (state = defaultState, { type, payload }) => {
+export default (state: BoardsState = [], { type, payload }: AnyAction) => {
   switch (type) {
     case UPDATE_BOARDS:
       return payload;

@@ -1,3 +1,5 @@
+import { AnyAction } from 'redux';
+
 import {
   UPDATE_DEVICES,
   CREATE_DEVICE,
@@ -5,10 +7,9 @@ import {
   SAVE_DEVICE,
   CREATE_DEVICES,
 } from '../actions/devices';
+import { DevicesState } from '../../../../common/types';
 
-const defaultState = [];
-
-export default (state = defaultState, { type, payload }) => {
+export default (state: DevicesState = [], { type, payload }: AnyAction): DevicesState => {
   switch (type) {
     case UPDATE_DEVICES:
       return payload;
@@ -34,4 +35,4 @@ export default (state = defaultState, { type, payload }) => {
       return state;
       break;
   }
-}
+};

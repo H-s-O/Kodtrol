@@ -37,7 +37,7 @@ const SplashWindow = () => {
   return (
     <FullHeightCard>
       <StyledContainer>
-        <h1>{APP_NAME} [beta 1]</h1>
+        <h1>{APP_NAME} [beta 1 - {window.kodtrol_splash.APP_VERSION}]</h1>
         <h3>Scripted show control</h3>
         <StyledButtonsContainer>
           <Button

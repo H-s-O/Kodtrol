@@ -1,9 +1,18 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Tab, Icon, Button, ButtonGroup, Popover, Position, Menu, NonIdealState } from '@blueprintjs/core';
+import {
+  Tab,
+  Icon,
+  Button,
+  ButtonGroup,
+  Popover,
+  Position,
+  Menu,
+  NonIdealState,
+} from '@blueprintjs/core';
 
 import DeviceBrowser from './devices/DevicesBrowser';
-import FullHeightCard from './ui/FullHeightCard';
+import FullHeightCard from '../../common/components/FullHeightCard';
 import ScriptsBrowser from './scripts/ScriptsBrowser';
 import MediasBrowser from './medias/MediasBrowser';
 import TimelinesBrowser from './timelines/TimelinesBrowser';
@@ -17,7 +26,7 @@ import {
   showTimelineDialogAction,
   showBoardDialogAction,
   showImportDialogAction,
-} from '../../../common/js/store/actions/dialogs';
+} from '../store/actions/dialogs';
 import {
   DIALOG_IMPORT_DEVICES,
   DIALOG_IMPORT_SCRIPTS,
@@ -120,7 +129,7 @@ export default function Browsers() {
           panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} title="Scripts Browser" description={
             <>
               No scripts yet. Click the <Icon icon="plus" /> above to create one.
-              </>
+            </>
           } />
           }
         >
@@ -135,7 +144,7 @@ export default function Browsers() {
           panel={medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} title="Media Browser" description={
             <>
               No medias yet. Click the <Icon icon="plus" /> above to create one.
-              </>
+            </>
           } />
           }
         >
@@ -150,7 +159,7 @@ export default function Browsers() {
           panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} title="Timelines Browser" description={
             <>
               No timelines yet. Click the <Icon icon="plus" /> above to create one.
-              </>
+            </>
           } />
           }
         >
@@ -165,7 +174,7 @@ export default function Browsers() {
           panel={boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} title="Boards Browser" description={
             <>
               No boards yet. Click the <Icon icon="plus" /> above to create one.
-              </>
+            </>
           } />
           }
         >
