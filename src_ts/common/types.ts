@@ -1,3 +1,5 @@
+import { IOStatus } from './constants';
+
 // export type FileVersionState = `${number}.${number}.${number}`; // pedantic mode
 export type FileVersionState = string;
 
@@ -10,11 +12,13 @@ export type DevicesState = Device[];
 export type ScriptId = string;
 export type Script = {
   id: ScriptId
+  content: string
 };
 export type ScriptsState = Script[];
 
 export type EditScript = Script & {
   changed: boolean
+  active: boolean
 };
 export type EditScriptsState = EditScript[];
 
@@ -32,6 +36,7 @@ export type TimelinesState = Timeline[];
 
 export type EditTimeline = Timeline & {
   changed: boolean
+  active: boolean
 };
 export type EditTimelinesState = EditTimeline[];
 
@@ -43,6 +48,7 @@ export type BoardsState = Board[];
 
 export type EditBoard = Board & {
   changed: boolean
+  active: boolean
 };
 export type EditBoardsState = EditBoard[];
 
@@ -83,6 +89,55 @@ export type Input = {
   id: InputId
 };
 export type InputsState = Input[];
+
+export type OutputId = string;
+export type Output = {
+  id: OutputId
+};
+export type OutputsState = Output[];
+
+export type IOAvailableState = object[];
+
+export type IOStatusState = {
+  [key: string]: IOStatus
+};
+
+export type LastEditorState =
+  { type: 'script', id: ScriptId }
+  | { type: 'timeline', id: TimelineId }
+  | { type: 'board', id: BoardId }
+  | null;
+
+export type RunBoardState = BoardId | null;
+
+export type RunDeviceState = DeviceId | null;
+
+export type RunScriptState = ScriptId | null;
+
+export type RunTimelineState = TimelineId | null;
+
+export type KodtrolState = {
+  fileVersion: FileVersionState
+  outputs: OutputsState
+  inputs: InputsState
+  ioStatus: IOStatusState
+  ioAvailable: IOAvailableState
+  devices: DevicesState
+  runDevice: RunDeviceState
+  scripts: ScriptsState
+  editScripts: EditScriptsState
+  runScript: RunScriptState
+  timelines: TimelinesState
+  editTimelines: EditTimelinesState
+  runTimeline: RunTimelineState
+  boards: BoardsState
+  editBoards: EditBoardsState
+  runBoard: RunBoardState
+  medias: MediasState
+  dialogs: DialogsState
+  lastEditor: LastEditorState
+  console: ConsoleState
+};
 
 //-----------------------------------------------------------------------------------------------
 

@@ -65,7 +65,6 @@ const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
 
 export default function ScriptsBrowser() {
   const scripts = useSelector((state) => state.scripts);
-  const scriptsFolders = useSelector((state) => state.scriptsFolders);
   const runScript = useSelector((state) => state.runScript);
   const editScripts = useSelector((state) => state.editScripts);
   const isContentRunning = useSelector(contentRunning);
@@ -95,7 +94,6 @@ export default function ScriptsBrowser() {
     <ItemBrowser
       label="script"
       items={scripts}
-      folders={scriptsFolders}
       activeItemId={runScript}
       editCallback={editCallback}
       editPropsCallback={editPropsCallback}

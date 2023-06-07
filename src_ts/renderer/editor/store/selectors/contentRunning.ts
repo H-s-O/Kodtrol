@@ -1,6 +1,8 @@
-export default (state) => (
-  state.runDevice
-  || state.runScript
-  || state.runTimeline
-  || state.runBoard
+import { KodtrolState } from '../../../../common/types';
+
+export default (state: KodtrolState): boolean => (
+  !!state.runDevice
+  || !!state.runScript
+  || !!state.runTimeline
+  || !!state.runBoard
 );

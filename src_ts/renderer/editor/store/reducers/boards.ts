@@ -9,7 +9,7 @@ import {
 } from '../actions/boards';
 import { BoardsState } from '../../../../common/types';
 
-export default (state: BoardsState = [], { type, payload }: AnyAction) => {
+export default (state: BoardsState = [], { type, payload }: AnyAction): BoardsState => {
   switch (type) {
     case UPDATE_BOARDS:
       return payload;

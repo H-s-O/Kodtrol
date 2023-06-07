@@ -1,6 +1,7 @@
 import uniqid from 'uniqid';
 
 import { hashDataObject } from '../../../../common/lib/hash';
+import { BoardId } from '../../../../common/types';
 
 const excludeHashProps = [
   'id',
@@ -132,7 +133,7 @@ export const saveBoardAction = (id, data) => {
 };
 
 export const RUN_BOARD = 'run_board';
-export const runBoardAction = (id) => {
+export const runBoardAction = (id: BoardId) => {
   return {
     type: RUN_BOARD,
     payload: id,

@@ -1,8 +1,11 @@
+import { AnyAction } from 'redux';
+
 import { UPDATE_EDITED_SCRIPT, EDIT_SCRIPT, FOCUS_EDITED_SCRIPT, CLOSE_SCRIPT } from '../../actions/scripts';
 import { UPDATE_EDITED_TIMELINE, EDIT_TIMELINE, FOCUS_EDITED_TIMELINE, CLOSE_TIMELINE } from '../../actions/timelines';
 import { UPDATE_EDITED_BOARD, EDIT_BOARD, FOCUS_EDITED_BOARD, CLOSE_BOARD } from '../../actions/boards';
+import { KodtrolState } from '../../../../../common/types';
 
-export default (state, { type, payload }) => {
+export default (state: KodtrolState, { type, payload }: AnyAction): KodtrolState => {
   switch (type) {
     case EDIT_SCRIPT:
     case FOCUS_EDITED_SCRIPT:

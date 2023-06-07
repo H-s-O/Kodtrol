@@ -1,9 +1,12 @@
+import { AnyAction } from 'redux';
+
 import { hashDataObject } from '../../../../../common/lib/hash';
 import { SAVE_EDITED_SCRIPT } from '../../actions/scripts';
 import { SAVE_EDITED_TIMELINE } from '../../actions/timelines';
 import { SAVE_EDITED_BOARD } from '../../actions/boards';
+import { KodtrolState } from '../../../../../common/types';
 
-export default (state, { type, payload }) => {
+export default (state: KodtrolState, { type, payload }: AnyAction): KodtrolState => {
   switch (type) {
     case SAVE_EDITED_SCRIPT: {
       const { content } = state.editScripts.find(({ id }) => id === payload);

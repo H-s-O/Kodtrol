@@ -1,13 +1,9 @@
 import { AnyAction } from 'redux';
 
 import { UPDATE_IO_STATUS } from '../actions/ioStatus';
-import { IOStatus } from '../../../../common/constants';
+import { IOStatusState } from '../../../../common/types';
 
-type IOStatusState = {
-  [key: string]: IOStatus
-};
-
-export default (state: IOStatusState = {}, { type, payload }: AnyAction) => {
+export default (state: IOStatusState = {}, { type, payload }: AnyAction): IOStatusState => {
   switch (type) {
     case UPDATE_IO_STATUS:
       return {

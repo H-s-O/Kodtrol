@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import { AnyAction, combineReducers } from 'redux';
 
 import fileVersion from './fileVersion';
 import devices from './devices';
@@ -6,7 +6,6 @@ import editTimelines from './editTimelines';
 import editScripts from './editScripts';
 import editBoards from './editBoards';
 import scripts from './scripts';
-import scriptsFolders from './scriptsFolders';
 import medias from './medias';
 import timelines from './timelines';
 import runDevice from './runDevice';
@@ -24,8 +23,9 @@ import console from './console';
 import saveEditedItems from './top/saveEditedItems';
 import setActiveEditor from './top/setActiveEditor';
 import trackLastEditor from './top/trackLastEditor';
+import { KodtrolState } from '../../../../common/types';
 
-const standardReducers = combineReducers({
+const standardReducers = combineReducers<KodtrolState>({
   fileVersion,
   outputs,
   inputs,
@@ -34,7 +34,6 @@ const standardReducers = combineReducers({
   devices,
   runDevice,
   scripts,
-  scriptsFolders,
   editScripts,
   runScript,
   timelines,
@@ -49,8 +48,8 @@ const standardReducers = combineReducers({
   console,
 });
 
-export default (previousState, action) => {
-  let newState;
+export default (previousState: KodtrolState, action: AnyAction): KodtrolState => {
+  let newState: KodtrolState;
   newState = standardReducers(previousState, action);
   newState = saveEditedItems(newState, action);
   newState = setActiveEditor(newState, action);

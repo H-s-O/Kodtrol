@@ -1,3 +1,6 @@
+import { AnyAction } from 'redux';
+
+import { TimelinesState } from '../../../../common/types';
 import {
   UPDATE_TIMELINES,
   CREATE_TIMELINE,
@@ -6,9 +9,7 @@ import {
   CREATE_TIMELINES,
 } from '../actions/timelines';
 
-const defaultState = [];
-
-export default (state = defaultState, { type, payload }) => {
+export default (state: TimelinesState = [], { type, payload }: AnyAction): TimelinesState => {
   switch (type) {
     case UPDATE_TIMELINES:
       return payload;

@@ -1,3 +1,6 @@
+import { AnyAction } from 'redux';
+
+import { MediasState } from '../../../../common/types';
 import {
   UPDATE_MEDIAS,
   CREATE_MEDIA,
@@ -6,9 +9,7 @@ import {
   CREATE_MEDIAS,
 } from '../actions/medias';
 
-const defaultState = [];
-
-export default (state = defaultState, { type, payload }) => {
+export default (state: MediasState = [], { type, payload }: AnyAction): MediasState => {
   switch (type) {
     case UPDATE_MEDIAS:
       return payload;
