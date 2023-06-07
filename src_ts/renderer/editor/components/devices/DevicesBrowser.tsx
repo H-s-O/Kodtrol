@@ -1,14 +1,16 @@
-import React, { useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { MouseEvent, useCallback } from 'react';
 import { Intent, Button, Icon, Tag } from '@blueprintjs/core';
 
-import { showDeviceDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { deleteDeviceAction, runDeviceAction, stopDeviceAction } from '../../../../common/js/store/actions/devices';
-import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
+import { showDeviceDialogAction } from '../../store/actions/dialogs';
+import { deleteDeviceAction, runDeviceAction, stopDeviceAction } from '../../store/actions/devices';
 import ItemBrowser from '../ui/ItemBrowser';
 import TagGroup from '../ui/TagGroup';
-import { IO_DMX, IO_ARTNET } from '../../../../common/js/constants/io';
-import contentRunning from '../../../../common/js/store/selectors/contentRunning';
+import contentRunning from '../../store/selectors/contentRunning';
+import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
+import { DeviceId } from '../../../../common/types';
+import { KodtrolDialogType } from '../../constants';
+import { ok } from 'assert';
+import { IOType } from '../../../../common/constants';
 
 const itemPropsFilter = ({ id, name, type, tags }) => ({ id, name, type, tags });
 
@@ -28,18 +30,19 @@ const DeviceLabel = ({ item: { name, id }, activeItemId }) => {
 }
 
 const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
-  const dispatch = useDispatch();
-  const runHandler = useCallback((e) => {
+  const dispatch = useKodtrolDispatch();
+  const runHandler = useCallback((e: MouseEvent) => {
     e.stopPropagation();
     dispatch(runDeviceAction(id));
   }, [dispatch, id]);
-  const stopHandler = useCallback((e) => {
+  const stopHandler = useCallback((e: MouseEvent) => {
     e.stopPropagation();
     dispatch(stopDeviceAction());
   }, [dispatch]);
-  const doubleClickHandler = useCallback((e) => {
+  const doubleClickHandler = useCallback((e: MouseEvent) => {
+    // Trap accidental double clicks
     e.stopPropagation();
-  });
+  }, []);
 
   return (
     <>
@@ -55,7 +58,7 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
           );
         })}
       </TagGroup>
-      {(type === IO_DMX || type === IO_ARTNET) ? (
+      {(type === IOType.DMX || type === IOType.ARTNET) ? (
         id !== activeItemId ? (
           <Button
             small
@@ -66,16 +69,16 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
             onDoubleClick={doubleClickHandler}
           />
         ) : (
-            <Button
-              small
-              minimal
-              icon="eye-off"
-              intent={Intent.DANGER}
-              title="Stop testing device"
-              onClick={stopHandler}
-              onDoubleClick={doubleClickHandler}
-            />
-          )
+          <Button
+            small
+            minimal
+            icon="eye-off"
+            intent={Intent.DANGER}
+            title="Stop testing device"
+            onClick={stopHandler}
+            onDoubleClick={doubleClickHandler}
+          />
+        )
       ) : null
       }
     </>
@@ -83,20 +86,22 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
 }
 
 export default function DevicesBrowser() {
-  const devices = useSelector((state) => state.devices);
-  const runDevice = useSelector((state) => state.runDevice);
-  const isContentRunning = useSelector(contentRunning);
+  const devices = useKodtrolSelector((state) => state.devices);
+  const runDevice = useKodtrolSelector((state) => state.runDevice);
+  const isContentRunning = useKodtrolSelector(contentRunning);
 
-  const dispatch = useDispatch();
-  const editPropsCallback = useCallback((id) => {
+  const dispatch = useKodtrolDispatch();
+  const editPropsCallback = useCallback((id: DeviceId) => {
     const device = devices.find((device) => device.id === id);
-    dispatch(showDeviceDialogAction(DIALOG_EDIT, device));
+    ok(device, 'device not found');
+    dispatch(showDeviceDialogAction(KodtrolDialogType.EDIT, device));
   }, [dispatch, devices]);
-  const duplicateCallback = useCallback((id) => {
+  const duplicateCallback = useCallback((id: DeviceId) => {
     const device = devices.find((device) => device.id === id);
-    dispatch(showDeviceDialogAction(DIALOG_DUPLICATE, device));
+    ok(device, 'device not found');
+    dispatch(showDeviceDialogAction(KodtrolDialogType.DUPLICATE, device));
   }, [dispatch, devices]);
-  const deleteCallback = useCallback((id) => {
+  const deleteCallback = useCallback((id: DeviceId) => {
     dispatch(deleteDeviceAction(id));
   }, [dispatch]);
 
@@ -114,4 +119,4 @@ export default function DevicesBrowser() {
       enableDelete={!isContentRunning}
     />
   );
-}
+};

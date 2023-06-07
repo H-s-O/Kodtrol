@@ -1,4 +1,4 @@
-export const enum DialogType {
+export const enum KodtrolDialogType {
   ADD = 'add',
   DUPLICATE = 'duplicate',
   EDIT = 'edit',
@@ -12,7 +12,7 @@ export const enum DialogType {
   IMPORT_ALL = 31,
 };
 
-export const enum IconType {
+export const enum KodtrolIconType {
   DEVICE = 'cube',
   SCRIPT = 'application',
   MEDIA = 'music',

@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import {
   Tab,
   Icon,
@@ -9,16 +8,17 @@ import {
   Position,
   Menu,
   NonIdealState,
+  IconSize,
+  MenuItem,
 } from '@blueprintjs/core';
 
-import DeviceBrowser from './devices/DevicesBrowser';
 import FullHeightCard from '../../common/components/FullHeightCard';
+import DeviceBrowser from './devices/DevicesBrowser';
 import ScriptsBrowser from './scripts/ScriptsBrowser';
 import MediasBrowser from './medias/MediasBrowser';
 import TimelinesBrowser from './timelines/TimelinesBrowser';
 import FullHeightTabs from './ui/FullHeightTabs';
 import BoardsBrowser from './boards/BoardsBrowser';
-import { ICON_DEVICE, ICON_SCRIPT, ICON_MEDIA, ICON_TIMELINE, ICON_BOARD } from '../../../common/js/constants/icons';
 import {
   showDeviceDialogAction,
   showScriptDialogAction,
@@ -27,17 +27,12 @@ import {
   showBoardDialogAction,
   showImportDialogAction,
 } from '../store/actions/dialogs';
-import {
-  DIALOG_IMPORT_DEVICES,
-  DIALOG_IMPORT_SCRIPTS,
-  DIALOG_IMPORT_MEDIAS,
-  DIALOG_IMPORT_TIMELINES,
-  DIALOG_IMPORT_BOARDS,
-} from '../../../common/js/constants/dialogs';
+import { KodtrolDialogType, KodtrolIconType } from '../constants';
+import { useKodtrolDispatch, useKodtrolSelector } from '../lib/hooks';
 
 const defaultTabId = 'devices';
 
-const getTabLabel = (tabId) => {
+const getTabLabel = (tabId: string): string | null => {
   switch (tabId) {
     case 'devices': return 'device'; break;
     case 'scripts': return 'script'; break;
@@ -49,7 +44,7 @@ const getTabLabel = (tabId) => {
 }
 
 export default function Browsers() {
-  const { devices, scripts, medias, timelines, boards } = useSelector((state) => ({
+  const { devices, scripts, medias, timelines, boards } = useKodtrolSelector((state) => ({
     devices: state.devices.length,
     scripts: state.scripts.length,
     medias: state.medias.length,
@@ -59,7 +54,7 @@ export default function Browsers() {
 
   const [currentTabId, setCurrentTabId] = useState(defaultTabId);
 
-  const dispatch = useDispatch();
+  const dispatch = useKodtrolDispatch();
   const addClickHandler = useCallback(() => {
     switch (currentTabId) {
       case 'devices':
@@ -82,19 +77,19 @@ export default function Browsers() {
   const importClickHandler = useCallback(() => {
     switch (currentTabId) {
       case 'devices':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_DEVICES));
+        dispatch(showImportDialogAction(KodtrolDialogType.IMPORT_DEVICES));
         break;
       case 'scripts':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_SCRIPTS));
+        dispatch(showImportDialogAction(KodtrolDialogType.IMPORT_SCRIPTS));
         break;
       case 'medias':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_MEDIAS));
+        dispatch(showImportDialogAction(KodtrolDialogType.IMPORT_MEDIAS));
         break;
       case 'timelines':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_TIMELINES));
+        dispatch(showImportDialogAction(KodtrolDialogType.IMPORT_TIMELINES));
         break;
       case 'boards':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_BOARDS));
+        dispatch(showImportDialogAction(KodtrolDialogType.IMPORT_BOARDS));
         break;
     }
   }, [currentTabId, dispatch]);
@@ -107,11 +102,11 @@ export default function Browsers() {
         id="browsers"
         withBorder
         selectedTabId={currentTabId}
-        onChange={(newTabId) => setCurrentTabId(newTabId)}
+        onChange={(newTabId: string) => setCurrentTabId(newTabId)}
       >
         <Tab
           id="devices"
-          panel={devices ? <DeviceBrowser /> : <NonIdealState icon={ICON_DEVICE} title="Devices Browser" description={
+          panel={devices ? <DeviceBrowser /> : <NonIdealState icon={KodtrolIconType.DEVICE} title="Devices Browser" description={
             <>
               No devices yet. Click the <Icon icon="plus" /> above to create one.
             </>
@@ -119,14 +114,14 @@ export default function Browsers() {
           }
         >
           <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_DEVICE}
+            iconSize={IconSize.LARGE}
+            icon={KodtrolIconType.DEVICE}
             htmlTitle="Devices"
           />
         </Tab>
         <Tab
           id="scripts"
-          panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} title="Scripts Browser" description={
+          panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={KodtrolIconType.SCRIPT} title="Scripts Browser" description={
             <>
               No scripts yet. Click the <Icon icon="plus" /> above to create one.
             </>
@@ -134,14 +129,14 @@ export default function Browsers() {
           }
         >
           <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_SCRIPT}
+            iconSize={IconSize.LARGE}
+            icon={KodtrolIconType.SCRIPT}
             htmlTitle="Scripts"
           />
         </Tab>
-        <Tab
+        {/* <Tab
           id="medias"
-          panel={medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} title="Media Browser" description={
+          panel={medias ? <MediasBrowser /> : <NonIdealState icon={KodtrolIconType.MEDIA} title="Media Browser" description={
             <>
               No medias yet. Click the <Icon icon="plus" /> above to create one.
             </>
@@ -149,14 +144,14 @@ export default function Browsers() {
           }
         >
           <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_MEDIA}
+            iconSize={IconSize.LARGE}
+            icon={KodtrolIconType.MEDIA}
             htmlTitle="Medias"
           />
         </Tab>
         <Tab
           id="timelines"
-          panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} title="Timelines Browser" description={
+          panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={KodtrolIconType.TIMELINE} title="Timelines Browser" description={
             <>
               No timelines yet. Click the <Icon icon="plus" /> above to create one.
             </>
@@ -164,14 +159,14 @@ export default function Browsers() {
           }
         >
           <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_TIMELINE}
+            iconSize={IconSize.LARGE}
+            icon={KodtrolIconType.TIMELINE}
             htmlTitle="Timelines"
           />
         </Tab>
         <Tab
           id="boards"
-          panel={boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} title="Boards Browser" description={
+          panel={boards ? <BoardsBrowser /> : <NonIdealState icon={KodtrolIconType.BOARD} title="Boards Browser" description={
             <>
               No boards yet. Click the <Icon icon="plus" /> above to create one.
             </>
@@ -179,11 +174,11 @@ export default function Browsers() {
           }
         >
           <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_BOARD}
+            iconSize={IconSize.LARGE}
+            icon={KodtrolIconType.BOARD}
             htmlTitle="Boards"
           />
-        </Tab>
+        </Tab> */}
         <FullHeightTabs.Expander />
         <ButtonGroup>
           <Button
@@ -196,12 +191,7 @@ export default function Browsers() {
             position={Position.BOTTOM_RIGHT}
             content={
               <Menu>
-                {/* <Menu.Item
-                  text={`Add ${getTabLabel(currentTabId)} folder`}
-                  icon="folder-new"
-                />
-                <Menu.Divider /> */}
-                <Menu.Item
+                <MenuItem
                   text={`Import ${getTabLabel(currentTabId)}(s) from project...`}
                   icon="import"
                   onClick={importClickHandler}
@@ -218,4 +208,4 @@ export default function Browsers() {
       </FullHeightTabs>
     </FullHeightCard>
   )
-}
+};

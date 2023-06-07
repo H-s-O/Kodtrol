@@ -88,7 +88,7 @@ export const createDevMenu = () => {
   ] as MenuItemConstructorOptions[];
 };
 
-export const createAdditionalArgs = () => {
+export const createAdditionalArgs = (otherArgs?: { [x: string]: any }) => {
   return [
     `--kodtrol=${JSON.stringify({
       APP_VERSION,
@@ -96,6 +96,7 @@ export const createAdditionalArgs = () => {
       IS_MAC,
       IS_WINDOWS,
       IS_LINUX,
+      ...otherArgs,
     } as WindowAdditionalArgs)}`
   ];
 };

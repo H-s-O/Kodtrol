@@ -1,24 +1,33 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Tree } from '@blueprintjs/core';
+import { Tree, TreeNodeInfo, TreeProps } from '@blueprintjs/core';
+
+type ManagedTreeProps = Omit<TreeProps, 'contents' | 'onNodeExpand' | 'onNodeCollapse'> & {
+  items?: TreeNodeInfo[]
+  folders?: TreeNodeInfo[]
+};
+
+type InitialFolders = {
+  [id: TreeNodeInfo['id']]: boolean
+}
 
 export default function ManagedTree({
   items = [],
   folders = [],
   ...otherProps
-}) {
+}: ManagedTreeProps) {
   const initialFoldersStates = useMemo(() => folders.reduce((obj, { id, isExpanded = false }) => ({
     ...obj,
     [id]: isExpanded,
-  }), {}), [folders]);
+  }), {} as InitialFolders), [folders]);
 
   const [foldersStates, setFoldersStates] = useState(initialFoldersStates);
-  const nodeExpandHandler = useCallback(({ id }) => {
+  const nodeExpandHandler = useCallback(({ id }: TreeNodeInfo) => {
     setFoldersStates({
       ...foldersStates,
       [id]: true,
     });
   }, [foldersStates]);
-  const nodeCollapseHandler = useCallback(({ id }) => {
+  const nodeCollapseHandler = useCallback(({ id }: TreeNodeInfo) => {
     setFoldersStates({
       ...foldersStates,
       [id]: false,
@@ -33,7 +42,7 @@ export default function ManagedTree({
           ...folder,
           isExpanded,
           icon: isExpanded ? 'folder-open' : 'folder-close',
-        }
+        } as TreeNodeInfo
       }
       return folder;
     }),
@@ -48,4 +57,4 @@ export default function ManagedTree({
       onNodeCollapse={nodeCollapseHandler}
     />
   );
-}
+};

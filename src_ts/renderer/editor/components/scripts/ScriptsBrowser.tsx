@@ -1,12 +1,20 @@
 import React, { useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Icon, Button, Intent } from '@blueprintjs/core';
+import { ok } from 'assert';
 
-import { editScriptAction, runScriptAction, stopScriptAction, deleteScriptAction, focusEditedScriptAction } from '../../../../common/js/store/actions/scripts';
+import {
+  editScriptAction,
+  runScriptAction,
+  stopScriptAction,
+  deleteScriptAction,
+  focusEditedScriptAction,
+} from '../../store/actions/scripts';
 import ItemBrowser from '../ui/ItemBrowser';
-import { showScriptDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
-import contentRunning from '../../../../common/js/store/selectors/contentRunning';
+import { showScriptDialogAction } from '../../store/actions/dialogs';
+import contentRunning from '../../store/selectors/contentRunning';
+import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
+import { ScriptId } from '../../../../common/types';
+import { KodtrolDialogType } from '../../constants';
 
 const ScriptLabel = ({ item: { name, id }, activeItemId }) => {
   return (
@@ -24,7 +32,7 @@ const ScriptLabel = ({ item: { name, id }, activeItemId }) => {
 }
 
 const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
-  const dispatch = useDispatch();
+  const dispatch = useKodtrolDispatch();
   const runHandler = useCallback((e) => {
     e.stopPropagation();
     dispatch(runScriptAction(id));
@@ -64,13 +72,13 @@ const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
 }
 
 export default function ScriptsBrowser() {
-  const scripts = useSelector((state) => state.scripts);
-  const runScript = useSelector((state) => state.runScript);
-  const editScripts = useSelector((state) => state.editScripts);
-  const isContentRunning = useSelector(contentRunning);
+  const scripts = useKodtrolSelector((state) => state.scripts);
+  const runScript = useKodtrolSelector((state) => state.runScript);
+  const editScripts = useKodtrolSelector((state) => state.editScripts);
+  const isContentRunning = useKodtrolSelector(contentRunning);
 
-  const dispatch = useDispatch();
-  const editCallback = useCallback((id) => {
+  const dispatch = useKodtrolDispatch();
+  const editCallback = useCallback((id: ScriptId) => {
     if (editScripts.find((script) => script.id === id)) {
       dispatch(focusEditedScriptAction(id));
     } else {
@@ -78,15 +86,17 @@ export default function ScriptsBrowser() {
       dispatch(editScriptAction(id, script));
     }
   }, [dispatch, scripts, editScripts]);
-  const editPropsCallback = useCallback((id) => {
+  const editPropsCallback = useCallback((id: ScriptId) => {
     const script = scripts.find((script) => script.id === id);
-    dispatch(showScriptDialogAction(DIALOG_EDIT, script));
+    ok(script, 'script not found');
+    dispatch(showScriptDialogAction(KodtrolDialogType.EDIT, script));
   }, [dispatch, scripts]);
-  const duplicateCallback = useCallback((id) => {
+  const duplicateCallback = useCallback((id: ScriptId) => {
     const script = scripts.find((script) => script.id === id);
-    dispatch(showScriptDialogAction(DIALOG_DUPLICATE, script));
+    ok(script, 'script not found');
+    dispatch(showScriptDialogAction(KodtrolDialogType.DUPLICATE, script));
   }, [dispatch, scripts]);
-  const deleteCallback = useCallback((id) => {
+  const deleteCallback = useCallback((id: ScriptId) => {
     dispatch(deleteScriptAction(id));
   }, [dispatch]);
 

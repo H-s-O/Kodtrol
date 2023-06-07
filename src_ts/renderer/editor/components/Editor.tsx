@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import MainNav from './MainNav';
-// import Browsers from './Browsers';
+import Browsers from './Browsers';
 import DialogsContainer from './DialogsContainer';
 import ScriptsEditor from './ScriptsEditor';
 import TimelinesBoardsEditor from './TimelinesBoardsEditor';
@@ -54,7 +54,7 @@ export default function Main() {
         </StyledTopRow>
         <StyledBottomRow>
           <StyledLeftCol>
-            {/* <Browsers /> */}
+            <Browsers />
           </StyledLeftCol>
           <StyledRightCol>
             <StyledScriptsRow>

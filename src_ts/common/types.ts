@@ -6,12 +6,14 @@ export type FileVersionState = string;
 export type DeviceId = string;
 export type Device = {
   id: DeviceId
+  name: string
 };
 export type DevicesState = Device[];
 
 export type ScriptId = string;
 export type Script = {
   id: ScriptId
+  name: string
   content: string
 };
 export type ScriptsState = Script[];
@@ -25,12 +27,14 @@ export type EditScriptsState = EditScript[];
 export type MediaId = string;
 export type Media = {
   id: MediaId
+  name: string
 };
 export type MediasState = Media[];
 
 export type TimelineId = string;
 export type Timeline = {
   id: TimelineId
+  name: string
 };
 export type TimelinesState = Timeline[];
 
@@ -43,6 +47,7 @@ export type EditTimelinesState = EditTimeline[];
 export type BoardId = string;
 export type Board = {
   id: BoardId
+  name: string
 };
 export type BoardsState = Board[];
 
@@ -87,19 +92,21 @@ export type DialogsState = {
 export type InputId = string;
 export type Input = {
   id: InputId
+  name: string
 };
 export type InputsState = Input[];
 
 export type OutputId = string;
 export type Output = {
   id: OutputId
+  name: string
 };
 export type OutputsState = Output[];
 
 export type IOAvailableState = object[];
 
 export type IOStatusState = {
-  [key: string]: IOStatus
+  [key: InputId | OutputId]: IOStatus
 };
 
 export type LastEditorState =
@@ -147,4 +154,16 @@ export type WindowAdditionalArgs = {
   IS_MAC: boolean
   IS_WINDOWS: boolean
   IS_LINUX: boolean
+};
+
+//-----------------------------------------------------------------------------------------------
+
+export type ItemNamesObject<K extends string = string> = {
+  [k in K]: string;
+};
+
+export type FolderId = string;
+export type Folder = {
+  id: FolderId
+  name: string
 };

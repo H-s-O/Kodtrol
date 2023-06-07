@@ -8,7 +8,7 @@ import BoardDialog from './boards/BoardDialog';
 import ProjectConfigDialog from './project/ProjectConfigDialog';
 import ImportDialog from './ImportDialog';
 
-const DialogsContainer = () => {
+export default function DialogsContainer() {
   return (
     <>
       <DeviceDialog />
@@ -20,6 +20,4 @@ const DialogsContainer = () => {
       <ImportDialog />
     </>
   );
-}
-
-export default DialogsContainer;
+};

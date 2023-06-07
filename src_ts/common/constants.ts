@@ -31,3 +31,13 @@ export const enum IOStatus {
   CONNECTED = 1,
   ACTIVITY = 2,
 };
+
+export const enum IOType {
+  MIDI = 'midi',
+  OSC = 'osc',
+  DMX = 'dmx',
+  ARTNET = 'artnet',
+  SERIAL = 'serial',
+  ILDA = 'ilda',
+  AUDIO = 'audio',
+};

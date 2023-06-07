@@ -13,6 +13,7 @@ import {
 } from '../common/constants';
 import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
 import { cliProjectFile } from './lib/cli';
+import { ok } from 'assert';
 
 class Main {
   private _splashWindow?: SplashWindow;
@@ -134,14 +135,18 @@ class Main {
   }
 
   private _createEditorWindow(): void {
-    this._editorWindow = new EditorWindow();
+    ok(this._currentProjectFile, '_currentProjectFile not set');
+
+    this._editorWindow = new EditorWindow(this._currentProjectFile);
     this._editorWindow.window.on('close', this._onEditorWindowClose.bind(this));
   }
 
   private _onEditorWindowClose(event: Event): void {
     event.preventDefault();
 
-    warnBeforeClosingProject(this._editorWindow?.window)
+    ok(this._editorWindow, '_editorWindow not set');
+
+    warnBeforeClosingProject(this._editorWindow.window)
       .then((closeIt) => {
         if (closeIt) {
           this._nextProjectFile = undefined;

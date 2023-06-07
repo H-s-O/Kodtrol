@@ -5,7 +5,7 @@ import BaseWindow, { createAdditionalArgs, createDevMenu } from './BaseWindow';
 import { IS_DEV } from '../constants';
 
 class EditorWindow extends BaseWindow {
-  constructor() {
+  constructor(projectFilePath: string) {
     super({
       id: 'editorwindow',
       defaultWidth: 1600,
@@ -14,7 +14,9 @@ class EditorWindow extends BaseWindow {
         webPreferences: {
           preload: join(__dirname, '..', '..', '..', 'build', 'editor', 'editor-preload.js'),
           sandbox: false,
-          additionalArguments: createAdditionalArgs(),
+          additionalArguments: createAdditionalArgs({
+            projectFilePath,
+          }),
         },
       },
     });
