@@ -1,19 +1,17 @@
 import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
-import { useSelector, useDispatch } from 'react-redux';
 
-import { ICON_SCRIPT } from '../../../../common/js/constants/icons';
 import DialogBody from '../ui/DialogBody';
 import DialogFooter from '../ui/DialogFooter';
 import ScriptDialogBody from './ScriptDialogBody';
 import DialogFooterActions from '../ui/DialogFooterActions';
-import { hideScriptDialogAction, updateScriptDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { hideScriptDialogAction, updateScriptDialogAction } from '../../store/actions/dialogs';
 import CustomDialog from '../ui/CustomDialog';
-import { createScriptAction, saveScriptAction } from '../../../../common/js/store/actions/scripts';
-import scriptValidator from '../../../../common/js/validators/scriptValidator';
-import { DIALOG_ADD, DIALOG_DUPLICATE, DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
-import mergeDialogBody from '../../../../common/js/lib/mergeDialogBody';
-import { getSuccessButtonLabel } from '../../lib/dialogHelpers';
+import { createScriptAction, saveScriptAction } from '../../store/actions/scripts';
+import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
+import { KodtrolDialogType, KodtrolIconType } from '../../constants';
+import { getSuccessButtonLabel, mergeDialogBody } from '../../lib/helpers';
+import { scriptValidator } from '../../validators/scriptValidators';
 
 const defaultValue = {
   name: null,
@@ -22,15 +20,15 @@ const defaultValue = {
   devicesGroups: [],
 };
 
-const getDialogTitle = (mode) => {
+const getDialogTitle = (mode: KodtrolDialogType): string => {
   switch (mode) {
-    case DIALOG_DUPLICATE:
+    case KodtrolDialogType.DUPLICATE:
       return 'Duplicate Script';
       break;
-    case DIALOG_EDIT:
-      return 'Edit Script';
+    case KodtrolDialogType.EDIT:
+      return 'Edit Script Properties';
       break;
-    case DIALOG_ADD:
+    case KodtrolDialogType.ADD:
     default:
       return 'Add Script';
       break;
@@ -38,21 +36,21 @@ const getDialogTitle = (mode) => {
 }
 
 export default function ScriptDialog() {
-  const scriptDialogOpened = useSelector((state) => state.dialogs.scriptDialogOpened);
-  const scriptDialogMode = useSelector((state) => state.dialogs.scriptDialogMode);
-  const scriptDialogValue = useSelector((state) => state.dialogs.scriptDialogValue);
+  const scriptDialogOpened = useKodtrolSelector((state) => state.dialogs.scriptDialogOpened);
+  const scriptDialogMode = useKodtrolSelector((state) => state.dialogs.scriptDialogMode);
+  const scriptDialogValue = useKodtrolSelector((state) => state.dialogs.scriptDialogValue);
 
   const title = getDialogTitle(scriptDialogMode);
   const bodyValue = scriptDialogValue || defaultValue;
   const bodyValid = scriptValidator(bodyValue);
   const successLabel = getSuccessButtonLabel(scriptDialogMode);
 
-  const dispatch = useDispatch();
+  const dispatch = useKodtrolDispatch();
   const closeHandler = useCallback(() => {
     dispatch(hideScriptDialogAction());
   }, [dispatch]);
   const successHandler = useCallback(() => {
-    if (scriptDialogMode === DIALOG_EDIT) {
+    if (scriptDialogMode === KodtrolDialogType.EDIT) {
       dispatch(saveScriptAction(bodyValue.id, bodyValue));
     } else {
       dispatch(createScriptAction(bodyValue));
@@ -60,7 +58,7 @@ export default function ScriptDialog() {
     dispatch(hideScriptDialogAction());
   }, [dispatch, bodyValue]);
   const applyHandler = useCallback(() => {
-    if (scriptDialogMode === DIALOG_EDIT) {
+    if (scriptDialogMode === KodtrolDialogType.EDIT) {
       dispatch(saveScriptAction(bodyValue.id, bodyValue));
     }
   }, [dispatch, bodyValue]);
@@ -72,7 +70,7 @@ export default function ScriptDialog() {
     <CustomDialog
       isOpen={scriptDialogOpened}
       title={title}
-      icon={ICON_SCRIPT}
+      icon={KodtrolIconType.SCRIPT}
       onClose={closeHandler}
       className="script-dialog"
     >
@@ -90,18 +88,18 @@ export default function ScriptDialog() {
           >
             Cancel
           </Button>
-          {scriptDialogMode === DIALOG_EDIT && (
+          {scriptDialogMode === KodtrolDialogType.EDIT && (
             <Button
               intent={Intent.PRIMARY}
               disabled={!bodyValid}
               onClick={applyHandler}
             >
               Apply
-          </Button>
+            </Button>
           )}
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid.all_fields}
+            disabled={!bodyValid.__all_fields}
             onClick={successHandler}
           >
             {successLabel}

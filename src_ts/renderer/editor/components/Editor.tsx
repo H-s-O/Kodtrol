@@ -66,8 +66,8 @@ export default function Main() {
           </StyledRightCol>
         </StyledBottomRow>
       </StyledContainer>
-      {/* <DialogsContainer /> */}
-      {/* <ScriptsErrorsContainer /> */}
+      <DialogsContainer />
+      <ScriptsErrorsContainer />
     </>
   );
 }

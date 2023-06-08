@@ -1,6 +1,6 @@
-import { WindowAdditionalArgs } from '../../common/types';
+import { WindowAdditionalArgs } from '../../../common/types';
 
-export const extractAdditionalData = () => {
+export const extractAdditionalData = (): WindowAdditionalArgs | null => {
   try {
     const prefix = '--kodtrol=';
     const arg = process.argv.find((val) => val.startsWith(prefix));
@@ -12,4 +12,8 @@ export const extractAdditionalData = () => {
     console.error('Error extracting additional data:', err);
     return null;
   }
+};
+
+export const focusIsGlobal = (): boolean => {
+  return window.document.activeElement === window.document.body;
 };

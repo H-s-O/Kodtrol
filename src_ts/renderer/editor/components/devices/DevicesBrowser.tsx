@@ -8,11 +8,11 @@ import ItemBrowser from '../ui/ItemBrowser';
 import TagGroup from '../ui/TagGroup';
 import contentRunning from '../../store/selectors/contentRunning';
 import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
-import { DeviceId } from '../../../../common/types';
+import { Device, DeviceId } from '../../../../common/types';
 import { KodtrolDialogType } from '../../constants';
 import { IOType } from '../../../../common/constants';
 
-const itemPropsFilter = ({ id, name, type, tags }) => ({ id, name, type, tags });
+const itemPropsFilter = ({ id, name, type, tags }: Device) => ({ id, name, type, tags });
 
 const DeviceLabel = ({ item: { name, id }, activeItemId }) => {
   return (

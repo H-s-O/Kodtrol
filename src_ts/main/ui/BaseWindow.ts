@@ -79,7 +79,6 @@ export const createDevMenu = () => {
     {
       label: 'Dev',
       submenu: [
-        { role: 'reload' },
         { role: 'forceReload' },
         { type: 'separator' },
         { role: 'toggleDevTools' },

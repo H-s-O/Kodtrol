@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { Intent } from "@blueprintjs/core";
-import { useSelector } from 'react-redux';
+import { Intent } from '@blueprintjs/core';
 
 import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
@@ -9,7 +8,8 @@ import TagsInput from '../ui/inputs/TagsInput';
 import DmxChannelsInput from './DmxChannelsInput';
 import CustomDivider from '../ui/CustomDivider';
 import NumberInput from '../ui/inputs/NumberInput';
-import { IO_DMX, IO_ILDA, IO_LABELS, IO_ARTNET, IO_MIDI } from '../../../../common/js/constants/io';
+import { useKodtrolSelector } from '../../lib/hooks';
+import { IOType, IO_LABELS } from '../../../../common/constants';
 
 export default function DeviceDialogBody({ value, onChange, validation }) {
   const {
@@ -22,18 +22,18 @@ export default function DeviceDialogBody({ value, onChange, validation }) {
     channels,
   } = value;
 
-  const outputs = useSelector((state) => state.outputs);
+  const outputs = useKodtrolSelector((state) => state.outputs);
   const availableOutputs = useMemo(() => {
     if (!type) {
       return []
     }
     return outputs.filter((output) => {
-      if (type === IO_DMX) {
-        return output.type === IO_DMX || output.type === IO_ARTNET;
-      } else if (type === IO_ILDA) {
-        return output.type === IO_ILDA;
-      } else if (type === IO_MIDI) {
-        return output.type === IO_MIDI;
+      if (type === IOType.DMX) {
+        return output.type === IOType.DMX || output.type === IOType.ARTNET;
+      } else if (type === IOType.ILDA) {
+        return output.type === IOType.ILDA;
+      } else if (type === IOType.MIDI) {
+        return output.type === IOType.MIDI;
       }
     })
   }, [outputs, type]);
@@ -62,9 +62,9 @@ export default function DeviceDialogBody({ value, onChange, validation }) {
           onChange={onChange}
         >
           <option value="null">--</option>
-          <option value={IO_DMX}>{IO_LABELS[IO_DMX]}</option>
-          <option value={IO_ILDA}>{IO_LABELS[IO_ILDA]}</option>
-          <option value={IO_MIDI}>{IO_LABELS[IO_MIDI]}</option>
+          <option value={IOType.DMX}>{IO_LABELS[IOType.DMX]}</option>
+          <option value={IOType.ILDA}>{IO_LABELS[IOType.ILDA]}</option>
+          <option value={IOType.MIDI}>{IO_LABELS[IOType.MIDI]}</option>
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
@@ -103,7 +103,7 @@ export default function DeviceDialogBody({ value, onChange, validation }) {
       {type && (
         <CustomDivider />
       )}
-      {type === IO_DMX && (
+      {type === IOType.DMX && (
         <>
           <InlineFormGroup
             label="Address"
@@ -131,7 +131,7 @@ export default function DeviceDialogBody({ value, onChange, validation }) {
           </InlineFormGroup>
         </>
       )}
-      {type === IO_MIDI && (
+      {type === IOType.MIDI && (
         <>
           <InlineFormGroup
             label="Channel"

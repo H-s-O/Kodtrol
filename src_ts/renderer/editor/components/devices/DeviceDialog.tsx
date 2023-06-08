@@ -1,19 +1,17 @@
 import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
-import { useSelector, useDispatch } from 'react-redux';
 
-import { ICON_DEVICE } from '../../../../common/js/constants/icons';
 import DialogBody from '../ui/DialogBody';
 import DialogFooter from '../ui/DialogFooter';
 import DeviceDialogBody from './DeviceDialogBody';
 import DialogFooterActions from '../ui/DialogFooterActions';
-import { hideDeviceDialogAction, updateDeviceDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { hideDeviceDialogAction, updateDeviceDialogAction } from '../../store/actions/dialogs';
 import CustomDialog from '../ui/CustomDialog';
-import { createDeviceAction, saveDeviceAction } from '../../../../common/js/store/actions/devices';
-import deviceValidator from '../../../../common/js/validators/deviceValidator';
-import { DIALOG_ADD, DIALOG_DUPLICATE, DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
-import mergeDialogBody from '../../../../common/js/lib/mergeDialogBody';
-import { getSuccessButtonLabel } from '../../lib/dialogHelpers';
+import { createDeviceAction, saveDeviceAction } from '../../store/actions/devices';
+import { KodtrolDialogType, KodtrolIconType } from '../../constants';
+import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
+import { getSuccessButtonLabel, mergeDialogBody } from '../../lib/helpers';
+import { deviceValidator } from '../../validators/deviceValidators';
 
 const defaultValue = {
   name: null,
@@ -22,15 +20,15 @@ const defaultValue = {
   tags: [],
 };
 
-const getDialogTitle = (mode) => {
+const getDialogTitle = (mode: KodtrolDialogType): string => {
   switch (mode) {
-    case DIALOG_DUPLICATE:
+    case KodtrolDialogType.DUPLICATE:
       return 'Duplicate Device';
       break;
-    case DIALOG_EDIT:
-      return 'Edit Device';
+    case KodtrolDialogType.EDIT:
+      return 'Edit Device Properties';
       break;
-    case DIALOG_ADD:
+    case KodtrolDialogType.ADD:
     default:
       return 'Add Device';
       break;
@@ -38,21 +36,21 @@ const getDialogTitle = (mode) => {
 }
 
 export default function DeviceDialog() {
-  const deviceDialogOpened = useSelector((state) => state.dialogs.deviceDialogOpened);
-  const deviceDialogMode = useSelector((state) => state.dialogs.deviceDialogMode);
-  const deviceDialogValue = useSelector((state) => state.dialogs.deviceDialogValue);
+  const deviceDialogOpened = useKodtrolSelector((state) => state.dialogs.deviceDialogOpened);
+  const deviceDialogMode = useKodtrolSelector((state) => state.dialogs.deviceDialogMode);
+  const deviceDialogValue = useKodtrolSelector((state) => state.dialogs.deviceDialogValue);
 
   const title = getDialogTitle(deviceDialogMode);
   const bodyValue = deviceDialogValue || defaultValue;
   const bodyValid = deviceValidator(bodyValue);
   const successLabel = getSuccessButtonLabel(deviceDialogMode);
 
-  const dispatch = useDispatch();
+  const dispatch = useKodtrolDispatch();
   const closeHandler = useCallback(() => {
     dispatch(hideDeviceDialogAction());
   }, [dispatch]);
   const successHandler = useCallback(() => {
-    if (deviceDialogMode === DIALOG_EDIT) {
+    if (deviceDialogMode === KodtrolDialogType.EDIT) {
       dispatch(saveDeviceAction(bodyValue.id, bodyValue));
     } else {
       dispatch(createDeviceAction(bodyValue));
@@ -60,7 +58,7 @@ export default function DeviceDialog() {
     dispatch(hideDeviceDialogAction());
   }, [dispatch, bodyValue]);
   const applyHandler = useCallback(() => {
-    if (deviceDialogMode === DIALOG_EDIT) {
+    if (deviceDialogMode === KodtrolDialogType.EDIT) {
       dispatch(saveDeviceAction(bodyValue.id, bodyValue));
     }
   }, [dispatch, bodyValue]);
@@ -72,7 +70,7 @@ export default function DeviceDialog() {
     <CustomDialog
       isOpen={deviceDialogOpened}
       title={title}
-      icon={ICON_DEVICE}
+      icon={KodtrolIconType.DEVICE}
       onClose={closeHandler}
       className="device-dialog"
     >
@@ -90,7 +88,7 @@ export default function DeviceDialog() {
           >
             Cancel
           </Button>
-          {deviceDialogMode === DIALOG_EDIT && (
+          {deviceDialogMode === KodtrolDialogType.EDIT && (
             <Button
               intent={Intent.PRIMARY}
               disabled={!bodyValid}
@@ -101,7 +99,7 @@ export default function DeviceDialog() {
           )}
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid.all_fields}
+            disabled={!bodyValid.__all_fields}
             onClick={successHandler}
           >
             {successLabel}

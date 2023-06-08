@@ -5,7 +5,7 @@ import {
   IPC_MAIN_CHANNEL_LOAD_PROJECT,
   IPC_MAIN_CHANNEL_QUIT,
 } from '../../common/constants';
-import { extractAdditionalData } from '../lib/helpers';
+import { extractAdditionalData } from '../common/lib/helpers';
 
 const additionalArgs = extractAdditionalData();
 

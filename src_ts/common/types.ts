@@ -1,12 +1,16 @@
-import { IOStatus } from './constants';
+import { KodtrolDialogType } from '../renderer/editor/constants';
+import { IOStatus, IOType } from './constants';
 
 // export type FileVersionState = `${number}.${number}.${number}`; // pedantic mode
 export type FileVersionState = string;
 
 export type DeviceId = string;
+export type DeviceTag = string;
 export type Device = {
   id: DeviceId
   name: string
+  type: IOType
+  tags: DeviceTag[]
 };
 export type DevicesState = Device[];
 
@@ -15,6 +19,9 @@ export type Script = {
   id: ScriptId
   name: string
   content: string
+  devices: {
+    device?: DeviceId
+  }[]
 };
 export type ScriptsState = Script[];
 
@@ -28,6 +35,8 @@ export type MediaId = string;
 export type Media = {
   id: MediaId
   name: string
+  file?: string
+  duration?: number
 };
 export type MediasState = Media[];
 
@@ -35,6 +44,7 @@ export type TimelineId = string;
 export type Timeline = {
   id: TimelineId
   name: string
+  duration: number
 };
 export type TimelinesState = Timeline[];
 
@@ -61,31 +71,31 @@ export type ConsoleState = boolean;
 
 export type DialogsState = {
   deviceDialogOpened: boolean
-  deviceDialogMode: string | null
-  deviceDialogValue: object | null
+  deviceDialogMode: KodtrolDialogType
+  deviceDialogValue: Device | null
   //
   scriptDialogOpened: boolean
-  scriptDialogMode: string | null
-  scriptDialogValue: object | null
+  scriptDialogMode: KodtrolDialogType
+  scriptDialogValue: Script | null
   //
   mediaDialogOpened: boolean
-  mediaDialogMode: string | null
-  mediaDialogValue: object | null
+  mediaDialogMode: KodtrolDialogType
+  mediaDialogValue: Media | null
   //
   timelineDialogOpened: boolean
-  timelineDialogMode: string | null
-  timelineDialogValue: object | null
+  timelineDialogMode: KodtrolDialogType
+  timelineDialogValue: Timeline | null
   //
   boardDialogOpened: boolean
-  boardDialogMode: string | null
-  boardDialogValue: object | null
+  boardDialogMode: KodtrolDialogType
+  boardDialogValue: Board | null
   //
   configDialogOpened: boolean
-  configDialogMode: string | null
+  configDialogMode: KodtrolDialogType
   configDialogValue: object | null
   //
   importDialogOpened: boolean
-  importDialogMode: string | null
+  importDialogMode: KodtrolDialogType
   importDialogValue: object | null
 };
 
@@ -93,6 +103,7 @@ export type InputId = string;
 export type Input = {
   id: InputId
   name: string
+  type: IOType
 };
 export type InputsState = Input[];
 
@@ -100,6 +111,7 @@ export type OutputId = string;
 export type Output = {
   id: OutputId
   name: string
+  type: IOType
 };
 export type OutputsState = Output[];
 

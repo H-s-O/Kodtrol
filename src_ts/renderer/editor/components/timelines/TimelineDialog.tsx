@@ -1,19 +1,17 @@
 import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
-import { useSelector, useDispatch } from 'react-redux';
 
-import { ICON_TIMELINE } from '../../../../common/js/constants/icons';
 import DialogBody from '../ui/DialogBody';
 import DialogFooter from '../ui/DialogFooter';
 import TimelineDialogBody from './TimelineDialogBody';
 import DialogFooterActions from '../ui/DialogFooterActions';
-import { hideTimelineDialogAction, updateTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { hideTimelineDialogAction, updateTimelineDialogAction } from '../../store/actions/dialogs';
 import CustomDialog from '../ui/CustomDialog';
-import { createTimelineAction, saveTimelineAction } from '../../../../common/js/store/actions/timelines';
-import timelineValidator from '../../../../common/js/validators/timelineValidator';
-import { DIALOG_ADD, DIALOG_DUPLICATE, DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
-import mergeDialogBody from '../../../../common/js/lib/mergeDialogBody';
-import { getSuccessButtonLabel } from '../../lib/dialogHelpers';
+import { createTimelineAction, saveTimelineAction } from '../../store/actions/timelines';
+import { KodtrolDialogType, KodtrolIconType } from '../../constants';
+import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
+import { timelineValidator } from '../../validators/timelineValidators';
+import { getSuccessButtonLabel, mergeDialogBody } from '../../lib/helpers';
 
 const defaultValue = {
   name: null,
@@ -21,15 +19,15 @@ const defaultValue = {
   tempo: null,
 };
 
-const getDialogTitle = (mode) => {
+const getDialogTitle = (mode: KodtrolDialogType): string => {
   switch (mode) {
-    case DIALOG_DUPLICATE:
+    case KodtrolDialogType.DUPLICATE:
       return 'Duplicate Timeline';
       break;
-    case DIALOG_EDIT:
-      return 'Edit Timeline';
+    case KodtrolDialogType.EDIT:
+      return 'Edit Timeline Properties';
       break;
-    case DIALOG_ADD:
+    case KodtrolDialogType.ADD:
     default:
       return 'Add Timeline';
       break;
@@ -37,21 +35,21 @@ const getDialogTitle = (mode) => {
 }
 
 export default function TimelineDialog() {
-  const timelineDialogOpened = useSelector((state) => state.dialogs.timelineDialogOpened);
-  const timelineDialogMode = useSelector((state) => state.dialogs.timelineDialogMode);
-  const timelineDialogValue = useSelector((state) => state.dialogs.timelineDialogValue);
+  const timelineDialogOpened = useKodtrolSelector((state) => state.dialogs.timelineDialogOpened);
+  const timelineDialogMode = useKodtrolSelector((state) => state.dialogs.timelineDialogMode);
+  const timelineDialogValue = useKodtrolSelector((state) => state.dialogs.timelineDialogValue);
 
   const title = getDialogTitle(timelineDialogMode);
   const bodyValue = timelineDialogValue || defaultValue;
   const bodyValid = timelineValidator(bodyValue);
   const successLabel = getSuccessButtonLabel(timelineDialogMode);
 
-  const dispatch = useDispatch();
+  const dispatch = useKodtrolDispatch();
   const closeHandler = useCallback(() => {
     dispatch(hideTimelineDialogAction());
   }, [dispatch]);
   const successHandler = useCallback(() => {
-    if (timelineDialogMode === DIALOG_EDIT) {
+    if (timelineDialogMode === KodtrolDialogType.EDIT) {
       dispatch(saveTimelineAction(bodyValue.id, bodyValue));
     } else {
       dispatch(createTimelineAction(bodyValue));
@@ -66,7 +64,7 @@ export default function TimelineDialog() {
     <CustomDialog
       isOpen={timelineDialogOpened}
       title={title}
-      icon={ICON_TIMELINE}
+      icon={KodtrolIconType.TIMELINE}
       onClose={closeHandler}
       className="timeline-dialog"
     >
@@ -86,7 +84,7 @@ export default function TimelineDialog() {
           </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid.all_fields}
+            disabled={!bodyValid.__all_fields}
             onClick={successHandler}
           >
             {successLabel}

@@ -3,7 +3,7 @@ import {
 } from 'electron/renderer';
 import { readFile } from 'fs/promises'
 
-import { extractAdditionalData } from '../lib/helpers';
+import { extractAdditionalData } from '../common/lib/helpers';
 
 const additionalArgs = extractAdditionalData();
 

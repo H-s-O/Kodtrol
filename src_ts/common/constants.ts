@@ -25,6 +25,10 @@ export const SCRIPT_TEMPLATE =
 // function input(devices, inputType, inputData) {
 // }`;
 
+export const enum IO {
+  INPUT = 'input',
+  OUTPUT = 'output',
+};
 
 export const enum IOStatus {
   DISCONNECTED = 0,
@@ -41,3 +45,20 @@ export const enum IOType {
   ILDA = 'ilda',
   AUDIO = 'audio',
 };
+
+export const IO_LABELS = {
+  [IOStatus.DISCONNECTED]: 'Disconnected',
+  [IOStatus.CONNECTED]: 'Connected',
+  [IOStatus.ACTIVITY]: 'Activity',
+
+  [IO.INPUT]: 'Input',
+  [IO.OUTPUT]: 'Output',
+
+  [IOType.MIDI]: 'MIDI',
+  [IOType.OSC]: 'OSC',
+  [IOType.DMX]: 'DMX',
+  [IOType.ARTNET]: 'Art-Net',
+  [IOType.SERIAL]: 'Serial',
+  [IOType.ILDA]: 'ILDA',
+  [IOType.AUDIO]: 'Audio',
+} as const;

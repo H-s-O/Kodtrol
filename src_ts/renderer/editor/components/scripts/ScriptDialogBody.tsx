@@ -1,21 +1,20 @@
 import React, { useMemo } from 'react';
 import { Intent } from '@blueprintjs/core';
-import { useSelector } from 'react-redux';
 
 import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
 import NumberInput from '../ui/inputs/NumberInput';
 import ScriptDevicesInput from './ScriptDevicesInput';
+import { useKodtrolSelector } from '../../lib/hooks';
 
 export default function ScriptDialogBody({ value, onChange, validation }) {
   const {
     name,
     tempo,
     devices,
-    devicesGroups,
   } = value;
 
-  const projectDevices = useSelector((state) => state.devices);
+  const projectDevices = useKodtrolSelector((state) => state.devices);
   const availableDevices = useMemo(() => {
     return projectDevices.map(({ id, name }) => ({ id, name }));
   }, [projectDevices]);

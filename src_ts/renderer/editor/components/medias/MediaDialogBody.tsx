@@ -1,17 +1,17 @@
 import React, { useMemo, useCallback, useEffect, useState } from 'react';
-import { Intent, Spinner } from '@blueprintjs/core';
-import { useSelector } from 'react-redux';
+import { Intent, Spinner, SpinnerSize } from '@blueprintjs/core';
 
 import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
 import FileInput from '../ui/inputs/FileInput';
 import SelectInput from '../ui/inputs/SelectInput';
-import mediaInfo from '../../lib/mediaInfo';
 import DurationInput from '../ui/inputs/DurationInput';
-import { IO_AUDIO } from '../../../../common/js/constants/io';
-import supportedAudioFormats from '../../lib/supportedAudioFormats';
+import { IOType } from '../../../../common/constants';
+import { useKodtrolSelector } from '../../lib/hooks';
+import { KODTROL_SUPPORTED_AUDIO_FORMATS } from '../../constants';
+import { mediaInfo } from '../../lib/helpers';
 
-const ACCEPT_AUDIO = supportedAudioFormats.map((format) => `.${format}`).join(',');
+const ACCEPT_AUDIO = KODTROL_SUPPORTED_AUDIO_FORMATS.map((format) => `.${format}`).join(',');
 
 export default function MediaDialogBody({ value, onChange, validation }) {
   const {
@@ -21,9 +21,9 @@ export default function MediaDialogBody({ value, onChange, validation }) {
     duration,
   } = value;
 
-  const outputs = useSelector((state) => state.outputs);
+  const outputs = useKodtrolSelector((state) => state.outputs);
   const availableOutputs = useMemo(() => {
-    return outputs.filter(({ type }) => type === IO_AUDIO)
+    return outputs.filter(({ type }) => type === IOType.AUDIO)
   }, [outputs]);
 
   const [fileChanged, setFileChanged] = useState(false);
@@ -80,7 +80,7 @@ export default function MediaDialogBody({ value, onChange, validation }) {
           />
         ) : duration === null ? (
           <Spinner
-            size={Spinner.SIZE_SMALL}
+            size={SpinnerSize.SMALL}
           />
         ) : (
               <DurationInput

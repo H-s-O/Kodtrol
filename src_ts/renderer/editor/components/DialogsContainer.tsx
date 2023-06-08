@@ -15,9 +15,9 @@ export default function DialogsContainer() {
       <ScriptDialog />
       <MediaDialog />
       <TimelineDialog />
-      <BoardDialog />
-      <ProjectConfigDialog />
-      <ImportDialog />
+      {/* <BoardDialog /> */}
+      {/* <ProjectConfigDialog /> */}
+      {/* <ImportDialog /> */}
     </>
   );
 };

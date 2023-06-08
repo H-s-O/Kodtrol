@@ -1,19 +1,17 @@
 import React, { useCallback } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
-import { useSelector, useDispatch } from 'react-redux';
 
-import { ICON_MEDIA } from '../../../../common/js/constants/icons';
 import DialogBody from '../ui/DialogBody';
 import DialogFooter from '../ui/DialogFooter';
 import MediaDialogBody from './MediaDialogBody';
 import DialogFooterActions from '../ui/DialogFooterActions';
-import { hideMediaDialogAction, updateMediaDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { hideMediaDialogAction, updateMediaDialogAction } from '../../store/actions/dialogs';
 import CustomDialog from '../ui/CustomDialog';
-import { createMediaAction, saveMediaAction } from '../../../../common/js/store/actions/medias';
-import mediaValidator from '../../../../common/js/validators/mediaValidator';
-import { DIALOG_ADD, DIALOG_DUPLICATE, DIALOG_EDIT } from '../../../../common/js/constants/dialogs';
-import mergeDialogBody from '../../../../common/js/lib/mergeDialogBody';
-import { getSuccessButtonLabel } from '../../lib/dialogHelpers';
+import { createMediaAction, saveMediaAction } from '../../store/actions/medias';
+import { KodtrolDialogType, KodtrolIconType } from '../../constants';
+import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
+import { getSuccessButtonLabel, mergeDialogBody } from '../../lib/helpers';
+import { mediaValidator } from '../../validators/mediaValidators';
 
 const defaultValue = {
   file: null,
@@ -22,37 +20,37 @@ const defaultValue = {
   output: null,
 };
 
-const getDialogTitle = (mode) => {
+const getDialogTitle = (mode: KodtrolDialogType): string => {
   switch (mode) {
-    case DIALOG_DUPLICATE:
+    case KodtrolDialogType.DUPLICATE:
       return 'Duplicate Media';
       break;
-    case DIALOG_EDIT:
-      return 'Edit Media';
+    case KodtrolDialogType.EDIT:
+      return 'Edit Media Properties';
       break;
-    case DIALOG_ADD:
+    case KodtrolDialogType.ADD:
     default:
       return 'Add Media';
       break;
   }
-}
+};
 
 export default function MediaDialog() {
-  const mediaDialogOpened = useSelector((state) => state.dialogs.mediaDialogOpened);
-  const mediaDialogMode = useSelector((state) => state.dialogs.mediaDialogMode);
-  const mediaDialogValue = useSelector((state) => state.dialogs.mediaDialogValue);
+  const mediaDialogOpened = useKodtrolSelector((state) => state.dialogs.mediaDialogOpened);
+  const mediaDialogMode = useKodtrolSelector((state) => state.dialogs.mediaDialogMode);
+  const mediaDialogValue = useKodtrolSelector((state) => state.dialogs.mediaDialogValue);
 
   const title = getDialogTitle(mediaDialogMode);
   const bodyValue = mediaDialogValue || defaultValue;
   const bodyValid = mediaValidator(bodyValue);
   const successLabel = getSuccessButtonLabel(mediaDialogMode);
 
-  const dispatch = useDispatch();
+  const dispatch = useKodtrolDispatch();
   const closeHandler = useCallback(() => {
     dispatch(hideMediaDialogAction());
   }, [dispatch]);
   const successHandler = useCallback(() => {
-    if (mediaDialogMode === DIALOG_EDIT) {
+    if (mediaDialogMode === KodtrolDialogType.EDIT) {
       dispatch(saveMediaAction(bodyValue.id, bodyValue));
     } else {
       dispatch(createMediaAction(bodyValue));
@@ -67,7 +65,7 @@ export default function MediaDialog() {
     <CustomDialog
       isOpen={mediaDialogOpened}
       title={title}
-      icon={ICON_MEDIA}
+      icon={KodtrolIconType.MEDIA}
       onClose={closeHandler}
       className="media-dialog"
     >
@@ -87,7 +85,7 @@ export default function MediaDialog() {
           </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid.all_fields}
+            disabled={!bodyValid.__all_fields}
             onClick={successHandler}
           >
             {successLabel}
