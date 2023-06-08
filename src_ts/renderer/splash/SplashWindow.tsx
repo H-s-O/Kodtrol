@@ -1,5 +1,3 @@
-/// <reference path="splash-preload.d.ts" />
-
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { Button, Intent } from '@blueprintjs/core';

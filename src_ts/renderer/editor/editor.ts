@@ -1,11 +1,7 @@
-/// <reference path="editor-preload.d.ts" />
-
 import { createElement } from 'react';
 import domready from 'domready';
 import ReactDOM from 'react-dom';
 
-// import { isWin } from '../common/js/lib/platforms';
-const isWin = true;
 import Root from './components/Root';
 
 domready(() => {
@@ -28,7 +24,7 @@ window.addEventListener('keydown', (e) => {
 
 // Hack to fix Chromium's bug on Windows where a "mousemove" event is always emitted
 // after a "contextmenu" event whether the mouse actually moved or not
-if (isWin) {
+if (window.kodtrol_editor.IS_WINDOWS) {
   window.addEventListener('contextmenu', () => {
     window.addEventListener('mousemove', (e) => {
       e.stopImmediatePropagation();

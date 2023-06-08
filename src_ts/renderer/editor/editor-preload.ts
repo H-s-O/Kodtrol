@@ -1,6 +1,4 @@
 import {
-  Menu,
-  MenuItemConstructorOptions,
   contextBridge,
 } from 'electron/renderer';
 import { readFile } from 'fs/promises'
@@ -14,17 +12,12 @@ const readProjectFile = async () => {
   return JSON.parse(fileContent);
 };
 
-const menuFromTemplate = (template: MenuItemConstructorOptions[]) => {
-  return Menu.buildFromTemplate(template);
-};
-
 /** Invokes a native warning alert box on the main process */
 const deleteWarningDialog = (message: string) => new Promise<boolean>(() => { }); // @TODO
 
 const expose = {
   ...additionalArgs,
   readProjectFile,
-  menuFromTemplate,
   deleteWarningDialog,
 };
 

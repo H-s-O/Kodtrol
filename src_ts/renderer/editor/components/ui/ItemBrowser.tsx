@@ -1,12 +1,9 @@
-import React, { useCallback, useMemo, JSX } from 'react';
+import React, { useCallback, useMemo, ComponentType } from 'react';
 import styled from 'styled-components';
 import { ok } from 'assert';
 import { Menu, MenuItem, TreeNodeInfo, ContextMenu, TreeEventHandler } from '@blueprintjs/core';
-import { ContextMenu2 } from '@blueprintjs/popover2';
-import { MenuItemConstructorOptions } from 'electron/renderer';
 
 import ManagedTree from './ManagedTree';
-import { deleteWarning } from '../../lib/messageBoxes';
 import { Board, Device, Folder, Media, Script, Timeline } from '../../../../common/types';
 
 const DEFAULT_ITEM_PROPS_FILTER = ({ id, name }) => ({ id, name });
@@ -18,20 +15,26 @@ const StyledContainer = styled.div`
 
 type BrowsableTypes = Device | Script | Media | Timeline | Board;
 
+type LabelComponent<T extends BrowsableTypes = BrowsableTypes> = ComponentType<{
+  item: T | { [K in keyof T]: T[K] }
+  activeItemId: T['id'] | null | undefined
+}>;
+
 type ItemBrowserProps<T extends BrowsableTypes = BrowsableTypes> = {
   items?: T[]
   folders?: Folder[]
-  activeItemId: T['id']
+  activeItemId?: T['id'] | null
   label: string
-  editCallback?: (id: T['id']) => void
-  editPropsCallback?: (id: T['id']) => void
-  duplicateCallback?: (id: T['id']) => void
-  deleteCallback?: (id: T['id']) => void
-  itemLabelComponent?: JSX.Element
-  itemSecondaryLabelComponent?: JSX.Element
+  editCallback?: (id: T['id']) => any
+  editPropsCallback?: (id: T['id']) => any
+  duplicateCallback?: (id: T['id']) => any
+  deleteCallback?: (id: T['id']) => any
+  itemLabelComponent?: LabelComponent<T>
+  itemSecondaryLabelComponent?: LabelComponent<T>
   enableEdit?: boolean
   enableDuplicate?: boolean
   enableDelete?: boolean
+  itemPropsFilter?: (item: T) => { [K in keyof T]: T[K] }
 };
 
 export default function ItemBrowser<T extends BrowsableTypes = BrowsableTypes>({
@@ -73,44 +76,21 @@ export default function ItemBrowser<T extends BrowsableTypes = BrowsableTypes>({
     }
   }, [deleteCallback, items]);
   const nodeContextMenuHandler: TreeEventHandler = useCallback(({ id, hasCaret }, nodePath, event) => {
-    // let template: MenuItemConstructorOptions[] = [];
-    // if (!hasCaret) {
-    //   if (editPropsCallback) {
-    //     template.push({
-    //       label: `Edit ${label} properties...`,
-    //       click: () => editPropsClickHandler(id),
-    //       enabled: enableEdit,
-    //     });
-    //   }
-    //   if (duplicateCallback) {
-    //     template.push({
-    //       label: `Duplicate ${label}...`,
-    //       click: () => duplicateClickHandler(id),
-    //       enabled: enableDuplicate,
-    //     });
-    //   }
-    //   if (deleteCallback) {
-    //     template.push({
-    //       label: `Delete ${label}...`,
-    //       click: () => deleteClickHandler(id),
-    //       enabled: enableDelete,
-    //     });
-    //   }
-    // }
-    // const menu = window.kodtrol_editor.menuFromTemplate(template);
-    // menu.popup();
     const menu = (
       <Menu>
         <MenuItem
           text={`Edit ${label} properties...`}
+          onClick={() => editPropsClickHandler(id)}
           disabled={!enableEdit}
         />
         <MenuItem
           text={`Duplicate ${label}...`}
+          onClick={() => duplicateClickHandler(id)}
           disabled={!enableDuplicate}
         />
         <MenuItem
           text={`Delete ${label}...`}
+          onClick={() => deleteClickHandler(id)}
           disabled={!enableDelete}
         />
       </Menu>

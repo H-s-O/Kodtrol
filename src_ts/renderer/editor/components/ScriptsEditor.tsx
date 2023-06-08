@@ -1,16 +1,21 @@
 import React, { useCallback, useMemo } from 'react';
 import { Tab, Button, NonIdealState, Icon, Intent } from '@blueprintjs/core';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import useHotkeys from '@reecelucas/react-use-hotkeys';
+import { ok } from 'assert';
 
-import FullHeightCard from './ui/FullHeightCard';
+import FullHeightCard from '../../common/components/FullHeightCard';
 import ScriptEditorTab from './scripts/ScriptEditorTab';
 import FullHeightTabs from './ui/FullHeightTabs';
-import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction, runScriptAction } from '../../../common/js/store/actions/scripts';
-import { ICON_SCRIPT } from '../../../common/js/constants/icons';
-import { closeWarning } from '../lib/messageBoxes';
-import { isMac } from '../../../common/js/lib/platforms';
+import {
+  closeScriptAction,
+  saveEditedScriptAction,
+  focusEditedScriptAction,
+  runScriptAction,
+} from '../store/actions/scripts';
+import { useKodtrolDispatch, useKodtrolSelector } from '../lib/hooks';
+import { ItemNamesObject, ScriptId } from '../../../common/types';
+import { KodtrolIconType } from '../constants';
 
 const StyledIcon = styled(Icon)`
   margin-right: 3px;
@@ -20,16 +25,18 @@ const StyledCloseButton = styled(Button)`
   margin-left: 3px;
 `;
 
-const StyleFillDiv = styled.div`
-  width: 100%;
-  height: 100%;
-`;
+type TabLabelProps = {
+  id: ScriptId
+  changed: boolean
+  scriptsNames: ItemNamesObject<ScriptId>
+  closeScript: (id: ScriptId) => any
+};
 
-const TabLabel = ({ id, changed, scriptsNames, closeScript }) => {
+const TabLabel = ({ id, changed, scriptsNames, closeScript }: TabLabelProps) => {
   return (
     <>
       <StyledIcon
-        icon={ICON_SCRIPT}
+        icon={KodtrolIconType.SCRIPT}
         intent={changed ? Intent.WARNING : undefined}
       />
       {scriptsNames[id]}
@@ -47,18 +54,18 @@ const TabLabel = ({ id, changed, scriptsNames, closeScript }) => {
 }
 
 export default function ScriptsEditor() {
-  const scripts = useSelector((state) => state.scripts);
-  const editScripts = useSelector((state) => state.editScripts);
-  const lastEditor = useSelector((state) => state.lastEditor);
+  const scripts = useKodtrolSelector((state) => state.scripts);
+  const editScripts = useKodtrolSelector((state) => state.editScripts);
+  const lastEditor = useKodtrolSelector((state) => state.lastEditor);
 
   const scriptsNames = useMemo(() => {
-    return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
+    return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {} as ItemNamesObject<ScriptId>);
   }, [scripts]);
   const activeScript = useMemo(() => {
     return editScripts.find(({ active }) => active);
   }, [editScripts]);
 
-  const dispatch = useDispatch();
+  const dispatch = useKodtrolDispatch();
   const saveHandler = useCallback(() => {
     if (lastEditor && lastEditor.type === 'script' && activeScript && activeScript.changed) {
       dispatch(saveEditedScriptAction(activeScript.id));
@@ -70,14 +77,15 @@ export default function ScriptsEditor() {
       dispatch(runScriptAction(activeScript.id));
     }
   }, [dispatch, activeScript, lastEditor]);
-  const closeHandler = useCallback((id) => {
+  const closeHandler = useCallback((id: ScriptId) => {
     const editScript = editScripts.find((script) => script.id === id);
+    ok(editScript, 'editScript not found');
     if (editScript.changed) {
-      closeWarning(`Are you sure you want to close "${scriptsNames[id]}"?`, 'Unsaved changes will be lost.', (result) => {
-        if (result) {
-          dispatch(closeScriptAction(id));
-        }
-      });
+      // closeWarning(`Are you sure you want to close "${scriptsNames[id]}"?`, 'Unsaved changes will be lost.', (result) => {
+      //   if (result) {
+      //     dispatch(closeScriptAction(id));
+      //   }
+      // });
     } else {
       dispatch(closeScriptAction(id));
     }
@@ -86,8 +94,8 @@ export default function ScriptsEditor() {
     dispatch(focusEditedScriptAction(id));
   }, [dispatch]);
 
-  useHotkeys(`${isMac ? 'Meta' : 'Control'}+s`, saveHandler);
-  useHotkeys(`${isMac ? 'Meta' : 'Control'}+r`, saveAndRunHandler);
+  useHotkeys(`${window.kodtrol_editor.IS_MAC ? 'Meta' : 'Control'}+s`, saveHandler);
+  useHotkeys(`${window.kodtrol_editor.IS_MAC ? 'Meta' : 'Control'}+r`, saveAndRunHandler);
 
   return (
     <FullHeightCard
@@ -117,20 +125,15 @@ export default function ScriptsEditor() {
               />
             </Tab>
           ))}
-          {/* <FullHeightTabs.Expander />
-          <Button
-            small
-            icon="settings"
-          /> */}
         </FullHeightTabs>
       ) : (
-          <NonIdealState
-            icon={ICON_SCRIPT}
-            title="Script Editor"
-            description="Double-click a script in the script browser to edit it here."
-          />
-        )
+        <NonIdealState
+          icon={KodtrolIconType.SCRIPT}
+          title="Script Editor"
+          description="Double-click a script in the script browser to edit it here."
+        />
+      )
       }
     </FullHeightCard >
   );
-}
+};

@@ -1,5 +1,6 @@
-import React, { MouseEvent, useCallback } from 'react';
+import React, { MouseEventHandler, useCallback } from 'react';
 import { Intent, Button, Icon, Tag } from '@blueprintjs/core';
+import { ok } from 'assert';
 
 import { showDeviceDialogAction } from '../../store/actions/dialogs';
 import { deleteDeviceAction, runDeviceAction, stopDeviceAction } from '../../store/actions/devices';
@@ -9,7 +10,6 @@ import contentRunning from '../../store/selectors/contentRunning';
 import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
 import { DeviceId } from '../../../../common/types';
 import { KodtrolDialogType } from '../../constants';
-import { ok } from 'assert';
 import { IOType } from '../../../../common/constants';
 
 const itemPropsFilter = ({ id, name, type, tags }) => ({ id, name, type, tags });
@@ -31,15 +31,15 @@ const DeviceLabel = ({ item: { name, id }, activeItemId }) => {
 
 const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
   const dispatch = useKodtrolDispatch();
-  const runHandler = useCallback((e: MouseEvent) => {
+  const runHandler: MouseEventHandler = useCallback((e) => {
     e.stopPropagation();
     dispatch(runDeviceAction(id));
   }, [dispatch, id]);
-  const stopHandler = useCallback((e: MouseEvent) => {
+  const stopHandler: MouseEventHandler = useCallback((e) => {
     e.stopPropagation();
     dispatch(stopDeviceAction());
   }, [dispatch]);
-  const doubleClickHandler = useCallback((e: MouseEvent) => {
+  const doubleClickHandler: MouseEventHandler = useCallback((e) => {
     // Trap accidental double clicks
     e.stopPropagation();
   }, []);

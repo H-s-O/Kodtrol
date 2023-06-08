@@ -21,9 +21,17 @@ const mainRequestLoadProject = () => {
   ipcRenderer.invoke(IPC_MAIN_CHANNEL_LOAD_PROJECT);
 };
 
-contextBridge.exposeInMainWorld('kodtrol_splash', {
+const expose = {
   mainRequestQuit,
   mainRequestCreateProject,
   mainRequestLoadProject,
   ...additionalArgs,
-});
+};
+
+contextBridge.exposeInMainWorld('kodtrol_splash', expose);
+
+declare global {
+  interface Window {
+    kodtrol_splash: typeof expose
+  }
+}

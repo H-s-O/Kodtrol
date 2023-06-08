@@ -30,7 +30,7 @@ import {
 import { KodtrolDialogType, KodtrolIconType } from '../constants';
 import { useKodtrolDispatch, useKodtrolSelector } from '../lib/hooks';
 
-const defaultTabId = 'devices';
+const DEFAULT_TAB_ID = 'devices';
 
 const getTabLabel = (tabId: string): string | null => {
   switch (tabId) {
@@ -52,7 +52,7 @@ export default function Browsers() {
     boards: state.boards.length,
   }));
 
-  const [currentTabId, setCurrentTabId] = useState(defaultTabId);
+  const [currentTabId, setCurrentTabId] = useState(DEFAULT_TAB_ID);
 
   const dispatch = useKodtrolDispatch();
   const addClickHandler = useCallback(() => {
@@ -108,7 +108,7 @@ export default function Browsers() {
           id="devices"
           panel={devices ? <DeviceBrowser /> : <NonIdealState icon={KodtrolIconType.DEVICE} title="Devices Browser" description={
             <>
-              No devices yet. Click the <Icon icon="plus" /> above to create one.
+              No devices yet.<br />Click the <Icon icon="plus" /> above to create one.
             </>
           } />
           }
@@ -123,7 +123,7 @@ export default function Browsers() {
           id="scripts"
           panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={KodtrolIconType.SCRIPT} title="Scripts Browser" description={
             <>
-              No scripts yet. Click the <Icon icon="plus" /> above to create one.
+              No scripts yet.<br />Click the <Icon icon="plus" /> above to create one.
             </>
           } />
           }
@@ -134,11 +134,11 @@ export default function Browsers() {
             htmlTitle="Scripts"
           />
         </Tab>
-        {/* <Tab
+        <Tab
           id="medias"
           panel={medias ? <MediasBrowser /> : <NonIdealState icon={KodtrolIconType.MEDIA} title="Media Browser" description={
             <>
-              No medias yet. Click the <Icon icon="plus" /> above to create one.
+              No medias yet.<br />Click the <Icon icon="plus" /> above to create one.
             </>
           } />
           }
@@ -153,7 +153,7 @@ export default function Browsers() {
           id="timelines"
           panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={KodtrolIconType.TIMELINE} title="Timelines Browser" description={
             <>
-              No timelines yet. Click the <Icon icon="plus" /> above to create one.
+              No timelines yet.<br />Click the <Icon icon="plus" /> above to create one.
             </>
           } />
           }
@@ -168,7 +168,7 @@ export default function Browsers() {
           id="boards"
           panel={boards ? <BoardsBrowser /> : <NonIdealState icon={KodtrolIconType.BOARD} title="Boards Browser" description={
             <>
-              No boards yet. Click the <Icon icon="plus" /> above to create one.
+              No boards yet.<br />Click the <Icon icon="plus" /> above to create one.
             </>
           } />
           }
@@ -178,7 +178,7 @@ export default function Browsers() {
             icon={KodtrolIconType.BOARD}
             htmlTitle="Boards"
           />
-        </Tab> */}
+        </Tab>
         <FullHeightTabs.Expander />
         <ButtonGroup>
           <Button

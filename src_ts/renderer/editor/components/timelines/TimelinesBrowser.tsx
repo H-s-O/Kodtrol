@@ -1,12 +1,20 @@
-import React, { useCallback } from 'react';
-import { useSelector, useDispatch } from "react-redux";
+import React, { MouseEventHandler, useCallback } from 'react';
 import { Icon, Button, Intent } from '@blueprintjs/core';
+import { ok } from 'assert';
 
-import { editTimelineAction, runTimelineAction, stopTimelineAction, deleteTimelineAction, focusEditedTimelineAction } from '../../../../common/js/store/actions/timelines';
+import {
+  editTimelineAction,
+  runTimelineAction,
+  stopTimelineAction,
+  deleteTimelineAction,
+  focusEditedTimelineAction,
+} from '../../store/actions/timelines';
 import ItemBrowser from '../ui/ItemBrowser';
-import { showTimelineDialogAction } from '../../../../common/js/store/actions/dialogs';
-import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
-import contentRunning from '../../../../common/js/store/selectors/contentRunning';
+import { showTimelineDialogAction } from '../../store/actions/dialogs';
+import contentRunning from '../../store/selectors/contentRunning';
+import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
+import { TimelineId } from '../../../../common/types';
+import { KodtrolDialogType } from '../../constants';
 
 const TimelineLabel = ({ item: { name, id }, activeItemId }) => {
   return (
@@ -24,18 +32,19 @@ const TimelineLabel = ({ item: { name, id }, activeItemId }) => {
 }
 
 const TimelineSecondaryLabel = ({ item: { id }, activeItemId }) => {
-  const dispatch = useDispatch();
-  const runHandler = useCallback((e) => {
+  const dispatch = useKodtrolDispatch();
+  const runHandler: MouseEventHandler = useCallback((e) => {
     e.stopPropagation();
     dispatch(runTimelineAction(id));
   }, [dispatch, id]);
-  const stopHandler = useCallback((e) => {
+  const stopHandler: MouseEventHandler = useCallback((e) => {
     e.stopPropagation();
     dispatch(stopTimelineAction());
   }, [dispatch]);
-  const doubleClickHandler = useCallback((e) => {
+  const doubleClickHandler: MouseEventHandler = useCallback((e) => {
+    // Trap accidental double clicks
     e.stopPropagation();
-  });
+  }, []);
 
   if (id === activeItemId) {
     return (
@@ -64,30 +73,32 @@ const TimelineSecondaryLabel = ({ item: { id }, activeItemId }) => {
 }
 
 export default function TimelinesBrowser() {
-  const timelines = useSelector((state) => state.timelines);
-  const timelinesFolders = useSelector((state) => state.timelinesFolders);
-  const runTimeline = useSelector((state) => state.runTimeline);
-  const editTimelines = useSelector((state) => state.editTimelines);
-  const isContentRunning = useSelector(contentRunning);
+  const timelines = useKodtrolSelector((state) => state.timelines);
+  const runTimeline = useKodtrolSelector((state) => state.runTimeline);
+  const editTimelines = useKodtrolSelector((state) => state.editTimelines);
+  const isContentRunning = useKodtrolSelector(contentRunning);
 
-  const dispatch = useDispatch();
-  const editCallback = useCallback((id) => {
+  const dispatch = useKodtrolDispatch();
+  const editCallback = useCallback((id: TimelineId) => {
     if (editTimelines.find((timeline) => timeline.id === id)) {
       dispatch(focusEditedTimelineAction(id));
     } else {
       const timeline = timelines.find((timeline) => timeline.id === id);
+      ok(timeline, 'timeline not found');
       dispatch(editTimelineAction(id, timeline));
     }
   }, [dispatch, timelines, editTimelines]);
-  const editPropsCallback = useCallback((id) => {
+  const editPropsCallback = useCallback((id: TimelineId) => {
     const timeline = timelines.find((timeline) => timeline.id === id);
-    dispatch(showTimelineDialogAction(DIALOG_EDIT, timeline));
+    ok(timeline, 'timeline not found');
+    dispatch(showTimelineDialogAction(KodtrolDialogType.EDIT, timeline));
   }, [dispatch, timelines]);
-  const duplicateCallback = useCallback((id) => {
+  const duplicateCallback = useCallback((id: TimelineId) => {
     const timeline = timelines.find((timeline) => timeline.id === id);
-    dispatch(showTimelineDialogAction(DIALOG_DUPLICATE, timeline));
+    ok(timeline, 'timeline not found');
+    dispatch(showTimelineDialogAction(KodtrolDialogType.DUPLICATE, timeline));
   }, [dispatch, timelines]);
-  const deleteCallback = useCallback((id) => {
+  const deleteCallback = useCallback((id: TimelineId) => {
     dispatch(deleteTimelineAction(id));
   }, [dispatch]);
 
@@ -95,7 +106,6 @@ export default function TimelinesBrowser() {
     <ItemBrowser
       label="timeline"
       items={timelines}
-      folders={timelinesFolders}
       activeItemId={runTimeline}
       editCallback={editCallback}
       editPropsCallback={editPropsCallback}

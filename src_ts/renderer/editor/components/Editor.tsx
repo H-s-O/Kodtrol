@@ -58,7 +58,7 @@ export default function Main() {
           </StyledLeftCol>
           <StyledRightCol>
             <StyledScriptsRow>
-              {/* <ScriptsEditor /> */}
+              <ScriptsEditor />
             </StyledScriptsRow>
             <StyledTimelinesDashboardsRow>
               {/* <TimelinesBoardsEditor /> */}

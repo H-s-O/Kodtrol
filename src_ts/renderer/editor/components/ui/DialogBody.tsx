@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 import { Classes } from '@blueprintjs/core';
 
-const DialogBody = ({ children, ...otherProps }: PropsWithChildren) => {
+export default function DialogBody({ children, ...otherProps }: PropsWithChildren) {
   return (
     <div
       className={Classes.DIALOG_BODY}
@@ -11,5 +11,3 @@ const DialogBody = ({ children, ...otherProps }: PropsWithChildren) => {
     </div>
   );
 };
-
-export default DialogBody;

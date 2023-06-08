@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Tree, TreeNodeInfo, TreeProps } from '@blueprintjs/core';
+import { Tree, TreeEventHandler, TreeNodeInfo, TreeProps } from '@blueprintjs/core';
 
 type ManagedTreeProps = Omit<TreeProps, 'contents' | 'onNodeExpand' | 'onNodeCollapse'> & {
   items?: TreeNodeInfo[]
@@ -21,13 +21,13 @@ export default function ManagedTree({
   }), {} as InitialFolders), [folders]);
 
   const [foldersStates, setFoldersStates] = useState(initialFoldersStates);
-  const nodeExpandHandler = useCallback(({ id }: TreeNodeInfo) => {
+  const nodeExpandHandler: TreeEventHandler = useCallback(({ id }) => {
     setFoldersStates({
       ...foldersStates,
       [id]: true,
     });
   }, [foldersStates]);
-  const nodeCollapseHandler = useCallback(({ id }: TreeNodeInfo) => {
+  const nodeCollapseHandler: TreeEventHandler = useCallback(({ id }) => {
     setFoldersStates({
       ...foldersStates,
       [id]: false,

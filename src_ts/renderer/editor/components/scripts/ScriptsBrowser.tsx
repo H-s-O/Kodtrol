@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { MouseEventHandler, useCallback } from 'react';
 import { Icon, Button, Intent } from '@blueprintjs/core';
 import { ok } from 'assert';
 
@@ -13,10 +13,15 @@ import ItemBrowser from '../ui/ItemBrowser';
 import { showScriptDialogAction } from '../../store/actions/dialogs';
 import contentRunning from '../../store/selectors/contentRunning';
 import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
-import { ScriptId } from '../../../../common/types';
+import { Script, ScriptId } from '../../../../common/types';
 import { KodtrolDialogType } from '../../constants';
 
-const ScriptLabel = ({ item: { name, id }, activeItemId }) => {
+type ScriptLabelProps = {
+  item: Pick<Script, 'id' | 'name'>
+  activeItemId: ScriptId
+};
+
+const ScriptLabel = ({ item: { name, id }, activeItemId }: ScriptLabelProps) => {
   return (
     <>
       {name}
@@ -33,17 +38,18 @@ const ScriptLabel = ({ item: { name, id }, activeItemId }) => {
 
 const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
   const dispatch = useKodtrolDispatch();
-  const runHandler = useCallback((e) => {
+  const runHandler: MouseEventHandler = useCallback((e) => {
     e.stopPropagation();
     dispatch(runScriptAction(id));
   }, [dispatch, id]);
-  const stopHandler = useCallback((e) => {
+  const stopHandler: MouseEventHandler = useCallback((e) => {
     e.stopPropagation();
     dispatch(stopScriptAction());
   }, [dispatch]);
-  const doubleClickHandler = useCallback((e) => {
+  const doubleClickHandler: MouseEventHandler = useCallback((e) => {
+    // Trap accidental double clicks
     e.stopPropagation();
-  });
+  }, []);
 
   if (id === activeItemId) {
     return (
@@ -83,6 +89,7 @@ export default function ScriptsBrowser() {
       dispatch(focusEditedScriptAction(id));
     } else {
       const script = scripts.find((script) => script.id === id);
+      ok(script, 'script not found');
       dispatch(editScriptAction(id, script));
     }
   }, [dispatch, scripts, editScripts]);
