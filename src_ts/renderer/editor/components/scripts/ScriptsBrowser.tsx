@@ -36,7 +36,12 @@ const ScriptLabel = ({ item: { name, id }, activeItemId }: ScriptLabelProps) => 
   )
 }
 
-const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
+type ScriptSecondaryLabelProps = {
+  item: Pick<Script, 'id'>
+  activeItemId: ScriptId
+};
+
+const ScriptSecondaryLabel = ({ item: { id }, activeItemId }: ScriptSecondaryLabelProps) => {
   const dispatch = useKodtrolDispatch();
   const runHandler: MouseEventHandler = useCallback((e) => {
     e.stopPropagation();

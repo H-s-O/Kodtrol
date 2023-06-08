@@ -61,7 +61,7 @@ export default function Main() {
               <ScriptsEditor />
             </StyledScriptsRow>
             <StyledTimelinesDashboardsRow>
-              {/* <TimelinesBoardsEditor /> */}
+              <TimelinesBoardsEditor />
             </StyledTimelinesDashboardsRow>
           </StyledRightCol>
         </StyledBottomRow>

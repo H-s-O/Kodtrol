@@ -28,18 +28,18 @@ const StyledCloseButton = styled(Button)`
 type TabLabelProps = {
   id: ScriptId
   changed: boolean
-  scriptsNames: ItemNamesObject<ScriptId>
+  name: string
   closeScript: (id: ScriptId) => any
 };
 
-const TabLabel = ({ id, changed, scriptsNames, closeScript }: TabLabelProps) => {
+const TabLabel = ({ id, changed, name, closeScript }: TabLabelProps) => {
   return (
     <>
       <StyledIcon
         icon={KodtrolIconType.SCRIPT}
         intent={changed ? Intent.WARNING : undefined}
       />
-      {scriptsNames[id]}
+      {name}
       <StyledCloseButton
         small
         minimal
@@ -120,7 +120,7 @@ export default function ScriptsEditor() {
               <TabLabel
                 id={id}
                 changed={changed}
-                scriptsNames={scriptsNames}
+                name={scriptsNames[id]}
                 closeScript={closeHandler}
               />
             </Tab>
