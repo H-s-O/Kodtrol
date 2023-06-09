@@ -129,7 +129,6 @@
     "parcel": "^2.9.1",
     "parcel-plugin-static-files-copy": "^2.4.3",
     "patch-package": "^6.2.2",
-    "path-browserify": "^1.0.1",
     "redux-devtools-extension": "^2.13.5",
     "rimraf": "^3.0.2",
     "stream-browserify": "^3.0.0",

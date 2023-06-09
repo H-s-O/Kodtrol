@@ -2,7 +2,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 
 import { KodtrolState } from '../../../common/types';
-import { DispatchFunc } from '../components/Root';
+import { DispatchFunc } from '../components/EditorRoot';
 import { KodtrolDialogType } from '../constants';
 
 export const useKodtrolDispatch: DispatchFunc = useDispatch;

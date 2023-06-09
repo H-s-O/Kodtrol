@@ -1,9 +1,11 @@
 import {
-  contextBridge,
+  contextBridge, ipcRenderer,
 } from 'electron/renderer';
-import { readFile } from 'fs/promises'
+import { readFile } from 'fs/promises';
+import { basename } from 'path';
 
 import { extractAdditionalData } from '../common/lib/helpers';
+import { IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE } from '../../common/constants';
 
 const additionalArgs = extractAdditionalData();
 
@@ -13,12 +15,17 @@ const readProjectFile = async () => {
 };
 
 /** Invokes a native warning alert box on the main process */
-const deleteWarningDialog = (message: string) => new Promise<boolean>(() => { }); // @TODO
+const deleteWarningDialog = (message: string, detail?: string): Promise<boolean> => {
+  return ipcRenderer.invoke(IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE, message, detail);
+};
 
 const expose = {
   ...additionalArgs,
   readProjectFile,
   deleteWarningDialog,
+  path: {
+    basename,
+  },
 };
 
 contextBridge.exposeInMainWorld('kodtrol_editor', expose);

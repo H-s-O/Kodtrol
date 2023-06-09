@@ -12,40 +12,40 @@ const StyledContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-`
+`;
 
 const StyledTopRow = styled.div`
   padding-bottom: 5px;
-`
+`;
 
 const StyledBottomRow = styled.div`
   display: flex;
   flex-grow: 1;
-`
+`;
 
 const StyledLeftCol = styled.div`
   width: 300px;
   height: 100%;
   padding-right: 5px;
-`
+`;
 
 const StyledRightCol = styled.div`
   display: flex;
   height: 100%;
   flex-direction: column;
   flex-grow: 1;
-`
+`;
 
 const StyledScriptsRow = styled.div`
   height: 50%;
   padding-bottom: 5px;
-`
+`;
 
 const StyledTimelinesDashboardsRow = styled.div`
   height: 50%;
-`
+`;
 
-export default function Main() {
+export default function Editor() {
   return (
     <>
       <StyledContainer>
@@ -70,4 +70,4 @@ export default function Main() {
       <ScriptsErrorsContainer />
     </>
   );
-}
+};

@@ -14,7 +14,6 @@ export default function TimelineEditorTab({ id }: TimelineEditorTabProps) {
   const editTimelines = useKodtrolSelector((state) => state.editTimelines);
   const timeline = editTimelines.find((timeline) => timeline.id === id);
   ok(timeline, 'timeline not found');
-
   const dispatch = useKodtrolDispatch();
   const changeHandler = useCallback((newValue) => {
     dispatch(updateEditedTimelineAction(id, newValue));

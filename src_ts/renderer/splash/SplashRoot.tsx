@@ -21,7 +21,7 @@ const StyledButtonsContainer = styled.div`
   }
 `;
 
-const SplashWindow = () => {
+const SplashRoot = () => {
   const createClickHandler = useCallback(() => {
     window.kodtrol_splash.mainRequestCreateProject();
   }, []);
@@ -66,4 +66,4 @@ const SplashWindow = () => {
   );
 };
 
-export default SplashWindow;
+export default SplashRoot;

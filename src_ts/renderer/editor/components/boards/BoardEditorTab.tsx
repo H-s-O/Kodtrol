@@ -14,7 +14,6 @@ export default function BoardEditorTab({ id }: BoardEditorTabProps) {
   const editBoards = useKodtrolSelector((state) => state.editBoards);
   const board = editBoards.find((board) => board.id === id);
   ok(board, 'board not found');
-
   const dispatch = useKodtrolDispatch();
   const changeHandler = useCallback((newValue) => {
     dispatch(updateEditedBoardAction(id, newValue));

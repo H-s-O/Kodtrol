@@ -57,3 +57,20 @@ export const warnBeforeClosingProject = async (win?: BrowserWindow | null) => {
   }
   return (await dialog.showMessageBox(options)).response === 0;
 };
+
+export const warnBeforeDeleting = async (message: string, detail?: string, win?: BrowserWindow | null) => {
+  const options: MessageBoxOptions = {
+    type: 'warning',
+    buttons: [
+      'Delete', 'Cancel',
+    ],
+    defaultId: 0,
+    cancelId: 1,
+    message,
+    detail: detail ?? ' ',
+  };
+  if (win) {
+    return (await dialog.showMessageBox(win, options)).response === 0;
+  }
+  return (await dialog.showMessageBox(options)).response === 0;
+};

@@ -9,9 +9,10 @@ import {
   APP_NAME,
   IPC_MAIN_CHANNEL_CREATE_PROJECT,
   IPC_MAIN_CHANNEL_LOAD_PROJECT,
+  IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE,
   IPC_MAIN_CHANNEL_QUIT,
 } from '../common/constants';
-import { createProjectDialog, openProjectDialog, warnBeforeClosingProject } from './ui/dialogs';
+import { createProjectDialog, openProjectDialog, warnBeforeClosingProject, warnBeforeDeleting } from './ui/dialogs';
 import { cliProjectFile } from './lib/cli';
 import { ok } from 'assert';
 
@@ -33,6 +34,7 @@ class Main {
     ipcMain.handle(IPC_MAIN_CHANNEL_QUIT, this._requestedQuit.bind(this));
     ipcMain.handle(IPC_MAIN_CHANNEL_CREATE_PROJECT, this._requestedCreateProject.bind(this));
     ipcMain.handle(IPC_MAIN_CHANNEL_LOAD_PROJECT, this._requestedLoadProject.bind(this));
+    ipcMain.handle(IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE, this._requestedMessageBox.bind(this));
 
     if (cliProjectFile) {
       this._nextProjectFile = cliProjectFile;
@@ -67,6 +69,10 @@ class Main {
       .catch((err) => {
         console.error(err);
       });
+  }
+
+  private _requestedMessageBox(event: IpcMainInvokeEvent, message: string, detail?: string): Promise<boolean> {
+    return warnBeforeDeleting(message, detail, BrowserWindow.fromWebContents(event.sender));
   }
 
   private _uiLogicNext(): void {

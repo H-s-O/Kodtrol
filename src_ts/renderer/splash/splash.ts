@@ -2,11 +2,11 @@ import domready from 'domready';
 import { createElement } from 'react';
 import ReactDOM from 'react-dom';
 
-import SplashWindow from './SplashWindow';
+import SplashRoot from './SplashRoot';
 
 domready(() => {
   ReactDOM.render(
-    createElement(SplashWindow),
+    createElement(SplashRoot),
     document.getElementById('root'),
   );
 });

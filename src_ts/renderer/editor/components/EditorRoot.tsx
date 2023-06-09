@@ -87,7 +87,7 @@ type RootProps = {
   projectData: object
 };
 
-export default function Root(props: RootProps) {
+export default function EditorRoot(props: RootProps) {
   const store = useMemo(() => createKodtrolStore(props.projectData), []);
 
   return (

@@ -2,13 +2,13 @@ import { createElement } from 'react';
 import domready from 'domready';
 import ReactDOM from 'react-dom';
 
-import Root from './components/Root';
+import EditorRoot from './components/EditorRoot';
 
 domready(() => {
   window.kodtrol_editor.readProjectFile()
     .then((projectData) => {
       ReactDOM.render(
-        createElement(Root, { projectData }),
+        createElement(EditorRoot, { projectData }),
         document.getElementById('root'),
       );
     });

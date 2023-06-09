@@ -1,10 +1,8 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { Button, ButtonGroup, HTMLTable, Intent, MenuItem } from '@blueprintjs/core';
+import { Button, ButtonGroup, HTMLTable, Intent } from '@blueprintjs/core';
 
 import SelectInput from '../ui/inputs/SelectInput';
-
-// import SelectSearchInput from '../ui/inputs/SelectSearchInput';
 
 const StyledTable = styled(HTMLTable)`
   tbody {
@@ -26,15 +24,7 @@ const StyledTable = styled(HTMLTable)`
   thead {
     width: calc( 100% - 1em );
   }
-`
-
-// const deviceMenuRenderer = (item, { handleClick, modifiers, query }) => {
-//   return (
-//     <MenuItem
-//       text="asdasd"
-//     />
-//   )
-// };
+`;
 
 const DeviceRow = ({
   device,
@@ -169,7 +159,7 @@ export default function ScriptDevicesInput({ value, name, onChange, devices }) {
       <tfoot>
         <tr>
           <td
-            colSpan="3"
+            colSpan={3}
           >
             <Button
               small

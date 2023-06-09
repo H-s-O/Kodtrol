@@ -3,7 +3,7 @@ import { MenuItemConstructorOptions } from 'electron';
 
 import BaseWindow, { createAdditionalArgs, createDevMenu } from './BaseWindow';
 import { APP_NAME } from '../../common/constants';
-import { IS_DEV } from '../constants';
+import { IS_DEV, IS_MAC } from '../constants';
 
 class SplashWindow extends BaseWindow {
   constructor() {
@@ -29,6 +29,9 @@ class SplashWindow extends BaseWindow {
 
   protected _generateMenu(): MenuItemConstructorOptions[] {
     return [
+      ...(IS_MAC ? [
+        { role: 'appMenu' },
+      ] : []) as MenuItemConstructorOptions[],
       { role: 'windowMenu' },
       ...(IS_DEV ? createDevMenu() : []) as MenuItemConstructorOptions[]
     ];

@@ -35,7 +35,7 @@ export type MediaId = string;
 export type Media = {
   id: MediaId
   name: string
-  file?: string
+  file: string
   duration?: number
 };
 export type MediasState = Media[];

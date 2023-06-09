@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { basename } from 'path';
 import { ok } from 'assert';
 
 import { showMediaDialogAction } from '../../store/actions/dialogs';
@@ -8,12 +7,12 @@ import { deleteMediaAction } from '../../store/actions/medias';
 import contentRunning from '../../store/selectors/contentRunning';
 import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
 import { KodtrolDialogType } from '../../constants';
-import { MediaId } from '../../../../common/types';
+import { Media, MediaId } from '../../../../common/types';
 
-const itemPropsFilter = ({ name, file }) => ({ name, file })
+const itemPropsFilter = ({ name, file }: Media) => ({ name, file })
 
 const MediaLabel = ({ item: { name, file } }) => {
-  return name ? name : basename(file);
+  return name ? name : window.kodtrol_editor.path.basename(file);
 }
 
 export default function MediasBrowser() {
