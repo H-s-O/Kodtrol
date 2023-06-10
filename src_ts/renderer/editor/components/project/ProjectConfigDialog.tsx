@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, MouseEventHandler } from 'react';
 import { Button, Tabs, Tab, Card, Intent, Tag } from '@blueprintjs/core';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -8,28 +8,19 @@ import CustomDialog from '../ui/CustomDialog';
 import DialogBody from '../ui/DialogBody';
 import DialogFooter from '../ui/DialogFooter';
 import DialogFooterActions from '../ui/DialogFooterActions';
-import { hideConfigDialogAction } from '../../../../common/js/store/actions/dialogs';
+import { hideConfigDialogAction } from '../../store/actions/dialogs';
 import InlineFormGroup from '../ui/InlineFormGroup';
 import TextInput from '../ui/inputs/TextInput';
 import NumberInput from '../ui/inputs/NumberInput';
 import SelectInput from '../ui/inputs/SelectInput';
-import {
-  IO_DMX,
-  IO_ILDA,
-  IO_OSC,
-  IO_MIDI,
-  IO_LABELS,
-  IO_ARTNET,
-  IO_AUDIO,
-  IO_INPUT,
-  IO_OUTPUT,
-} from '../../../../common/js/constants/io';
 import ManagedTree from '../ui/ManagedTree';
-import inputValidator from '../../../../common/js/validators/inputValidator';
-import outputValidator from '../../../../common/js/validators/outputValidator';
-import { deleteWarning } from '../../lib/messageBoxes';
-import { saveInputsAction } from '../../../../common/js/store/actions/inputs';
-import { saveOutputsAction } from '../../../../common/js/store/actions/outputs';
+import { saveInputsAction } from '../../store/actions/inputs';
+import { saveOutputsAction } from '../../store/actions/outputs';
+import { IO, IOType, IO_LABELS } from '../../../../common/constants';
+import { useKodtrolDispatch, useKodtrolSelector } from '../../lib/hooks';
+import { ok } from 'assert';
+import { inputValidator } from '../../validators/inputValidators';
+import { outputValidator } from '../../validators/outputValidators';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -86,7 +77,10 @@ const SingleInput = ({ value, onChange, availableItems }) => {
     device = null,
   } = value;
 
-  const midiInputs = useMemo(() => availableItems.filter(({ type }) => type === IO_MIDI), [availableItems]);
+  const midiInputs = useMemo(
+    () => availableItems.filter(({ type }) => type === IOType.MIDI),
+    [availableItems]
+  );
 
   const changeHandler = useCallback((newValue, field) => {
     onChange({ ...value, [field]: newValue });
@@ -116,11 +110,11 @@ const SingleInput = ({ value, onChange, availableItems }) => {
           onChange={changeHandler}
         >
           <option value="null">--</option>
-          <option value={IO_OSC}>{IO_LABELS[IO_OSC]}</option>
-          <option value={IO_MIDI}>{IO_LABELS[IO_MIDI]}</option>
+          <option value={IOType.OSC}>{IO_LABELS[IOType.OSC]}</option>
+          <option value={IOType.MIDI}>{IO_LABELS[IOType.MIDI]}</option>
         </SelectInput>
       </InlineFormGroup>
-      {type === IO_OSC && (
+      {type === IOType.OSC && (
         <>
           <InlineFormGroup
             label="Protocol"
@@ -153,7 +147,7 @@ const SingleInput = ({ value, onChange, availableItems }) => {
           </InlineFormGroup>
         </>
       )}
-      {type === IO_MIDI && (
+      {type === IOType.MIDI && (
         <InlineFormGroup
           label="Device"
           helperText={!device ? 'You must select a MIDI input device.' : undefined}
@@ -220,7 +214,7 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
     dacRate = null,
   } = value;
 
-  const midiOutputs = useMemo(() => availableItems.filter(({ type }) => type === IO_MIDI), [availableItems]);
+  const midiOutputs = useMemo(() => availableItems.filter(({ type }) => type === IOType.MIDI), [availableItems]);
 
   const changeHandler = useCallback((newValue, field) => {
     onChange({ ...value, [field]: newValue });
@@ -250,14 +244,14 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
           onChange={changeHandler}
         >
           <option value="null">--</option>
-          <option value={IO_DMX}>{IO_LABELS[IO_DMX]}</option>
-          <option value={IO_ARTNET}>{IO_LABELS[IO_ARTNET]}</option>
-          <option value={IO_ILDA}>{IO_LABELS[IO_ILDA]}</option>
-          <option value={IO_MIDI}>{IO_LABELS[IO_MIDI]}</option>
-          <option value={IO_AUDIO}>{IO_LABELS[IO_AUDIO]}</option>
+          <option value={IOType.DMX}>{IO_LABELS[IOType.DMX]}</option>
+          <option value={IOType.ARTNET}>{IO_LABELS[IOType.ARTNET]}</option>
+          <option value={IOType.ILDA}>{IO_LABELS[IOType.ILDA]}</option>
+          <option value={IOType.MIDI}>{IO_LABELS[IOType.MIDI]}</option>
+          <option value={IOType.AUDIO}>{IO_LABELS[IOType.AUDIO]}</option>
         </SelectInput>
       </InlineFormGroup>
-      {type === IO_DMX && (
+      {type === IOType.DMX && (
         <>
           <InlineFormGroup
             label="Driver"
@@ -292,7 +286,7 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
           )}
         </>
       )}
-      {type === IO_ILDA && (
+      {type === IOType.ILDA && (
         <>
           <InlineFormGroup
             label="Driver"
@@ -335,7 +329,7 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
           </InlineFormGroup>
         </>
       )}
-      {type === IO_ARTNET && (
+      {type === IOType.ARTNET && (
         <InlineFormGroup
           label="Address"
           helperText={!address ? 'An Art-Net output address is mandatory.' : undefined}
@@ -348,7 +342,7 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
           />
         </InlineFormGroup>
       )}
-      {type === IO_MIDI && (
+      {type === IOType.MIDI && (
         <InlineFormGroup
           label="Device"
           helperText={!driver ? 'You must select a MIDI output device.' : undefined}
@@ -370,9 +364,9 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
   )
 };
 
-const getItemListName = (name) => {
+const getItemListName = (name: string): string => {
   return name ? name : '[no name]';
-}
+};
 
 const ItemsPanel = ({
   value,
@@ -437,17 +431,17 @@ const ItemsPanel = ({
 };
 
 export default function ProjectConfigDialog() {
-  const dialogOpen = useSelector((state) => state.dialogs.configDialogOpened);
-  const inputs = useSelector((state) => state.inputs);
-  const outputs = useSelector((state) => state.outputs);
-  const devices = useSelector((state) => state.devices);
-  const ioAvailable = useSelector((state) => state.ioAvailable);
+  const dialogOpen = useKodtrolSelector((state) => state.dialogs.configDialogOpened);
+  const inputs = useKodtrolSelector((state) => state.inputs);
+  const outputs = useKodtrolSelector((state) => state.outputs);
+  const devices = useKodtrolSelector((state) => state.devices);
+  const ioAvailable = useKodtrolSelector((state) => state.ioAvailable);
 
   const availableInputs = useMemo(() => {
-    return ioAvailable.filter(({ mode }) => mode === IO_INPUT);
+    return ioAvailable.filter(({ mode }) => mode === IO.INPUT);
   }, [ioAvailable]);
   const availableOutputs = useMemo(() => {
-    return ioAvailable.filter(({ mode }) => mode === IO_OUTPUT);
+    return ioAvailable.filter(({ mode }) => mode === IO.OUTPUT);
   }, [ioAvailable]);
 
   const [currentInputs, setInputs] = useState(inputs);
@@ -472,30 +466,34 @@ export default function ProjectConfigDialog() {
     setOutputs(currentOutputs.map((item) => item.id === value.id ? value : item));
   }, [currentOutputs]);
   const deleteInputHandler = useCallback((id) => {
-    const obj = currentInputs.find((item) => item.id === id);
-    const message = `Delete input "${getItemListName(obj.name)}"?`;
+    const input = currentInputs.find((item) => item.id === id);
+    ok(input, 'input not found');
+    const message = `Delete input "${getItemListName(input.name)}"?`;
 
-    deleteWarning(message, (result) => {
-      if (result) {
-        const newInputs = currentInputs.filter((item) => item.id !== id);
-        setInputs(newInputs);
-        setSelectedInputId(newInputs.length > 0 ? newInputs[0].id : null);
-      }
-    });
+    window.kodtrol_editor.deleteWarningDialog(message)
+      .then((result) => {
+        if (result) {
+          const newInputs = currentInputs.filter((item) => item.id !== id);
+          setInputs(newInputs);
+          setSelectedInputId(newInputs.length > 0 ? newInputs[0].id : null);
+        }
+      });
   }, [currentInputs]);
   const deleteOutputHandler = useCallback((id) => {
-    const obj = currentOutputs.find((item) => item.id === id);
+    const output = currentOutputs.find((item) => item.id === id);
+    ok(output, 'output not found');
     const devicesUsing = devices.filter(({ output }) => output === id);
-    const message = `Delete output "${getItemListName(obj.name)}"?`;
-    const detail = devicesUsing.length > 0 ? `This output is used by ${devicesUsing.length} device(s).` : null;
+    const message = `Delete output "${getItemListName(output.name)}"?`;
+    const detail = devicesUsing.length > 0 ? `This output is used by ${devicesUsing.length} device(s).` : undefined;
 
-    deleteWarning(message, detail, (result) => {
-      if (result) {
-        const newOutputs = currentOutputs.filter((item) => item.id !== id);
-        setOutputs(newOutputs);
-        setSelectedOutputId(newOutputs.length > 0 ? newOutputs[0].id : null);
-      }
-    });
+    window.kodtrol_editor.deleteWarningDialog(message, detail)
+      .then((result) => {
+        if (result) {
+          const newOutputs = currentOutputs.filter((item) => item.id !== id);
+          setOutputs(newOutputs);
+          setSelectedOutputId(newOutputs.length > 0 ? newOutputs[0].id : null);
+        }
+      });
   }, [currentOutputs, devices]);
   const selectInputHander = useCallback((id) => {
     setSelectedInputId(id);
@@ -504,22 +502,22 @@ export default function ProjectConfigDialog() {
     setSelectedOutputId(id);
   }, []);
 
-  const dispatch = useDispatch();
-  const closeHandler = useCallback(() => {
+  const dispatch = useKodtrolDispatch();
+  const closeHandler: MouseEventHandler = useCallback(() => {
     dispatch(hideConfigDialogAction());
   }, [dispatch]);
-  const applyHandler = useCallback(() => {
+  const applyHandler: MouseEventHandler = useCallback(() => {
     dispatch(saveInputsAction(currentInputs));
     dispatch(saveOutputsAction(currentOutputs));
   }, [dispatch, currentInputs, currentOutputs]);
-  const successHandler = useCallback(() => {
+  const successHandler: MouseEventHandler = useCallback(() => {
     dispatch(saveInputsAction(currentInputs));
     dispatch(saveOutputsAction(currentOutputs));
     dispatch(hideConfigDialogAction());
   }, [dispatch, currentInputs, currentOutputs]);
 
-  const allValid = currentInputs.map(inputValidator).every(({ all_fields }) => all_fields === true)
-    && currentOutputs.map(outputValidator).every(({ all_fields }) => all_fields === true);
+  const allValid = currentInputs.map(inputValidator).every(({ __all_fields }) => __all_fields === true)
+    && currentOutputs.map(outputValidator).every(({ __all_fields }) => __all_fields === true);
 
   return (
     <CustomDialog
@@ -535,11 +533,6 @@ export default function ProjectConfigDialog() {
           id="config"
           defaultSelectedTabId="inputs"
         >
-          {/* <Tab
-            id="general"
-            title="General"
-            disabled
-          /> */}
           <Tab
             id="inputs"
             title="Inputs"

@@ -11,8 +11,9 @@ import {
   IPC_MAIN_CHANNEL_LOAD_PROJECT,
   IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE,
   IPC_MAIN_CHANNEL_QUIT,
+  IPC_MAIN_CHANNEL_WARN_BEFORE_CLOSE,
 } from '../common/constants';
-import { createProjectDialog, openProjectDialog, warnBeforeClosingProject, warnBeforeDeleting } from './ui/dialogs';
+import { createProjectDialog, openProjectDialog, warnBeforeClosing, warnBeforeClosingProject, warnBeforeDeleting } from './ui/dialogs';
 import { cliProjectFile } from './lib/cli';
 import { ok } from 'assert';
 
@@ -34,7 +35,8 @@ class Main {
     ipcMain.handle(IPC_MAIN_CHANNEL_QUIT, this._requestedQuit.bind(this));
     ipcMain.handle(IPC_MAIN_CHANNEL_CREATE_PROJECT, this._requestedCreateProject.bind(this));
     ipcMain.handle(IPC_MAIN_CHANNEL_LOAD_PROJECT, this._requestedLoadProject.bind(this));
-    ipcMain.handle(IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE, this._requestedMessageBox.bind(this));
+    ipcMain.handle(IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE, this._requestedWarnBeforeDelete.bind(this));
+    ipcMain.handle(IPC_MAIN_CHANNEL_WARN_BEFORE_CLOSE, this._requestedWarnBeforeClose.bind(this));
 
     if (cliProjectFile) {
       this._nextProjectFile = cliProjectFile;
@@ -71,7 +73,11 @@ class Main {
       });
   }
 
-  private _requestedMessageBox(event: IpcMainInvokeEvent, message: string, detail?: string): Promise<boolean> {
+  private _requestedWarnBeforeClose(event: IpcMainInvokeEvent, message: string, detail?: string): Promise<boolean> {
+    return warnBeforeClosing(message, detail, BrowserWindow.fromWebContents(event.sender));
+  }
+
+  private _requestedWarnBeforeDelete(event: IpcMainInvokeEvent, message: string, detail?: string): Promise<boolean> {
     return warnBeforeDeleting(message, detail, BrowserWindow.fromWebContents(event.sender));
   }
 
@@ -174,6 +180,8 @@ class Main {
     ipcMain.removeHandler(IPC_MAIN_CHANNEL_QUIT);
     ipcMain.removeHandler(IPC_MAIN_CHANNEL_CREATE_PROJECT);
     ipcMain.removeHandler(IPC_MAIN_CHANNEL_LOAD_PROJECT);
+    ipcMain.removeHandler(IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE);
+    ipcMain.removeHandler(IPC_MAIN_CHANNEL_WARN_BEFORE_CLOSE);
 
     console.info('now quitting');
   }

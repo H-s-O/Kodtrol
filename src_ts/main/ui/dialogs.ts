@@ -7,6 +7,7 @@ import {
 } from 'electron';
 
 import { APP_NAME, PROJECT_FILE_EXTENSION } from '../../common/constants';
+import { IS_WINDOWS } from '../constants';
 
 export const createProjectDialog = async (win?: BrowserWindow | null) => {
   const options: SaveDialogOptions = {
@@ -67,7 +68,24 @@ export const warnBeforeDeleting = async (message: string, detail?: string, win?:
     defaultId: 0,
     cancelId: 1,
     message,
-    detail: detail ?? ' ',
+    detail: IS_WINDOWS ? (detail ?? ' ') : detail,
+  };
+  if (win) {
+    return (await dialog.showMessageBox(win, options)).response === 0;
+  }
+  return (await dialog.showMessageBox(options)).response === 0;
+};
+
+export const warnBeforeClosing = async (message: string, detail?: string, win?: BrowserWindow | null) => {
+  const options: MessageBoxOptions = {
+    type: 'warning',
+    buttons: [
+      'Close', 'Cancel',
+    ],
+    defaultId: 0,
+    cancelId: 1,
+    message,
+    detail: IS_WINDOWS ? (detail ?? ' ') : detail,
   };
   if (win) {
     return (await dialog.showMessageBox(win, options)).response === 0;

@@ -5,7 +5,7 @@ import { readFile } from 'fs/promises';
 import { basename } from 'path';
 
 import { extractAdditionalData } from '../common/lib/helpers';
-import { IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE } from '../../common/constants';
+import { IPC_MAIN_CHANNEL_WARN_BEFORE_CLOSE, IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE } from '../../common/constants';
 
 const additionalArgs = extractAdditionalData();
 
@@ -19,10 +19,16 @@ const deleteWarningDialog = (message: string, detail?: string): Promise<boolean>
   return ipcRenderer.invoke(IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE, message, detail);
 };
 
+/** Invokes a native warning alert box on the main process */
+const closeWarningDialog = (message: string, detail?: string): Promise<boolean> => {
+  return ipcRenderer.invoke(IPC_MAIN_CHANNEL_WARN_BEFORE_CLOSE, message, detail);
+};
+
 const expose = {
   ...additionalArgs,
   readProjectFile,
   deleteWarningDialog,
+  closeWarningDialog,
   path: {
     basename,
   },

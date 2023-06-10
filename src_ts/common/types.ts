@@ -1,5 +1,5 @@
 import { KodtrolDialogType } from '../renderer/editor/constants';
-import { IOStatus, IOType } from './constants';
+import { IO, IOStatus, IOType } from './constants';
 
 // export type FileVersionState = `${number}.${number}.${number}`; // pedantic mode
 export type FileVersionState = string;
@@ -11,6 +11,7 @@ export type Device = {
   name: string
   type: IOType
   tags: DeviceTag[]
+  output: OutputId
 };
 export type DevicesState = Device[];
 
@@ -115,7 +116,11 @@ export type Output = {
 };
 export type OutputsState = Output[];
 
-export type IOAvailableState = object[];
+export type IOAvailable = {
+  id: InputId | OutputId
+  mode: IO
+};
+export type IOAvailableState = IOAvailable[];
 
 export type IOStatusState = {
   [key: InputId | OutputId]: IOStatus

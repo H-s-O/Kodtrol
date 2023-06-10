@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, ComponentType } from 'react';
 import styled from 'styled-components';
 import { ok } from 'assert';
-import { Menu, MenuItem, TreeNodeInfo, ContextMenu, TreeEventHandler } from '@blueprintjs/core';
+import { Menu, MenuItem, TreeNodeInfo, ContextMenu, TreeEventHandler, MenuDivider } from '@blueprintjs/core';
 
 import ManagedTree from './ManagedTree';
 import { Board, Device, Folder, Media, Script, Timeline } from '../../../../common/types';
@@ -83,6 +83,7 @@ export default function ItemBrowser<T extends BrowsableTypes = BrowsableTypes>({
           onClick={() => editPropsClickHandler(id)}
           disabled={!enableEdit}
         />
+        <MenuDivider />
         <MenuItem
           text={`Duplicate ${label}...`}
           onClick={() => duplicateClickHandler(id)}

@@ -20,7 +20,6 @@ import {
   saveEditedBoardAction,
   runBoardAction,
 } from '../store/actions/boards';
-// import { closeWarning } from '../lib/messageBoxes';
 import { useKodtrolDispatch, useKodtrolSelector } from '../lib/hooks';
 import { BoardId, ItemNamesObject, TimelineId } from '../../../common/types';
 import { KodtrolIconType } from '../constants';
@@ -103,11 +102,12 @@ export default function TimelinesBoardsEditor() {
     const editTimeline = editTimelines.find((timeline) => timeline.id === id);
     ok(editTimeline, 'editTimeline not found');
     if (editTimeline.changed) {
-      // closeWarning(`Are you sure you want to close "${timelinesNames[id]}"?`, 'Unsaved changes will be lost.', (result) => {
-      //   if (result) {
-      //     dispatch(closeTimelineAction(id));
-      //   }
-      // })
+      window.kodtrol_editor.closeWarningDialog(`Are you sure you want to close "${timelinesNames[id]}"?`, 'Unsaved changes will be lost.')
+        .then((result) => {
+          if (result) {
+            dispatch(closeTimelineAction(id));
+          }
+        })
     } else {
       dispatch(closeTimelineAction(id));
     }
@@ -116,11 +116,12 @@ export default function TimelinesBoardsEditor() {
     const editBoard = editBoards.find((board) => board.id === id);
     ok(editBoard, 'editBoard not found');
     if (editBoard.changed) {
-      // closeWarning(`Are you sure you want to close "${boardsNames[id]}"?`, 'Unsaved changes will be lost.', (result) => {
-      //   if (result) {
-      //     dispatch(closeBoardAction(id));
-      //   }
-      // })
+      window.kodtrol_editor.closeWarningDialog(`Are you sure you want to close "${boardsNames[id]}"?`, 'Unsaved changes will be lost.')
+        .then((result) => {
+          if (result) {
+            dispatch(closeBoardAction(id));
+          }
+        })
     } else {
       dispatch(closeBoardAction(id));
     }

@@ -6,6 +6,7 @@ export const IPC_MAIN_CHANNEL_QUIT = 'kodtrol-ipc-main-channel-quit';
 export const IPC_MAIN_CHANNEL_CREATE_PROJECT = 'kodtrol-ipc-main-channel-create-project';
 export const IPC_MAIN_CHANNEL_LOAD_PROJECT = 'kodtrol-ipc-main-channel-load-project';
 export const IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE = 'kodtrol-ipc-main-channel-warn-before-delete';
+export const IPC_MAIN_CHANNEL_WARN_BEFORE_CLOSE = 'kodtrol-ipc-main-channel-warn-before-close';
 
 export const SCRIPT_TEMPLATE =
   `// function start(devices) {
