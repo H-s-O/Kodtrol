@@ -32,12 +32,26 @@ const expose = {
   path: {
     basename,
   },
-};
+} as const;
 
 contextBridge.exposeInMainWorld('kodtrol_editor', expose);
 
+//-------------------------------------------------------------------
+
+const windowLoaded = new Promise((resolve) => {
+  window.onload = resolve;
+});
+
+ipcRenderer.on('port', async (event) => {
+  await windowLoaded;
+  window.postMessage('port', '*', event.ports);
+});
+
+//-------------------------------------------------------------------
+
 declare global {
   interface Window {
-    kodtrol_editor: typeof expose
+    readonly kodtrol_editor: typeof expose
+    kodtrol_enginePort?: MessagePort
   }
 }

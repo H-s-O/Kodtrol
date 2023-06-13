@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { MenuItemConstructorOptions } from 'electron';
+import { MenuItemConstructorOptions } from 'electron/main';
 
 import BaseWindow, { createAdditionalArgs, createDevMenu } from './BaseWindow';
 import { APP_NAME } from '../../common/constants';

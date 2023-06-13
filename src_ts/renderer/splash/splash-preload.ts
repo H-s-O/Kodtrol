@@ -26,12 +26,14 @@ const expose = {
   mainRequestCreateProject,
   mainRequestLoadProject,
   ...additionalArgs,
-};
+} as const;
 
 contextBridge.exposeInMainWorld('kodtrol_splash', expose);
 
+//-------------------------------------------------------------------
+
 declare global {
   interface Window {
-    kodtrol_splash: typeof expose
+    readonly kodtrol_splash: typeof expose
   }
 }

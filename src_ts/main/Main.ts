@@ -1,5 +1,11 @@
-import { BrowserWindow, Event, IpcMainInvokeEvent, app, ipcMain } from 'electron';
-import { join } from 'path';
+import {
+  BrowserWindow,
+  Event,
+  IpcMainInvokeEvent,
+  app,
+  ipcMain,
+  MessageChannelMain,
+} from 'electron/main';
 import { nextTick } from 'process';
 
 import SplashWindow from './ui/SplashWindow';
@@ -23,6 +29,7 @@ class Main {
   private _engineWindow?: EngineWindow;
   private _currentProjectFile?: string;
   private _nextProjectFile?: string;
+  private _messageChannelMain?: MessageChannelMain;
 
   constructor() {
     app.setName(APP_NAME);
@@ -95,6 +102,7 @@ class Main {
         this._destroyEditorWindow();
         this._destroyEngineWindow();
         this._destroySplashWindow();
+        this._destroyMessageChannel();
 
         this._currentProjectFile = undefined;
 
@@ -106,6 +114,7 @@ class Main {
         this._currentProjectFile = this._nextProjectFile;
         this._nextProjectFile = undefined;
 
+        this._createMessageChannel();
         this._createEditorWindow();
         this._createEngineWindow();
 
@@ -135,7 +144,9 @@ class Main {
   }
 
   private _createEngineWindow(): void {
-    this._engineWindow = new EngineWindow();
+    ok(this._messageChannelMain, '_messageChannelMain not set');
+
+    this._engineWindow = new EngineWindow(this._messageChannelMain.port2);
   }
 
   private _destroyEngineWindow(softClose: boolean = true): void {
@@ -148,8 +159,9 @@ class Main {
 
   private _createEditorWindow(): void {
     ok(this._currentProjectFile, '_currentProjectFile not set');
+    ok(this._messageChannelMain, '_messageChannelMain not set');
 
-    this._editorWindow = new EditorWindow(this._currentProjectFile);
+    this._editorWindow = new EditorWindow(this._currentProjectFile, this._messageChannelMain.port1);
     this._editorWindow.window.on('close', this._onEditorWindowClose.bind(this));
   }
 
@@ -174,6 +186,18 @@ class Main {
       this._editorWindow.destroy();
       this._editorWindow = undefined;
     }
+  }
+
+  private _createMessageChannel(): void {
+    this._messageChannelMain = new MessageChannelMain();
+    this._messageChannelMain.port1.on('message', (e) => console.log('Main port1', e.data)); //temp
+    this._messageChannelMain.port2.on('message', (e) => console.log('Main port2', e.data)); //temp
+    this._messageChannelMain.port1.start();
+    this._messageChannelMain.port2.start();
+  }
+
+  private _destroyMessageChannel(): void {
+    this._messageChannelMain = undefined;
   }
 
   private _onWillQuit(): void {

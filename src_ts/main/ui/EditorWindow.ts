@@ -1,4 +1,4 @@
-import { MenuItemConstructorOptions } from 'electron';
+import { MenuItemConstructorOptions, MessagePortMain } from 'electron/main';
 import { join } from 'path';
 
 import BaseWindow, { createAdditionalArgs, createDevMenu } from './BaseWindow';
@@ -6,9 +6,10 @@ import { IS_DEV, IS_MAC } from '../constants';
 import { APP_NAME } from '../../common/constants';
 
 class EditorWindow extends BaseWindow {
-  constructor(projectFilePath: string) {
+  constructor(projectFilePath: string, messagePort: MessagePortMain) {
     super({
       id: 'editorwindow',
+      messagePort,
       defaultWidth: 1600,
       defaultHeight: 900,
       options: {

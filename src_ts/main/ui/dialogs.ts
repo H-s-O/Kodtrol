@@ -4,7 +4,7 @@ import {
   OpenDialogOptions,
   SaveDialogOptions,
   dialog,
-} from 'electron';
+} from 'electron/main';
 
 import { APP_NAME, PROJECT_FILE_EXTENSION } from '../../common/constants';
 import { IS_WINDOWS } from '../constants';

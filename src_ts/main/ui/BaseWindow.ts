@@ -3,7 +3,8 @@ import {
   BrowserWindowConstructorOptions,
   Menu,
   MenuItemConstructorOptions,
-} from 'electron';
+  MessagePortMain,
+} from 'electron/main';
 import windowStateKeeper from 'electron-window-state';
 
 import { IS_DEV, IS_MAC, IS_LINUX, IS_WINDOWS, APP_VERSION } from '../constants';
@@ -17,6 +18,7 @@ type BaseWindowConstructorParams = {
   fixedHeight?: number
   showOnLoaded?: boolean
   options?: BrowserWindowConstructorOptions
+  messagePort?: MessagePortMain;
 };
 
 abstract class BaseWindow {
@@ -31,7 +33,8 @@ abstract class BaseWindow {
     fixedWidth,
     fixedHeight,
     showOnLoaded = true,
-    options = undefined
+    options,
+    messagePort,
   }: BaseWindowConstructorParams) {
     this._windowState = windowStateKeeper({
       defaultWidth: defaultWidth ?? fixedWidth,
@@ -53,6 +56,11 @@ abstract class BaseWindow {
 
     this._windowState.manage(this.window);
 
+    if (messagePort) {
+      this.window.once('ready-to-show', () => {
+        this.window.webContents.postMessage('port', undefined, [messagePort]);
+      });
+    }
     if (showOnLoaded) this.window.once('ready-to-show', this._onReady.bind(this));
     if (IS_MAC) this.window.on('focus', this._onFocus.bind(this));
   }

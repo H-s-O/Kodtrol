@@ -5,7 +5,6 @@ import { observer, observe } from 'redux-observers';
 
 import Editor from './Editor';
 import reducers from '../store/reducers/index';
-import isDev from '../../../../src/common/js/lib/isDev';
 import { KodtrolState } from '../../../common/types';
 
 const createKodtrolStore = (initialData?: object) => {
@@ -15,11 +14,11 @@ const createKodtrolStore = (initialData?: object) => {
   );
 
   const createSender = (toKey: string) => (dispatch, curr, prev) => {
-    // if (window.kodtrol.messagePort) {
-    //   window.kodtrol.messagePort.postMessage({
-    //     [toKey]: curr,
-    //   })
-    // }
+    if (window.kodtrol_enginePort) {
+      window.kodtrol_enginePort.postMessage({
+        [toKey]: curr,
+      })
+    }
   }
 
   const outputsObserver = observer(

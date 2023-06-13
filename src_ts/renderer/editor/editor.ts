@@ -4,15 +4,20 @@ import ReactDOM from 'react-dom';
 
 import EditorRoot from './components/EditorRoot';
 
-domready(() => {
-  window.kodtrol_editor.readProjectFile()
-    .then((projectData) => {
-      ReactDOM.render(
-        createElement(EditorRoot, { projectData }),
-        document.getElementById('root'),
-      );
+window.onmessage = (event) => {
+  if (event.source === window && event.data === 'port') {
+    window.kodtrol_enginePort = event.ports[0];
+    domready(() => {
+      window.kodtrol_editor.readProjectFile()
+        .then((projectData) => {
+          ReactDOM.render(
+            createElement(EditorRoot, { projectData }),
+            document.getElementById('root'),
+          );
+        });
     });
-});
+  }
+};
 
 // Hack to disable annoying spacebar scroll behavior
 // @see https://stackoverflow.com/a/22559917
