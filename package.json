@@ -9,7 +9,7 @@
   "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "./build/main/kodtrol-main.js",
   "scripts": {
-    "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch --target splash --target splash-preload --target editor --target editor-preload --no-hmr",
+    "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch --target splash --target splash-preload --target editor --target editor-preload --target engine --target engine-preload --no-hmr",
     "start": "cross-env KODTROL_DEV=true electron -r ts-node/register src_ts/main/kodtrol-main.ts",
     "clear-build": "npx rimraf ./build/* .parcel-cache",
     "build": " parcel build --target splash --target splash-preload --target editor --target editor-preload --no-hmr",
@@ -27,24 +27,35 @@
   "targets": {
     "main": false,
     "splash": {
-      "source": "./src_ts/renderer/splash/splash.html",
+      "source": "./src_ts/renderer/splash/kodtrol-splash.html",
       "distDir": "./build",
       "publicUrl": "./../",
       "context": "browser"
     },
     "splash-preload": {
-      "source": "./src_ts/renderer/splash/splash-preload.ts",
+      "source": "./src_ts/renderer/splash/kodtrol-splash-preload.ts",
       "distDir": "./build",
       "context": "electron-renderer"
     },
     "editor": {
-      "source": "./src_ts/renderer/editor/editor.html",
+      "source": "./src_ts/renderer/editor/kodtrol-editor.html",
       "distDir": "./build",
       "publicUrl": "./../",
       "context": "browser"
     },
     "editor-preload": {
-      "source": "./src_ts/renderer/editor/editor-preload.ts",
+      "source": "./src_ts/renderer/editor/kodtrol-editor-preload.ts",
+      "distDir": "./build",
+      "context": "electron-renderer"
+    },
+    "engine": {
+      "source": "./src_ts/renderer/engine/kodtrol-engine.html",
+      "distDir": "./build",
+      "publicUrl": "./../",
+      "context": "browser"
+    },
+    "engine-preload": {
+      "source": "./src_ts/renderer/engine/kodtrol-engine-preload.ts",
       "distDir": "./build",
       "context": "electron-renderer"
     }
@@ -108,14 +119,17 @@
     "@parcel/transformer-less": "^2.9.1",
     "@types/domready": "^1.0.0",
     "@types/howler": "^2.2.7",
+    "@types/object-hash": "^3.0.2",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
     "@types/styled-components": "^5.1.26",
     "@types/uniqid": "^5.3.2",
+    "browserify-zlib": "^0.2.0",
     "chai": "^4.2.0",
     "constants-browserify": "^1.0.0",
     "copy-files-from-to": "^3.2.0",
     "cross-env": "^7.0.2",
+    "crypto-browserify": "^3.12.0",
     "electron": "^24.3.1",
     "electron-builder": "^22.6.1",
     "electron-icon-builder": "^1.0.2",
@@ -129,11 +143,17 @@
     "parcel": "^2.9.1",
     "parcel-plugin-static-files-copy": "^2.4.3",
     "patch-package": "^6.2.2",
+    "path-browserify": "^1.0.1",
+    "punycode": "^1.4.1",
+    "querystring-es3": "^0.2.1",
     "redux-devtools-extension": "^2.13.5",
     "rimraf": "^3.0.2",
     "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "string_decoder": "^1.3.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.3",
+    "url": "^0.11.1",
     "util": "^0.12.5"
   }
 }

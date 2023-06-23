@@ -1,11 +1,11 @@
 import uniqid from 'uniqid';
 
-import { hashDataObject } from '../../../../common/lib/hash';
+import { hashDataObject } from '../../../../common/utils';
 
-const excludeHashProps = [
+const EXCLUDE_HASH_PROPS = [
   'id',
   'name',
-];
+] as const;
 
 export const UPDATE_DEVICES = 'update_devices';
 export const updateDevicesAction = (devices) => {
@@ -26,7 +26,7 @@ export const createDeviceAction = (data) => {
     type: CREATE_DEVICE,
     payload: {
       ...newData,
-      hash: hashDataObject(newData, excludeHashProps),
+      hash: hashDataObject(newData, EXCLUDE_HASH_PROPS),
     },
   };
 };
@@ -41,7 +41,7 @@ export const createDevicesAction = (list) => {
     }
     return {
       ...newDeviceData,
-      hash: hashDataObject(newDeviceData, excludeHashProps),
+      hash: hashDataObject(newDeviceData, EXCLUDE_HASH_PROPS),
     }
   });
   return {
@@ -66,7 +66,7 @@ export const saveDeviceAction = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data, excludeHashProps),
+        hash: hashDataObject(data, EXCLUDE_HASH_PROPS),
       },
     },
   };
@@ -98,7 +98,7 @@ export const createDeviceFolderAction = (data) => {
     type: CREATE_DEVICE_FOLDER,
     payload: {
       ...newData,
-      hash: hashDataObject(newData, excludeHashProps),
+      hash: hashDataObject(newData, EXCLUDE_HASH_PROPS),
     },
   };
 };

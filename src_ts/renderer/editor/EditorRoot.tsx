@@ -3,9 +3,9 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux'
 import { observer, observe } from 'redux-observers';
 
-import Editor from './Editor';
-import reducers from '../store/reducers/index';
-import { KodtrolState } from '../../../common/types';
+import Editor from './components/Editor';
+import reducers from './store/reducers/index';
+import { KodtrolState } from '../../common/types';
 
 const createKodtrolStore = (initialData?: object) => {
   const store = createStore(

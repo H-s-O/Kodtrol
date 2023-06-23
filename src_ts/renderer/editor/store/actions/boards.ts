@@ -1,12 +1,12 @@
 import uniqid from 'uniqid';
 
-import { hashDataObject } from '../../../../common/lib/hash';
+import { hashDataObject } from '../../../../common/utils';
 import { BoardId } from '../../../../common/types';
 
-const excludeHashProps = [
+const EXCLUDE_HASH_PROPS = [
   'id',
   'name',
-];
+] as const;
 
 export const UPDATE_BOARDS = 'update_boards';
 export const updateBoardsAction = (boards) => {
@@ -82,7 +82,7 @@ export const createBoardAction = (data) => {
     type: CREATE_BOARD,
     payload: {
       ...newData,
-      hash: hashDataObject(newData, excludeHashProps),
+      hash: hashDataObject(newData, EXCLUDE_HASH_PROPS),
     },
   };
 };
@@ -101,7 +101,7 @@ export const createBoardsAction = (list) => {
     };
     return {
       ...newBoardData,
-      hash: hashDataObject(newBoardData, excludeHashProps),
+      hash: hashDataObject(newBoardData, EXCLUDE_HASH_PROPS),
     };
   });
   return {
@@ -126,7 +126,7 @@ export const saveBoardAction = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data, excludeHashProps),
+        hash: hashDataObject(data, EXCLUDE_HASH_PROPS),
       },
     },
   };

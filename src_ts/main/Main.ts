@@ -190,8 +190,6 @@ class Main {
 
   private _createMessageChannel(): void {
     this._messageChannelMain = new MessageChannelMain();
-    this._messageChannelMain.port1.on('message', (e) => console.log('Main port1', e.data)); //temp
-    this._messageChannelMain.port2.on('message', (e) => console.log('Main port2', e.data)); //temp
     this._messageChannelMain.port1.start();
     this._messageChannelMain.port2.start();
   }

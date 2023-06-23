@@ -4,6 +4,7 @@ import { hideBin } from 'yargs/helpers';
 const argv = yargs(hideBin(process.argv)).options({
   screenshots: { type: 'string' },
   project: { type: 'string' },
+  engineDevTools: { type: 'boolean', default: false },
 }).parseSync();
 
 export const cliScreenshotsFile =
@@ -15,3 +16,5 @@ export const cliProjectFile =
   (typeof argv.project === 'string' && argv.project.length > 0)
     ? argv.project
     : undefined;
+
+export const cliEngineDevTools = argv.engineDevTools;

@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import domready from 'domready';
 import ReactDOM from 'react-dom';
 
-import EditorRoot from './components/EditorRoot';
+import EditorRoot from './EditorRoot';
 
 window.onmessage = (event) => {
   if (event.source === window && event.data === 'port') {

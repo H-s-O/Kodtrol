@@ -1,15 +1,15 @@
 import uniqid from 'uniqid';
 
-import { hashDataObject } from '../../../../common/lib/hash';
+import { hashDataObject } from '../../../../common/utils';
 
-const excludeHashProps = [
+const EXCLUDE_HASH_PROPS = [
   'id',
   'name',
   'zoom',
   'zoomVert',
   'recording',
   'recordedTriggers',
-];
+] as const;
 
 export const UPDATE_TIMELINES = 'update_timelines';
 export const updateTimelinesAction = (timelines) => {
@@ -90,7 +90,7 @@ export const createTimelineAction = (data) => {
     type: CREATE_TIMELINE,
     payload: {
       ...newData,
-      hash: hashDataObject(newData, excludeHashProps),
+      hash: hashDataObject(newData, EXCLUDE_HASH_PROPS),
     },
   };
 };
@@ -111,7 +111,7 @@ export const createTimelinesAction = (list) => {
     };
     return {
       ...newTimelineData,
-      hash: hashDataObject(newTimelineData, excludeHashProps),
+      hash: hashDataObject(newTimelineData, EXCLUDE_HASH_PROPS),
     };
   });
   return {
@@ -136,7 +136,7 @@ export const saveTimelineAction = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data, excludeHashProps),
+        hash: hashDataObject(data, EXCLUDE_HASH_PROPS),
       },
     },
   };

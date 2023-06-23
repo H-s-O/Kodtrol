@@ -1,9 +1,9 @@
-import { hashDataObject } from '../../../../common/lib/hash';
+import { hashDataObject } from '../../../../common/utils';
 
-const excludeHashProps = [
+const EXCLUDE_HASH_PROPS = [
   'id',
   'name',
-];
+] as const;
 
 export const UPDATE_OUTPUTS = 'update_outputs';
 export const updateOutputsAction = (outputs) => {
@@ -20,7 +20,7 @@ export const saveOutputsAction = (data) => {
     payload: data.map((output) => {
       return {
         ...output,
-        hash: hashDataObject(output, excludeHashProps),
+        hash: hashDataObject(output, EXCLUDE_HASH_PROPS),
       }
     }),
   };

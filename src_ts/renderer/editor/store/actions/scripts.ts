@@ -1,12 +1,12 @@
 import uniqid from 'uniqid';
 
-import { hashDataObject } from '../../../../common/lib/hash';
+import { hashDataObject } from '../../../../common/utils';
 import { SCRIPT_TEMPLATE } from '../../../../common/constants';
 
-const excludeHashProps = [
+const EXCLUDE_HASH_PROPS = [
   'id',
   'name',
-];
+] as const;
 
 export const UPDATE_SCRIPTS = 'update_scripts';
 export const updateScriptsAction = (scripts) => {
@@ -77,7 +77,7 @@ export const createScriptAction = (data) => {
     type: CREATE_SCRIPT,
     payload: {
       ...newData,
-      hash: hashDataObject(newData, excludeHashProps),
+      hash: hashDataObject(newData, EXCLUDE_HASH_PROPS),
     }
   };
 };
@@ -95,7 +95,7 @@ export const createScriptsAction = (list) => {
     };
     return {
       ...newScriptData,
-      hash: hashDataObject(newScriptData, excludeHashProps),
+      hash: hashDataObject(newScriptData, EXCLUDE_HASH_PROPS),
     };
   });
   return {
@@ -120,7 +120,7 @@ export const saveScriptAction = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data, excludeHashProps),
+        hash: hashDataObject(data, EXCLUDE_HASH_PROPS),
       },
     },
   };
@@ -151,7 +151,7 @@ export const createScriptFolderAction = (data) => {
     type: CREATE_SCRIPT_FOLDER,
     payload: {
       ...newData,
-      hash: hashDataObject(newData, excludeHashProps),
+      hash: hashDataObject(newData, EXCLUDE_HASH_PROPS),
     },
   };
 }

@@ -1,11 +1,11 @@
 import uniqid from 'uniqid';
 
-import { hashDataObject } from '../../../../common/lib/hash';
+import { hashDataObject } from '../../../../common/utils';
 
-const excludeHashProps = [
+const EXCLUDE_HASH_PROPS = [
   'id',
   'name',
-];
+] as const;
 
 export const UPDATE_MEDIAS = 'update_medias';
 export const updateMediasAction = (medias) => {
@@ -25,7 +25,7 @@ export const createMediaAction = (data) => {
     type: CREATE_MEDIA,
     payload: {
       ...newData,
-      hash: hashDataObject(newData, excludeHashProps),
+      hash: hashDataObject(newData, EXCLUDE_HASH_PROPS),
     },
   };
 };
@@ -39,7 +39,7 @@ export const createMediasAction = (list) => {
     };
     return {
       ...newMediaData,
-      hash: hashDataObject(newMediaData, excludeHashProps),
+      hash: hashDataObject(newMediaData, EXCLUDE_HASH_PROPS),
     };
   });
   return {
@@ -64,7 +64,7 @@ export const saveMediaAction = (id, data) => {
       id,
       data: {
         ...data,
-        hash: hashDataObject(data, excludeHashProps),
+        hash: hashDataObject(data, EXCLUDE_HASH_PROPS),
       },
     },
   };
