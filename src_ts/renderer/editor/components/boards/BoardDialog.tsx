@@ -18,7 +18,7 @@ const defaultValue = {
   tempo: null,
 };
 
-const getDialogTitle = (mode: KodtrolDialogType): string => {
+const getDialogTitle = (mode: KodtrolDialogType | null): string => {
   switch (mode) {
     case KodtrolDialogType.DUPLICATE:
       return 'Duplicate Board';
@@ -27,8 +27,10 @@ const getDialogTitle = (mode: KodtrolDialogType): string => {
       return 'Edit Board Properties';
       break;
     case KodtrolDialogType.ADD:
-    default:
       return 'Add Board';
+      break;
+    default:
+      return '<Board>';
       break;
   }
 };

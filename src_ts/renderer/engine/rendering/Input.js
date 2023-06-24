@@ -1,6 +1,6 @@
 import MidiInput from '../inputs/MidiInput';
 import OscInput from '../inputs/OscInput';
-import { IO_MIDI, IO_OSC } from '../../common/js/constants/io';
+import { IOType } from '../../../common/constants';
 
 export default class Input {
   _id = null;
@@ -46,10 +46,10 @@ export default class Input {
     let input = null;
 
     switch (this._type) {
-      case IO_MIDI:
+      case IOType.MIDI:
         input = new MidiInput(this._inputMessageCallback.bind(this), this._device);
         break;
-      case IO_OSC:
+      case IOType.OSC:
         input = new OscInput(this._inputMessageCallback.bind(this), this._protocol, this._port);
         break;
       default:

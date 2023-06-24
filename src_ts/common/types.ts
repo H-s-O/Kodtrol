@@ -11,7 +11,7 @@ export type Device = {
   name: string
   type: IOType
   tags: DeviceTag[]
-  output: OutputId
+  output: OutputId | null
 };
 export type DevicesState = Device[];
 
@@ -20,9 +20,11 @@ export type Script = {
   id: ScriptId
   name: string
   content: string
+  tempo: number | null
   devices: {
     device?: DeviceId
   }[]
+  devicesGroups: []
 };
 export type ScriptsState = Script[];
 
@@ -41,11 +43,25 @@ export type Media = {
 };
 export type MediasState = Media[];
 
+export type LayerId = string
+export type Layer = {
+  id: LayerId
+  order: number
+};
+export type LayersState = Layer[];
+
 export type TimelineId = string;
 export type Timeline = {
   id: TimelineId
   name: string
   duration: number
+  zoom: number
+  zoomVert: number
+  items: []
+  layers: LayersState
+  tempo: number | null
+  recording: boolean
+  recordedTriggers: []
 };
 export type TimelinesState = Timeline[];
 
@@ -59,6 +75,11 @@ export type BoardId = string;
 export type Board = {
   id: BoardId
   name: string
+  zoom: number
+  zoomVert: number
+  items: []
+  layers: LayersState
+  tempo: number | null
 };
 export type BoardsState = Board[];
 
@@ -70,34 +91,42 @@ export type EditBoardsState = EditBoard[];
 
 export type ConsoleState = boolean;
 
+export type ImportDialogValue = {
+  devices: DevicesState | null
+  scripts: ScriptsState | null
+  medias: MediasState | null
+  timelines: TimelinesState | null
+  boards: BoardsState | null
+};
+
 export type DialogsState = {
   deviceDialogOpened: boolean
-  deviceDialogMode: KodtrolDialogType
+  deviceDialogMode: KodtrolDialogType | null
   deviceDialogValue: Device | null
   //
   scriptDialogOpened: boolean
-  scriptDialogMode: KodtrolDialogType
+  scriptDialogMode: KodtrolDialogType | null
   scriptDialogValue: Script | null
   //
   mediaDialogOpened: boolean
-  mediaDialogMode: KodtrolDialogType
+  mediaDialogMode: KodtrolDialogType | null
   mediaDialogValue: Media | null
   //
   timelineDialogOpened: boolean
-  timelineDialogMode: KodtrolDialogType
+  timelineDialogMode: KodtrolDialogType | null
   timelineDialogValue: Timeline | null
   //
   boardDialogOpened: boolean
-  boardDialogMode: KodtrolDialogType
+  boardDialogMode: KodtrolDialogType | null
   boardDialogValue: Board | null
   //
   configDialogOpened: boolean
-  configDialogMode: KodtrolDialogType
+  configDialogMode: KodtrolDialogType | null
   configDialogValue: object | null
   //
   importDialogOpened: boolean
-  importDialogMode: KodtrolDialogType
-  importDialogValue: object | null
+  importDialogMode: KodtrolDialogType | null
+  importDialogValue: ImportDialogValue | null
 };
 
 export type InputId = string;

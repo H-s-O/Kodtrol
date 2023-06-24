@@ -5,11 +5,10 @@ import DialogBody from '../../ui/DialogBody';
 import DialogFooter from '../../ui/DialogFooter';
 import CustomDialog from '../../ui/CustomDialog';
 import DialogFooterActions from '../../ui/DialogFooterActions';
-import { ICON_MEDIA } from '../../../../../common/js/constants/icons';
 import TimelineMediaDialogBody from './TimelineMediaDialogBody';
-import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
-import timelineMediaValidator from '../../../../../common/js/validators/timelineMediaValidator';
-import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
+import { getDialogTitle, getSuccessButtonLabel, mergeDialogBody } from '../../../lib/helpers';
+import { timelineMediaValidator } from '../../../validators/timelineValidators';
+import { KodtrolIconType } from '../../../constants';
 
 const defaultValue = {
   media: null,
@@ -33,7 +32,7 @@ export default function TimelineMediaDialog({ opened, mode, value, layers, media
     <CustomDialog
       isOpen={opened}
       title={getDialogTitle(mode, 'Media block')}
-      icon={ICON_MEDIA}
+      icon={KodtrolIconType.MEDIA}
       onClose={onClose}
     >
       <DialogBody>
@@ -54,7 +53,7 @@ export default function TimelineMediaDialog({ opened, mode, value, layers, media
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid.all_fields}
+            disabled={!bodyValid.__all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

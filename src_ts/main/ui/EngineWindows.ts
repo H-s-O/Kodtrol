@@ -17,7 +17,7 @@ class EngineWindow extends BaseWindow {
       options: {
         title: `${APP_NAME} - Engine`,
         webPreferences: {
-          preload: join(__dirname, '..', '..', '..', 'build', 'engine', 'engine-preload.js'),
+          preload: join(__dirname, '..', '..', '..', 'build', 'engine', 'kodtrol-engine-preload.js'),
           sandbox: false,
           additionalArguments: createAdditionalArgs(),
         },
@@ -26,7 +26,7 @@ class EngineWindow extends BaseWindow {
     if (cliEngineDevTools) {
       this.window.webContents.openDevTools();
     }
-    this.window.loadFile(join(__dirname, '..', '..', '..', 'build', 'engine', 'engine.html'));
+    this.window.loadFile(join(__dirname, '..', '..', '..', 'build', 'engine', 'kodtrol-engine.html'));
   }
 
   protected _generateMenu(): MenuItemConstructorOptions[] {

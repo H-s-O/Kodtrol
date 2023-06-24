@@ -1,4 +1,4 @@
-import parseCurve from '../../../../common/js/lib/parseCurve';
+import { parseCurve } from '../../../../../common/utils';
 
 export default class CurveRenderer {
   _started = false;

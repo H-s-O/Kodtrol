@@ -46,12 +46,12 @@ export default class Engine {
   _currentScript = null;
   _currentTimeline = null;
   _currentBoard = null;
-  _ticker?: Ticker;
+  _ticker: Ticker | null = null;
   _currentTimelinePlaying: boolean = false;
   _providers?: object;
   _renderDelay: number = (1 / 40) * 1000; // @TODO configurable?
   _frameTime: number = 0;
-  _ioUpdateTimer?: NodeJS.Timer;
+  _ioUpdateTimer: NodeJS.Timer | null = null;
 
   constructor(messagePort) {
     this._messagePort = messagePort;

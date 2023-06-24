@@ -1,10 +1,12 @@
 import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { Colors } from '@blueprintjs/core';
+import { ok } from 'assert';
 
-import orderSort from '../../../../common/js/lib/orderSort';
+import { orderSort } from '../../lib/helpers;'
 import Layer from './Layer';
-import { canMoveLayerUp, canMoveLayerDown, doMoveLayer, doAddLayer, getLayer } from '../../../../common/js/lib/layerOperations';
+import { canMoveLayerUp, canMoveLayerDown, doMoveLayer, doAddLayer, getLayer } from '../../lib/editorOperations';
+import { LayersState } from '../../../../common/types';
 
 const StyledContainer = styled.div`
   position: relative;
@@ -16,7 +18,11 @@ const StyledContainer = styled.div`
   background: ${Colors.DARK_GRAY1};
 `;
 
-export default function LayerEditor({ layers = [], onChange, onDelete, renderLayerContextMenu, renderLayerChildren }) {
+type LayerEditorProps = {
+  layers: LayersState
+};
+
+export default function LayerEditor({ layers = [], onChange, onDelete, renderLayerContextMenu, renderLayerChildren }: LayerEditorProps) {
   const orderedLayers = useMemo(() => {
     return layers.sort(orderSort);
   }, [layers]);
@@ -29,10 +35,12 @@ export default function LayerEditor({ layers = [], onChange, onDelete, renderLay
   }, [onChange, layers]);
   const addLayerAboveHandler = useCallback((id) => {
     const layer = getLayer(layers, id);
+    ok(layer, 'layer not found');
     onChange(doAddLayer(layers, layer.order + 1));
   }, [onChange, layers]);
   const addLayerBelowHandler = useCallback((id) => {
     const layer = getLayer(layers, id);
+    ok(layer, 'layer not found');
     onChange(doAddLayer(layers, layer.order));
   }, [onChange, layers]);
   const deleteLayerHandler = useCallback((id) => {

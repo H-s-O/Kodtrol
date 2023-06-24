@@ -9,10 +9,12 @@ import { IPC_MAIN_CHANNEL_WARN_BEFORE_CLOSE, IPC_MAIN_CHANNEL_WARN_BEFORE_DELETE
 
 const additionalArgs = extractAdditionalData();
 
-const readProjectFile = async () => {
-  const fileContent = await readFile(additionalArgs.projectFilePath, { encoding: 'utf-8' });
+const readProjectFile = async (filePath: string) => {
+  const fileContent = await readFile(filePath, { encoding: 'utf-8' });
   return JSON.parse(fileContent);
 };
+
+const readCurrentProjectFile = () => readProjectFile(additionalArgs.projectFilePath);
 
 /** Invokes a native warning alert box on the main process */
 const deleteWarningDialog = (message: string, detail?: string): Promise<boolean> => {
@@ -27,6 +29,7 @@ const closeWarningDialog = (message: string, detail?: string): Promise<boolean> 
 const expose = {
   ...additionalArgs,
   readProjectFile,
+  readCurrentProjectFile,
   deleteWarningDialog,
   closeWarningDialog,
   path: {

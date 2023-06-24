@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ButtonGroup, Button, Popover, Menu, Position, Icon, Intent } from '@blueprintjs/core';
+import { ButtonGroup, Button, Popover, Menu, Position, Icon, Intent, MenuItem } from '@blueprintjs/core';
 import uniqid from 'uniqid';
 import { useSelector } from 'react-redux';
 import useHotkeys from '@reecelucas/react-use-hotkeys';
@@ -26,7 +26,7 @@ import {
 import { deleteWarning } from '../../../lib/messageBoxes';
 import TimelineScriptDialog from './TimelineScriptDialog';
 import { DIALOG_EDIT, DIALOG_ADD, DIALOG_CONFIGURE } from '../../../../../common/js/constants/dialogs';
-import useDialog from '../../../lib/useDialog';
+import { useDialog } from '../../../lib/hooks';
 import { ITEM_SCRIPT, ITEM_TRIGGER, ITEM_MEDIA, ITEM_CURVE } from '../../../../../common/js/constants/items';
 import TimelineTriggerDialog from './TimelineTriggerDialog';
 import TimelineItem from './TimelineItem';
@@ -37,7 +37,9 @@ import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNa
 import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
 import { ipcRendererListen, ipcRendererClear, ipcRendererSend } from '../../../lib/ipcRenderer';
 import { UPDATE_TIMELINE_INFO } from '../../../../../common/js/constants/events';
-import focusIsGlobal from '../../../lib/focusIsGlobal';
+import { focusIsGlobal } from '../../../../common/lib/helpers';
+import { ItemNamesObject, MediaId, ScriptId, Timeline } from '../../../../../common/types';
+import { useKodtrolSelector } from '../../../lib/hooks';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -74,7 +76,7 @@ const StyledMouseTracker = styled.div`
   background-color: #AAA;
   z-index: 15;
   pointer-events: none;
-`
+`;
 
 const StyledPositionTracker = styled.div`
   width: 1px;
@@ -82,7 +84,7 @@ const StyledPositionTracker = styled.div`
   background-color: #F00;
   z-index: 10;
   pointer-events: none;
-`
+`;
 
 const TimelineLayer = ({
   id,
@@ -108,26 +110,36 @@ const TimelineLayer = ({
   ));
 };
 
-const ZOOM_LEVELS = [1.0, 2.0, 3.0, 5.0, 8.0, 10.0];
+const ZOOM_LEVELS = [1.0, 2.0, 3.0, 5.0, 8.0, 10.0] as const;
 
-export default function TimelineEditor({ timeline, onChange }) {
+type TimelineEditorProps = {
+  timeline: Timeline
+  onChange: (value: Partial<Timeline>) => any
+};
+
+type TimelineInfo = {
+  playing: boolean
+  position: number
+};
+
+export default function TimelineEditor({ timeline, onChange }: TimelineEditorProps) {
   const { duration, layers, items, zoom, zoomVert, recording, recordedTriggers } = timeline;
 
-  const scripts = useSelector((state) => state.scripts);
-  const medias = useSelector((state) => state.medias);
-  const runTimeline = useSelector((state) => state.runTimeline);
+  const scripts = useKodtrolSelector((state) => state.scripts);
+  const medias = useKodtrolSelector((state) => state.medias);
+  const runTimeline = useKodtrolSelector((state) => state.runTimeline);
 
   const isRunning = timeline.id == runTimeline;
   const hasLayers = layers && layers.length > 0;
 
   const scriptsNames = useMemo(() => {
-    return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {});
+    return scripts.reduce((obj, { id, name }) => ({ ...obj, [id]: name }), {} as ItemNamesObject<ScriptId>);
   }, [scripts]);
   const availableScripts = useMemo(() => {
     return scripts.map(({ id, name }) => ({ id, name }));
   }, [scripts]);
   const mediasNames = useMemo(() => {
-    return medias.reduce((obj, media) => ({ ...obj, [media.id]: { name: getMediaName(media), file: media.file } }), {});
+    return medias.reduce((obj, media) => ({ ...obj, [media.id]: { name: getMediaName(media), file: media.file } }), {} as ItemNamesObject<MediaId>);
   }, [medias]);
   const availableMedias = useMemo(() => {
     return medias.map((media) => ({ id: media.id, name: getMediaName(media) }));
@@ -151,10 +163,10 @@ export default function TimelineEditor({ timeline, onChange }) {
   const curveDialog = useDialog();
   const recordedTriggersDialog = useDialog();
 
-  const mouseTracker = useRef();
-  const positionTracker = useRef();
+  const mouseTracker = useRef<HTMLDivElement>();
+  const positionTracker = useRef<HTMLDivElement>();
   const timelinePercent = useRef();
-  const timelineInfo = useRef();
+  const timelineInfo = useRef<TimelineInfo>();
   const [isPlaying, setIsPlaying] = useState(false);
 
   if (!isRunning) {
@@ -170,7 +182,7 @@ export default function TimelineEditor({ timeline, onChange }) {
     // Hide and reset the position of the mouse tracker, which
     // prevents the zoom container from overflowing after a zoom change
     if (mouseTracker.current) {
-      mouseTracker.current.style = 'left:0px;visibility:hidden';
+      mouseTracker.current.style.cssText = 'left:0px;visibility:hidden';
     }
     onChange({ zoom: value });
   }, [onChange, timeline, mouseTracker.current]);
@@ -381,19 +393,19 @@ export default function TimelineEditor({ timeline, onChange }) {
               click: () => itemCopyInTimeClick(id),
             },
           ] : [
-              {
-                label: 'Block In time',
-                click: () => itemCopyInTimeClick(id),
-              },
-              {
-                label: 'Block Out time',
-                click: () => itemCopyOutTimeClick(id),
-              },
-              {
-                label: 'Block In and Out time',
-                click: () => itemCopyInAndOutTimeClick(id),
-              },
-            ]
+            {
+              label: 'Block In time',
+              click: () => itemCopyInTimeClick(id),
+            },
+            {
+              label: 'Block Out time',
+              click: () => itemCopyOutTimeClick(id),
+            },
+            {
+              label: 'Block In and Out time',
+              click: () => itemCopyInAndOutTimeClick(id),
+            },
+          ]
           ),
         ],
       },
@@ -406,22 +418,22 @@ export default function TimelineEditor({ timeline, onChange }) {
             enabled: canPasteItem('inTime'),
           },
         ] : [
-            {
-              label: 'Time as block In time',
-              click: () => itemPasteInTimeClick(id),
-              enabled: canPasteItem('inTime'),
-            },
-            {
-              label: 'Time as block Out time',
-              click: () => itemPasteOutTimeClick(id),
-              enabled: canPasteItem('outTime'),
-            },
-            {
-              label: 'In and Out Time as block In and Out time',
-              click: () => itemPasteInAndOutTimeClick(id),
-              enabled: canPasteItem('inAndOutTime'),
-            },
-          ],
+          {
+            label: 'Time as block In time',
+            click: () => itemPasteInTimeClick(id),
+            enabled: canPasteItem('inTime'),
+          },
+          {
+            label: 'Time as block Out time',
+            click: () => itemPasteOutTimeClick(id),
+            enabled: canPasteItem('outTime'),
+          },
+          {
+            label: 'In and Out Time as block In and Out time',
+            click: () => itemPasteInAndOutTimeClick(id),
+            enabled: canPasteItem('inAndOutTime'),
+          },
+        ],
       },
       {
         label: 'Move item',
@@ -519,7 +531,7 @@ export default function TimelineEditor({ timeline, onChange }) {
   // Zoom container & trackers
   const zoomContainerMouseMoveHandler = useCallback((e) => {
     if (mouseTracker.current) {
-      mouseTracker.current.style = `left:${getContainerX(e)}px;visibility:visible`;
+      mouseTracker.current.style.cssText = `left:${getContainerX(e)}px;visibility:visible`;
     }
     const percent = getContainerPercent(e);
     timelinePercent.current = percent;
@@ -782,12 +794,12 @@ export default function TimelineEditor({ timeline, onChange }) {
                       />
                     </>
                   ) : (
-                      <Menu.Item
-                        icon={ICON_LAYER}
-                        text="Add Layer"
-                        onClick={addLayerAtBottomClickHandler}
-                      />
-                    )}
+                    <Menu.Item
+                      icon={ICON_LAYER}
+                      text="Add Layer"
+                      onClick={addLayerAtBottomClickHandler}
+                    />
+                  )}
                 </Menu>
               )}
             >
@@ -861,7 +873,7 @@ export default function TimelineEditor({ timeline, onChange }) {
               content={(
                 <Menu>
                   {ZOOM_LEVELS.map((level) => (
-                    <Menu.Item
+                    <MenuItem
                       key={level}
                       active={zoomVert === level}
                       text={percentString(level, true)}

@@ -8,7 +8,7 @@ window.onmessage = (event) => {
   if (event.source === window && event.data === 'port') {
     window.kodtrol_enginePort = event.ports[0];
     domready(() => {
-      window.kodtrol_editor.readProjectFile()
+      window.kodtrol_editor.readCurrentProjectFile()
         .then((projectData) => {
           ReactDOM.render(
             createElement(EditorRoot, { projectData }),

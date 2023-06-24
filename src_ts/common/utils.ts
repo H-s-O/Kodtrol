@@ -1,4 +1,5 @@
 import objectHash from 'object-hash';
+import { sortBy } from 'lodash';
 
 type Exclusions = {
   [k: string]: boolean | number
@@ -71,4 +72,42 @@ export const hashComparator = <T extends HashComparable>(
     }
   }
   return result;
+};
+
+export const parseCurve = (curve) => {
+  if (!curve || curve.length === 0) {
+    return [];
+  }
+  const sorted = sortBy(curve, ['x']);
+  const first = sorted[0];
+  if (first.x !== 0) {
+    sorted.unshift({
+      ...first,
+      x: 0,
+      extra: true,
+    });
+  }
+  const last = sorted[sorted.length - 1];
+  if (last.x !== 1) {
+    sorted.push({
+      ...last,
+      x: 1,
+      extra: true,
+    });
+  }
+  return sorted;
+};
+
+type Orderable = {
+  order: number
+};
+
+export const orderSort = ({ order: a }: Orderable, { order: b }: Orderable): -1 | 1 => {
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
+  return 1;
 };

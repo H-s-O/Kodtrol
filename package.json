@@ -9,7 +9,7 @@
   "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "./build/main/kodtrol-main.js",
   "scripts": {
-    "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch --target splash --target splash-preload --target editor --target editor-preload --target engine --target engine-preload --no-hmr",
+    "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch --target splash --target splash-preload --target editor --target editor-preload --no-hmr",
     "start": "cross-env KODTROL_DEV=true electron -r ts-node/register src_ts/main/kodtrol-main.ts",
     "clear-build": "npx rimraf ./build/* .parcel-cache",
     "build": " parcel build --target splash --target splash-preload --target editor --target editor-preload --no-hmr",
@@ -119,6 +119,7 @@
     "@parcel/transformer-less": "^2.9.1",
     "@types/domready": "^1.0.0",
     "@types/howler": "^2.2.7",
+    "@types/lodash": "^4.14.195",
     "@types/object-hash": "^3.0.2",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",

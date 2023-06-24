@@ -1,7 +1,7 @@
 import { Howl } from 'howler';
 
 import { KodtrolDialogType } from '../constants';
-import { number } from 'yargs';
+import { Media } from '../../../common/types';
 
 export const percentString = (percent: number, space: boolean = false): string =>
   `${percent * 100}${space ? ' ' : ''}%`;
@@ -73,3 +73,11 @@ export const mediaInfo = (filePath: string) => new Promise<{ duration: number }>
     }
   });
 });
+
+export const getScriptName = ({ name, script }, scriptsNames): string => {
+  return name || scriptsNames[script] || '[no name]';
+};
+
+export const getMediaName = ({ name, file }: Media): string => {
+  return name || window.kodtrol_editor.path.basename(file) || '[no name]';
+};

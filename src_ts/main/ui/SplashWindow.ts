@@ -17,14 +17,14 @@ class SplashWindow extends BaseWindow {
         maximizable: false,
         resizable: false,
         webPreferences: {
-          preload: join(__dirname, '..', '..', '..', 'build', 'splash', 'splash-preload.js'),
+          preload: join(__dirname, '..', '..', '..', 'build', 'splash', 'kodtrol-splash-preload.js'),
           sandbox: false,
           additionalArguments: createAdditionalArgs(),
         },
       },
     });
     this.window.setMenuBarVisibility(false);
-    this.window.loadFile(join(__dirname, '..', '..', '..', 'build', 'splash', 'splash.html'));
+    this.window.loadFile(join(__dirname, '..', '..', '..', 'build', 'splash', 'kodtrol-splash.html'));
   }
 
   protected _generateMenu(): MenuItemConstructorOptions[] {

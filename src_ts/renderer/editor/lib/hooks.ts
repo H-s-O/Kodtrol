@@ -23,4 +23,4 @@ export const useDialog = (initialState = { opened: false, mode: null, value: nul
   }, [state]);
 
   return { opened, mode, value, show, hide, change };
-}
+};

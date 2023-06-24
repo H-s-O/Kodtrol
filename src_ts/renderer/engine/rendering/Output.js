@@ -5,8 +5,8 @@ import ArtnetOutput from '../outputs/ArtnetOutput';
 import IldaOutput from '../outputs/IldaOutput';
 import AudioOutput from '../outputs/AudioOutput';
 import MidiOutput from '../outputs/MidiOutput';
-import { IO_DMX, IO_ARTNET, IO_ILDA, IO_AUDIO, IO_MIDI } from '../../common/js/constants/io';
 import { READY } from '../events/OutputEvent';
+import { IOType } from '../../../common/constants';
 
 export default class Output extends EventEmitter {
   _id = null;
@@ -53,19 +53,19 @@ export default class Output extends EventEmitter {
     let output = null;
 
     switch (this._type) {
-      case IO_DMX:
+      case IOType.DMX:
         output = new DmxOutput(this._driver, this._port);
         break;
-      case IO_ARTNET:
+      case IOType.ARTNET:
         output = new ArtnetOutput(this._address);
         break;
-      case IO_ILDA:
+      case IOType.ILDA:
         output = new IldaOutput(this._driver, this._dacRate, this._address);
         break;
-      case IO_AUDIO:
+      case IOType.AUDIO:
         output = new AudioOutput(this._driver);
         break;
-      case IO_MIDI:
+      case IOType.MIDI:
         output = new MidiOutput(this._driver);
         break;
       default:

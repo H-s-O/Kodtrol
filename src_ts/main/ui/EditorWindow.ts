@@ -14,7 +14,7 @@ class EditorWindow extends BaseWindow {
       defaultHeight: 900,
       options: {
         webPreferences: {
-          preload: join(__dirname, '..', '..', '..', 'build', 'editor', 'editor-preload.js'),
+          preload: join(__dirname, '..', '..', '..', 'build', 'editor', 'kodtrol-editor-preload.js'),
           sandbox: false,
           additionalArguments: createAdditionalArgs({
             projectFilePath,
@@ -22,7 +22,7 @@ class EditorWindow extends BaseWindow {
         },
       },
     });
-    this.window.loadFile(join(__dirname, '..', '..', '..', 'build', 'editor', 'editor.html'));
+    this.window.loadFile(join(__dirname, '..', '..', '..', 'build', 'editor', 'kodtrol-editor.html'));
   }
 
   protected _generateMenu(): MenuItemConstructorOptions[] {

@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 
-import { hashDataObject } from '../../../../../common/lib/hash';
+import { hashDataObject } from '../../../../../common/utils';
 import { SAVE_EDITED_SCRIPT } from '../../actions/scripts';
 import { SAVE_EDITED_TIMELINE } from '../../actions/timelines';
 import { SAVE_EDITED_BOARD } from '../../actions/boards';

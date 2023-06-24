@@ -17,7 +17,7 @@ export default function DialogsContainer() {
       <TimelineDialog />
       <BoardDialog />
       <ProjectConfigDialog />
-      {/* <ImportDialog /> */}
+      <ImportDialog />
     </>
   );
 };
