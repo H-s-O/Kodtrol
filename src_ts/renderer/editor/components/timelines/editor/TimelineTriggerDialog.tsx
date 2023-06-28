@@ -5,26 +5,21 @@ import DialogBody from '../../ui/DialogBody';
 import DialogFooter from '../../ui/DialogFooter';
 import CustomDialog from '../../ui/CustomDialog';
 import DialogFooterActions from '../../ui/DialogFooterActions';
-import { ICON_SCRIPT } from '../../../../../common/js/constants/icons';
-import TimelineScriptDialogBody from './TimelineScriptDialogBody';
-import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
-import timelineScriptValidator from '../../../../../common/js/validators/timelineScriptValidator';
-import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
+import TimelineTriggerDialogBody from './TimelineTriggerDialogBody';
+import { timelineTriggerValidator } from '../../../validators/timelineValidators';
+import { getDialogTitle, getSuccessButtonLabel, mergeDialogBody } from '../../../lib/helpers';
+import { KodtrolIconType } from '../../../constants';
 
 const defaultValue = {
-  script: null,
   layer: null,
   name: null,
   inTime: 0,
-  outTime: 0,
-  leadInTime: null,
-  leadOutTime: null,
   color: null,
 };
 
-export default function TimelineScriptDialog({ opened, mode, value, layers, scripts, duration, onChange, onSuccess, onClose }) {
+export default function TimelineTriggerDialog({ opened, mode, value, layers, duration, onChange, onSuccess, onClose }) {
   const bodyValue = value || defaultValue;
-  const bodyValid = timelineScriptValidator(bodyValue, duration);
+  const bodyValid = timelineTriggerValidator(bodyValue, duration);
 
   const changeHandler = useCallback((value, field) => {
     onChange(mergeDialogBody(bodyValue, value, field));
@@ -33,17 +28,16 @@ export default function TimelineScriptDialog({ opened, mode, value, layers, scri
   return (
     <CustomDialog
       isOpen={opened}
-      title={getDialogTitle(mode, 'Script block')}
-      icon={ICON_SCRIPT}
+      title={getDialogTitle(mode, 'Trigger')}
+      icon={KodtrolIconType.TRIGGER}
       onClose={onClose}
     >
       <DialogBody>
-        <TimelineScriptDialogBody
+        <TimelineTriggerDialogBody
           value={bodyValue}
           onChange={changeHandler}
           validation={bodyValid}
           layers={layers}
-          scripts={scripts}
         />
       </DialogBody>
       <DialogFooter>
@@ -55,7 +49,7 @@ export default function TimelineScriptDialog({ opened, mode, value, layers, scri
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid.all_fields}
+            disabled={!bodyValid.__all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

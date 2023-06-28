@@ -81,3 +81,20 @@ export const getScriptName = ({ name, script }, scriptsNames): string => {
 export const getMediaName = ({ name, file }: Media): string => {
   return name || window.kodtrol_editor.path.basename(file) || '[no name]';
 };
+
+//---------------------------------------------------------
+// @TODO to remove and replace with OS clipboard
+const obj: {
+  mode: string | null,
+  value: object | null,
+} = {
+  mode: null,
+  value: null,
+};
+export const clipboardPut = (mode: string | null, value: object | null) => {
+  obj.mode = mode;
+  obj.value = value;
+};
+export const clipboardGetMode = () => obj.mode;
+export const clipboardGetValue = () => obj.value;
+//---------------------------------------------------------

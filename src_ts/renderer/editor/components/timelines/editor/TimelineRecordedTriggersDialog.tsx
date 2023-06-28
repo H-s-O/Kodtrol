@@ -5,22 +5,17 @@ import DialogBody from '../../ui/DialogBody';
 import DialogFooter from '../../ui/DialogFooter';
 import CustomDialog from '../../ui/CustomDialog';
 import DialogFooterActions from '../../ui/DialogFooterActions';
-import { ICON_TRIGGER } from '../../../../../common/js/constants/icons';
-import TimelineTriggerDialogBody from './TimelineTriggerDialogBody';
-import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
-import timelineTriggerValidator from '../../../../../common/js/validators/timelineTriggerValidator';
-import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
+import TimelineRecordedTriggersDialogBody from './TimelineRecordedTriggersDialogBody';
+import { timelineRecordedTriggersValidator } from '../../../validators/timelineValidators';
+import { getDialogTitle, getSuccessButtonLabel, mergeDialogBody } from '../../../lib/helpers';
 
 const defaultValue = {
-  layer: null,
-  name: null,
-  inTime: 0,
-  color: null,
+  triggers: [],
 };
 
-export default function TimelineTriggerDialog({ opened, mode, value, layers, duration, onChange, onSuccess, onClose }) {
+export default function TimelineRecordedTriggersDialog({ opened, mode, value, layers, onChange, onSuccess, onClose }) {
   const bodyValue = value || defaultValue;
-  const bodyValid = timelineTriggerValidator(bodyValue, duration);
+  const bodyValid = timelineRecordedTriggersValidator(bodyValue);
 
   const changeHandler = useCallback((value, field) => {
     onChange(mergeDialogBody(bodyValue, value, field));
@@ -29,12 +24,12 @@ export default function TimelineTriggerDialog({ opened, mode, value, layers, dur
   return (
     <CustomDialog
       isOpen={opened}
-      title={getDialogTitle(mode, 'Trigger')}
-      icon={ICON_TRIGGER}
+      title={getDialogTitle(mode, 'recorded triggers')}
+      icon="settings"
       onClose={onClose}
     >
       <DialogBody>
-        <TimelineTriggerDialogBody
+        <TimelineRecordedTriggersDialogBody
           value={bodyValue}
           onChange={changeHandler}
           validation={bodyValid}
@@ -46,11 +41,11 @@ export default function TimelineTriggerDialog({ opened, mode, value, layers, dur
           <Button
             onClick={onClose}
           >
-            Close
+            Cancel
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid.all_fields}
+            disabled={!bodyValid.__all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

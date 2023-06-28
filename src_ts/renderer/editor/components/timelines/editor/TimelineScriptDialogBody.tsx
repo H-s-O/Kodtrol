@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import React from 'react';
 import { Intent } from '@blueprintjs/core';
 
 import InlineFormGroup from '../../ui/InlineFormGroup';
@@ -24,7 +23,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
   return (
     <>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Script"
         helperText={!validation.script ? 'A script is mandatory.' : undefined}
         intent={!validation.script ? Intent.DANGER : undefined}
@@ -47,7 +46,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Layer"
         helperText={!validation.layer ? 'A layer is mandatory.' : undefined}
         intent={!validation.layer ? Intent.DANGER : undefined}
@@ -70,7 +69,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Name"
         helperText="If not set, Kodtrol will use the associated script's name."
       >
@@ -81,7 +80,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="In time"
         helperText={!validation.inTime ? 'A valid in time is mandatory.' : undefined}
         intent={!validation.inTime ? Intent.DANGER : undefined}
@@ -93,7 +92,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Lead-in time"
         helperText={<>Duration in milliseconds for which <code>leadInFrame()</code> will run before <b>In time</b>.</>}
       >
@@ -106,7 +105,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Out time"
         helperText={!validation.outTime ? 'A valid out time is mandatory.' : undefined}
         intent={!validation.outTime ? Intent.DANGER : undefined}
@@ -118,7 +117,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Lead-out time"
         helperText={<>Duration in milliseconds for which <code>leadOutFrame()</code> will run after <b>Out time</b>.</>}
       >
@@ -131,7 +130,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Color"
       >
         <ColorInput

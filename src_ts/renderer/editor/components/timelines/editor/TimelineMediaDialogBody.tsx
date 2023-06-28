@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Intent } from '@blueprintjs/core';
 
 import InlineFormGroup from '../../ui/InlineFormGroup';
@@ -7,7 +7,7 @@ import SelectInput from '../../ui/inputs/SelectInput';
 import DurationInput from '../../ui/inputs/DurationInput';
 import ColorInput from '../../ui/inputs/ColorInput';
 import SliderInput from '../../ui/inputs/SliderInput';
-import percentString from '../../../lib/percentString';
+import { percentString } from '../../../lib/helpers';
 
 export default function TimelineMediaDialogBody({ value, onChange, validation, layers = [], medias = [] }) {
   const {
@@ -23,7 +23,7 @@ export default function TimelineMediaDialogBody({ value, onChange, validation, l
   return (
     <>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Media"
         helperText={!validation.media ? 'A media is mandatory.' : undefined}
         intent={!validation.media ? Intent.DANGER : undefined}
@@ -46,7 +46,7 @@ export default function TimelineMediaDialogBody({ value, onChange, validation, l
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Layer"
         helperText={!validation.layer ? 'A layer is mandatory.' : undefined}
         intent={!validation.layer ? Intent.DANGER : undefined}
@@ -69,7 +69,7 @@ export default function TimelineMediaDialogBody({ value, onChange, validation, l
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Name"
         helperText="If not set, Kodtrol will use the associated media's name."
       >
@@ -80,7 +80,7 @@ export default function TimelineMediaDialogBody({ value, onChange, validation, l
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="In time"
         helperText={!validation.inTime ? 'A valid in time is mandatory.' : undefined}
         intent={!validation.inTime ? Intent.DANGER : undefined}
@@ -92,7 +92,7 @@ export default function TimelineMediaDialogBody({ value, onChange, validation, l
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Out time"
         helperText={!validation.outTime ? 'A valid out time is mandatory.' : undefined}
         intent={!validation.outTime ? Intent.DANGER : undefined}
@@ -104,7 +104,7 @@ export default function TimelineMediaDialogBody({ value, onChange, validation, l
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Volume"
       >
         <SliderInput
@@ -118,7 +118,7 @@ export default function TimelineMediaDialogBody({ value, onChange, validation, l
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Color"
       >
         <ColorInput

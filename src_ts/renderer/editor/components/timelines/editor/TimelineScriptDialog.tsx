@@ -5,23 +5,25 @@ import DialogBody from '../../ui/DialogBody';
 import DialogFooter from '../../ui/DialogFooter';
 import CustomDialog from '../../ui/CustomDialog';
 import DialogFooterActions from '../../ui/DialogFooterActions';
-import { ICON_CURVE } from '../../../../../common/js/constants/icons';
-import TimelineCurveDialogBody from './TimelineCurveDialogBody';
-import { getSuccessButtonLabel, getDialogTitle } from '../../../lib/dialogHelpers';
-import timelineCurveValidator from '../../../../../common/js/validators/timelineCurveValidator';
-import mergeDialogBody from '../../../../../common/js/lib/mergeDialogBody';
+import TimelineScriptDialogBody from './TimelineScriptDialogBody';
+import { KodtrolIconType } from '../../../constants';
+import { timelineScriptValidator } from '../../../validators/timelineValidators';
+import { getDialogTitle, getSuccessButtonLabel, mergeDialogBody } from '../../../lib/helpers';
 
 const defaultValue = {
+  script: null,
   layer: null,
   name: null,
   inTime: 0,
   outTime: 0,
+  leadInTime: null,
+  leadOutTime: null,
   color: null,
 };
 
-export default function TimelineCurveDialog({ opened, mode, value, layers, duration, onChange, onSuccess, onClose }) {
+export default function TimelineScriptDialog({ opened, mode, value, layers, scripts, duration, onChange, onSuccess, onClose }) {
   const bodyValue = value || defaultValue;
-  const bodyValid = timelineCurveValidator(bodyValue, duration);
+  const bodyValid = timelineScriptValidator(bodyValue, duration);
 
   const changeHandler = useCallback((value, field) => {
     onChange(mergeDialogBody(bodyValue, value, field));
@@ -30,16 +32,17 @@ export default function TimelineCurveDialog({ opened, mode, value, layers, durat
   return (
     <CustomDialog
       isOpen={opened}
-      title={getDialogTitle(mode, 'Curve block')}
-      icon={ICON_CURVE}
+      title={getDialogTitle(mode, 'Script block')}
+      icon={KodtrolIconType.SCRIPT}
       onClose={onClose}
     >
       <DialogBody>
-        <TimelineCurveDialogBody
+        <TimelineScriptDialogBody
           value={bodyValue}
           onChange={changeHandler}
           validation={bodyValid}
           layers={layers}
+          scripts={scripts}
         />
       </DialogBody>
       <DialogFooter>
@@ -51,7 +54,7 @@ export default function TimelineCurveDialog({ opened, mode, value, layers, durat
             </Button>
           <Button
             intent={Intent.SUCCESS}
-            disabled={!bodyValid.all_fields}
+            disabled={!bodyValid.__all_fields}
             onClick={onSuccess}
           >
             {getSuccessButtonLabel(mode)}

@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { Colors } from '@blueprintjs/core';
 import { ok } from 'assert';
 
-import { orderSort } from '../../lib/helpers;'
 import Layer from './Layer';
+import { orderSort } from '../../../../common/utils';
 import { canMoveLayerUp, canMoveLayerDown, doMoveLayer, doAddLayer, getLayer } from '../../lib/editorOperations';
 import { LayersState } from '../../../../common/types';
 

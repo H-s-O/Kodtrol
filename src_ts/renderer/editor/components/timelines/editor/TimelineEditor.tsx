@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ButtonGroup, Button, Popover, Menu, Position, Icon, Intent, MenuItem } from '@blueprintjs/core';
+import { ButtonGroup, Button, Popover, Menu, Position, Icon, Intent, MenuItem, MenuDivider, ContextMenu } from '@blueprintjs/core';
 import uniqid from 'uniqid';
-import { useSelector } from 'react-redux';
 import useHotkeys from '@reecelucas/react-use-hotkeys';
+import { ok } from 'assert';
 
 import LayerEditor from '../../layer_editor/LayerEditor';
-import { ICON_SCRIPT, ICON_MEDIA, ICON_CURVE, ICON_TRIGGER, ICON_LAYER } from '../../../../../common/js/constants/icons';
-import percentString from '../../../lib/percentString';
-import { doAddLayer, doDeleteLayer } from '../../../../../common/js/lib/layerOperations';
+import { percentString } from '../../../lib/helpers';
 import {
+  doAddLayer,
+  doDeleteLayer,
   doAddItem,
   doAddItems,
   doUpdateItem,
@@ -22,24 +22,22 @@ import {
   doCopy,
   doPaste,
   doDeleteItemsOfLayer,
-} from '../../../../../common/js/lib/itemOperations';
-import { deleteWarning } from '../../../lib/messageBoxes';
+} from '../../../lib/editorOperations';
 import TimelineScriptDialog from './TimelineScriptDialog';
-import { DIALOG_EDIT, DIALOG_ADD, DIALOG_CONFIGURE } from '../../../../../common/js/constants/dialogs';
 import { useDialog } from '../../../lib/hooks';
-import { ITEM_SCRIPT, ITEM_TRIGGER, ITEM_MEDIA, ITEM_CURVE } from '../../../../../common/js/constants/items';
 import TimelineTriggerDialog from './TimelineTriggerDialog';
 import TimelineItem from './TimelineItem';
 import TimelineMediaDialog from './TimelineMediaDialog';
 import TimelineCurveDialog from './TimelineCurveDialog';
 import TimelineRecordedTriggersDialog from './TimelineRecordedTriggersDialog';
-import { getMediaName, getScriptName } from '../../../../../common/js/lib/itemNames';
-import { getContainerX, getContainerPercent } from '../../../lib/mouseEvents';
-import { ipcRendererListen, ipcRendererClear, ipcRendererSend } from '../../../lib/ipcRenderer';
+import { getMediaName, getScriptName } from '../../../lib/helpers';
+import { getContainerX, getContainerPercent } from '../../../../common/lib/helpers';
 import { UPDATE_TIMELINE_INFO } from '../../../../../common/js/constants/events';
 import { focusIsGlobal } from '../../../../common/lib/helpers';
 import { ItemNamesObject, MediaId, ScriptId, Timeline } from '../../../../../common/types';
 import { useKodtrolSelector } from '../../../lib/hooks';
+import { KodtrolDialogType, KodtrolIconType } from '../../../constants';
+import { ItemType } from '../../../../../common/constants';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -195,7 +193,7 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
     onChange({ recording: !recording });
   }, [onChange, timeline]);
   const configureRecordedTriggersClickHandler = useCallback(() => {
-    recordedTriggersDialog.show(DIALOG_CONFIGURE, { triggers: recordedTriggers });
+    recordedTriggersDialog.show(KodtrolDialogType.CONFIGURE, { triggers: recordedTriggers });
   }, [recordedTriggersDialog, timeline]);
   const recordedTriggersDialogSuccessHandler = useCallback(() => {
     onChange({ recordedTriggers: recordedTriggersDialog.value.triggers });
@@ -213,7 +211,7 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
             color,
             inTime: timelineInfo.current.position,
             id: uniqid(),
-            type: ITEM_TRIGGER,
+            type: ItemType.TRIGGER,
           });
         }
       });
@@ -226,100 +224,104 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
 
   // Scripts
   const addScriptClickHandler = useCallback((initial = null) => {
-    initial ? scriptDialog.show(DIALOG_ADD, initial) : scriptDialog.show();
+    initial ? scriptDialog.show(KodtrolDialogType.ADD, initial) : scriptDialog.show();
   }, [scriptDialog]);
   const editScriptClickHandler = useCallback((id) => {
     const script = getItem(items, id);
-    scriptDialog.show(DIALOG_EDIT, script);
+    scriptDialog.show(KodtrolDialogType.EDIT, script);
   }, [scriptDialog, timeline]);
   const deleteScriptClickHandler = useCallback((id) => {
     const script = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete script ${getScriptName(script, scriptsNames)}?`, (result) => {
-      if (result) {
-        onChange({ items: doDeleteItem(items, id) });
-      }
-    });
+    window.kodtrol_editor.deleteWarningDialog(`Are you sure you want to delete script ${getScriptName(script, scriptsNames)}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      });
   }, [onChange, timeline, scriptsNames]);
   const scriptDialogSuccessHandler = useCallback(() => {
-    if (scriptDialog.mode === DIALOG_EDIT) {
+    if (scriptDialog.mode === KodtrolDialogType.EDIT) {
       onChange({ items: doUpdateItem(items, scriptDialog.value) });
     } else {
-      onChange({ items: doAddItem(items, { ...scriptDialog.value, id: uniqid(), type: ITEM_SCRIPT }) });
+      onChange({ items: doAddItem(items, { ...scriptDialog.value, id: uniqid(), type: ItemType.SCRIPT }) });
     }
     scriptDialog.hide();
   }, [onChange, scriptDialog]);
 
   // Triggers
   const addTriggerClickHandler = useCallback((initial = null) => {
-    initial ? triggerDialog.show(DIALOG_ADD, initial) : triggerDialog.show();
+    initial ? triggerDialog.show(KodtrolDialogType.ADD, initial) : triggerDialog.show();
   }, [triggerDialog]);
   const editTriggerClickHandler = useCallback((id) => {
     const trigger = getItem(items, id);
-    triggerDialog.show(DIALOG_EDIT, trigger);
+    triggerDialog.show(KodtrolDialogType.EDIT, trigger);
   }, [triggerDialog, timeline]);
   const deleteTriggerClickHandler = useCallback((id) => {
     const trigger = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete trigger ${trigger.name}?`, (result) => {
-      if (result) {
-        onChange({ items: doDeleteItem(items, id) });
-      }
-    });
+    window.kodtrol_editor.deleteWarningDialog(`Are you sure you want to delete trigger ${trigger.name}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      });
   }, [onChange, timeline]);
   const triggerDialogSuccessHandler = useCallback(() => {
-    if (triggerDialog.mode === DIALOG_EDIT) {
+    if (triggerDialog.mode === KodtrolDialogType.EDIT) {
       onChange({ items: doUpdateItem(items, triggerDialog.value) });
     } else {
-      onChange({ items: doAddItem(items, { ...triggerDialog.value, id: uniqid(), type: ITEM_TRIGGER }) });
+      onChange({ items: doAddItem(items, { ...triggerDialog.value, id: uniqid(), type: ItemType.TRIGGER }) });
     }
     triggerDialog.hide();
   }, [onChange, triggerDialog]);
 
   // Medias
   const addMediaClickHandler = useCallback((initial = null) => {
-    initial ? mediaDialog.show(DIALOG_ADD, initial) : mediaDialog.show();
+    initial ? mediaDialog.show(KodtrolDialogType.ADD, initial) : mediaDialog.show();
   }, [mediaDialog]);
   const editMediaClickHandler = useCallback((id) => {
     const media = getItem(items, id);
-    mediaDialog.show(DIALOG_EDIT, media);
+    mediaDialog.show(KodtrolDialogType.EDIT, media);
   }, [mediaDialog, timeline]);
   const deleteMediaClickHandler = useCallback((id) => {
     const media = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete media ${mediasNames[media.media].name}?`, (result) => {
-      if (result) {
-        onChange({ items: doDeleteItem(items, id) });
-      }
-    });
+    window.kodtrol_editor.deleteWarningDialog(`Are you sure you want to delete media ${mediasNames[media.media].name}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      });
   }, [onChange, timeline, mediasNames]);
   const mediaDialogSuccessHandler = useCallback(() => {
-    if (mediaDialog.mode === DIALOG_EDIT) {
+    if (mediaDialog.mode === KodtrolDialogType.EDIT) {
       onChange({ items: doUpdateItem(items, mediaDialog.value) });
     } else {
-      onChange({ items: doAddItem(items, { ...mediaDialog.value, id: uniqid(), type: ITEM_MEDIA }) });
+      onChange({ items: doAddItem(items, { ...mediaDialog.value, id: uniqid(), type: ItemType.MEDIA }) });
     }
     mediaDialog.hide();
   }, [onChange, mediaDialog]);
 
   // Curves
   const addCurveClickHandler = useCallback((initial = null) => {
-    initial ? curveDialog.show(DIALOG_ADD, initial) : curveDialog.show();
+    initial ? curveDialog.show(KodtrolDialogType.ADD, initial) : curveDialog.show();
   }, [curveDialog]);
   const editCurveClickHandler = useCallback((id) => {
     const curve = getItem(items, id);
-    curveDialog.show(DIALOG_EDIT, curve);
+    curveDialog.show(KodtrolDialogType.EDIT, curve);
   }, [curveDialog, timeline]);
   const deleteCurveClickHandler = useCallback((id) => {
     const curve = getItem(items, id);
-    deleteWarning(`Are you sure you want to delete curve ${curve.name}?`, (result) => {
-      if (result) {
-        onChange({ items: doDeleteItem(items, id) });
-      }
-    });
+    window.kodtrol_editor.deleteWarningDialog(`Are you sure you want to delete curve ${curve.name}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ items: doDeleteItem(items, id) });
+        }
+      });
   }, [onChange, timeline]);
   const curveDialogSuccessHandler = useCallback(() => {
-    if (curveDialog.mode === DIALOG_EDIT) {
+    if (curveDialog.mode === KodtrolDialogType.EDIT) {
       onChange({ items: doUpdateItem(items, curveDialog.value) });
     } else {
-      onChange({ items: doAddItem(items, { ...curveDialog.value, id: uniqid(), type: ITEM_CURVE }) });
+      onChange({ items: doAddItem(items, { ...curveDialog.value, id: uniqid(), type: ItemType.CURVE }) });
     }
     curveDialog.hide();
   }, [onChange, curveDialog]);
@@ -379,128 +381,189 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
 
     const item = getItem(items, id);
 
-    const template = [
-      {
-        label: 'Copy',
-        submenu: [
-          {
-            label: 'Item',
-            click: () => itemCopyClick(id),
-          },
-          ...(item.type === ITEM_TRIGGER ? [
-            {
-              label: 'Trigger time',
-              click: () => itemCopyInTimeClick(id),
-            },
-          ] : [
-            {
-              label: 'Block In time',
-              click: () => itemCopyInTimeClick(id),
-            },
-            {
-              label: 'Block Out time',
-              click: () => itemCopyOutTimeClick(id),
-            },
-            {
-              label: 'Block In and Out time',
-              click: () => itemCopyInAndOutTimeClick(id),
-            },
-          ]
-          ),
-        ],
-      },
-      {
-        label: 'Paste',
-        submenu: item.type === ITEM_TRIGGER ? [
-          {
-            label: 'Time as trigger time',
-            click: () => itemPasteInTimeClick(id),
-            enabled: canPasteItem('inTime'),
-          },
-        ] : [
-          {
-            label: 'Time as block In time',
-            click: () => itemPasteInTimeClick(id),
-            enabled: canPasteItem('inTime'),
-          },
-          {
-            label: 'Time as block Out time',
-            click: () => itemPasteOutTimeClick(id),
-            enabled: canPasteItem('outTime'),
-          },
-          {
-            label: 'In and Out Time as block In and Out time',
-            click: () => itemPasteInAndOutTimeClick(id),
-            enabled: canPasteItem('inAndOutTime'),
-          },
-        ],
-      },
-      {
-        label: 'Move item',
-        submenu: [
-          {
-            label: 'To layer above',
-            click: () => itemChangeLayerUpClick(id),
-            enabled: canChangeItemLayerUp(items, layers, id),
-          },
-          {
-            label: 'To layer below',
-            click: () => itemChangeLayerDownClick(id),
-            enabled: canChangeItemLayerDown(items, layers, id),
-          },
-        ],
-      },
-      {
-        type: 'separator',
-      },
-    ];
-    if (item.type === ITEM_SCRIPT) {
-      template.push({
-        label: 'Edit script block...',
-        click: () => editScriptClickHandler(id),
-      });
-      template.push({ type: 'separator' });
-      template.push({
-        label: 'Delete script block...',
-        click: () => deleteScriptClickHandler(id),
-      });
-    }
-    if (item.type === ITEM_TRIGGER) {
-      template.push({
-        label: 'Edit trigger...',
-        click: () => editTriggerClickHandler(id),
-      });
-      template.push({ type: 'separator' });
-      template.push({
-        label: 'Delete trigger...',
-        click: () => deleteTriggerClickHandler(id),
-      });
-    }
-    if (item.type === ITEM_CURVE) {
-      template.push({
-        label: 'Edit curve block...',
-        click: () => editCurveClickHandler(id),
-      });
-      template.push({ type: 'separator' });
-      template.push({
-        label: 'Delete curve block...',
-        click: () => deleteCurveClickHandler(id),
-      });
-    }
-    if (item.type === ITEM_MEDIA) {
-      template.push({
-        label: 'Edit media block...',
-        click: () => editMediaClickHandler(id),
-      });
-      template.push({ type: 'separator' });
-      template.push({
-        label: 'Delete media block...',
-        click: () => deleteMediaClickHandler(id),
-      });
-    }
+    const menu = (
+      <Menu>
+        <MenuItem
+          text='Copy'
+        >
+          <MenuItem
+            text='Item'
+            onClick={() => itemCopyClick(id)}
+          />
+          {(item.type === ItemType.TRIGGER) ? (
+            <MenuItem
+              text='Trigger time'
+              onClick={() => itemCopyInTimeClick(id)}
+            />
+          ) : (
+            <>
+              <MenuItem
+                text='Block In time'
+                onClick={() => itemCopyInTimeClick(id)}
+              />
+              <MenuItem
+                text='Block Out time'
+                onClick={() => itemCopyOutTimeClick(id)}
+              />
+              <MenuItem
+                text='Block In and Out time'
+                onClick={() => itemCopyInAndOutTimeClick(id)}
+              />
+            </>
+          )}
+        </MenuItem>
+        <MenuItem
+          text='Paste'
+        >
+          {(item.type === ItemType.TRIGGER) ? (
+            <MenuItem
+              text='Time as trigger time'
+              onClick={() => itemPasteInTimeClick(id)}
+              disabled={!canPasteItem('inTime')}
+            />
+          ) : (
+            <>
+              <MenuItem
+                text='Time as block In time'
+                onClick={() => itemPasteInTimeClick(id)}
+                disabled={!canPasteItem('inTime')}
+              />
+              <MenuItem
+                text='Time as block Out time'
+                onClick={() => itemPasteOutTimeClick(id)}
+                disabled={!canPasteItem('outTime')}
+              />
+              <MenuItem
+                text='In and Out Time as block In and Out time'
+                onClick={() => itemPasteInAndOutTimeClick(id)}
+                disabled={!canPasteItem('inAndOutTime')}
+              />
+            </>
+          )}
+        </MenuItem>
+      </Menu>
+    );
+    // const menu = (
+    //   {
+    //     label: 'Copy',
+    //     submenu: [
+    //       {
+    //         label: 'Item',
+    //         click: () => itemCopyClick(id),
+    //       },
+    //       ...(item.type === ItemType.TRIGGER ? [
+    //         {
+    //           label: 'Trigger time',
+    //           click: () => itemCopyInTimeClick(id),
+    //         },
+    //       ] : [
+    //         {
+    //           label: 'Block In time',
+    //           click: () => itemCopyInTimeClick(id),
+    //         },
+    //         {
+    //           label: 'Block Out time',
+    //           click: () => itemCopyOutTimeClick(id),
+    //         },
+    //         {
+    //           label: 'Block In and Out time',
+    //           click: () => itemCopyInAndOutTimeClick(id),
+    //         },
+    //       ]
+    //       ),
+    //     ],
+    //   },
+    //   {
+    //     label: 'Paste',
+    //     submenu: item.type === ItemType.TRIGGER ? [
+    //       {
+    //         label: 'Time as trigger time',
+    //         click: () => itemPasteInTimeClick(id),
+    //         enabled: canPasteItem('inTime'),
+    //       },
+    //     ] : [
+    //       {
+    //         label: 'Time as block In time',
+    //         click: () => itemPasteInTimeClick(id),
+    //         enabled: canPasteItem('inTime'),
+    //       },
+    //       {
+    //         label: 'Time as block Out time',
+    //         click: () => itemPasteOutTimeClick(id),
+    //         enabled: canPasteItem('outTime'),
+    //       },
+    //       {
+    //         label: 'In and Out Time as block In and Out time',
+    //         click: () => itemPasteInAndOutTimeClick(id),
+    //         enabled: canPasteItem('inAndOutTime'),
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     label: 'Move item',
+    //     submenu: [
+    //       {
+    //         label: 'To layer above',
+    //         click: () => itemChangeLayerUpClick(id),
+    //         enabled: canChangeItemLayerUp(items, layers, id),
+    //       },
+    //       {
+    //         label: 'To layer below',
+    //         click: () => itemChangeLayerDownClick(id),
+    //         enabled: canChangeItemLayerDown(items, layers, id),
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     type: 'separator',
+    //   },
+    // );
+    // if (item.type === ItemType.SCRIPT) {
+    //   template.push({
+    //     label: 'Edit script block...',
+    //     click: () => editScriptClickHandler(id),
+    //   });
+    //   template.push({ type: 'separator' });
+    //   template.push({
+    //     label: 'Delete script block...',
+    //     click: () => deleteScriptClickHandler(id),
+    //   });
+    // }
+    // if (item.type === ItemType.TRIGGER) {
+    //   template.push({
+    //     label: 'Edit trigger...',
+    //     click: () => editTriggerClickHandler(id),
+    //   });
+    //   template.push({ type: 'separator' });
+    //   template.push({
+    //     label: 'Delete trigger...',
+    //     click: () => deleteTriggerClickHandler(id),
+    //   });
+    // }
+    // if (item.type === ItemType.CURVE) {
+    //   template.push({
+    //     label: 'Edit curve block...',
+    //     click: () => editCurveClickHandler(id),
+    //   });
+    //   template.push({ type: 'separator' });
+    //   template.push({
+    //     label: 'Delete curve block...',
+    //     click: () => deleteCurveClickHandler(id),
+    //   });
+    // }
+    // if (item.type === ItemType.MEDIA) {
+    //   template.push({
+    //     label: 'Edit media block...',
+    //     click: () => editMediaClickHandler(id),
+    //   });
+    //   template.push({ type: 'separator' });
+    //   template.push({
+    //     label: 'Delete media block...',
+    //     click: () => deleteMediaClickHandler(id),
+    //   });
+    // }
 
-    const menu = window.kodtrol.menuFromTemplate(template);
-    menu.popup();
+    ContextMenu.show(menu, { left: e.clientX, top: e.clientY });
   }, [
     items,
     layers,
@@ -541,7 +604,7 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
       let effectivePercent;
 
       if (mode === 'inTime') {
-        if (item.type === ITEM_TRIGGER) {
+        if (item.type === ItemType.TRIGGER) {
           effectivePercent = percent;
           element.style = `left:${percentString(effectivePercent)}`;
         } else {
@@ -567,7 +630,8 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
         ...current,
         position: Math.round(timelinePercent.current * duration),
       };
-      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+      ok(window.kodtrol_editorPort, 'kodtrol_editorPort not set');
+      window.kodtrol_editorPort.postMessage({ updateTimelineInfo: data });
     }
   }, [isRunning, timelinePercent, timelineInfo, duration]);
   const windowMouseUpHandler = useCallback((e) => {
@@ -585,7 +649,7 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
       }
 
       element.classList.remove('active');
-      document.body.style = 'cursor:initial;';
+      document.body.style.cssText = 'cursor:initial;';
       dragContent.current = null;
     }
   }, [dragContent.current, items, duration, onChange]);
@@ -595,7 +659,7 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
       if (positionTracker.current) {
         const { position } = data;
         const percent = position / duration;
-        positionTracker.current.style = `left:${percentString(percent)}`;
+        positionTracker.current.style.cssText = `left:${percentString(percent)}`;
       }
       if (!isPlaying && data.playing) {
         setIsPlaying(true);
@@ -608,10 +672,10 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
     window.addEventListener('mouseup', windowMouseUpHandler);
     return () => window.removeEventListener('mouseup', windowMouseUpHandler);
   }, [windowMouseUpHandler]);
-  useEffect(() => {
-    ipcRendererListen(UPDATE_TIMELINE_INFO, updateTimelineInfoHandler);
-    return () => ipcRendererClear(UPDATE_TIMELINE_INFO, updateTimelineInfoHandler);
-  }, [updateTimelineInfoHandler]);
+  // useEffect(() => {
+  //   ipcRendererListen(UPDATE_TIMELINE_INFO, updateTimelineInfoHandler);
+  //   return () => ipcRendererClear(UPDATE_TIMELINE_INFO, updateTimelineInfoHandler);
+  // }, [updateTimelineInfoHandler]);
 
   // Layers
   const addLayerAtTopClickHandler = useCallback(() => {
@@ -625,11 +689,13 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
   }, [onChange, timeline]);
   const layersDeleteHandler = useCallback((id) => {
     const layer = layers.find((layer) => layer.id === id);
-    deleteWarning(`Are you sure you want to delete layer ${layer.order + 1}?`, (result) => {
-      if (result) {
-        onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
-      }
-    });;
+    ok(layer, 'layer not found');
+    window.kodtrol_editor.deleteWarningDialog(`Are you sure you want to delete layer ${layer.order + 1}?`)
+      .then((result) => {
+        if (result) {
+          onChange({ layers: doDeleteLayer(layers, id), items: doDeleteItemsOfLayer(items, id) });
+        }
+      });
   }, [onChange, timeline]);
   const layerChildrenRenderer = useCallback((id) => {
     return (
@@ -697,7 +763,8 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
         ...current,
         playing: current ? !current.playing : true,
       };
-      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+      ok(window.kodtrol_editorPort, 'kodtrol_editorPort not set');
+      window.kodtrol_editorPort.postMessage({ updateTimelineInfo: data });
     }
   }, [isRunning, timelineInfo]);
   const rewindHandler = useCallback((e) => {
@@ -707,7 +774,8 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
         ...current,
         position: 0,
       };
-      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+      ok(window.kodtrol_editorPort, 'kodtrol_editorPort not set');
+      window.kodtrol_editorPort.postMessage({ updateTimelineInfo: data });
     }
   }, [isRunning, timelineInfo]);
   const backHandler = useCallback(() => {
@@ -717,7 +785,8 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
         ...current,
         position: current ? Math.max(current.position - 5000, 0) : 0,
       };
-      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+      ok(window.kodtrol_editorPort, 'kodtrol_editorPort not set');
+      window.kodtrol_editorPort.postMessage({ updateTimelineInfo: data });
     }
   }, [isRunning, timelineInfo]);
   const forwardHandler = useCallback(() => {
@@ -727,7 +796,8 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
         ...current,
         position: current ? Math.min(current.position + 5000, duration) : 5000,
       };
-      ipcRendererSend(UPDATE_TIMELINE_INFO, data);
+      ok(window.kodtrol_editorPort, 'kodtrol_editorPort not set');
+      window.kodtrol_editorPort.postMessage({ updateTimelineInfo: data });
     }
   }, [isRunning, timelineInfo, duration]);
   useHotkeys(' ', playPauseHandler);
@@ -761,41 +831,41 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
                 <Menu>
                   {hasLayers ? (
                     <>
-                      <Menu.Item
-                        icon={ICON_SCRIPT}
+                      <MenuItem
+                        icon={KodtrolIconType.SCRIPT}
                         text="Add Script block..."
                         onClick={() => addScriptClickHandler()}
                       />
-                      <Menu.Item
-                        icon={ICON_TRIGGER}
+                      <MenuItem
+                        icon={KodtrolIconType.TRIGGER}
                         text="Add Trigger..."
                         onClick={() => addTriggerClickHandler()}
                       />
-                      <Menu.Item
-                        icon={ICON_CURVE}
+                      <MenuItem
+                        icon={KodtrolIconType.CURVE}
                         text="Add Curve block..."
                         onClick={() => addCurveClickHandler()}
                       />
-                      <Menu.Item
-                        icon={ICON_MEDIA}
+                      <MenuItem
+                        icon={KodtrolIconType.MEDIA}
                         text="Add Media block..."
                         onClick={() => addMediaClickHandler()}
                       />
-                      <Menu.Divider />
-                      <Menu.Item
-                        icon={ICON_LAYER}
+                      <MenuDivider />
+                      <MenuItem
+                        icon={KodtrolIconType.LAYER}
                         text="Add layer at top"
                         onClick={addLayerAtTopClickHandler}
                       />
-                      <Menu.Item
-                        icon={ICON_LAYER}
+                      <MenuItem
+                        icon={KodtrolIconType.LAYER}
                         text="Add layer at bottom"
                         onClick={addLayerAtBottomClickHandler}
                       />
                     </>
                   ) : (
-                    <Menu.Item
-                      icon={ICON_LAYER}
+                    <MenuItem
+                      icon={KodtrolIconType.LAYER}
                       text="Add Layer"
                       onClick={addLayerAtBottomClickHandler}
                     />
@@ -823,7 +893,7 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
               position={Position.BOTTOM}
               content={(
                 <Menu>
-                  <Menu.Item
+                  <MenuItem
                     icon="settings"
                     text="Configure recorded triggers..."
                     onClick={configureRecordedTriggersClickHandler}
@@ -845,7 +915,7 @@ export default function TimelineEditor({ timeline, onChange }: TimelineEditorPro
               content={(
                 <Menu>
                   {ZOOM_LEVELS.map((level) => (
-                    <Menu.Item
+                    <MenuItem
                       key={level}
                       active={zoom === level}
                       text={percentString(level, true)}

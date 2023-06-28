@@ -5,7 +5,6 @@ import InlineFormGroup from '../../ui/InlineFormGroup';
 import TextInput from '../../ui/inputs/TextInput';
 import SelectInput from '../../ui/inputs/SelectInput';
 import DurationInput from '../../ui/inputs/DurationInput';
-import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
 
 export default function TimelineCurveDialogBody({ value, onChange, validation, layers = [] }) {
@@ -20,7 +19,7 @@ export default function TimelineCurveDialogBody({ value, onChange, validation, l
   return (
     <>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Layer"
         helperText={!validation.layer ? 'A layer is mandatory.' : undefined}
         intent={!validation.layer ? Intent.DANGER : undefined}
@@ -43,7 +42,7 @@ export default function TimelineCurveDialogBody({ value, onChange, validation, l
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Name"
         helperText={!validation.name ? 'A curve name is mandatory.' : undefined}
         intent={!validation.name ? Intent.DANGER : undefined}
@@ -55,7 +54,7 @@ export default function TimelineCurveDialogBody({ value, onChange, validation, l
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="In time"
         helperText={!validation.inTime ? 'A valid in time is mandatory.' : undefined}
         intent={!validation.inTime ? Intent.DANGER : undefined}
@@ -67,7 +66,7 @@ export default function TimelineCurveDialogBody({ value, onChange, validation, l
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Out time"
         helperText={!validation.outTime ? 'A valid out time is mandatory.' : undefined}
         intent={!validation.outTime ? Intent.DANGER : undefined}
@@ -79,7 +78,7 @@ export default function TimelineCurveDialogBody({ value, onChange, validation, l
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Color"
       >
         <ColorInput

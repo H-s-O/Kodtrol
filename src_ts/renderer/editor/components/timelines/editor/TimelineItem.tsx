@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import Color from 'color';
 import uniqid from 'uniqid';
 
-import percentString from '../../../lib/percentString';
-import { ITEM_TRIGGER, ITEM_SCRIPT, ITEM_MEDIA, ITEM_CURVE } from '../../../../../common/js/constants/items';
-import AudioSVGWaveform from '../../../lib/AudioSVGWaveform';
-import parseCurve from '../../../../../common/js/lib/parseCurve';
-import { getContainerCoords } from '../../../lib/mouseEvents';
+import { percentString } from '../../../lib/helpers';
+import AudioSVGWaveform from '../../../lib/AudioSVGWaveform'
+import { parseCurve } from '../../../../../common/utils';
+import { getContainerCoords } from '../../../../common/lib/helpers';
+import { ItemType } from '../../../../../common/constants';
 
 const StyledBlockLabel = styled.span`
   text-overflow: ellipsis;
@@ -202,7 +202,7 @@ const TimelineCurve = ({ curve, onDrag, onChange, ...otherProps }) => {
   const containerDoubleClickHandler = useCallback((e) => {
     // Prevent a timeline position change
     e.stopPropagation();
-  });
+  }, []);
   const containerClickHandler = useCallback((e) => {
     e.stopPropagation();
 
@@ -298,7 +298,7 @@ const TimelineMedia = ({ media, mediasNames, onDrag, onChange, ...otherProps }) 
   const [waveformData, setWaveformData] = useState(null);
   const [waveformFile, setWaveformFile] = useState(null);
 
-  const instance = useRef();
+  const instance = useRef<AudioSVGWaveform>();
 
   useEffect(() => {
     if ((!!file && file !== waveformFile) && !loading) {
@@ -366,7 +366,7 @@ export default function TimelineItem({ item, scriptsNames, mediasNames, timeline
   const type = item.type;
   const left = percentString(item.inTime / timelineDuration);
 
-  if (type === ITEM_TRIGGER) {
+  if (type === ItemType.TRIGGER) {
     return (
       <TimelineTrigger
         trigger={item}
@@ -378,7 +378,7 @@ export default function TimelineItem({ item, scriptsNames, mediasNames, timeline
 
   const width = percentString((item.outTime - item.inTime) / timelineDuration);
 
-  if (type === ITEM_SCRIPT) {
+  if (type === ItemType.SCRIPT) {
     return (
       <TimelineScript
         script={item}
@@ -389,7 +389,7 @@ export default function TimelineItem({ item, scriptsNames, mediasNames, timeline
     );
   }
 
-  if (type === ITEM_CURVE) {
+  if (type === ItemType.CURVE) {
     return (
       <TimelineCurve
         curve={item}
@@ -399,7 +399,7 @@ export default function TimelineItem({ item, scriptsNames, mediasNames, timeline
     );
   }
 
-  if (type === ITEM_MEDIA) {
+  if (type === ItemType.MEDIA) {
     return (
       <TimelineMedia
         media={item}

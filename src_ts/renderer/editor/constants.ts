@@ -1,3 +1,5 @@
+import { ItemTriggerBehavior, ItemTriggerSource } from "../../common/constants";
+
 export const enum KodtrolDialogType {
   ADD = 'add',
   DUPLICATE = 'duplicate',
@@ -54,3 +56,12 @@ export const enum KodtrolIconType {
 export const KODTROL_SUPPORTED_AUDIO_FORMATS = [
   'mp3', 'opus', 'ogg', 'oga', 'wav', 'aac', 'm4a', 'm4b', 'weba', 'flac'
 ] as const;
+
+export const ITEM_LABELS = {
+  [ItemTriggerBehavior.TRIGGER_ONCE]: 'Trigger once',
+  [ItemTriggerBehavior.TRIGGER_MULTIPLE]: 'Trigger multiple',
+  [ItemTriggerBehavior.TOGGLE]: 'Toggle',
+
+  [ItemTriggerSource.MIDI_CC]: 'MIDI CC value 0/127',
+  [ItemTriggerSource.MIDI_NOTE]: 'MIDI note on/off',
+} as const;

@@ -18,7 +18,7 @@ export default function TimelineTriggerDialogBody({ value, onChange, validation,
   return (
     <>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Layer"
         helperText={!validation.layer ? 'A layer is mandatory.' : undefined}
         intent={!validation.layer ? Intent.DANGER : undefined}
@@ -41,7 +41,7 @@ export default function TimelineTriggerDialogBody({ value, onChange, validation,
         </SelectInput>
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Name"
         helperText={!validation.name ? 'A trigger name is mandatory.' : undefined}
         intent={!validation.name ? Intent.DANGER : undefined}
@@ -53,7 +53,7 @@ export default function TimelineTriggerDialogBody({ value, onChange, validation,
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Time"
         helperText={!validation.inTime ? 'A valid trigger time is mandatory.' : undefined}
         intent={!validation.inTime ? Intent.DANGER : undefined}
@@ -65,7 +65,7 @@ export default function TimelineTriggerDialogBody({ value, onChange, validation,
         />
       </InlineFormGroup>
       <InlineFormGroup
-        minWidth="100"
+        minWidth={100}
         label="Color"
       >
         <ColorInput

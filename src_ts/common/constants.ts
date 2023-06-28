@@ -64,3 +64,21 @@ export const IO_LABELS = {
   [IOType.ILDA]: 'ILDA',
   [IOType.AUDIO]: 'Audio',
 } as const;
+
+export const enum ItemType {
+  SCRIPT = 1,
+  TRIGGER = 2,
+  CURVE = 3,
+  MEDIA = 4,
+};
+
+export const enum ItemTriggerBehavior {
+  TRIGGER_ONCE = 'trigger_once',
+  TRIGGER_MULTIPLE = 'trigger_mult',
+  TOGGLE = 'toggle',
+};
+
+export const enum ItemTriggerSource {
+  MIDI_CC = 'midi_cc',
+  MIDI_NOTE = 'midi_note',
+};

@@ -1,7 +1,7 @@
 import uniqid from 'uniqid';
 
 import { orderSort } from '../../../common/utils';
-import { clipboardGetMode, clipboardPut, clipboardGetValue } from '../../../ui/js/lib/customClipboard';
+import { clipboardGetMode, clipboardPut, clipboardGetValue } from '../lib/helpers'; //@TODO remove custom clipboard
 import { Layer, LayerId, LayersState } from '../../../common/types';
 
 export const getItem = (items, itemId) => {
