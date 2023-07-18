@@ -9,7 +9,7 @@
   "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "./build/main/kodtrol-main.js",
   "scripts": {
-    "dev": "cross-env KODTROL_DEV=true parcel watch --target splash --target splash-preload --target editor --target editor-preload --target engine-preload --no-hmr",
+    "dev": "cross-env KODTROL_DEV=true parcel watch --target splash --target splash-preload --target editor --target editor-preload --target engine --target engine-preload --no-hmr",
     "start": "cross-env KODTROL_DEV=true electron -r ts-node/register src_ts/main/kodtrol-main.ts",
     "clear-build": "npx rimraf ./build/* .parcel-cache",
     "build": " parcel build --target splash --target splash-preload --target editor --target editor-preload --no-hmr",
@@ -52,7 +52,7 @@
       "source": "./src_ts/renderer/engine/kodtrol-engine.html",
       "distDir": "./build",
       "publicUrl": "./../",
-      "context": "browser"
+      "context": "electron-renderer"
     },
     "engine-preload": {
       "source": "./src_ts/renderer/engine/kodtrol-engine-preload.ts",
@@ -79,6 +79,7 @@
     "@blueprintjs/core": "^4.20.1",
     "@blueprintjs/datetime": "^4.4.36",
     "@blueprintjs/select": "^4.9.22",
+    "@julusian/midi": "^3.0.1",
     "@laser-dac/core": "^0.4.1",
     "@laser-dac/draw": "^0.6.0",
     "@laser-dac/ether-dream": "^0.4.1",
@@ -100,7 +101,6 @@
     "howler": "^2.2.0",
     "jzz": "^1.0.6",
     "lodash": "^4.17.19",
-    "midi": "^1.0.0",
     "object-hash": "^2.0.3",
     "osc": "^2.4.1",
     "react": "^16.14.0",
@@ -132,7 +132,7 @@
     "copy-files-from-to": "^3.2.0",
     "cross-env": "^7.0.2",
     "crypto-browserify": "^3.12.0",
-    "electron": "^24.3.1",
+    "electron": "20.3.8",
     "electron-builder": "^22.6.1",
     "electron-icon-builder": "^1.0.2",
     "electron-rebuild": "^1.11.0",
