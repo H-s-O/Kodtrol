@@ -19,6 +19,7 @@ class EngineWindow extends BaseWindow {
         webPreferences: {
           preload: join(__dirname, '..', '..', '..', 'build', 'engine', 'kodtrol-engine-preload.js'),
           sandbox: false,
+          nodeIntegration: true,
           additionalArguments: createAdditionalArgs(),
         },
       },

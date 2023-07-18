@@ -1,4 +1,4 @@
-import { Input } from 'midi';
+import { Input } from '@julusian/midi';
 import { MIDI } from 'jzz';
 
 import AbstractInput from './AbstractInput';

@@ -1,4 +1,4 @@
-import { Output } from 'midi';
+import { Output } from '@julusian/midi';
 
 import AbstractOutput from './AbstractOutput';
 

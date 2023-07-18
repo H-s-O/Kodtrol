@@ -12,6 +12,12 @@ const expose = {
 
 contextBridge.exposeInMainWorld('kodtrol_editor', expose);
 
+const m = {
+  require, // let Parcel bundles use native require()
+}
+
+contextBridge.exposeInMainWorld('module', m);
+
 //-------------------------------------------------------------------
 
 const windowLoaded = new Promise((resolve) => {
@@ -27,6 +33,7 @@ ipcRenderer.on('port', async (event) => {
 
 declare global {
   interface Window {
+    readonly module: typeof m
     readonly kodtrol_engine: typeof expose
     kodtrol_editorPort?: MessagePort
   }

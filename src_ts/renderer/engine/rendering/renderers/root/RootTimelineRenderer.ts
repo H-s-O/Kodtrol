@@ -1,10 +1,10 @@
-import BaseRootRenderer from '../root/BaseRootRenderer';
+import BaseRootRenderer from './BaseRootRenderer';
 import ScriptRenderer from '../items/ScriptRenderer';
 import TriggerRenderer from '../items/TriggerRenderer';
 import CurveRenderer from '../items/CurveRenderer';
 import AudioRenderer from '../items/AudioRenderer';
 import timeToPPQ from '../../../lib/timeToPPQ';
-import { ITEM_SCRIPT, ITEM_MEDIA, ITEM_TRIGGER, ITEM_CURVE } from '../../../../common/js/constants/items';
+import { ItemType } from '../../../../../common/constants';
 
 export default class RootTimelineRenderer extends BaseRootRenderer {
   _timeline = null;
@@ -62,7 +62,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     });
 
     this._blocks = timelineItems
-      .filter(({ type }) => type === ITEM_SCRIPT)
+      .filter(({ type }) => type === ItemType.SCRIPT)
       .reduce((obj, block) => {
         const instance = new ScriptRenderer(this._providers, block.script);
         instance.on('script_error', this._forwardEvent('script_error', { block: block.id, timeline: this._timeline.id }));
@@ -78,7 +78,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       }, {});
 
     this._medias = timelineItems
-      .filter(({ type }) => type === ITEM_MEDIA)
+      .filter(({ type }) => type === ItemType.MEDIA)
       .reduce((obj, media) => {
         return {
           ...obj,
@@ -90,7 +90,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       }, {});
 
     this._triggers = timelineItems
-      .filter(({ type }) => type === ITEM_TRIGGER)
+      .filter(({ type }) => type === ItemType.TRIGGER)
       .reduce((obj, trigger) => {
         return {
           ...obj,
@@ -102,7 +102,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
       }, {});
 
     this._curves = timelineItems
-      .filter(({ type }) => type === ITEM_CURVE)
+      .filter(({ type }) => type === ItemType.CURVE)
       .reduce((obj, curve) => {
         return {
           ...obj,
@@ -125,13 +125,13 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
         const item = timelineItems[i];
         const { id, type, inTime, outTime, script, media, curve, leadInTime, leadOutTime } = item;
         let trueInTime, trueOutTime;
-        if (type === ITEM_TRIGGER) {
+        if (type === ItemType.TRIGGER) {
           trueInTime = inTime;
           // Fake a duration of at least two divisions; this will
           // make triggers with inTime near the end of a division to span at least two
           // divisions, which will lessen the chance of being missed when there's lag
           trueOutTime = inTime + divisor;
-        } else if (type === ITEM_SCRIPT) {
+        } else if (type === ItemType.SCRIPT) {
           const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : 500;
           const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : 500;
           trueInTime = inTime - trueLeadInTime;
@@ -146,13 +146,13 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
           || (trueInTime < t && trueOutTime > end) // division in middle
         ) {
           let addIndex = null;
-          if (type === ITEM_SCRIPT) {
+          if (type === ItemType.SCRIPT) {
             addIndex = 2;
-          } else if (type === ITEM_MEDIA) {
+          } else if (type === ItemType.MEDIA) {
             addIndex = 3;
-          } else if (type === ITEM_TRIGGER) {
+          } else if (type === ItemType.TRIGGER) {
             addIndex = 0;
-          } else if (type === ITEM_CURVE) {
+          } else if (type === ItemType.CURVE) {
             addIndex = 1;
           }
           if (addIndex !== null) {

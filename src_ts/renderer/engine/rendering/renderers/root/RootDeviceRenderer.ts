@@ -18,12 +18,16 @@ export default class RootDeviceRenderer extends BaseRootRenderer {
   }
 
   _runFrame(frameTime) {
-    this._instance.applyTestValues();
+    if (this._instance) {
+      this._instance.applyTestValues();
+    }
   }
 
   destroy() {
-    this._instance.destroy();
-    this._instance = null;
+    if (this._instance) {
+      this._instance.destroy();
+      this._instance = null;
+    }
 
     super.destroy();
   }

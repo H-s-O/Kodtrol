@@ -10,46 +10,45 @@ export default class BaseRootRenderer extends EventEmitter {
     this._providers = providers;
   }
 
-  get currentTime() {
+  public get currentTime(): number {
     return this._currentTime;
   }
 
-  tick(delta) {
+  public tick(delta: number): void {
     this._currentTime += delta;
 
     this._runBeat(this._currentTime, this._currentTime - delta);
   }
 
-  frame() {
+  public frame(): void {
     this._runFrame(this._currentTime);
   }
 
-  input(type, data) {
+  public input(type, data): void {
     this._runInput(type, data);
   }
 
-  _runFrame(frameTime) {
+  protected _runFrame(frameTime): void {
     // implement in subclass
   }
 
-  _runBeat(beatTime, previousBeatTime) {
+  protected _runBeat(beatTime, previousBeatTime): void {
     // implement in subclass
   }
 
-  _runInput(type, data) {
+  protected _runInput(type, data): void {
     // implement in subclass
   }
 
-  _getRenderingTempo() {
+  protected _getRenderingTempo(): number | null | void {
     // implement in subclass
   }
 
-  _forwardEvent(eventName, additionalInfo = null) {
+  protected _forwardEvent(eventName, additionalInfo = null): void {
     return (info) => this.emit(eventName, additionalInfo ? { ...info, ...additionalInfo } : info);
   }
 
-  destroy() {
+  public destroy(): void {
     this._providers = null;
-    this._currentTime = null;
   }
 }

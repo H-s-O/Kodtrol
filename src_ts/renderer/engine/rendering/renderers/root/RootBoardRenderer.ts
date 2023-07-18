@@ -2,7 +2,7 @@ import BaseRootRenderer from './BaseRootRenderer';
 import ScriptRenderer from '../items/ScriptRenderer';
 // import AudioRenderer from '../items/AudioRenderer';
 import timeToPPQ from '../../../lib/timeToPPQ';
-import { ITEM_SCRIPT, ITEM_MEDIA } from '../../../../common/js/constants/items';
+import { ItemType } from '../../../../../common/constants';
 
 export default class RootBoardRenderer extends BaseRootRenderer {
   _board = null;
@@ -50,7 +50,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     });
 
     this._blocks = boardItems
-      .filter(({ type }) => type === ITEM_SCRIPT)
+      .filter(({ type }) => type === ItemType.SCRIPT)
       .reduce((obj, block) => {
         const instance = new ScriptRenderer(this._providers, block.script);
         instance.on('script_error', this._forwardEvent('script_error', { block: block.id, board: this._board.id }));
@@ -70,7 +70,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
       }, {});
 
     this._audios = boardItems
-      .filter(({ type }) => type === ITEM_MEDIA)
+      .filter(({ type }) => type === ItemType.MEDIA)
       .reduce((obj, audio) => {
         return {
           ...obj,
@@ -120,7 +120,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     return this._board.tempo;
   }
 
-  setActiveItems(activeItems) {
+  public setActiveItems(activeItems): void {
     const currentTime = this._currentTime;
 
     Object.entries(this._blocks).forEach(([id, block]) => {
@@ -146,7 +146,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     this._activeItems = activeItems;
   }
 
-  _runFrame(frameTime) {
+  protected _runFrame(frameTime): void {
     const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       // Nothing to render
@@ -195,7 +195,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     // }
   }
 
-  _runBeat(beatTime, previousBeatTime) {
+  protected _runBeat(beatTime, previousBeatTime): void {
     const boardItems = this._getBoardRunningItems();
     if (boardItems === null) {
       return;
@@ -221,7 +221,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     }
   }
 
-  _runInput(type, data) {
+  protected _runInput(type, data): void {
     let change = false;
     const updatedActiveItems = { ...this._activeItems };
     const triggerableItems = this._getBoardTriggerableItems();
@@ -287,7 +287,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
   //   Object.values(this._audios).forEach((audio) => audio.instance.reset());
   // }
 
-  destroy() {
+  public destroy(): void {
     if (this._board) {
       this._board.removeAllListeners('updated');
     }
