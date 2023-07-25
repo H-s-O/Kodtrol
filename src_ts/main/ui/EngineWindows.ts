@@ -20,7 +20,9 @@ class EngineWindow extends BaseWindow {
           preload: join(__dirname, '..', '..', '..', 'build', 'engine', 'kodtrol-engine-preload.js'),
           sandbox: false,
           nodeIntegration: true,
-          additionalArguments: createAdditionalArgs(),
+          additionalArguments: createAdditionalArgs({
+            HERSHEY_FONTS_DIR: join(__dirname, '..', '..', 'renderer', 'engine', 'hershey_fonts'),
+          }),
         },
       },
     });

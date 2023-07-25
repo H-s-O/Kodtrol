@@ -4,6 +4,7 @@ import {
   Menu,
   MenuItemConstructorOptions,
   MessagePortMain,
+  Event,
 } from 'electron/main';
 import windowStateKeeper from 'electron-window-state';
 
@@ -63,6 +64,7 @@ abstract class BaseWindow {
     }
     if (showOnLoaded) this.window.once('ready-to-show', this._onReady.bind(this));
     if (IS_MAC) this.window.on('focus', this._onFocus.bind(this));
+    this.window.webContents.on('will-navigate', this._onWillNavigate.bind(this));
   }
 
   public destroy(): void {
@@ -75,6 +77,11 @@ abstract class BaseWindow {
 
   private _onFocus(): void {
     Menu.setApplicationMenu(Menu.buildFromTemplate(this._generateMenu()));
+  }
+
+  private _onWillNavigate(e: Event): void {
+    e.preventDefault();
+    console.log('No, no, no!')
   }
 
   protected abstract _generateMenu(): MenuItemConstructorOptions[]

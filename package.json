@@ -116,6 +116,7 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@parcel/transformer-inline-string": "^2.9.1",
     "@parcel/transformer-less": "^2.9.1",
     "@types/color": "^3.0.3",
     "@types/domready": "^1.0.0",

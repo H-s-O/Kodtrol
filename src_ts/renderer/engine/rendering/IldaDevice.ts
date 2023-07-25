@@ -1,13 +1,16 @@
-import { basename, join } from 'path';
-import glob from 'glob';
-import { Path, Rect, Line, Circle, HersheyFont, loadHersheyFont } from '@laser-dac/draw';
+import { Path, Rect, Line, Circle, HersheyFont, loadHersheyFont, parseHersheyFont } from '@laser-dac/draw';
 
 import AbstractDevice from './AbstractDevice';
+import HersheyFontsEmbed from '../hershey_fonts/heyshey_fonts'
+console.log(loadHersheyFont, HersheyFontsEmbed)
+// console.log(window.kodtrol_engine.HERSHEY_FONTS_DIR)
+// console.log(path.join('test'))
+// console.log(glob)
 
-const FONTS_DIR = join(__dirname, '..', 'hershey_fonts');
-const FONTS = glob.sync(join(FONTS_DIR, '*.jhf')).reduce((obj, fontPath) => {
-  const name = basename(fontPath, '.jhf');
-  obj[name] = loadHersheyFont(fontPath);
+// const FONTS_DIR = join(window.kodtrol_engine.HERSHEY_FONTS_DIR);
+
+const FONTS = Object.entries(HersheyFontsEmbed).reduce((obj, [key, font]) => {
+  obj[key] = parseHersheyFont(font);
   return obj;
 }, {});
 
