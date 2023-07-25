@@ -1,0 +1,95 @@
+diff --git a/node_modules/@laser-dac/draw/dist/HersheyFont.d.ts b/node_modules/@laser-dac/draw/dist/HersheyFont.d.ts
+index 6513c20..775e94a 100644
+--- a/node_modules/@laser-dac/draw/dist/HersheyFont.d.ts
++++ b/node_modules/@laser-dac/draw/dist/HersheyFont.d.ts
+@@ -27,4 +27,5 @@ export declare class HersheyFont implements Shape {
+     draw(resolution: number): Point[];
+ }
+ export declare function loadHersheyFont(path: string): HersheyCharacter[];
++export declare function parseHersheyFont(fontFile: string): HersheyCharacter[];
+ export {};
+diff --git a/node_modules/@laser-dac/draw/dist/HersheyFont.js b/node_modules/@laser-dac/draw/dist/HersheyFont.js
+index dbdf821..ea912aa 100644
+--- a/node_modules/@laser-dac/draw/dist/HersheyFont.js
++++ b/node_modules/@laser-dac/draw/dist/HersheyFont.js
+@@ -1,6 +1,6 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.loadHersheyFont = exports.HersheyFont = void 0;
++exports.loadHersheyFont = exports.parseHersheyFont = exports.HersheyFont = void 0;
+ const fs = require("fs");
+ const Path_1 = require("./Path");
+ // Render text using hershey font
+@@ -83,6 +83,47 @@ function loadHersheyFont(path) {
+     return characters;
+ }
+ exports.loadHersheyFont = loadHersheyFont;
++// Added by HsO
++function parseHersheyFont(fontFile) {
++  const characters = [];
++  let readPos = 0;
++  function readNextCharacter() {
++      // 0-4 number (not used)
++      // 5-7 number of vertices
++      // 8   left pos
++      // 9   right pos
++      // 10- vertices
++      // newline
++      const vertexCount = Number.parseInt(fontFile.substr(readPos + 5, 3), 10);
++      const leftPos = hersheyCharToNumber(fontFile.charAt(readPos + 8));
++      const rightPos = hersheyCharToNumber(fontFile.charAt(readPos + 9));
++      const vertices = [];
++      readPos += 10;
++      while (vertices.length < vertexCount - 1) {
++          let vertex = '';
++          for (let i = 0; i < 2; i++) {
++              while (fontFile.charAt(readPos) === '\n') {
++                  readPos++;
++              }
++              vertex += fontFile.charAt(readPos);
++              readPos++;
++          }
++          vertices.push(vertex);
++      }
++      readPos++;
++      return {
++          leftPos,
++          rightPos,
++          vertexCount,
++          vertices,
++      };
++  }
++  while (readPos < fontFile.length) {
++      characters.push(readNextCharacter());
++  }
++  return characters;
++}
++exports.parseHersheyFont = parseHersheyFont;
+ function hersheyCharToNumber(char) {
+     return char.charCodeAt(0) - 'R'.charCodeAt(0);
+ }
+diff --git a/node_modules/@laser-dac/draw/dist/index.d.ts b/node_modules/@laser-dac/draw/dist/index.d.ts
+index 0cc5714..60f74f0 100644
+--- a/node_modules/@laser-dac/draw/dist/index.d.ts
++++ b/node_modules/@laser-dac/draw/dist/index.d.ts
+@@ -4,7 +4,7 @@ export { Rect } from './Rect';
+ export { Circle } from './Circle';
+ export { Path } from './Path';
+ export { Ilda, loadIldaFile } from './Ilda';
+-export { HersheyFont, loadHersheyFont } from './HersheyFont';
++export { HersheyFont, loadHersheyFont, parseHersheyFont } from './HersheyFont';
+ export { Timeline } from './Timeline';
+ export { rotate } from './transformers/rotate';
+ export { distort } from './transformers/distort';
+diff --git a/node_modules/@laser-dac/draw/dist/index.js b/node_modules/@laser-dac/draw/dist/index.js
+index 7adeb98..88d8a4b 100644
+--- a/node_modules/@laser-dac/draw/dist/index.js
++++ b/node_modules/@laser-dac/draw/dist/index.js
+@@ -17,6 +17,7 @@ Object.defineProperty(exports, "loadIldaFile", { enumerable: true, get: function
+ var HersheyFont_1 = require("./HersheyFont");
+ Object.defineProperty(exports, "HersheyFont", { enumerable: true, get: function () { return HersheyFont_1.HersheyFont; } });
+ Object.defineProperty(exports, "loadHersheyFont", { enumerable: true, get: function () { return HersheyFont_1.loadHersheyFont; } });
++Object.defineProperty(exports, "parseHersheyFont", { enumerable: true, get: function () { return HersheyFont_1.parseHersheyFont; } });
+ var Timeline_1 = require("./Timeline");
+ Object.defineProperty(exports, "Timeline", { enumerable: true, get: function () { return Timeline_1.Timeline; } });
+ var rotate_1 = require("./transformers/rotate");
