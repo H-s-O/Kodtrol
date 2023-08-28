@@ -9,8 +9,9 @@
   "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "./build/main/kodtrol-main.js",
   "scripts": {
-    "start": "cross-env KODTROL_DEV=true npx electron -r @babel/register ./src/main/kodtrol-main.js",
-    "dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch ./src/ui/index.html ./src/ui/console.html ./src/ui/splash.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../",
+    "start": "cross-env KODTROL_DEV=true npx electron -r esbuild-register ./src/main/kodtrol-main.js",
+    "dev": "rimraf build/* && node ./scripts/watch-and-build.mjs",
+    "_dev": "cross-env KODTROL_DEV=true npm run clear-build && parcel watch ./src/ui/index.html ./src/ui/console.html ./src/ui/splash.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../",
     "clear-build": "npx rimraf ./build/*",
     "build-babel": "babel ./src/main --ignore 'src/main/lib/helpers/*.js' --copy-files --out-dir ./build/main && babel ./src/renderer --out-dir ./build/renderer && babel ./src/common --out-dir ./build/common",
     "build-parcel": "parcel build ./src/ui/index.html ./src/ui/console.html ./src/ui/splash.html ./src/audio/index.html --target electron --out-dir ./build --public-url ../ --no-source-maps --no-minify",
@@ -21,12 +22,14 @@
     "generate-screenshots": "npm start -- --screenshots ../../dev/screenshots.js --project ./dev/demo_project.json",
     "generate-helpers-doc": "jsdoc -c jsdoc-conf.json > ./dev/helpers_doc.json",
     "test": "mocha --recursive -r @babel/register",
-    "postinstall": "patch-package && copy-files-from-to"
+    "postinstall": "patch-package && copy-files-from-to",
+    "script:print-electron-versions": "npx electron -r ./scripts/print-electron-versions.js"
   },
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=18.17.1",
+    "npm": ">=9.6.7"
   },
   "staticFiles": {
     "staticPath": [
@@ -83,27 +86,19 @@
     "yargs": "^13.3.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.12.16",
-    "@babel/core": "^7.11.6",
-    "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.10.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
-    "@babel/preset-env": "^7.12.10",
-    "@babel/preset-react": "^7.10.4",
-    "@babel/register": "^7.11.5",
     "chai": "^4.2.0",
     "copy-files-from-to": "^3.2.0",
     "cross-env": "^7.0.2",
     "electron": "^8.5.5",
     "electron-builder": "^22.6.1",
     "electron-icon-builder": "^1.0.2",
-    "electron-rebuild": "^1.11.0",
+    "electron-rebuild": "^3.2.9",
+    "esbuild": "^0.19.2",
+    "esbuild-register": "^3.4.2",
     "jsdoc": "^3.6.4",
     "less": "^3.11.1",
     "mocha": "^7.2.0",
     "node-abi": "^2.17.0",
-    "parcel-bundler": "^1.12.4",
-    "parcel-plugin-static-files-copy": "^2.4.3",
     "patch-package": "^6.2.2",
     "redux-devtools-extension": "^2.13.5",
     "rimraf": "^3.0.2"
