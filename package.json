@@ -28,8 +28,8 @@
   "author": "HsO <hugostonge@gmail.com>",
   "license": "ISC",
   "engines": {
-    "node": ">=18.17.1",
-    "npm": ">=9.6.7"
+    "node": "^16.20.2",
+    "npm": "^8.19.4"
   },
   "staticFiles": {
     "staticPath": [
@@ -95,8 +95,9 @@
     "electron-rebuild": "^3.2.9",
     "esbuild": "^0.19.2",
     "esbuild-register": "^3.4.2",
+    "esbuild-style-plugin": "^1.6.2",
     "jsdoc": "^3.6.4",
-    "less": "^3.11.1",
+    "less": "^3.13.1",
     "mocha": "^7.2.0",
     "node-abi": "^2.17.0",
     "patch-package": "^6.2.2",

@@ -23,7 +23,7 @@ export default class Renderer extends EventEmitter {
       ...(isDev ? {
         execArgv: [
           '-r',
-          '@babel/register',
+          'esbuild-register',
         ],
       } : {}),
     });
