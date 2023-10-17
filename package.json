@@ -94,6 +94,7 @@
     "electron-icon-builder": "^1.0.2",
     "electron-rebuild": "^3.2.9",
     "esbuild": "^0.19.2",
+    "esbuild-plugin-copy-file": "^0.0.2",
     "esbuild-register": "^3.4.2",
     "esbuild-style-plugin": "^1.6.2",
     "jsdoc": "^3.6.4",

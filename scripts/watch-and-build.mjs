@@ -2,11 +2,19 @@ import * as esbuild from 'esbuild';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import stylePlugin from 'esbuild-style-plugin';
+import copyFilePlugin from 'esbuild-plugin-copy-file';
 
 const ROOT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..')
 
 const ctx = await esbuild.context({
-  plugins: [stylePlugin()],
+  plugins: [
+    stylePlugin(),
+    copyFilePlugin({
+      after: {
+        [join(ROOT_DIR, 'build', 'ui', 'worker-javascript.js')]: join(ROOT_DIR, 'node_modules', 'ace-builds', 'src-noconflict', 'worker-javascript.js'),
+      }
+    })
+  ],
   entryPoints: [
     // Common
     join(ROOT_DIR, 'src', 'ui', 'styles', 'common.css'),
