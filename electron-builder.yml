@@ -4,8 +4,8 @@ copyright: "TEKUNIKA 2020"
 files:
   - "./build"
 mac:
-  icon: "./build/icons/mac/icon.icns"
+  icon: "./build/icons/mac/app.icns"
 win:
-  icon: "./build/icons/win/icon.ico"
+  icon: "./build/icons/win/app.ico"
 linux:
   icon: "./build/icons/png"
