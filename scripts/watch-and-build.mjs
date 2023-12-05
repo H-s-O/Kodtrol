@@ -5,15 +5,22 @@ import stylePlugin from 'esbuild-style-plugin';
 import copyFilePlugin from 'esbuild-plugin-copy-file';
 
 const ROOT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..')
+const IS_BUILD = process.argv.includes('--build');
 
-const ctx = await esbuild.context({
+const config = {
   plugins: [
-    stylePlugin(),
+    stylePlugin({
+      renderOptions: {
+        lessOptions: {
+          math: 'always',
+        },
+      },
+    }),
     copyFilePlugin({
       after: {
         [join(ROOT_DIR, 'build', 'ui', 'worker-javascript.js')]: join(ROOT_DIR, 'node_modules', 'ace-builds', 'src-noconflict', 'worker-javascript.js'),
-      }
-    })
+      },
+    }),
   ],
   entryPoints: [
     // Common
@@ -41,9 +48,17 @@ const ctx = await esbuild.context({
     '.eot': 'copy',
   },
   bundle: true,
+  sourcemap: true,
+  sourcesContent: !IS_BUILD,
   platform: 'node',
   target: 'chrome80',
   outdir: join(ROOT_DIR, 'build'),
-});
+  logLevel: 'info',
+};
 
-await ctx.watch();
+if (IS_BUILD) {
+  await esbuild.build(config);
+} else {
+  const ctx = await esbuild.context(config);
+  await ctx.watch();
+}
