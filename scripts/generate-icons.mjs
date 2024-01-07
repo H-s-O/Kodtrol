@@ -3,7 +3,11 @@ import { join, dirname } from 'path';
 import { mkdir } from 'fs/promises';
 import { fileURLToPath } from 'url';
 
-const ROOT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..')
+const ROOT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+console.table({
+  ROOT_DIR
+});
 
 try {
   await mkdir(join(ROOT_DIR, 'build', 'icons'), { recursive: true });

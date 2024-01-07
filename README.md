@@ -17,16 +17,16 @@ Other demos:
 ## Local development / run from source
 
 **Requirements**
-- Node.js >= 10.x.x
-- npm >= 3.6.x
+- Node.js: ^18.17.1
+- npm: ^9.8.1
 - Linux only: `libasound2-dev` package
 
 Clone the repository and `cd` into it.  
 Then:
 ```
 npm install
-npm run rebuild
-npm run dev
+npm run build:addons
+npm run watch:renderer
 ```
 And in another terminal, run:
 ```
@@ -38,7 +38,7 @@ If all goes well, you should see the Welcome Screen allowing you to create a new
 Make sure you have installed the requirements from *Local development* above, then:
 ```
 npm install
-npm run rebuild
+npm run build:addons
 npm run build-and-dist
 ```
 The build will be generated in the `dist` folder.
