@@ -1,0 +1,14 @@
+diff --git a/node_modules/@electron/rebuild/lib/module-type/node-gyp/node-gyp.js b/node_modules/@electron/rebuild/lib/module-type/node-gyp/node-gyp.js
+index fa5aae8..fde6dab 100644
+--- a/node_modules/@electron/rebuild/lib/module-type/node-gyp/node-gyp.js
++++ b/node_modules/@electron/rebuild/lib/module-type/node-gyp/node-gyp.js
+@@ -24,7 +24,8 @@ class NodeGyp extends __1.NativeModule {
+             `--target=${this.rebuilder.electronVersion}`,
+             `--arch=${this.rebuilder.arch}`,
+             `--dist-url=${this.rebuilder.headerURL}`,
+-            '--build-from-source'
++            '--build-from-source',
++            '--openssl_fips=\'\''
+         ];
+         args.push(d.enabled ? '--verbose' : '--silent');
+         if (this.rebuilder.debug) {
