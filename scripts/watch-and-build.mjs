@@ -96,7 +96,7 @@ if (IS_RENDERER) {
     ],
     bundle: true,
     packages: 'external',
-    sourcemap: 'inline',
+    sourcemap: true,
     sourcesContent: !IS_BUILD,
     platform: 'node',
     target: 'node12.13.0', // @TODO get automatically

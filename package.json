@@ -10,7 +10,7 @@
   "main": "build/main/kodtrol-main.js",
   "scripts": {
     "postinstall": "patch-package && copy-files-from-to",
-    "start": "cross-env-shell KODTROL_DEV=true \"npm run build:main && npx electron .\"",
+    "start": "cross-env-shell KODTROL_DEV=true \"npm run build:main && npx electron -r source-map-support/register .\"",
     "watch:renderer": "npm run script:watch-and-build -- --renderer",
     "build:renderer": "npm run script:watch-and-build -- --renderer --build",
     "build:main": "npm run script:watch-and-build -- --main --build",
@@ -94,6 +94,7 @@
     "mocha": "^10.2.0",
     "patch-package": "^8.0.0",
     "redux-devtools-extension": "^2.13.5",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "source-map-support": "^0.5.21"
   }
 }
