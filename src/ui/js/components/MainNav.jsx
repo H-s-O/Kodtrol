@@ -122,28 +122,28 @@ export default function MainNav() {
           icon={ICON_DEVICE}
           itemId={runDevice}
           itemNames={devicesNames}
-          tooltip="No device tested"
+          tooltip="No active device test"
         />
         <StyledNavbar.Divider />
         <ItemStatus
           icon={ICON_SCRIPT}
           itemId={runScript}
           itemNames={scriptsNames}
-          tooltip="No script running"
+          tooltip="No active script"
         />
         <StyledNavbar.Divider />
         <ItemStatus
           icon={ICON_TIMELINE}
           itemId={runTimeline}
           itemNames={timelinesNames}
-          tooltip="No timeline running"
+          tooltip="No active timeline"
         />
         <StyledNavbar.Divider />
         <ItemStatus
           icon={ICON_BOARD}
           itemId={runBoard}
           itemNames={boardsNames}
-          tooltip="No board running"
+          tooltip="No active board"
         />
       </StyledNavbar.Group>
       <StyledNavbar.Group

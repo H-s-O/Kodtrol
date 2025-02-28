@@ -19,7 +19,7 @@ const DeviceLabel = ({ item: { name, id }, activeItemId }) => {
       {id === activeItemId && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
-          icon="eye-open"
+          icon="asterisk"
           intent={Intent.SUCCESS}
         />
       )}
@@ -60,8 +60,8 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
           <Button
             small
             minimal
-            icon="eye-open"
-            title="Test device"
+            icon="power"
+            title="Activate device test"
             onClick={runHandler}
             onDoubleClick={doubleClickHandler}
           />
@@ -69,9 +69,9 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
             <Button
               small
               minimal
-              icon="eye-off"
+              icon="power"
               intent={Intent.DANGER}
-              title="Stop testing device"
+              title="Deactivate device test"
               onClick={stopHandler}
               onDoubleClick={doubleClickHandler}
             />

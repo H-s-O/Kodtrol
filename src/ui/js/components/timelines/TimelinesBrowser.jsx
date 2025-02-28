@@ -15,7 +15,7 @@ const TimelineLabel = ({ item: { name, id }, activeItemId }) => {
       {id === activeItemId && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
-          icon="eye-open"
+          icon="asterisk"
           intent={Intent.SUCCESS}
         />
       )}
@@ -42,9 +42,9 @@ const TimelineSecondaryLabel = ({ item: { id }, activeItemId }) => {
       <Button
         small
         minimal
-        icon="eye-off"
+        icon="power"
         intent={Intent.DANGER}
-        title="Stop running timeline"
+        title="Deactivate timeline"
         onClick={stopHandler}
         onDoubleClick={doubleClickHandler}
       />
@@ -55,8 +55,8 @@ const TimelineSecondaryLabel = ({ item: { id }, activeItemId }) => {
     <Button
       small
       minimal
-      icon="eye-open"
-      title="Run timeline"
+      icon="power"
+      title="Activate timeline"
       onClick={runHandler}
       onDoubleClick={doubleClickHandler}
     />

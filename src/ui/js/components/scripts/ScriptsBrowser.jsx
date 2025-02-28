@@ -15,7 +15,7 @@ const ScriptLabel = ({ item: { name, id }, activeItemId }) => {
       {id === activeItemId && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
-          icon="eye-open"
+          icon="asterisk"
           intent={Intent.SUCCESS}
         />
       )}
@@ -42,9 +42,9 @@ const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
       <Button
         small
         minimal
-        icon="eye-off"
+        icon="power"
         intent={Intent.DANGER}
-        title="Stop running script"
+        title="Deactivate script"
         onClick={stopHandler}
         onDoubleClick={doubleClickHandler}
       />
@@ -55,8 +55,8 @@ const ScriptSecondaryLabel = ({ item: { id }, activeItemId }) => {
     <Button
       small
       minimal
-      icon="eye-open"
-      title="Run script"
+      icon="power"
+      title="Activate script"
       onClick={runHandler}
       onDoubleClick={doubleClickHandler}
     />

@@ -15,7 +15,7 @@ const BoardLabel = ({ item: { name, id }, activeItemId }) => {
       {id === activeItemId && (
         <Icon
           style={{ marginLeft: '3px', display: 'inline-block' }}
-          icon="eye-open"
+          icon="asterisk"
           intent={Intent.SUCCESS}
         />
       )}
@@ -42,9 +42,9 @@ const BoardSecondaryLabel = ({ item: { id }, activeItemId }) => {
       <Button
         small
         minimal
-        icon="eye-off"
+        icon="power"
         intent={Intent.DANGER}
-        title="Stop running board"
+        title="Deactivate board"
         onClick={stopHandler}
         onDoubleClick={doubleClickHandler}
       />
@@ -55,8 +55,8 @@ const BoardSecondaryLabel = ({ item: { id }, activeItemId }) => {
     <Button
       small
       minimal
-      icon="eye-open"
-      title="Run board"
+      icon="power"
+      title="Activate board"
       onClick={runHandler}
       onDoubleClick={doubleClickHandler}
     />
