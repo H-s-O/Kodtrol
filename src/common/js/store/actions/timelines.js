@@ -79,7 +79,9 @@ export const createTimelineAction = (data) => {
     zoom: 1.0,
     zoomVert: 1.0,
     items: [],
-    layers: [],
+    layers: [
+      { id: uniqid(), order: 0 }
+    ],
     tempo: null,
     recording: false,
     recordedTriggers: [],
@@ -102,7 +104,9 @@ export const createTimelinesAction = (list) => {
       zoom: 1.0,
       zoomVert: 1.0,
       items: [],
-      layers: [],
+      layers: [
+        { id: uniqid(), order: 0 }
+      ],
       tempo: null,
       recording: false,
       recordedTriggers: [],

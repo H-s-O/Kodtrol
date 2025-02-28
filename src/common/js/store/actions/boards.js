@@ -72,7 +72,9 @@ export const createBoardAction = (data) => {
     zoom: 1.0,
     zoomVert: 1.0,
     items: [],
-    layers: [],
+    layers: [
+      { id: uniqid(), order: 0 }
+    ],
     tempo: null,
     ...data,
     id: uniqid(),
@@ -93,7 +95,9 @@ export const createBoardsAction = (list) => {
       zoom: 1.0,
       zoomVert: 1.0,
       items: [],
-      layers: [],
+      layers: [
+        { id: uniqid(), order: 0 }
+      ],
       tempo: null,
       ...data,
       id: uniqid(),
