@@ -25,6 +25,7 @@ import console from './console';
 import saveEditedItems from './top/saveEditedItems';
 import setActiveEditor from './top/setActiveEditor';
 import trackLastEditor from './top/trackLastEditor';
+import closeEditorOnDelete from './top/closeEditorOnDelete';
 
 const standardReducers = combineReducers({
   fileVersion,
@@ -53,7 +54,9 @@ const standardReducers = combineReducers({
 
 export default (previousState, action) => {
   let newState;
+  // Note: order is important!
   newState = standardReducers(previousState, action);
+  newState = closeEditorOnDelete(newState, action);
   newState = saveEditedItems(newState, action);
   newState = setActiveEditor(newState, action);
   newState = trackLastEditor(newState, action);

@@ -1,6 +1,6 @@
-import { EDIT_SCRIPT, FOCUS_EDITED_SCRIPT, CLOSE_SCRIPT } from '../../actions/scripts';
-import { EDIT_TIMELINE, FOCUS_EDITED_TIMELINE, CLOSE_TIMELINE } from '../../actions/timelines';
-import { EDIT_BOARD, FOCUS_EDITED_BOARD, CLOSE_BOARD } from '../../actions/boards';
+import { EDIT_SCRIPT, FOCUS_EDITED_SCRIPT, CLOSE_SCRIPT, DELETE_SCRIPT } from '../../actions/scripts';
+import { EDIT_TIMELINE, FOCUS_EDITED_TIMELINE, CLOSE_TIMELINE, DELETE_TIMELINE } from '../../actions/timelines';
+import { EDIT_BOARD, FOCUS_EDITED_BOARD, CLOSE_BOARD, DELETE_BOARD } from '../../actions/boards';
 
 export default (state, { type, payload }) => {
   switch (type) {
@@ -18,6 +18,7 @@ export default (state, { type, payload }) => {
       }
       break;
     case CLOSE_SCRIPT:
+    case DELETE_SCRIPT:
       {
         const payloadId = typeof payload === 'object' ? payload.id : payload;
         const currentActive = state.editScripts.find(({ active }) => active);
@@ -52,6 +53,7 @@ export default (state, { type, payload }) => {
       break;
 
     case CLOSE_TIMELINE:
+    case DELETE_TIMELINE:
       {
         // If currently active is a board, do nothing
         if (state.editBoards.find(({ active }) => active)) {
@@ -82,6 +84,7 @@ export default (state, { type, payload }) => {
       break;
 
     case CLOSE_BOARD:
+    case DELETE_BOARD:
       {
         // If currently active is timeline, do nothing
         if (state.editTimelines.find(({ active }) => active)) {

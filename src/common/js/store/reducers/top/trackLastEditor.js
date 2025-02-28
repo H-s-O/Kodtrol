@@ -1,6 +1,6 @@
-import { UPDATE_EDITED_SCRIPT, EDIT_SCRIPT, FOCUS_EDITED_SCRIPT, CLOSE_SCRIPT } from '../../actions/scripts';
-import { UPDATE_EDITED_TIMELINE, EDIT_TIMELINE, FOCUS_EDITED_TIMELINE, CLOSE_TIMELINE } from '../../actions/timelines';
-import { UPDATE_EDITED_BOARD, EDIT_BOARD, FOCUS_EDITED_BOARD, CLOSE_BOARD } from '../../actions/boards';
+import { UPDATE_EDITED_SCRIPT, EDIT_SCRIPT, FOCUS_EDITED_SCRIPT, CLOSE_SCRIPT, DELETE_SCRIPT } from '../../actions/scripts';
+import { UPDATE_EDITED_TIMELINE, EDIT_TIMELINE, FOCUS_EDITED_TIMELINE, CLOSE_TIMELINE, DELETE_TIMELINE } from '../../actions/timelines';
+import { UPDATE_EDITED_BOARD, EDIT_BOARD, FOCUS_EDITED_BOARD, CLOSE_BOARD, DELETE_BOARD } from '../../actions/boards';
 
 export default (state, { type, payload }) => {
   switch (type) {
@@ -8,6 +8,7 @@ export default (state, { type, payload }) => {
     case FOCUS_EDITED_SCRIPT:
     case UPDATE_EDITED_SCRIPT:
     case CLOSE_SCRIPT:
+    case DELETE_SCRIPT:
       {
         const editedScript = state.editScripts.find(({ active }) => active);
         return {
@@ -24,10 +25,12 @@ export default (state, { type, payload }) => {
     case FOCUS_EDITED_TIMELINE:
     case UPDATE_EDITED_TIMELINE:
     case CLOSE_TIMELINE:
+    case DELETE_TIMELINE:
     case EDIT_BOARD:
     case FOCUS_EDITED_BOARD:
     case UPDATE_EDITED_BOARD:
     case CLOSE_BOARD:
+    case DELETE_BOARD:
       {
         const editedTimeline = state.editTimelines.find(({ active }) => active);
         const editedBoard = state.editBoards.find(({ active }) => active);
