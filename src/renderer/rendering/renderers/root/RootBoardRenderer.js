@@ -133,8 +133,10 @@ export default class RootBoardRenderer extends BaseRootRenderer {
         }
       } else {
         if (block.active) {
-          if ((typeof block.leadOutTime !== 'undefined' && block.leadOutTime !== null) && block.outTime === null) {
-            block.outTime = currentTime;
+          if (typeof block.leadOutTime !== 'undefined' && block.leadOutTime !== null) {
+            if (block.outTime === null) {
+              block.outTime = currentTime;
+            }
           } else {
             block.active = false;
             block.blockPercent = null;
