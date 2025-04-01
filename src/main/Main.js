@@ -641,10 +641,13 @@ export default class Main {
 
       try {
         if (dispatchIn) {
-          await new Promise((resolve, reject) => {
-            this.store.dispatch(dispatchIn);
-            setTimeout(resolve, 1500);
-          });
+          const dispatchArr = Array.isArray(dispatchIn) ? dispatchIn : [dispatchIn];
+          for (const dispatch of dispatchArr) {
+            await new Promise((resolve, reject) => {
+              this.store.dispatch(dispatch);
+              setTimeout(resolve, 1000);
+            });
+          }
         }
 
         if (clickIn) {
@@ -655,7 +658,7 @@ export default class Main {
                 return;
               }
             });
-            setTimeout(resolve, 1500);
+            setTimeout(resolve, 1000);
           });
         }
 
@@ -674,10 +677,13 @@ export default class Main {
         });
 
         if (dispatchOut) {
-          await new Promise((resolve, reject) => {
-            this.store.dispatch(dispatchOut);
-            setTimeout(resolve, 1500);
-          });
+          const dispatchArr = Array.isArray(dispatchOut) ? dispatchOut : [dispatchOut];
+          for (const dispatch of dispatchArr) {
+            await new Promise((resolve, reject) => {
+              this.store.dispatch(dispatch);
+              setTimeout(resolve, 1000);
+            });
+          }
         }
       } catch (e) {
         console.error(`Error: ${e}`);

@@ -10,9 +10,13 @@
     "scripts": [
         {
             "id": "A",
-            "name": "Demo script 1",
-            "content": "",
-            "devices": []
+            "name": "Demo script 1"
+        }
+    ],
+    "medias": [
+        {
+            "id": "A",
+            "name": "Demo media 1"
         }
     ],
     "timelines": [

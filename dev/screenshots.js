@@ -12,8 +12,10 @@ import {
   hideBoardDialogAction,
 } from '../src/common/js/store/actions/dialogs';
 import {
+  createScriptAction,
   editScriptAction,
 } from '../src/common/js/store/actions/scripts';
+import DEMO_PROJECT from './demo_project.json';
 
 export default [
   {
@@ -76,13 +78,18 @@ export default [
     file: 'scripts.png',
   },
   {
-    selector: '.scripts-tabs',
-    file: 'scripts_editor.png',
-    dispatchIn: editScriptAction('A', { content: '' }),
-    dispatchOut: hideBoardDialogAction(false),
-  },
-  {
     selector: '.timelines-boards-tabs',
     file: 'timelines_boards.png',
+  },
+  {
+    selector: '.browsers-tabs',
+    file: 'scripts_browser_withcontent.png',
+    clickIn: '#bp3-tab-title_browsers_scripts',
+    dispatchIn: createScriptAction(DEMO_PROJECT.scripts[0]),
+  },
+  {
+    selector: '.scripts-tabs',
+    file: 'scripts_editor.png',
+    dispatchIn: editScriptAction(DEMO_PROJECT.scripts[0].id, { content: '' }),
   },
 ];
