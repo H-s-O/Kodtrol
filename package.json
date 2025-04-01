@@ -19,7 +19,7 @@
     "clear:dist-dir": "npx rimraf --glob ./dist/*",
     "build-and-dist": "npm run clear:build-dir && npm run build:main && npm run build:renderer && npm run script:generate-icons && npm run clear:dist-dir && npm run dist",
     "dist": "npx electron-builder build",
-    "generate:screenshots": "npm start -- --screenshots ../../dev/screenshots.js --project ./dev/demo_project.json",
+    "generate:screenshots": "esbuild dev/screenshots.js --outdir=.cache --platform=node --format=cjs --bundle && npm start -- --screenshots ../../.cache/screenshots.js --project ./dev/demo_project.json",
     "generate:helpers-doc": "jsdoc -c jsdoc-conf.json > ./dev/helpers_doc.json",
     "script:watch-and-build": "node ./scripts/watch-and-build.mjs",
     "script:print-electron-versions": "npx electron -r ./scripts/print-electron-versions.js",

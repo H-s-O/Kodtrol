@@ -685,5 +685,7 @@ export default class Main {
     }
 
     console.info('=== Screenshots generation complete! ===');
+
+    app.exit(0);
   }
 }
