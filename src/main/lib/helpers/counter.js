@@ -23,6 +23,13 @@ export default function counter(id = '__default') {
  * @param {Number} limit The limit to reach
  * @param {String} [id="__default"] The counter identifier, when using more than one counter per script
  * @return {Boolean} `true` when the counter value is equal or greater than `limit`, `false` otherwise.
+ * @example
+ * let result = counterLimit(2)
+ * // result = false
+ * result = counterLimit(2)
+ * // result = false
+ * result = counterLimit(2)
+ * // result = true
  */
 export function counterLimit(limit, id = '__default') {
     if (typeof __counter[id] === 'undefined') {
@@ -30,7 +37,6 @@ export function counterLimit(limit, id = '__default') {
     }
     const val = __counter[id]++;
     return val >= limit;
-
 }
 /**
  * @function counterReset

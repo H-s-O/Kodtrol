@@ -1,6 +1,6 @@
 /**
  * @function rgbColor
- * @description Creates an object with keys containing the values of RGB color components.
+ * @description Creates a color object with keys containing the values of RGB color components.
  * @param {Number} [r=0] The red value
  * @param {Number} [g=0] The green value
  * @param {Number} [b=0] The blue value

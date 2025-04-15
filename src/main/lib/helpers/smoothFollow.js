@@ -1,3 +1,12 @@
+/**
+ * @function smoothFollow
+ * @param {*} device 
+ * @param {String} varName 
+ * @param {Number} divider 
+ * @param {*} value 
+ * @param {*} initValue 
+ * @returns {*}
+ */
 export default function smoothFollow(device, varName, divider = 1, value = null, initValue = null) {
     if (value === null) {
         value = device.getVar(varName);

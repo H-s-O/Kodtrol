@@ -1,3 +1,9 @@
+/**
+ * @function randomValueWhere
+ * @param {Array} arr 
+ * @param {Function} predicate 
+ * @returns {*|null}
+ */
 export default function randomValueWhere(arr, predicate) {
     if (!arr || arr.length === 0 || !predicate) {
         return null;

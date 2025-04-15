@@ -1,3 +1,9 @@
+/**
+ * @function randomIndex
+ * @param {Array} arr 
+ * @param {*} except 
+ * @returns {Number|null}
+ */
 export default function randomIndex(arr, except = null) {
     if (!arr || arr.length === 0) {
         return null;

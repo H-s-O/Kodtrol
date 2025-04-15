@@ -1,3 +1,9 @@
+/**
+ * @function randomIndexWhere
+ * @param {Array} arr 
+ * @param {Function} predicate 
+ * @returns {Number|null}
+ */
 export default function randomIndexWhere(arr, predicate) {
     if (!arr || arr.length === 0 || !predicate) {
         return null;

@@ -1,3 +1,9 @@
+/**
+ * @function randomValue
+ * @param {Array} arr 
+ * @param {*} except 
+ * @returns {*|null}
+ */
 export default function randomValue(arr, except = null) {
     if (!arr || arr.length === 0) {
         return null;

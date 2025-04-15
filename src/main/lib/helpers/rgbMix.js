@@ -1,3 +1,10 @@
+/**
+ * @function rgbMix
+ * @param {Object} color1 
+ * @param {Object} color2 
+ * @param {Number} percent 
+ * @returns {Object}
+ */
 export default function rgbMix(color1, color2, percent = 0.5) {
   if (!color1 || !color2) {
     return null;
