@@ -63,6 +63,13 @@ describe('IldaDevice', function () {
     expect(instance.hasTag('nope')).to.be.false;
   });
 
+  it('should be able to add text', function () {
+    instance.addText({
+      font: 'futural',
+      text: 'hello world'
+    });
+  });
+
   it('should destroy without errors', function () {
     instance.destroy();
   });

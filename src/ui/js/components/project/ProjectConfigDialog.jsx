@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { Button, Tabs, Tab, Card, Intent, Tag, Radio, Classes } from '@blueprintjs/core';
+import { Button, Tabs, Tab, Card, Intent, Tag, Radio } from '@blueprintjs/core';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import uniqid from 'uniqid';
@@ -31,6 +31,7 @@ import outputValidator from '../../../../common/js/validators/outputValidator';
 import { deleteWarning } from '../../lib/messageBoxes';
 import { saveInputsAction } from '../../../../common/js/store/actions/inputs';
 import { saveOutputsAction } from '../../../../common/js/store/actions/outputs';
+import RadioItemLabel from '../ui/RadioItemLabel';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -51,13 +52,6 @@ const StyledAddButton = styled(({ withMargin, ...otherProps }) => <Button {...ot
     margin-top: 10px;
   `}
 `;
-
-const RadioItemLabel = ({ label, helperText = null }) => (
-  <>
-    <span>{label}</span>
-    {helperText && (<div className={`${Classes.TEXT_MUTED} ${Classes.TEXT_SMALL}`}>{helperText}</div>)}
-  </>
-)
 
 const ItemSecondaryLabel = ({ id, type, onDelete }) => {
   const deleteClickHandler = useCallback((e) => {

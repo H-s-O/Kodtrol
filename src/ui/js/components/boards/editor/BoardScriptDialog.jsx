@@ -20,6 +20,7 @@ const defaultValue = {
   triggerSource: null,
   leadInTime: null,
   leadOutTime: null,
+  switchMode: null,
   color: null,
 }
 

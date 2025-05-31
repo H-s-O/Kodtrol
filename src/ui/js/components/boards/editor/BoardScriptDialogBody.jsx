@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { Intent } from '@blueprintjs/core';
+import React from 'react';
+import { Intent, Radio } from '@blueprintjs/core';
 
 import InlineFormGroup from '../../ui/InlineFormGroup';
 import TextInput from '../../ui/inputs/TextInput';
 import SelectInput from '../../ui/inputs/SelectInput';
 import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
+import RadioInput from '../../ui/inputs/RadioInput';
 import {
   ITEM_TRIGGER_MIDI_NOTE,
   ITEM_LABELS,
@@ -14,7 +14,10 @@ import {
   ITEM_BEHAVIOR_TRIGGER_ONCE,
   ITEM_BEHAVIOR_TOGGLE,
   ITEM_TRIGGER_OSC_ADR_ARG,
+  ITEM_SWITCH_MODE_JUMP,
+  ITEM_SWITCH_MODE_MIRROR,
 } from '../../../../../common/js/constants/items';
+import RadioItemLabel from '../../ui/RadioItemLabel';
 
 export default function BoardScriptDialogBody({ value, onChange, validation, layers = [], scripts = [] }) {
   const {
@@ -24,6 +27,7 @@ export default function BoardScriptDialogBody({ value, onChange, validation, lay
     behavior,
     trigger,
     triggerSource,
+    switchMode,
     leadInTime,
     leadOutTime,
     color,
@@ -161,6 +165,23 @@ export default function BoardScriptDialogBody({ value, onChange, validation, lay
           min={0}
           onChange={onChange}
         />
+      </InlineFormGroup>
+      <InlineFormGroup
+        disabled={!leadInTime || !leadOutTime}
+        minWidth="100"
+        label="Switch mode"
+        helperText={!validation.switchMode ? 'A switch mode is mandatory when both lead-in and lead-out times are specified.' : undefined}
+        intent={!validation.switchMode ? Intent.DANGER : undefined}
+      >
+        <RadioInput
+          name="switchMode"
+          disabled={!leadInTime || !leadOutTime}
+          value={switchMode}
+          onChange={onChange}
+        >
+          <Radio value={ITEM_SWITCH_MODE_JUMP} labelElement={<RadioItemLabel label='Jump' helperText='Jump to the beginning of lead-in and lead-out durations' />} />
+          <Radio value={ITEM_SWITCH_MODE_MIRROR} labelElement={<RadioItemLabel label='Mirror' helperText='Mirror the remaining progress from lead-in to the lead-out progress and vice-versa' />} />
+        </RadioInput>
       </InlineFormGroup>
       <InlineFormGroup
         minWidth="100"
