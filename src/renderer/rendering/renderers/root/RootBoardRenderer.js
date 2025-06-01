@@ -2,7 +2,17 @@ import BaseRootRenderer from './BaseRootRenderer';
 import ScriptRenderer from '../items/ScriptRenderer';
 // import AudioRenderer from '../items/AudioRenderer';
 import timeToPPQ from '../../../lib/timeToPPQ';
-import { ITEM_SCRIPT, ITEM_MEDIA } from '../../../../common/js/constants/items';
+import {
+  ITEM_SCRIPT,
+  ITEM_MEDIA,
+  ITEM_TRIGGER_MIDI_CC,
+  ITEM_TRIGGER_OSC_ADR_ARG,
+  ITEM_SWITCH_MODE_MIRROR,
+} from '../../../../common/js/constants/items';
+
+const BLOCK_PHASE_IN = 'in';
+const BLOCK_PHASE_RUN = 'run';
+const BLOCK_PHASE_OUT = 'out';
 
 export default class RootBoardRenderer extends BaseRootRenderer {
   _board = null;
@@ -61,10 +71,11 @@ export default class RootBoardRenderer extends BaseRootRenderer {
           [block.id]: {
             ...block,
             instance,
+            phase: null,
             inTime: null,
             outTime: null,
             blockPercent: null,
-            active: false,
+            blockPercentRef: null,
           },
         };
       }, {});
@@ -124,22 +135,73 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const currentTime = this._currentTime;
 
     Object.entries(this._blocks).forEach(([id, block]) => {
+      const { leadInTime, leadOutTime } = block;
+
+      // Block activated by user
       if (id in activeItems) {
-        if (!block.active) {
-          block.inTime = currentTime;
-          block.outTime = null;
-          block.blockPercent = null;
-          block.active = true;
+        // Block was running a phase out
+        if (block.phase === BLOCK_PHASE_OUT) {
+          // Block has "mirror" switch mode
+          if (block.switchMode === ITEM_SWITCH_MODE_MIRROR) {
+            // Transfer block percent to ref
+            block.phase = BLOCK_PHASE_IN;
+            block.inTime = currentTime;
+            block.outTime = null;
+            block.blockPercentRef = 1 - (block.blockPercent - 1);
+            block.blockPercent = -1;
+          }
+          // Block has default "jump" switch mode
+          else {
+            block.phase = BLOCK_PHASE_IN;
+            block.inTime = currentTime;
+            block.outTime = null;
+            block.blockPercent = -1;
+            block.blockPercentRef = null;
+          }
         }
-      } else {
-        if (block.active) {
-          if (typeof block.leadOutTime !== 'undefined' && block.leadOutTime !== null) {
-            if (block.outTime === null) {
-              block.outTime = currentTime;
-            }
-          } else {
-            block.active = false;
-            block.blockPercent = null;
+        // Not running a phase out
+        else {
+          // Prevent double activation
+          if (block.phase !== BLOCK_PHASE_IN && block.phase !== BLOCK_PHASE_RUN) {
+            block.phase = BLOCK_PHASE_IN;
+            block.inTime = currentTime;
+            block.outTime = null;
+            block.blockPercent = -1;
+            block.blockPercentRef = null;
+          }
+        }
+      }
+      // Block deactivated by user
+      else {
+        // Block was running a phase in
+        if (block.phase === BLOCK_PHASE_IN) {
+          // Block has "mirror" switch mode
+          if (block.switchMode === ITEM_SWITCH_MODE_MIRROR) {
+            // Transfer block percent to ref
+            block.phase = BLOCK_PHASE_OUT;
+            block.inTime = null;
+            block.outTime = currentTime;
+            block.blockPercentRef = 1 - (block.blockPercent + 1);
+            block.blockPercent = 1;
+          }
+          // Block has default "jump" switch mode
+          else {
+            block.phase = BLOCK_PHASE_OUT;
+            block.inTime = null;
+            block.outTime = currentTime;
+            block.blockPercent = 1;
+            block.blockPercentRef = null;
+          }
+        }
+        // Not running a phase in
+        else {
+          // Prevent double de-activation
+          if (block.phase !== BLOCK_PHASE_OUT && block.phase !== null) {
+            block.phase = BLOCK_PHASE_OUT;
+            block.inTime = null;
+            block.outTime = currentTime;
+            block.blockPercent = 1;
+            block.blockPercentRef = null;
           }
         }
       }
@@ -161,18 +223,48 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      const { inTime, outTime, leadInTime, leadOutTime } = block;
+      const { inTime, outTime, leadInTime, leadOutTime, blockPercentRef } = block;
       const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : null;
       const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : null;
-      let blockPercent;
-      if (trueLeadInTime !== null && inTime !== null && currentTime < (inTime + trueLeadInTime)) {
-        blockPercent = ((currentTime - inTime - trueLeadInTime) / trueLeadInTime);
-      } else if (trueLeadOutTime !== null && outTime !== null && currentTime > outTime) {
-        blockPercent = ((currentTime - outTime + trueLeadOutTime) / trueLeadOutTime);
-      } else {
-        blockPercent = 1;
+
+      let blockPercent = null;
+
+      if (block.phase === BLOCK_PHASE_IN) {
+        const leadInPercent = trueLeadInTime !== null && inTime !== null
+          ? ((currentTime - inTime) / trueLeadInTime) : null;
+        if (leadInPercent !== null && leadInPercent < 1) {
+          const offset = blockPercentRef ?? 0;
+          blockPercent = (offset + (leadInPercent * (1 - offset))) - 1;
+        } else {
+          block.phase = BLOCK_PHASE_RUN;
+          block.blockPercentRef = null;
+        }
       }
-      if (blockPercent <= 2) {
+
+      if (block.phase === BLOCK_PHASE_RUN) {
+        blockPercent = 1
+        block.blockPercentRef = null
+      }
+
+      if (block.phase === BLOCK_PHASE_OUT) {
+        const leadOutPercent = trueLeadOutTime !== null && outTime !== null ?
+          ((currentTime - outTime) / trueLeadOutTime) :
+          null;
+        if (leadOutPercent !== null && leadOutPercent < 1) {
+          const offset = blockPercentRef ?? 0;
+          blockPercent = (offset + (leadOutPercent * (1 - offset))) + 1;
+        } else {
+          block.phase = null;
+          block.inTime = null;
+          block.outTime = null;
+          block.blockPercent = null;
+          block.blockPercentRef = null;
+        }
+      }
+
+      if (block.phase !== null) {
+        block.blockPercent = blockPercent;
+
         const blockInfo = {
           inTime,
           outTime,
@@ -181,11 +273,6 @@ export default class RootBoardRenderer extends BaseRootRenderer {
         };
 
         block.instance.render(currentTime, blockInfo);
-
-        block.blockPercent = blockPercent;
-      } else {
-        block.active = false;
-        block.blockPercent = null;
       }
     }
 
@@ -233,7 +320,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
       for (let i = 0; i < triggerableBlocksCount; i++) {
         const block = this._blocks[triggerableBlocks[i]];
         if (type === 'midi') {
-          if (block.trigger === 'midi_cc') {
+          if (block.trigger === ITEM_TRIGGER_MIDI_CC) {
             if (data[1] === parseInt(block.triggerSource)) {
               const on = data[2] === 127;
               console.log(data[1], data[2], on); //@TODO cleanup
@@ -247,7 +334,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
           }
           // @TODO midi_note
         } else if (type === 'osc') {
-          if (block.trigger === 'osc_adr_arg') {
+          if (block.trigger === ITEM_TRIGGER_OSC_ADR_ARG) {
             if (data.address === block.triggerSource) {
               const on = data.args && data.args.length > 0 ? !!data.args[0].value : false;
               console.log(data.address, data.args, on); //@TODO cleanup
@@ -282,7 +369,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
   _getBoardRunningItems() {
     const itemsMap = this._itemsMap;
     const items = [
-      itemsMap[0].filter((id) => this._blocks[id].active),
+      itemsMap[0].filter((id) => this._blocks[id].phase !== null),
       itemsMap[1].filter((id) => this._audios[id].active),
     ];
     return items;

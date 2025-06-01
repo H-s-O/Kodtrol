@@ -1,24 +1,28 @@
-import { expect } from 'chai';
+import Timeline from '../../../src/renderer/rendering/Timeline';
+import RootTimelineRenderer from '../../../src/renderer/rendering/renderers/root/RootTimelineRenderer';
 
-import RootTimelineRenderer from '../../../src/renderer/rendering/renderers/root/RootTimelineRenderer'
+const MOCK_DATA = {
+  '7l9r6t177fkb00ftmx': new Timeline({
+    id: '7l9r6t177fkb00ftmx',
+    name: 'MyName1',
+    duration: 30000,
+    inTime: 0,
+    outTime: 30000,
+    tempo: 120,
+    layers: [],
+    items: [],
+  }),
+};
 
-const providers = {
-  getTimeline: (id) => ({
-    '7l9r6t177fkb00ftmx': {
-      id: '7l9r6t177fkb00ftmx',
-      name: 'MyName1',
-      duration: 30000,
-      inTime: 0,
-      outTime: 30000,
-      tempo: 120,
-    },
-  }[id]),
-}
+const MOCK_PROVIDERS = {
+  getTimeline: (id) => MOCK_DATA[id],
+};
+
 describe('RootTimelineRenderer', function () {
   let instance;
 
   it('should construct without errors using initial data', function () {
-    instance = new RootTimelineRenderer(providers, '7l9r6t177fkb00ftmx')
+    instance = new RootTimelineRenderer(MOCK_PROVIDERS, '7l9r6t177fkb00ftmx')
   });
 
   it('should destroy without errors', function () {
