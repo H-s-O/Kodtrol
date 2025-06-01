@@ -75,6 +75,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             inTime: null,
             outTime: null,
             blockPercent: null,
+            blockPercentRef: null,
           },
         };
       }, {});
@@ -136,22 +137,18 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     Object.entries(this._blocks).forEach(([id, block]) => {
       const { leadInTime, leadOutTime } = block;
 
-      console.log('block switch mode', block.switchMode)
-
       // Block activated by user
       if (id in activeItems) {
         // Block was running a phase out
         if (block.phase === BLOCK_PHASE_OUT) {
           // Block has "mirror" switch mode
           if (block.switchMode === ITEM_SWITCH_MODE_MIRROR) {
-            // Compute the offset
-            const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : null;
-            const progress = ((currentTime - block.outTime) / trueLeadOutTime);
+            // Transfer block percent to ref
             block.phase = BLOCK_PHASE_IN;
             block.inTime = currentTime;
             block.outTime = null;
+            block.blockPercentRef = 1 - (block.blockPercent - 1);
             block.blockPercent = -1;
-            block.blockPercentOffset = 1 - progress;
           }
           // Block has default "jump" switch mode
           else {
@@ -159,7 +156,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             block.inTime = currentTime;
             block.outTime = null;
             block.blockPercent = -1;
-            block.blockPercentOffset = null;
+            block.blockPercentRef = null;
           }
         }
         // Not running a phase out
@@ -170,7 +167,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             block.inTime = currentTime;
             block.outTime = null;
             block.blockPercent = -1;
-            block.blockPercentOffset = null;
+            block.blockPercentRef = null;
           }
         }
       }
@@ -180,14 +177,12 @@ export default class RootBoardRenderer extends BaseRootRenderer {
         if (block.phase === BLOCK_PHASE_IN) {
           // Block has "mirror" switch mode
           if (block.switchMode === ITEM_SWITCH_MODE_MIRROR) {
-            // Compute the offset
-            const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : null;
-            const progress = ((currentTime - block.inTime) / trueLeadInTime);
+            // Transfer block percent to ref
             block.phase = BLOCK_PHASE_OUT;
             block.inTime = null;
             block.outTime = currentTime;
+            block.blockPercentRef = 1 - (block.blockPercent + 1);
             block.blockPercent = 1;
-            block.blockPercentOffset = 1 - progress;
           }
           // Block has default "jump" switch mode
           else {
@@ -195,10 +190,10 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             block.inTime = null;
             block.outTime = currentTime;
             block.blockPercent = 1;
-            block.blockPercentOffset = null;
+            block.blockPercentRef = null;
           }
         }
-        // Not running a phase out
+        // Not running a phase in
         else {
           // Prevent double de-activation
           if (block.phase !== BLOCK_PHASE_OUT && block.phase !== null) {
@@ -206,7 +201,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             block.inTime = null;
             block.outTime = currentTime;
             block.blockPercent = 1;
-            block.blockPercentOffset = null;
+            block.blockPercentRef = null;
           }
         }
       }
@@ -228,40 +223,42 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      const { inTime, outTime, leadInTime, leadOutTime, blockPercentOffset } = block;
+      const { inTime, outTime, leadInTime, leadOutTime, blockPercentRef } = block;
       const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : null;
       const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : null;
 
       let blockPercent = null;
 
       if (block.phase === BLOCK_PHASE_IN) {
-        const leadIn = trueLeadInTime !== null && inTime !== null
+        const leadInPercent = trueLeadInTime !== null && inTime !== null
           ? ((currentTime - inTime) / trueLeadInTime) : null;
-        if (leadIn !== null && leadIn < 1) {
-          const offset = blockPercentOffset ?? 0;
-          blockPercent = (offset + (leadIn * (1 - offset))) - 1;
+        if (leadInPercent !== null && leadInPercent < 1) {
+          const offset = blockPercentRef ?? 0;
+          blockPercent = (offset + (leadInPercent * (1 - offset))) - 1;
         } else {
           block.phase = BLOCK_PHASE_RUN;
+          block.blockPercentRef = null;
         }
       }
 
       if (block.phase === BLOCK_PHASE_RUN) {
         blockPercent = 1
+        block.blockPercentRef = null
       }
 
       if (block.phase === BLOCK_PHASE_OUT) {
-        const leadOut = trueLeadOutTime !== null && outTime !== null ?
+        const leadOutPercent = trueLeadOutTime !== null && outTime !== null ?
           ((currentTime - outTime) / trueLeadOutTime) :
           null;
-        if (leadOut !== null && leadOut < 1) {
-          const offset = blockPercentOffset ?? 0;
-          blockPercent = (offset + (leadOut * (1 - offset))) + 1;
+        if (leadOutPercent !== null && leadOutPercent < 1) {
+          const offset = blockPercentRef ?? 0;
+          blockPercent = (offset + (leadOutPercent * (1 - offset))) + 1;
         } else {
           block.phase = null;
           block.inTime = null;
           block.outTime = null;
           block.blockPercent = null;
-          block.blockPercentOffset = null;
+          block.blockPercentRef = null;
         }
       }
 
