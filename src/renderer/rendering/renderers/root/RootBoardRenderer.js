@@ -62,7 +62,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     this._blocks = boardItems
       .filter(({ type }) => type === ITEM_SCRIPT)
       .reduce((obj, block) => {
-        const instance = new ScriptRenderer(this._providers, block.script);
+        const instance = new ScriptRenderer(this._providers, block.script, block.devicesOverride);
         instance.on('script_error', this._forwardEvent('script_error', { block: block.id, board: this._board.id }));
         instance.on('script_log', this._forwardEvent('script_log', { block: block.id, board: this._board.id }));
 

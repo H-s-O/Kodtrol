@@ -3,15 +3,19 @@ import EventEmitter from 'events';
 export default class ScriptRenderer extends EventEmitter {
   _providers = null;
   _script = null;
+  _scriptDevicesOverride = null;
   _scriptInstance = null;
   _devices = null;
   _started = false;
   _scriptError = null;
 
-  constructor(providers, scriptId) {
+  constructor(providers, scriptId, scriptDevicesOverride = null) {
     super();
 
     this._providers = providers;
+    this._scriptDevicesOverride = Array.isArray(scriptDevicesOverride) && scriptDevicesOverride.length > 0
+      ? scriptDevicesOverride.map(({ device }) => device)
+      : null;
 
     this._setScriptAndDevices(scriptId);
   }
@@ -41,7 +45,9 @@ export default class ScriptRenderer extends EventEmitter {
 
   _reloadDevicesProxies() {
     this._destroyDevicesProxies();
-    this._devices = this._providers.getDevices(this._script.devices).filter((device) => !!device);
+    this._devices = this._providers
+      .getDevices(this._scriptDevicesOverride ?? this._script.devices)
+      .filter((device) => !!device);
   }
 
   _onScriptUpdated() {

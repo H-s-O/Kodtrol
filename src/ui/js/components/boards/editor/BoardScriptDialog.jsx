@@ -21,10 +21,11 @@ const defaultValue = {
   leadInTime: null,
   leadOutTime: null,
   switchMode: null,
+  devicesOverride: null,
   color: null,
 }
 
-export default function BoardScriptDialog({ opened, mode, value, layers, scripts, onChange, onSuccess, onClose }) {
+export default function BoardScriptDialog({ opened, mode, value, layers, scripts, devices, onChange, onSuccess, onClose }) {
   const bodyValue = value || defaultValue;
   const bodyValid = boardScriptValidator(bodyValue);
 
@@ -46,6 +47,7 @@ export default function BoardScriptDialog({ opened, mode, value, layers, scripts
           validation={bodyValid}
           layers={layers}
           scripts={scripts}
+          devices={devices}
         />
       </DialogBody>
       <DialogFooter>

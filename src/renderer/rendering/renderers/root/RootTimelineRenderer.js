@@ -64,7 +64,7 @@ export default class RootTimelineRenderer extends BaseRootRenderer {
     this._blocks = timelineItems
       .filter(({ type }) => type === ITEM_SCRIPT)
       .reduce((obj, block) => {
-        const instance = new ScriptRenderer(this._providers, block.script);
+        const instance = new ScriptRenderer(this._providers, block.script, block.devicesOverride);
         instance.on('script_error', this._forwardEvent('script_error', { block: block.id, timeline: this._timeline.id }));
         instance.on('script_log', this._forwardEvent('script_log', { block: block.id, timeline: this._timeline.id }));
 
