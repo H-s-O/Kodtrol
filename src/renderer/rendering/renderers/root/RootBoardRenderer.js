@@ -8,6 +8,7 @@ import {
   ITEM_TRIGGER_MIDI_CC,
   ITEM_TRIGGER_OSC_ADR_ARG,
   ITEM_SWITCH_MODE_MIRROR,
+  ITEM_SWITCH_MODE_THRU,
 } from '../../../../common/js/constants/items';
 
 const BLOCK_PHASE_IN = 'in';
@@ -135,8 +136,6 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const currentTime = this._currentTime;
 
     Object.entries(this._blocks).forEach(([id, block]) => {
-      const { leadInTime, leadOutTime } = block;
-
       // Block activated by user
       if (id in activeItems) {
         // Block was running a phase out
@@ -149,6 +148,10 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             block.outTime = null;
             block.blockPercentRef = 1 - (block.blockPercent - 1);
             block.blockPercent = -1;
+          }
+          // Block has "thru" switch mode
+          else if (block.switchMode === ITEM_SWITCH_MODE_THRU) {
+            block.thru = BLOCK_PHASE_OUT
           }
           // Block has default "jump" switch mode
           else {
@@ -168,6 +171,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             block.outTime = null;
             block.blockPercent = -1;
             block.blockPercentRef = null;
+            block.thru = null
           }
         }
       }
@@ -183,6 +187,10 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             block.outTime = currentTime;
             block.blockPercentRef = 1 - (block.blockPercent + 1);
             block.blockPercent = 1;
+          }
+          // Block has "thru" switch mode
+          else if (block.switchMode === ITEM_SWITCH_MODE_THRU) {
+            block.thru = BLOCK_PHASE_IN
           }
           // Block has default "jump" switch mode
           else {
@@ -202,6 +210,7 @@ export default class RootBoardRenderer extends BaseRootRenderer {
             block.outTime = currentTime;
             block.blockPercent = 1;
             block.blockPercentRef = null;
+            block.thru = null
           }
         }
       }
@@ -223,7 +232,8 @@ export default class RootBoardRenderer extends BaseRootRenderer {
     const blockCount = blocks.length;
     for (let i = 0; i < blockCount; i++) {
       const block = this._blocks[blocks[i]];
-      const { inTime, outTime, leadInTime, leadOutTime, blockPercentRef } = block;
+      let{ inTime, outTime} = block;
+      const { leadInTime, leadOutTime, blockPercentRef } = block;
       const trueLeadInTime = typeof leadInTime !== 'undefined' && leadInTime !== null ? leadInTime : null;
       const trueLeadOutTime = typeof leadOutTime !== 'undefined' && leadOutTime !== null ? leadOutTime : null;
 
@@ -236,7 +246,14 @@ export default class RootBoardRenderer extends BaseRootRenderer {
           const offset = blockPercentRef ?? 0;
           blockPercent = (offset + (leadInPercent * (1 - offset))) - 1;
         } else {
-          block.phase = BLOCK_PHASE_RUN;
+          if (block.thru === BLOCK_PHASE_IN) {
+            outTime = block.outTime = currentTime;
+            blockPercent = 1;
+            block.phase = BLOCK_PHASE_OUT;
+            block.thru = null;
+          } else {
+            block.phase = BLOCK_PHASE_RUN;
+          }
           block.blockPercentRef = null;
         }
       }
@@ -254,10 +271,17 @@ export default class RootBoardRenderer extends BaseRootRenderer {
           const offset = blockPercentRef ?? 0;
           blockPercent = (offset + (leadOutPercent * (1 - offset))) + 1;
         } else {
-          block.phase = null;
-          block.inTime = null;
-          block.outTime = null;
-          block.blockPercent = null;
+          if (block.thru === BLOCK_PHASE_OUT) {
+            inTime = block.inTime = currentTime;
+            blockPercent = -1;
+            block.phase = BLOCK_PHASE_IN;
+            block.thru = null;             
+          } else {
+            block.phase = null;
+            block.inTime = null;
+            block.outTime = null;
+            block.blockPercent = null;
+          }
           block.blockPercentRef = null;
         }
       }

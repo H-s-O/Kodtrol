@@ -16,6 +16,7 @@ import {
   ITEM_TRIGGER_OSC_ADR_ARG,
   ITEM_SWITCH_MODE_JUMP,
   ITEM_SWITCH_MODE_MIRROR,
+  ITEM_SWITCH_MODE_THRU,
 } from '../../../../../common/js/constants/items';
 import RadioItemLabel from '../../ui/RadioItemLabel';
 import ScriptDevicesInput from '../../scripts/ScriptDevicesInput';
@@ -182,6 +183,7 @@ export default function BoardScriptDialogBody({ value, onChange, validation, lay
           onChange={onChange}
         >
           <Radio value={ITEM_SWITCH_MODE_JUMP} labelElement={<RadioItemLabel label='Jump' helperText='Jump to the beginning of lead-in and lead-out durations' />} />
+          <Radio value={ITEM_SWITCH_MODE_THRU} labelElement={<RadioItemLabel label='Thru' helperText='Play through the entire lead-in and lead-out durations' />} />
           <Radio value={ITEM_SWITCH_MODE_MIRROR} labelElement={<RadioItemLabel label='Mirror' helperText='Mirror the remaining progress from lead-in to the lead-out progress and vice-versa' />} />
         </RadioInput>
       </InlineFormGroup>

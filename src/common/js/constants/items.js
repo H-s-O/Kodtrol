@@ -12,6 +12,7 @@ export const ITEM_TRIGGER_MIDI_NOTE = 'midi_note';
 export const ITEM_TRIGGER_OSC_ADR_ARG = 'osc_adr_arg';
 
 export const ITEM_SWITCH_MODE_JUMP = 'jump';
+export const ITEM_SWITCH_MODE_THRU = 'thru';
 export const ITEM_SWITCH_MODE_MIRROR = 'mirror';
 
 export const ITEM_LABELS = {
