@@ -8,8 +8,9 @@ import SelectInput from '../../ui/inputs/SelectInput';
 import DurationInput from '../../ui/inputs/DurationInput';
 import NumberInput from '../../ui/inputs/NumberInput';
 import ColorInput from '../../ui/inputs/ColorInput';
+import ScriptDevicesInput from '../../scripts/ScriptDevicesInput';
 
-export default function TimelineScriptDialogBody({ value, onChange, validation, layers = [], scripts = [] }) {
+export default function TimelineScriptDialogBody({ value, onChange, validation, layers = [], scripts = [], devices = [] }) {
   const {
     script,
     layer,
@@ -18,6 +19,7 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
     outTime,
     leadInTime,
     leadOutTime,
+    devicesOverride,
     color,
   } = value;
 
@@ -127,6 +129,18 @@ export default function TimelineScriptDialogBody({ value, onChange, validation, 
           value={leadOutTime}
           placeholder="500"
           min={0}
+          onChange={onChange}
+        />
+      </InlineFormGroup>
+      <InlineFormGroup
+        minWidth="100"
+        label="Devices"
+        helperText="If set, this device list will override the associated script's original devices list."
+      >
+        <ScriptDevicesInput
+          name="devicesOverride"
+          value={devicesOverride}
+          devices={devices}
           onChange={onChange}
         />
       </InlineFormGroup>

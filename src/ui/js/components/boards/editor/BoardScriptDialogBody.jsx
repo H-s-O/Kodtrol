@@ -18,8 +18,9 @@ import {
   ITEM_SWITCH_MODE_MIRROR,
 } from '../../../../../common/js/constants/items';
 import RadioItemLabel from '../../ui/RadioItemLabel';
+import ScriptDevicesInput from '../../scripts/ScriptDevicesInput';
 
-export default function BoardScriptDialogBody({ value, onChange, validation, layers = [], scripts = [] }) {
+export default function BoardScriptDialogBody({ value, onChange, validation, layers = [], scripts = [], devices = [] }) {
   const {
     script,
     layer,
@@ -30,6 +31,7 @@ export default function BoardScriptDialogBody({ value, onChange, validation, lay
     switchMode,
     leadInTime,
     leadOutTime,
+    devicesOverride,
     color,
   } = value;
 
@@ -182,6 +184,18 @@ export default function BoardScriptDialogBody({ value, onChange, validation, lay
           <Radio value={ITEM_SWITCH_MODE_JUMP} labelElement={<RadioItemLabel label='Jump' helperText='Jump to the beginning of lead-in and lead-out durations' />} />
           <Radio value={ITEM_SWITCH_MODE_MIRROR} labelElement={<RadioItemLabel label='Mirror' helperText='Mirror the remaining progress from lead-in to the lead-out progress and vice-versa' />} />
         </RadioInput>
+      </InlineFormGroup>
+      <InlineFormGroup
+        minWidth="100"
+        label="Devices"
+        helperText="If set, this device list will override the associated script's original devices list."
+      >
+        <ScriptDevicesInput
+          name="devicesOverride"
+          value={devicesOverride}
+          devices={devices}
+          onChange={onChange}
+        />
       </InlineFormGroup>
       <InlineFormGroup
         minWidth="100"

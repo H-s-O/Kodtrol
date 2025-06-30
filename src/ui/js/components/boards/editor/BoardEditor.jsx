@@ -91,6 +91,7 @@ export default function BoardEditor({ board, onChange }) {
   const { items, layers, zoom, zoomVert } = board;
 
   const scripts = useSelector((state) => state.scripts);
+  const devices = useSelector((state) => state.devices);
   const runBoard = useSelector((state) => state.runBoard);
 
   const isRunning = board.id == runBoard;
@@ -101,6 +102,9 @@ export default function BoardEditor({ board, onChange }) {
   const availableScripts = useMemo(() => {
     return scripts.map(({ id, name }) => ({ id, name }));
   }, [scripts]);
+  const availableDevices = useMemo(() => {
+    return devices.map(({ id, name }) => ({ id, name }));
+  }, [devices]);
   const availableLayers = useMemo(() => {
     return layers.map(({ id, order }) => ({ id, name: order + 1 }));
   }, [board]);
@@ -350,12 +354,12 @@ export default function BoardEditor({ board, onChange }) {
                       />
                     </>
                   ) : (
-                      <Menu.Item
-                        icon={ICON_LAYER}
-                        text="Add Layer"
-                        onClick={addLayerAtBottomClickHandler}
-                      />
-                    )}
+                    <Menu.Item
+                      icon={ICON_LAYER}
+                      text="Add Layer"
+                      onClick={addLayerAtBottomClickHandler}
+                    />
+                  )}
                 </Menu>
               )}
             >
@@ -449,6 +453,7 @@ export default function BoardEditor({ board, onChange }) {
         onClose={scriptDialog.hide}
         layers={availableLayers}
         scripts={availableScripts}
+        devices={availableDevices}
       />
     </>
   );

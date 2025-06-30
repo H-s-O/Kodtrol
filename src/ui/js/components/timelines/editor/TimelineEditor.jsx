@@ -115,6 +115,7 @@ export default function TimelineEditor({ timeline, onChange }) {
   const { duration, layers, items, zoom, zoomVert, recording, recordedTriggers } = timeline;
 
   const scripts = useSelector((state) => state.scripts);
+  const devices = useSelector((state) => state.devices);
   const medias = useSelector((state) => state.medias);
   const runTimeline = useSelector((state) => state.runTimeline);
 
@@ -127,6 +128,9 @@ export default function TimelineEditor({ timeline, onChange }) {
   const availableScripts = useMemo(() => {
     return scripts.map(({ id, name }) => ({ id, name }));
   }, [scripts]);
+  const availableDevices = useMemo(() => {
+    return devices.map(({ id, name }) => ({ id, name }));
+  }, [devices]);
   const mediasNames = useMemo(() => {
     return medias.reduce((obj, media) => ({ ...obj, [media.id]: { name: getMediaName(media), file: media.file } }), {});
   }, [medias]);
@@ -382,19 +386,19 @@ export default function TimelineEditor({ timeline, onChange }) {
               click: () => itemCopyInTimeClick(id),
             },
           ] : [
-              {
-                label: 'Block In time',
-                click: () => itemCopyInTimeClick(id),
-              },
-              {
-                label: 'Block Out time',
-                click: () => itemCopyOutTimeClick(id),
-              },
-              {
-                label: 'Block In and Out time',
-                click: () => itemCopyInAndOutTimeClick(id),
-              },
-            ]
+            {
+              label: 'Block In time',
+              click: () => itemCopyInTimeClick(id),
+            },
+            {
+              label: 'Block Out time',
+              click: () => itemCopyOutTimeClick(id),
+            },
+            {
+              label: 'Block In and Out time',
+              click: () => itemCopyInAndOutTimeClick(id),
+            },
+          ]
           ),
         ],
       },
@@ -407,22 +411,22 @@ export default function TimelineEditor({ timeline, onChange }) {
             enabled: canPasteItem('inTime'),
           },
         ] : [
-            {
-              label: 'Time as block In time',
-              click: () => itemPasteInTimeClick(id),
-              enabled: canPasteItem('inTime'),
-            },
-            {
-              label: 'Time as block Out time',
-              click: () => itemPasteOutTimeClick(id),
-              enabled: canPasteItem('outTime'),
-            },
-            {
-              label: 'In and Out Time as block In and Out time',
-              click: () => itemPasteInAndOutTimeClick(id),
-              enabled: canPasteItem('inAndOutTime'),
-            },
-          ],
+          {
+            label: 'Time as block In time',
+            click: () => itemPasteInTimeClick(id),
+            enabled: canPasteItem('inTime'),
+          },
+          {
+            label: 'Time as block Out time',
+            click: () => itemPasteOutTimeClick(id),
+            enabled: canPasteItem('outTime'),
+          },
+          {
+            label: 'In and Out Time as block In and Out time',
+            click: () => itemPasteInAndOutTimeClick(id),
+            enabled: canPasteItem('inAndOutTime'),
+          },
+        ],
       },
       {
         label: 'Move item',
@@ -783,12 +787,12 @@ export default function TimelineEditor({ timeline, onChange }) {
                       />
                     </>
                   ) : (
-                      <Menu.Item
-                        icon={ICON_LAYER}
-                        text="Add Layer"
-                        onClick={addLayerAtBottomClickHandler}
-                      />
-                    )}
+                    <Menu.Item
+                      icon={ICON_LAYER}
+                      text="Add Layer"
+                      onClick={addLayerAtBottomClickHandler}
+                    />
+                  )}
                 </Menu>
               )}
             >
@@ -920,6 +924,7 @@ export default function TimelineEditor({ timeline, onChange }) {
         onClose={scriptDialog.hide}
         layers={availableLayers}
         scripts={availableScripts}
+        devices={availableDevices}
         duration={duration}
       />
       <TimelineTriggerDialog

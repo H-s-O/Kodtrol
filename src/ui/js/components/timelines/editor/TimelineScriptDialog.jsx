@@ -19,10 +19,11 @@ const defaultValue = {
   outTime: 0,
   leadInTime: null,
   leadOutTime: null,
+  devicesOverride: null,
   color: null,
 };
 
-export default function TimelineScriptDialog({ opened, mode, value, layers, scripts, duration, onChange, onSuccess, onClose }) {
+export default function TimelineScriptDialog({ opened, mode, value, layers, scripts, devices, duration, onChange, onSuccess, onClose }) {
   const bodyValue = value || defaultValue;
   const bodyValid = timelineScriptValidator(bodyValue, duration);
 
@@ -44,6 +45,7 @@ export default function TimelineScriptDialog({ opened, mode, value, layers, scri
           validation={bodyValid}
           layers={layers}
           scripts={scripts}
+          devices={devices}
         />
       </DialogBody>
       <DialogFooter>
@@ -52,7 +54,7 @@ export default function TimelineScriptDialog({ opened, mode, value, layers, scri
             onClick={onClose}
           >
             Close
-            </Button>
+          </Button>
           <Button
             intent={Intent.SUCCESS}
             disabled={!bodyValid.all_fields}
