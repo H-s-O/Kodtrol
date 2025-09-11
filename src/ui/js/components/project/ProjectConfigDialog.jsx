@@ -185,6 +185,7 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
     port = null,
     address = null,
     dacRate = null,
+    universe = null,
   } = value;
 
   const midiOutputs = useMemo(() => availableItems.filter(({ type }) => type === IO_MIDI), [availableItems]);
@@ -301,17 +302,32 @@ const SingleOutput = ({ value, onChange, availableItems }) => {
         </>
       )}
       {type === IO_ARTNET && (
-        <InlineFormGroup
-          label="Address"
-          helperText={!address ? 'An Art-Net output address is mandatory.' : undefined}
-          intent={!address ? Intent.DANGER : undefined}
-        >
-          <TextInput
-            name="address"
-            value={address}
-            onChange={changeHandler}
-          />
-        </InlineFormGroup>
+        <>
+          <InlineFormGroup
+            label="Address"
+            helperText={!address ? 'An Art-Net output address is mandatory.' : undefined}
+            intent={!address ? Intent.DANGER : undefined}
+          >
+            <TextInput
+              name="address"
+              value={address}
+              onChange={changeHandler}
+            />
+          </InlineFormGroup>
+          <InlineFormGroup
+            label="Universe"
+            helperText={!universe ? 'An Art-Net universe number is mandatory.' : undefined}
+            intent={!universe ? Intent.DANGER : undefined}
+          >
+            <NumberInput
+              name="universe"
+              min={1}
+              max={512}
+              value={universe}
+              onChange={changeHandler}
+            />
+          </InlineFormGroup>
+        </>
       )}
       {type === IO_MIDI && (
         <InlineFormGroup

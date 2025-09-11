@@ -16,6 +16,7 @@ export default class Output extends EventEmitter {
   _address = null;
   _output = null;
   _dacRate = null;
+  _universe = null;
   _bufferData = {};
   _hash = null;
 
@@ -33,6 +34,7 @@ export default class Output extends EventEmitter {
       port,
       address,
       dacRate,
+      universe,
       hash,
     } = sourceOutput;
 
@@ -42,6 +44,7 @@ export default class Output extends EventEmitter {
     this._port = port;
     this._address = address;
     this._dacRate = dacRate;
+    this._universe = universe;
     this._hash = hash;
 
     this._setOutput();
@@ -57,7 +60,7 @@ export default class Output extends EventEmitter {
         output = new DmxOutput(this._driver, this._port);
         break;
       case IO_ARTNET:
-        output = new ArtnetOutput(this._address);
+        output = new ArtnetOutput(this._address, this._universe);
         break;
       case IO_ILDA:
         output = new IldaOutput(this._driver, this._dacRate, this._address);
@@ -134,6 +137,7 @@ export default class Output extends EventEmitter {
     this._address = null;
     this._output = null;
     this._dacRate = null;
+    this._universe = null;
     this._bufferData = null;
     this._hash = null;
   }

@@ -3,6 +3,9 @@ import DMX from 'dmx';
 import AbstractOutput from './AbstractOutput';
 
 export default class DmxOutput extends AbstractOutput {
+  static _internalId = 0;
+
+  _internalName = null;
   _output = null;
   _driver = null;
   _port = null;
@@ -11,6 +14,8 @@ export default class DmxOutput extends AbstractOutput {
 
   constructor(driver, port) {
     super();
+
+    this._internalName = 'dmx' + (DmxOutput._internalId++);
 
     this._driver = driver;
     this._port = port;
@@ -24,7 +29,7 @@ export default class DmxOutput extends AbstractOutput {
 
     try {
       this._output = new DMX();
-      this._output.addUniverse('main', this._driver, this._port);
+      this._output.addUniverse(this._internalName, this._driver, this._port);
       console.log('DmxOutput _create()', this._driver, this._port);
       this._checkTimeout = setTimeout(() => this._canCheck = true, 3000);
     } catch (e) {
@@ -38,9 +43,9 @@ export default class DmxOutput extends AbstractOutput {
   _getPortOpen() {
     // Kinda hackish, but the dmx lib does not explicitly expose this
     if (this._output
-      && this._output.universes['main']
-      && this._output.universes['main'].dev
-      && this._output.universes['main'].dev.isOpen) {
+      && this._output.universes[this._internalName]
+      && this._output.universes[this._internalName].dev
+      && this._output.universes[this._internalName].dev.isOpen) {
       return true;
     }
 
@@ -71,7 +76,7 @@ export default class DmxOutput extends AbstractOutput {
 
   send(data) {
     if (this._output) {
-      this._output.update('main', data);
+      this._output.update(this._internalName, data);
       this._setSent();
     }
   }
