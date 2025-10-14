@@ -9,7 +9,7 @@
   "bugs": "https://github.com/H-s-O/Kodtrol/issues",
   "main": "build/main/main.js",
   "scripts": {
-    "start": "cross-env-shell KODTROL_DEV=true \"npm run build:main && electron -r source-map-support/register .\"",
+    "start": "cross-env-shell KODTROL_DEV=true \"npm run build:main && npm run build:engine && electron -r source-map-support/register .\"",
     "build:main": "esbuild src/main/main.ts --bundle --platform=node --external:electron --target=node20 --sourcemap=inline --sources-content=false --outdir=build/main",
     "build:engine": "esbuild src/engine/engine.html src/engine/engine.ts src/engine/engine-preload.ts --loader:.html=copy --bundle --platform=browser --external:electron --sourcemap=inline --sources-content=false --outdir=build/engine",
     "watch:engine": "npm run build:engine -- --watch",
@@ -31,8 +31,9 @@
   "devDependencies": {
     "@types/w3c-web-serial": "^1.0.6",
     "@types/w3c-web-usb": "^1.0.10",
+    "@types/ws": "^8.18.1",
     "cross-env": "^7.0.3",
-    "electron": "^32.1.0",
+    "electron": "^38.2.2",
     "electron-builder": "^25.0.5",
     "esbuild": "^0.23.1",
     "source-map-support": "^0.5.21",

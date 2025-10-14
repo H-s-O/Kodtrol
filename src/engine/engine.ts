@@ -90,25 +90,25 @@ const doPortTest = async (port: SerialPort) => {
 
       // cmd[34] = 0xe7;
       testPort?.writable?.getWriter().write(cmd)
-        .then(() => {
+        .then(async () => {
           console.log('cmd sent!', cmd.toString());
+
+          const reader = testPort?.readable?.getReader()
+          try {
+            while (true) {
+              console.log('reading...');
+              const { done, value } = await reader?.read()
+              console.log('received:');
+              console.log(' done:', done);
+              console.log(' value:', value.toString());
+              console.log(' serial:', decodeEnttecSerial(value.slice(4, -1)));
+              if (done) break;
+            }
+          } catch (err) {
+            console.error('err', err)
+          }
         })
         .catch((err) => console.error('err', err));
-
-      const reader = testPort?.readable?.getReader()
-      try {
-        while (true) {
-          console.log('reading...');
-          const { done, value } = await reader?.read()
-          console.log('received:');
-          console.log(' done:', done);
-          console.log(' value:', value.toString());
-          console.log(' serial:', decodeEnttecSerial(value.slice(4, -1)));
-          if (done) break;
-        }
-      } catch (err) {
-        console.error('err', err)
-      }
     })
     .catch((err) => console.error('open error:', err));
 };
@@ -144,11 +144,11 @@ setInterval(listWebSerialPorts, 2000);
 setInterval(listWebUsbDevices, 2000);
 
 
-console.log("engine session", kodtrol_bridge.wsSession)
+console.log("engine session", window.kodtrol_bridge.wsSession)
 const wsPort = DEFAULT_WS_PORT;
 const wsUrl = `ws://localhost:${wsPort}`;
 const socketHandler = new ReduxWebSocketClient(wsUrl, "protocol", { specialActions: [], debug: true });
-socketHandler.setAuthentication(kodtrol_bridge.wsSession);
+socketHandler.setAuthentication(window.kodtrol_bridge.wsSession);
 socketHandler.setReducers(rootReducer);
 let store: AppStore
 socketHandler.on("stateReceived", ({ reducers, initialState }) => {

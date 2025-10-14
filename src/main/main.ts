@@ -24,6 +24,15 @@ app.whenReady()
   .then(() => {
     console.log("KODTROL app ready");
 
+    process.once('SIGINT', () => {
+      console.log('/!\\ Got SIGINT');
+      app.quit();
+    });
+    process.once('SIGTERM', () => {
+      console.log('/!\\ Got SIGTERM');
+      app.quit();
+    });
+
     const wsPort = envWsPort ?? DEFAULT_WS_PORT;
     const wsUrl = `ws://localhost:${wsPort}`;
     const wsProtocol = "protocol";
@@ -66,6 +75,10 @@ app.whenReady()
     engineWindow.webContents.session.setDevicePermissionHandler(() => true);
     engineWindow.webContents.loadFile(join(__dirname, "..", "engine", "engine.html"));
     if (envIsDev) engineWindow.webContents.openDevTools();
+
+    app.once('will-quit', () => {
+      console.log('WILL QUIT');
+    });
   })
   .catch((err) => {
     console.error('---------------------------------');
@@ -73,3 +86,5 @@ app.whenReady()
     console.error(err);
     process.exit(1);
   });
+
+

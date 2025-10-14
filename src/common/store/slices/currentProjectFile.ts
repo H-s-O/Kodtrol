@@ -2,9 +2,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type CurrentProjectFileState = string | null;
 
-// this does NOT works:
-
 const initialState = null satisfies CurrentProjectFileState as CurrentProjectFileState;
+
+//--------------------------------------------------------------------
+// this does NOT works:
 
 const slice = createSlice({
   name: 'currentProjectFile',
@@ -26,7 +27,7 @@ export const {
 
 export default slice.reducer
 
-
+//--------------------------------------------------------------------
 // this works:
 
 // export default (state = initialState, { type, payload }) => {
