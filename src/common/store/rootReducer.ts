@@ -5,6 +5,6 @@ import currentProjectFile from "./slices/currentProjectFile";
 const rootReducer = {
   currentProjectFile,
   __websocket: WebSocketReducer,
-}
+};
 
-export default rootReducer
+export default rootReducer;

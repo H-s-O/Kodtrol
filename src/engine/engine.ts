@@ -19,17 +19,16 @@ data_length     Data bytes.
 let testPort: SerialPort | undefined;
 const doPortTest = async (port: SerialPort) => {
   testPort = port;
-  testPort.open({ baudRate: 9600, dataBits: 8, stopBits: 2, parity: 'none' })
+  testPort
+    .open({ baudRate: 9600, dataBits: 8, stopBits: 2, parity: "none" })
     // testPort.open({ baudRate: 9600 })
     .then(async () => {
-      console.log('opened!');
+      console.log("opened!");
 
       const cmd = new Uint8Array([
         0x7e,
 
-        10,
-        0,
-        0,
+        10, 0, 0,
 
         0xe7,
       ]);
@@ -48,7 +47,6 @@ const doPortTest = async (port: SerialPort) => {
 
       //   0xe7,
       // ]);
-
 
       // cmd[1] = 0x06;
 
@@ -89,28 +87,30 @@ const doPortTest = async (port: SerialPort) => {
       // cmd[33] = 0;
 
       // cmd[34] = 0xe7;
-      testPort?.writable?.getWriter().write(cmd)
+      testPort?.writable
+        ?.getWriter()
+        .write(cmd)
         .then(async () => {
-          console.log('cmd sent!', cmd.toString());
+          console.log("cmd sent!", cmd.toString());
 
-          const reader = testPort?.readable?.getReader()
+          const reader = testPort?.readable?.getReader();
           try {
             while (true) {
-              console.log('reading...');
-              const { done, value } = await reader?.read()
-              console.log('received:');
-              console.log(' done:', done);
-              console.log(' value:', value.toString());
-              console.log(' serial:', decodeEnttecSerial(value.slice(4, -1)));
+              console.log("reading...");
+              const { done, value } = await reader?.read();
+              console.log("received:");
+              console.log(" done:", done);
+              console.log(" value:", value.toString());
+              console.log(" serial:", decodeEnttecSerial(value.slice(4, -1)));
               if (done) break;
             }
           } catch (err) {
-            console.error('err', err)
+            console.error("err", err);
           }
         })
-        .catch((err) => console.error('err', err));
+        .catch((err) => console.error("err", err));
     })
-    .catch((err) => console.error('open error:', err));
+    .catch((err) => console.error("open error:", err));
 };
 
 const decodeEnttecSerial = (arr: number[]) => {
@@ -119,7 +119,7 @@ const decodeEnttecSerial = (arr: number[]) => {
     chars.unshift((arr[i] & 0b1111).toString());
     chars.unshift(((arr[i] >> 4) & 0b1111).toString());
   }
-  return chars.join('');
+  return chars.join("");
 };
 
 const listWebSerialPorts = () => {
@@ -143,30 +143,31 @@ const listWebUsbDevices = () => {
 setInterval(listWebSerialPorts, 2000);
 setInterval(listWebUsbDevices, 2000);
 
-
-console.log("engine session", window.kodtrol_bridge.wsSession)
+console.log("engine session", window.kodtrol_bridge.wsSession);
 const wsPort = DEFAULT_WS_PORT;
 const wsUrl = `ws://localhost:${wsPort}`;
-const socketHandler = new ReduxWebSocketClient(wsUrl, "protocol", { specialActions: [], debug: true });
+const socketHandler = new ReduxWebSocketClient(wsUrl, "protocol", {
+  specialActions: [],
+  debug: false,
+});
 socketHandler.setAuthentication(window.kodtrol_bridge.wsSession);
 socketHandler.setReducers(rootReducer);
-let store: AppStore
+let store: AppStore;
 socketHandler.on("stateReceived", ({ reducers, initialState }) => {
   console.log("engine received state", reducers, initialState);
   store = createKodtrolStore(initialState, reducers, [socketHandler.getMiddleware()]);
   store.subscribe(() => {
     console.log("engine store change:", Date.now(), store.getState());
-  })
-  console.log("engine state:", store.getState())
+  });
+  console.log("engine state:", store.getState());
 
-  const btn = document.createElement('button')
-  btn.innerText = '######'
+  const btn = document.createElement("button");
+  btn.innerText = "######";
   btn.onclick = () => {
-    console.log('clic');
-    store.dispatch(setCurrentProjectFileAction('/tst.kodtrol'));
-  }
-  document.body.appendChild(btn)
+    console.log("clic");
+    store.dispatch(setCurrentProjectFileAction("/tst.kodtrol"));
+  };
+  document.body.appendChild(btn);
 
   return store;
 });
-

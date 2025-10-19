@@ -10,26 +10,30 @@ import { envIsDev, envUiPort, envWsPort } from "./lib/env";
 import { APP_NAME, DEFAULT_WS_PORT } from "../common/constants";
 import { AppStore, createKodtrolStore } from "../common/store/store";
 import rootReducer from "../common/store/rootReducer";
+import Logger from "../common/lib/Logger";
+
+const logger = new Logger("MAIN");
 
 // homemade polyfill
-(global as any).WebSocket = WebSocket
+(global as any).WebSocket = WebSocket;
 
-console.group('KODTROL env vars');
-console.info('is dev:', envIsDev);
-console.info('ws port:', envWsPort);
-console.info('ui port:', envUiPort);
+console.group("KODTROL env vars");
+console.info("is dev:", envIsDev);
+console.info("ws port:", envWsPort);
+console.info("ui port:", envUiPort);
 console.groupEnd();
 
-app.whenReady()
+app
+  .whenReady()
   .then(() => {
-    console.log("KODTROL app ready");
+    logger.log("KODTROL app ready");
 
-    process.once('SIGINT', () => {
-      console.log('/!\\ Got SIGINT');
+    process.once("SIGINT", () => {
+      logger.log("/!\\ GOT SIGINT");
       app.quit();
     });
-    process.once('SIGTERM', () => {
-      console.log('/!\\ Got SIGTERM');
+    process.once("SIGTERM", () => {
+      logger.log("/!\\ GOT SIGTERM");
       app.quit();
     });
 
@@ -39,25 +43,27 @@ app.whenReady()
     const wsSession = randomUUID();
 
     const reduxWsServer = createWithPort(wsPort);
-    reduxWsServer.on('getInitialState', ({ session }) => {
-      console.log('---------session', session)
-      return {}
-    })
+    reduxWsServer.on("getInitialState", ({ session }) => {
+      logger.debug("on getInitialState", session);
+      return {};
+    });
 
     let store: AppStore;
 
-    const reduxMainClient = new ReduxWebSocketClient(wsUrl, wsProtocol, { specialActions: [], debug: true });
+    const reduxMainClient = new ReduxWebSocketClient(wsUrl, wsProtocol, {
+      specialActions: [],
+      debug: false,
+    });
     reduxMainClient.setAuthentication(wsSession);
     reduxMainClient.setReducers(rootReducer);
-    reduxMainClient.on('stateReceived', ({ reducers, initialState }) => {
-      console.log('allo', initialState);
+    reduxMainClient.on("stateReceived", ({ reducers, initialState }) => {
+      logger.debug("on stateReceived", initialState);
       store = createKodtrolStore(initialState, reducers, [reduxMainClient.getMiddleware()]);
       store.subscribe(() => {
-        console.log('########### MAIN store change', Date.now(), store.getState())
-      })
+        logger.debug("store change", store.getState());
+      });
       return store;
     });
-
 
     const engineWindow = new BrowserWindow({
       title: `${APP_NAME} - Engine`,
@@ -69,22 +75,20 @@ app.whenReady()
             wsSession,
           })}`,
         ],
-      }
+      },
     });
     engineWindow.webContents.session.setPermissionCheckHandler(() => true);
     engineWindow.webContents.session.setDevicePermissionHandler(() => true);
     engineWindow.webContents.loadFile(join(__dirname, "..", "engine", "engine.html"));
     if (envIsDev) engineWindow.webContents.openDevTools();
 
-    app.once('will-quit', () => {
-      console.log('WILL QUIT');
+    app.once("will-quit", () => {
+      logger.log("WILL QUIT");
     });
   })
   .catch((err) => {
-    console.error('---------------------------------');
-    console.error('KODTROL main error:');
+    console.error("---------------------------------");
+    console.error("KODTROL main error:");
     console.error(err);
     process.exit(1);
   });
-
-
