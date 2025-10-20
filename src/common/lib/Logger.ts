@@ -8,7 +8,16 @@ export default class Logger {
 
   private _getDateTime() {
     const date = new Date();
-    return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}`;
+    return `${date.getFullYear()}-${date.getMonth().toString().padStart(2, "0")}-${date
+      .getDate()
+      .toString()
+      .padStart(2, "0")} ${date.getHours().toString().padStart(2, "0")}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}:${date
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}.${date.getMilliseconds()}`;
   }
 
   public debug(...args: any[]) {

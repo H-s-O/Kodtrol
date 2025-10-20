@@ -4,6 +4,9 @@ import { DEFAULT_WS_PORT } from "../common/constants";
 import { AppStore, createKodtrolStore } from "../common/store/store";
 import { setCurrentProjectFileAction } from "../common/store/slices/currentProjectFile";
 import rootReducer from "../common/store/rootReducer";
+import Logger from "../common/lib/Logger";
+
+const logger = new Logger("ENGINE");
 
 /*
 Size in Bytes   Description
@@ -154,17 +157,15 @@ socketHandler.setAuthentication(window.kodtrol_bridge.wsSession);
 socketHandler.setReducers(rootReducer);
 let store: AppStore;
 socketHandler.on("stateReceived", ({ reducers, initialState }) => {
-  console.log("engine received state", reducers, initialState);
+  logger.log("on stateReceived", reducers, initialState);
   store = createKodtrolStore(initialState, reducers, [socketHandler.getMiddleware()]);
   store.subscribe(() => {
-    console.log("engine store change:", Date.now(), store.getState());
+    logger.log("store change:", store.getState());
   });
-  console.log("engine state:", store.getState());
 
   const btn = document.createElement("button");
   btn.innerText = "######";
   btn.onclick = () => {
-    console.log("clic");
     store.dispatch(setCurrentProjectFileAction("/tst.kodtrol"));
   };
   document.body.appendChild(btn);
