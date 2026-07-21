@@ -113,7 +113,7 @@ export default class MainMenu extends EventEmitter {
     ];
 
     const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
+    // Menu.setApplicationMenu(menu);
   }
 
   onRevealCompiledScriptsDirClick = () => {

@@ -1,10 +1,11 @@
-import styled from 'styled-components';
-import { Card } from '@blueprintjs/core';
+import React from 'react';
+import { Card } from "antd";
 
-const FullHeightCard = styled(Card)`
-  width: 100%;
-  height: 100%;
-  padding: 10px;
-`
+const style = { height: '100%' }
+const styles = { body: { height: '100%' } }
 
-export default FullHeightCard;
+export default function FullHeightCard(props) {
+  return (
+    <Card style={style} styles={styles} {...props} />
+  )
+};

@@ -64,7 +64,7 @@ export default class Main {
   }
 
   onReady = () => {
-    MainMenu.setEmpty();
+    // MainMenu.setEmpty();
 
     this.loadDevExtensions();
     this.setupEventListeners();

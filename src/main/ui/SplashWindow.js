@@ -18,15 +18,15 @@ export default class SplashWindow extends EventEmitter {
       show: false,
       width: 600,
       height: 400,
-      maximizable: false,
-      resizable: false,
+      // maximizable: false,
+      // resizable: false,
       backgroundColor: Colors.DARK_GRAY3,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
       }
     });
-    this.win.removeMenu();
+    // this.win.removeMenu();
     // this.win.on('close', this.onClose);
     // this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);
@@ -43,6 +43,7 @@ export default class SplashWindow extends EventEmitter {
 
   onReadyToShow = () => {
     this.win.show();
+    // this.win.webContents.openDevTools();
   }
 
   onFinishLoad = () => {

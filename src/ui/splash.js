@@ -7,6 +7,6 @@ import SplashWindow from './js/SplashWindow';
 domready(() => {
   ReactDOM.render(
     <SplashWindow />,
-    document.getElementById('root'),
+    document.getElementById('kodtrol-ui-root'),
   );
 });
