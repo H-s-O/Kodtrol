@@ -1,78 +1,76 @@
 import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { Navbar, Button, Alignment, Tag, Intent, Classes, Icon } from '@blueprintjs/core';
+import { Navbar, Alignment, Intent, Classes, Icon } from '@blueprintjs/core';
+import { Card, Divider, Flex, Layout, Space, Tag, Typography, Button } from 'antd';
+import { LoginOutlined, LogoutOutlined } from '@ant-design/icons';
 
 import { IO_DISCONNECTED, IO_CONNECTED, IO_ACTIVITY } from '../../../common/js/constants/io';
-import TagGroup from './ui/TagGroup';
+// import TagGroup from './ui/TagGroup';
 import { ICON_BOARD, ICON_TIMELINE, ICON_SCRIPT, ICON_DEVICE, ICON_INPUT, ICON_OUTPUT } from '../../../common/js/constants/icons';
 import { showConfigDialogAction } from '../../../common/js/store/actions/dialogs';
 import { toggleConsoleAction } from '../../../common/js/store/actions/console';
+import { BoardIcon, ConsoleIcon, DeviceIcon, IOInputIcon, IOOutputIcon, ScriptIcon, SettingsIcon, TimelineIcon } from './ui/Icons';
+
+const headerStyle = { padding: '0px 10px' };
+const headerTitleStyle = { margin: 0, marginRight: '1em' };
+const singleTagStyle = { marginRight: 0 };
 
 const StyledNavbar = styled(Navbar)`
   padding: 0px 10px;
 `
 
-const getStatusIntent = (status) => {
+const getStatusColor = (status) => {
   switch (status) {
-    case IO_DISCONNECTED: return Intent.DANGER; break;
-    case IO_CONNECTED: return Intent.SUCCESS; break;
-    case IO_ACTIVITY: return Intent.PRIMARY; break;
-    default: return null; break;
+    case IO_DISCONNECTED: return "error"; break;
+    case IO_CONNECTED: return "success"; break;
+    case IO_ACTIVITY: return "processing"; break;
+    default: return undefined; break;
   }
 };
 
-const ItemsStatuses = ({ items, statuses, icon, rightIcon, defaultText }) => {
+const ItemsStatuses = ({ items, statuses, icon, defaultText }) => {
   if (items && items.length) {
     return (
-      <TagGroup>
+      <Space>
         {items.map(({ id, name }, index) => {
           const status = id in statuses ? statuses[id] : null;
 
           return (
             <Tag
-              minimal
-              key={index}
-              intent={getStatusIntent(status)}
+              key={id}
+              style={index === items.length - 1 ? singleTagStyle : undefined}
+              color={getStatusColor(status)}
               icon={icon}
-              rightIcon={rightIcon}
+              bordered={false}
             >
               {name}
             </Tag>
           );
         })}
-      </TagGroup>
+      </Space>
     )
   }
 
   return (
-    <span
-      className={Classes.TEXT_MUTED}
-    >
+    <Typography.Text type="secondary">
       {defaultText}
-    </span>
+    </Typography.Text>
   );
 };
 
 const ItemStatus = ({ icon, itemId, itemNames, tooltip }) => {
   return (
     <Tag
-      minimal
-      intent={itemId ? Intent.SUCCESS : undefined}
-      icon={itemId ? icon : undefined}
+      style={singleTagStyle}
+      icon={icon}
+      bordered={false}
+      color={itemId ? "success" : undefined}
       title={!itemId ? tooltip : undefined}
     >
       {itemId ? (
         itemNames[itemId]
-      ) : (
-          <span
-            className={Classes.TEXT_MUTED}
-          >
-            <Icon
-              icon={icon}
-            />
-          </span>
-        )}
+      ) : undefined}
     </Tag>
   );
 };
@@ -113,71 +111,74 @@ export default function MainNav() {
   })
 
   return (
-    <StyledNavbar>
-      <StyledNavbar.Group>
-        <StyledNavbar.Heading>
-          Kodtrol
-        </StyledNavbar.Heading>
-        <ItemStatus
-          icon={ICON_DEVICE}
-          itemId={runDevice}
-          itemNames={devicesNames}
-          tooltip="No active device test"
-        />
-        <StyledNavbar.Divider />
-        <ItemStatus
-          icon={ICON_SCRIPT}
-          itemId={runScript}
-          itemNames={scriptsNames}
-          tooltip="No active script"
-        />
-        <StyledNavbar.Divider />
-        <ItemStatus
-          icon={ICON_TIMELINE}
-          itemId={runTimeline}
-          itemNames={timelinesNames}
-          tooltip="No active timeline"
-        />
-        <StyledNavbar.Divider />
-        <ItemStatus
-          icon={ICON_BOARD}
-          itemId={runBoard}
-          itemNames={boardsNames}
-          tooltip="No active board"
-        />
-      </StyledNavbar.Group>
-      <StyledNavbar.Group
-        align={Alignment.RIGHT}
-      >
-        <ItemsStatuses
-          items={inputs}
-          statuses={ioStatus}
-          icon={ICON_INPUT}
-          defaultText="No inputs"
-        />
-        <StyledNavbar.Divider />
-        <ItemsStatuses
-          items={outputs}
-          statuses={ioStatus}
-          rightIcon={ICON_OUTPUT}
-          defaultText="No outputs"
-        />
-        <StyledNavbar.Divider />
-        <Button
-          small
-          icon="console"
-          title="Toggle console window"
-          active={console}
-          onClick={toggleConsoleClickHandler}
-        />
-        <StyledNavbar.Divider />
-        <Button
-          small
-          icon="cog"
-          title="Open project configuration"
-          onClick={openConfigClickHandler}
-        />
-      </StyledNavbar.Group>
-    </StyledNavbar>
+    <Card size="small">
+      {/* <Layout.Header style={headerStyle}> */}
+      <Flex justify="space-between">
+        <Space>
+          <h3 style={headerTitleStyle}>
+            Kodtrol
+          </h3>
+          <ItemStatus
+            icon={DeviceIcon}
+            itemId={runDevice}
+            itemNames={devicesNames}
+            tooltip="No active device test"
+          />
+          <Divider type="vertical" />
+          <ItemStatus
+            icon={ScriptIcon}
+            itemId={runScript}
+            itemNames={scriptsNames}
+            tooltip="No active script"
+          />
+          <Divider type="vertical" />
+          <ItemStatus
+            icon={TimelineIcon}
+            itemId={runTimeline}
+            itemNames={timelinesNames}
+            tooltip="No active timeline"
+          />
+          <Divider type="vertical" />
+          <ItemStatus
+            icon={BoardIcon}
+            itemId={runBoard}
+            itemNames={boardsNames}
+            tooltip="No active board"
+          />
+        </Space>
+        <Space>
+          <ItemsStatuses
+            items={inputs}
+            statuses={ioStatus}
+            icon={IOInputIcon}
+            defaultText="No inputs"
+          />
+          <Divider type="vertical" />
+          <ItemsStatuses
+            items={outputs}
+            statuses={ioStatus}
+            icon={IOOutputIcon}
+            defaultText="No outputs"
+          />
+          <Divider type="vertical" />
+          <Button
+            size="small"
+            icon={ConsoleIcon}
+            title="Toggle console window"
+            type={console ? "primary" : undefined}
+            onClick={toggleConsoleClickHandler}
+          />
+          <Divider type="vertical" />
+          <Button
+            variant="solid"
+            size="small"
+            icon={SettingsIcon}
+            title="Open project configuration"
+            onClick={openConfigClickHandler}
+          />
+        </Space>
+      </Flex>
+      {/* </Layout.Header> */}
+    </Card>
   );
 }

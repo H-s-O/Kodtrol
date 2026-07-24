@@ -1,9 +1,9 @@
 import EventEmitter from 'events';
 import { join } from 'path';
 import { BrowserWindow } from 'electron';
-import { Colors } from '@blueprintjs/core';
 
 import * as ConsoleWindowEvent from '../events/ConsoleWindowEvent';
+import { WINDOW_BACKGROUND } from '../../common/js/constants/ui';
 
 export default class ConsoleWindow extends EventEmitter {
   win = null;
@@ -19,13 +19,13 @@ export default class ConsoleWindow extends EventEmitter {
       maximizable: false,
       minWidth: 400,
       minHeight: 400,
-      backgroundColor: Colors.DARK_GRAY3,
+      backgroundColor: WINDOW_BACKGROUND,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
       }
     });
-    this.win.removeMenu();
+    // this.win.removeMenu();
     this.win.on('close', this.onClose);
     this.win.once('closed', this.onClosed);
     this.win.once('ready-to-show', this.onReadyToShow);

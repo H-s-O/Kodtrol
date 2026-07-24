@@ -8,7 +8,7 @@ import Root from './js/Root';
 domready(() => {
   ReactDOM.render(
     <Root />,
-    document.getElementById('root'),
+    document.getElementById('kodtrol-ui-root'),
   );
 });
 

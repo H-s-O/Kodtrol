@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { ConfigProvider, theme } from 'antd';
 
 import MainNav from './components/MainNav';
 import Browsers from './components/Browsers';
@@ -7,6 +8,7 @@ import DialogsContainer from './components/DialogsContainer';
 import ScriptsEditor from './components/ScriptsEditor';
 import TimelinesBoardsEditor from './components/TimelinesBoardsEditor';
 import ToastsContainer from './components/ToastsContainer';
+import AntdCompatWrapper from './AntdCompatWrapper';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -47,27 +49,29 @@ const StyledTimelinesDashboardsRow = styled.div`
 
 export default function Main(props) {
   return (
-    <>
-      <StyledContainer>
-        <StyledTopRow>
-          <MainNav />
-        </StyledTopRow>
-        <StyledBottomRow>
-          <StyledLeftCol>
-            <Browsers />
-          </StyledLeftCol>
-          <StyledRightCol>
-            <StyledScriptsRow>
-              <ScriptsEditor />
-            </StyledScriptsRow>
-            <StyledTimelinesDashboardsRow>
-              <TimelinesBoardsEditor />
-            </StyledTimelinesDashboardsRow>
-          </StyledRightCol>
-        </StyledBottomRow>
-      </StyledContainer>
-      <DialogsContainer />
-      <ToastsContainer />
-    </>
+    <AntdCompatWrapper>
+      <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+        <StyledContainer>
+          <StyledTopRow>
+            <MainNav />
+          </StyledTopRow>
+          <StyledBottomRow>
+            <StyledLeftCol>
+              <Browsers />
+            </StyledLeftCol>
+            <StyledRightCol>
+              <StyledScriptsRow>
+                <ScriptsEditor />
+              </StyledScriptsRow>
+              <StyledTimelinesDashboardsRow>
+                <TimelinesBoardsEditor />
+              </StyledTimelinesDashboardsRow>
+            </StyledRightCol>
+          </StyledBottomRow>
+        </StyledContainer>
+        <DialogsContainer />
+        <ToastsContainer />
+      </ConfigProvider>
+    </AntdCompatWrapper>
   );
 }

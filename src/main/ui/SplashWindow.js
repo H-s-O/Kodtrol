@@ -1,11 +1,11 @@
 import EventEmitter from 'events';
 import { join } from 'path';
 import { BrowserWindow } from 'electron';
-import { Colors } from '@blueprintjs/core';
 
 import * as ConsoleWindowEvent from '../events/ConsoleWindowEvent';
 import { APP_NAME } from '../../common/js/constants/app';
-
+import { WINDOW_BACKGROUND } from '../../common/js/constants/ui';
+console.log('__________', WINDOW_BACKGROUND)
 export default class SplashWindow extends EventEmitter {
   win = null;
   contents = null;
@@ -20,7 +20,7 @@ export default class SplashWindow extends EventEmitter {
       height: 400,
       // maximizable: false,
       // resizable: false,
-      backgroundColor: Colors.DARK_GRAY3,
+      backgroundColor: WINDOW_BACKGROUND,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,

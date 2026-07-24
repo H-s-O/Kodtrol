@@ -1,10 +1,16 @@
 import React, { useRef, useCallback, useEffect } from 'react';
-import { ButtonGroup, Button, Colors } from '@blueprintjs/core';
+import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
+import { Button, ConfigProvider, theme } from 'antd';
+import { DeleteFilled } from '@ant-design/icons';
+import { presetDarkPalettes } from '@ant-design/colors';
 
 import FullHeightCard from './components/ui/FullHeightCard';
 import { ipcRendererListen, ipcRendererClear } from './lib/ipcRenderer';
 import { SCRIPT_LOG } from '../../common/js/constants/events';
+import AntdCompatWrapper from './AntdCompatWrapper';
+
+const greyDark = presetDarkPalettes.grey
 
 const StyledContainer = styled.div`
   height: 100%;
@@ -27,7 +33,7 @@ const StyledConsoleContainer = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: ${Colors.DARK_GRAY1};
+  background-color: ${greyDark[2]};
   overflow-y: auto;
   font-family: monospace;
   font-size: 12px;
@@ -35,7 +41,7 @@ const StyledConsoleContainer = styled.div`
   p {
     padding: 2px;
     margin-bottom: 2px;
-    border-bottom: 1px solid ${Colors.DARK_GRAY2};
+    border-bottom: 1px solid ${greyDark.primary};
   }
 `;
 
@@ -76,22 +82,24 @@ export default function ConsoleWindow() {
   }, [logHandler]);
 
   return (
-    <FullHeightCard>
-      <StyledContainer>
-        <StyledTopRow>
-          <ButtonGroup>
-            <Button
-              small
-              icon="eraser"
-              title="Clear console"
-              onClick={clearClickHandler}
-            />
-          </ButtonGroup>
-        </StyledTopRow>
-        <StyledBottomRow>
-          <StyledConsoleContainer ref={ref} />
-        </StyledBottomRow>
-      </StyledContainer>
-    </FullHeightCard>
+    <AntdCompatWrapper>
+      <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+        <FullHeightCard size="small">
+          <StyledContainer>
+            <StyledTopRow>
+              <Button
+                size="small"
+                icon={<DeleteFilled />}
+                title="Clear console"
+                onClick={clearClickHandler}
+              />
+            </StyledTopRow>
+            <StyledBottomRow>
+              <StyledConsoleContainer ref={ref} />
+            </StyledBottomRow>
+          </StyledContainer>
+        </FullHeightCard>
+      </ConfigProvider>
+    </AntdCompatWrapper>
   );
 }

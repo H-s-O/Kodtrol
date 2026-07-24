@@ -1,9 +1,9 @@
 import EventEmitter from 'events';
 import { join } from 'path';
 import { BrowserWindow } from 'electron';
-import { Colors } from '@blueprintjs/core';
 
 import * as MainWindowEvent from '../events/MainWindowEvent';
+import { WINDOW_BACKGROUND } from '../../common/js/constants/ui';
 
 export default class MainWindow extends EventEmitter {
   win = null;
@@ -17,7 +17,7 @@ export default class MainWindow extends EventEmitter {
       show: false,
       width: 1600,
       height: 900,
-      backgroundColor: Colors.DARK_GRAY3,
+      backgroundColor: WINDOW_BACKGROUND,
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false, // Allows fetch() to use "file" scheme

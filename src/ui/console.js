@@ -7,7 +7,7 @@ import ConsoleWindow from './js/ConsoleWindow';
 domready(() => {
   ReactDOM.render(
     <ConsoleWindow />,
-    document.getElementById('root'),
+    document.getElementById('kodtrol-ui-root'),
   );
 });
 

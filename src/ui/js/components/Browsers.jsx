@@ -92,6 +92,7 @@ export default function Browsers() {
 
   return (
     <FullHeightCard
+      size="small"
       className="browsers-tabs"
     >
       <FullHeightTabs
@@ -120,7 +121,7 @@ export default function Browsers() {
           panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} title="Scripts Browser" description={
             <>
               No scripts yet. Click the <Icon icon="plus" /> above to create one.
-              </>
+            </>
           } />
           }
         >
@@ -135,7 +136,7 @@ export default function Browsers() {
           panel={medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} title="Media Browser" description={
             <>
               No medias yet. Click the <Icon icon="plus" /> above to create one.
-              </>
+            </>
           } />
           }
         >
@@ -150,7 +151,7 @@ export default function Browsers() {
           panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} title="Timelines Browser" description={
             <>
               No timelines yet. Click the <Icon icon="plus" /> above to create one.
-              </>
+            </>
           } />
           }
         >
@@ -165,7 +166,7 @@ export default function Browsers() {
           panel={boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} title="Boards Browser" description={
             <>
               No boards yet. Click the <Icon icon="plus" /> above to create one.
-              </>
+            </>
           } />
           }
         >

@@ -135,6 +135,7 @@ export default function TimelinesBoardsEditor() {
   return (
     <FullHeightCard
       className="timelines-boards-tabs"
+      size="small"
     >
       {((editTimelines && editTimelines.length > 0) || (editBoards && editBoards.length > 0)) ? (
         <FullHeightTabs

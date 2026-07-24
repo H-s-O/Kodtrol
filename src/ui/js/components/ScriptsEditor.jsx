@@ -3,6 +3,7 @@ import { Tab, Button, NonIdealState, Icon, Intent } from '@blueprintjs/core';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import useHotkeys from '@reecelucas/react-use-hotkeys';
+import { Empty, Typography } from 'antd';
 
 import FullHeightCard from './ui/FullHeightCard';
 import ScriptEditorTab from './scripts/ScriptEditorTab';
@@ -11,6 +12,14 @@ import { closeScriptAction, saveEditedScriptAction, focusEditedScriptAction, run
 import { ICON_SCRIPT } from '../../../common/js/constants/icons';
 import { closeWarning } from '../lib/messageBoxes';
 import { isMac } from '../../../common/js/lib/platforms';
+import { ScriptIcon } from './ui/Icons';
+
+const EmptyDescription = () => (
+  <>
+    <h2>Script Editor</h2>
+    Double-click a script in the script browser to edit it here.
+  </>
+);
 
 const StyledIcon = styled(Icon)`
   margin-right: 3px;
@@ -92,6 +101,7 @@ export default function ScriptsEditor() {
   return (
     <FullHeightCard
       className="scripts-tabs"
+      size="small"
     >
       {editScripts && editScripts.length ? (
         <FullHeightTabs
@@ -124,13 +134,14 @@ export default function ScriptsEditor() {
           /> */}
         </FullHeightTabs>
       ) : (
-          <NonIdealState
-            icon={ICON_SCRIPT}
-            title="Script Editor"
-            description="Double-click a script in the script browser to edit it here."
-          />
-        )
+        <Empty
+          styles={{ image: { height: '100%', display: 'block' } }}
+          image={ScriptIcon}
+          // title="Script Editor"
+          description={<EmptyDescription />}
+        />
+      )
       }
-    </FullHeightCard >
+    </FullHeightCard>
   );
 }
