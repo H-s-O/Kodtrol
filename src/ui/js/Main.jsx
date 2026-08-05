@@ -50,7 +50,7 @@ const StyledTimelinesDashboardsRow = styled.div`
 export default function Main(props) {
   return (
     <AntdCompatWrapper>
-      <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+      <ConfigProvider theme={{ algorithm: theme.darkAlgorithm, components: { Tabs: { horizontalItemPaddingLG: '6px 0' } } }}>
         <StyledContainer>
           <StyledTopRow>
             <MainNav />

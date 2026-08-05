@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Tab, Icon, Button, ButtonGroup, Popover, Position, Menu, NonIdealState } from '@blueprintjs/core';
+import { NonIdealState } from '@blueprintjs/core';
+import { Tabs, Button, Space, Dropdown } from 'antd';
+import { CaretDownOutlined, DownOutlined, PlusOutlined, PlusSquareFilled } from '@ant-design/icons';
 
 import DeviceBrowser from './devices/DevicesBrowser';
 import FullHeightCard from './ui/FullHeightCard';
@@ -25,6 +27,7 @@ import {
   DIALOG_IMPORT_TIMELINES,
   DIALOG_IMPORT_BOARDS,
 } from '../../../common/js/constants/dialogs';
+import { BoardIcon, DeviceIcon, MediaIcon, ScriptIcon, TimelineIcon } from './ui/Icons';
 
 const defaultTabId = 'devices';
 
@@ -70,23 +73,25 @@ export default function Browsers() {
         break;
     }
   }, [currentTabId, dispatch]);
-  const importClickHandler = useCallback(() => {
-    switch (currentTabId) {
-      case 'devices':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_DEVICES));
-        break;
-      case 'scripts':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_SCRIPTS));
-        break;
-      case 'medias':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_MEDIAS));
-        break;
-      case 'timelines':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_TIMELINES));
-        break;
-      case 'boards':
-        dispatch(showImportDialogAction(DIALOG_IMPORT_BOARDS));
-        break;
+  const addItemClickHandler = useCallback(({ key }) => {
+    if (key === 'import') {
+      switch (currentTabId) {
+        case 'devices':
+          dispatch(showImportDialogAction(DIALOG_IMPORT_DEVICES));
+          break;
+        case 'scripts':
+          dispatch(showImportDialogAction(DIALOG_IMPORT_SCRIPTS));
+          break;
+        case 'medias':
+          dispatch(showImportDialogAction(DIALOG_IMPORT_MEDIAS));
+          break;
+        case 'timelines':
+          dispatch(showImportDialogAction(DIALOG_IMPORT_TIMELINES));
+          break;
+        case 'boards':
+          dispatch(showImportDialogAction(DIALOG_IMPORT_BOARDS));
+          break;
+      }
     }
   }, [currentTabId, dispatch]);
 
@@ -95,119 +100,93 @@ export default function Browsers() {
       size="small"
       className="browsers-tabs"
     >
-      <FullHeightTabs
+      <Tabs
         id="browsers"
-        withBorder
-        selectedTabId={currentTabId}
+        activeKey={currentTabId}
         onChange={(newTabId) => setCurrentTabId(newTabId)}
-      >
-        <Tab
-          id="devices"
-          panel={devices ? <DeviceBrowser /> : <NonIdealState icon={ICON_DEVICE} title="Devices Browser" description={
-            <>
-              No devices yet. Click the <Icon icon="plus" /> above to create one.
-            </>
-          } />
+        tabBarGutter={18}
+        size='large'
+        // @TODO optimize tabBarExtraContent (memoize?)
+        tabBarExtraContent={{
+          right: (
+            <Dropdown.Button
+              onClick={addClickHandler}
+              size='small'
+              trigger='click'
+              icon={<DownOutlined />}
+              menu={{
+                onClick: addItemClickHandler,
+                items: [
+                  {
+                    key: 'import',
+                    label: `Import ${getTabLabel(currentTabId)}(s) from project...`
+                  }
+                ]
+              }}>
+              <PlusOutlined />
+            </Dropdown.Button>
+          )
+        }}
+        // @TODO optimize items (memoize?)
+        items={[
+          {
+            key: 'devices',
+            title: 'Devices',
+            icon: DeviceIcon,
+            children: (
+              devices ? <DeviceBrowser /> : <NonIdealState icon={ICON_DEVICE} title="Devices Browser" description={
+                <>
+                  No devices yet. Click the <Icon icon="plus" /> above to create one.
+                </>
+              } />
+            )
+          },
+          {
+            key: 'scripts',
+            icon: ScriptIcon,
+            children: (
+              scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} title="Scripts Browser" description={
+                <>
+                  No scripts yet. Click the <Icon icon="plus" /> above to create one.
+                </>
+              } />
+            )
+          },
+          {
+            key: 'medias',
+            icon: MediaIcon,
+            children: (
+              medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} title="Media Browser" description={
+                <>
+                  No medias yet. Click the <Icon icon="plus" /> above to create one.
+                </>
+              } />
+            )
+          },
+          {
+            key: 'timelines',
+            icon: TimelineIcon,
+            children: (
+              timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} title="Timelines Browser" description={
+                <>
+                  No timelines yet. Click the <Icon icon="plus" /> above to create one.
+                </>
+              } />
+            )
+          },
+          {
+            key: 'boards',
+            icon: BoardIcon,
+            children: (
+              boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} title="Boards Browser" description={
+                <>
+                  No boards yet. Click the <Icon icon="plus" /> above to create one.
+                </>
+              } />
+            )
           }
-        >
-          <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_DEVICE}
-            htmlTitle="Devices"
-          />
-        </Tab>
-        <Tab
-          id="scripts"
-          panel={scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} title="Scripts Browser" description={
-            <>
-              No scripts yet. Click the <Icon icon="plus" /> above to create one.
-            </>
-          } />
-          }
-        >
-          <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_SCRIPT}
-            htmlTitle="Scripts"
-          />
-        </Tab>
-        <Tab
-          id="medias"
-          panel={medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} title="Media Browser" description={
-            <>
-              No medias yet. Click the <Icon icon="plus" /> above to create one.
-            </>
-          } />
-          }
-        >
-          <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_MEDIA}
-            htmlTitle="Medias"
-          />
-        </Tab>
-        <Tab
-          id="timelines"
-          panel={timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} title="Timelines Browser" description={
-            <>
-              No timelines yet. Click the <Icon icon="plus" /> above to create one.
-            </>
-          } />
-          }
-        >
-          <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_TIMELINE}
-            htmlTitle="Timelines"
-          />
-        </Tab>
-        <Tab
-          id="boards"
-          panel={boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} title="Boards Browser" description={
-            <>
-              No boards yet. Click the <Icon icon="plus" /> above to create one.
-            </>
-          } />
-          }
-        >
-          <Icon
-            iconSize={Icon.SIZE_LARGE}
-            icon={ICON_BOARD}
-            htmlTitle="Boards"
-          />
-        </Tab>
-        <FullHeightTabs.Expander />
-        <ButtonGroup>
-          <Button
-            small
-            icon="plus"
-            onClick={addClickHandler}
-          />
-          <Popover
-            minimal
-            position={Position.BOTTOM_RIGHT}
-            content={
-              <Menu>
-                {/* <Menu.Item
-                  text={`Add ${getTabLabel(currentTabId)} folder`}
-                  icon="folder-new"
-                />
-                <Menu.Divider /> */}
-                <Menu.Item
-                  text={`Import ${getTabLabel(currentTabId)}(s) from project...`}
-                  icon="import"
-                  onClick={importClickHandler}
-                />
-              </Menu>
-            }
-          >
-            <Button
-              small
-              icon="caret-down"
-            />
-          </Popover>
-        </ButtonGroup>
-      </FullHeightTabs>
+        ]}
+      />
     </FullHeightCard>
   )
 }

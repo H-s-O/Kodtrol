@@ -32,7 +32,8 @@ body {
 
 a,
 button,
-select {
+select,
+.ant-tabs-tab {
   cursor: default !important;
 }
 
