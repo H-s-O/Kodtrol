@@ -63,7 +63,11 @@ export default class ConsoleWindow extends EventEmitter {
   _updateVisibility = () => {
     if (this.win) {
       if (this.visible) {
-        this.win.showInactive();
+        // On Linux the window manager may keep a freshly-shown window
+        // behind the main window and unfocused; explicitly focus and
+        // raise it so it appears in front of the main window.
+        this.win.show();
+        this.win.focus();
         this.win.moveTop();
       } else {
         this.win.hide();
