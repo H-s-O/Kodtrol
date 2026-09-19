@@ -17,8 +17,8 @@ Other demos:
 ## Local development / run from source
 
 **Requirements**
-- Node.js: ^18.0.0
-- npm: ^9.0.0
+- Node.js: ^18.17.1
+- npm: ^9.8.1
 - Linux only: `libasound2-dev` package
 
 Clone the repository and `cd` into it.  
