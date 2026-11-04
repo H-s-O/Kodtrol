@@ -13,6 +13,7 @@ import { ICON_SCRIPT } from '../../../common/js/constants/icons';
 import { closeWarning } from '../lib/messageBoxes';
 import { isMac } from '../../../common/js/lib/platforms';
 import { ScriptIcon } from './ui/Icons';
+import Placeholder from './ui/Placeholder';
 
 const EmptyDescription = () => (
   <>
@@ -134,10 +135,8 @@ export default function ScriptsEditor() {
           /> */}
         </FullHeightTabs>
       ) : (
-        <Empty
-          styles={{ image: { height: '100%', display: 'block' } }}
-          image={ScriptIcon}
-          // title="Script Editor"
+        <Placeholder
+          icon={ScriptIcon}
           description={<EmptyDescription />}
         />
       )

@@ -28,6 +28,7 @@ import {
   DIALOG_IMPORT_BOARDS,
 } from '../../../common/js/constants/dialogs';
 import { BoardIcon, DeviceIcon, MediaIcon, ScriptIcon, TimelineIcon } from './ui/Icons';
+import Placeholder from './ui/Placeholder';
 
 const defaultTabId = 'devices';
 
@@ -104,8 +105,10 @@ export default function Browsers() {
         id="browsers"
         activeKey={currentTabId}
         onChange={(newTabId) => setCurrentTabId(newTabId)}
-        tabBarGutter={18}
-        size='large'
+        // tabBarGutter={18}
+        size='small'
+        type='card'
+        animated={false}
         // @TODO optimize tabBarExtraContent (memoize?)
         tabBarExtraContent={{
           right: (
@@ -134,9 +137,10 @@ export default function Browsers() {
             title: 'Devices',
             icon: DeviceIcon,
             children: (
-              devices ? <DeviceBrowser /> : <NonIdealState icon={ICON_DEVICE} title="Devices Browser" description={
+              devices ? <DeviceBrowser /> : <Placeholder icon={DeviceIcon} description={
                 <>
-                  No devices yet. Click the <Icon icon="plus" /> above to create one.
+                  <h2>Devices Browser</h2>
+                  No devices yet. Click the <PlusOutlined /> above to create one.
                 </>
               } />
             )
@@ -145,9 +149,10 @@ export default function Browsers() {
             key: 'scripts',
             icon: ScriptIcon,
             children: (
-              scripts ? <ScriptsBrowser /> : <NonIdealState icon={ICON_SCRIPT} title="Scripts Browser" description={
+              scripts ? <ScriptsBrowser /> : <Placeholder icon={ScriptIcon} description={
                 <>
-                  No scripts yet. Click the <Icon icon="plus" /> above to create one.
+                  <h2>Scripts Browser</h2>
+                  No scripts yet. Click the <PlusOutlined /> above to create one.
                 </>
               } />
             )
@@ -156,9 +161,10 @@ export default function Browsers() {
             key: 'medias',
             icon: MediaIcon,
             children: (
-              medias ? <MediasBrowser /> : <NonIdealState icon={ICON_MEDIA} title="Media Browser" description={
+              medias ? <MediasBrowser /> : <Placeholder icon={MediaIcon} description={
                 <>
-                  No medias yet. Click the <Icon icon="plus" /> above to create one.
+                  <h2>Media Browser</h2>
+                  No medias yet. Click the <PlusOutlined /> above to create one.
                 </>
               } />
             )
@@ -167,9 +173,10 @@ export default function Browsers() {
             key: 'timelines',
             icon: TimelineIcon,
             children: (
-              timelines ? <TimelinesBrowser /> : <NonIdealState icon={ICON_TIMELINE} title="Timelines Browser" description={
+              timelines ? <TimelinesBrowser /> : <Placeholder icon={TimelineIcon} description={
                 <>
-                  No timelines yet. Click the <Icon icon="plus" /> above to create one.
+                  <h2>Timelines Browser</h2>
+                  No timelines yet. Click the <PlusOutlined /> above to create one.
                 </>
               } />
             )
@@ -178,9 +185,10 @@ export default function Browsers() {
             key: 'boards',
             icon: BoardIcon,
             children: (
-              boards ? <BoardsBrowser /> : <NonIdealState icon={ICON_BOARD} title="Boards Browser" description={
+              boards ? <BoardsBrowser /> : <Placeholder icon={BoardIcon} description={
                 <>
-                  No boards yet. Click the <Icon icon="plus" /> above to create one.
+                  <h2>Boards Browser</h2>
+                  No boards yet. Click the <PlusOutlined /> above to create one.
                 </>
               } />
             )

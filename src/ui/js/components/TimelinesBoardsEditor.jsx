@@ -13,6 +13,8 @@ import { closeTimelineAction, focusEditedTimelineAction, saveEditedTimelineActio
 import { closeBoardAction, focusEditedBoardAction, saveEditedBoardAction, runBoardAction } from '../../../common/js/store/actions/boards';
 import { closeWarning } from '../lib/messageBoxes';
 import { isMac } from '../../../common/js/lib/platforms';
+import Placeholder from './ui/Placeholder';
+import { BoardIcon, TimelineIcon } from './ui/Icons';
 
 const StyledDivider = styled.div`
   width: 1px;
@@ -34,6 +36,20 @@ const StyledRow = styled.div`
   width: 100%;
   height: 100%;
 `
+
+const TimelinePlaceholderDescription = () => (
+  <>
+    <h2>Timeline Editor</h2>
+    Double-click a timeline in the timeline browser to edit it here.
+  </>
+)
+
+const BoardPlaceholderDescription = () => (
+  <>
+    <h2>Board Editor</h2>
+    Double-click a board in the board browser to edit it here.
+  </>
+)
 
 const TabLabel = ({ id, name, icon, changed, onClose }) => {
   const closeHandler = useCallback((e) => {
@@ -186,19 +202,17 @@ export default function TimelinesBoardsEditor() {
           ))}
         </FullHeightTabs>
       ) : (
-          <StyledRow>
-            <NonIdealState
-              icon={ICON_TIMELINE}
-              title="Timeline Editor"
-              description="Double-click a timeline in the timeline browser to edit it here."
-            />
-            <NonIdealState
-              icon={ICON_BOARD}
-              title="Board Editor"
-              description="Double-click a board in the board browser to edit it here."
-            />
-          </StyledRow>
-        )}
+        <StyledRow>
+          <Placeholder
+            icon={TimelineIcon}
+            description={<TimelinePlaceholderDescription />}
+          />
+          <Placeholder
+            icon={BoardIcon}
+            description={<BoardPlaceholderDescription />}
+          />
+        </StyledRow>
+      )}
     </FullHeightCard>
   )
 }
