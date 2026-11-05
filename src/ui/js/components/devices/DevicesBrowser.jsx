@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Intent, Button, Icon, Tag } from '@blueprintjs/core';
 
@@ -9,6 +9,7 @@ import ItemBrowser from '../ui/ItemBrowser';
 import TagGroup from '../ui/TagGroup';
 import { IO_DMX, IO_ARTNET } from '../../../../common/js/constants/io';
 import contentRunning from '../../../../common/js/store/selectors/contentRunning';
+import { Tree } from 'antd';
 
 const itemPropsFilter = ({ id, name, type, tags }) => ({ id, name, type, tags });
 
@@ -66,16 +67,16 @@ const DeviceSecondaryLabel = ({ item: { id, tags, type }, activeItemId }) => {
             onDoubleClick={doubleClickHandler}
           />
         ) : (
-            <Button
-              small
-              minimal
-              icon="power"
-              intent={Intent.DANGER}
-              title="Deactivate device test"
-              onClick={stopHandler}
-              onDoubleClick={doubleClickHandler}
-            />
-          )
+          <Button
+            small
+            minimal
+            icon="power"
+            intent={Intent.DANGER}
+            title="Deactivate device test"
+            onClick={stopHandler}
+            onDoubleClick={doubleClickHandler}
+          />
+        )
       ) : null
       }
     </>
@@ -101,19 +102,28 @@ export default function DevicesBrowser() {
     dispatch(deleteDeviceAction(id));
   }, [dispatch]);
 
+  const treeData = useMemo(() => devices.map((item) => {
+    return { key: item.id, title: item.name }
+  }), [devices])
+
   return (
-    <ItemBrowser
-      label="device"
-      items={devices}
-      folders={devicesFolders}
-      activeItemId={runDevice}
-      editPropsCallback={editPropsCallback}
-      duplicateCallback={duplicateCallback}
-      deleteCallback={deleteCallback}
-      itemLabelComponent={DeviceLabel}
-      itemSecondaryLabelComponent={DeviceSecondaryLabel}
-      itemPropsFilter={itemPropsFilter}
-      enableDelete={!isContentRunning}
+    <Tree
+      treeData={treeData}
+      selectable={false}
+      // onDoubleClick={(e, node) => editPropsCallback(node.key)}
     />
+    // <ItemBrowser
+    //   label="device"
+    //   items={devices}
+    //   folders={devicesFolders}
+    //   activeItemId={runDevice}
+    //   editPropsCallback={editPropsCallback}
+    //   duplicateCallback={duplicateCallback}
+    //   deleteCallback={deleteCallback}
+    //   itemLabelComponent={DeviceLabel}
+    //   itemSecondaryLabelComponent={DeviceSecondaryLabel}
+    //   itemPropsFilter={itemPropsFilter}
+    //   enableDelete={!isContentRunning}
+    // />
   );
 }

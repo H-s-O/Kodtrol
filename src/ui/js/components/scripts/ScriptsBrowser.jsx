@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Icon, Button, Intent } from '@blueprintjs/core';
 
@@ -7,6 +7,7 @@ import ItemBrowser from '../ui/ItemBrowser';
 import { showScriptDialogAction } from '../../../../common/js/store/actions/dialogs';
 import { DIALOG_EDIT, DIALOG_DUPLICATE } from '../../../../common/js/constants/dialogs';
 import contentRunning from '../../../../common/js/store/selectors/contentRunning';
+import { Tree } from 'antd';
 
 const ScriptLabel = ({ item: { name, id }, activeItemId }) => {
   return (
@@ -91,19 +92,28 @@ export default function ScriptsBrowser() {
     dispatch(deleteScriptAction(id));
   }, [dispatch]);
 
+  const treeData = useMemo(() => scripts.map((item) => {
+    return { key: item.id, title: item.name }
+  }), [scripts])
+
   return (
-    <ItemBrowser
-      label="script"
-      items={scripts}
-      folders={scriptsFolders}
-      activeItemId={runScript}
-      editCallback={editCallback}
-      editPropsCallback={editPropsCallback}
-      duplicateCallback={duplicateCallback}
-      deleteCallback={deleteCallback}
-      itemLabelComponent={ScriptLabel}
-      itemSecondaryLabelComponent={ScriptSecondaryLabel}
-      enableDelete={!isContentRunning}
+    <Tree
+      treeData={treeData}
+      selectable={false}
+      onDoubleClick={(e, node) => editCallback(node.key)}
     />
+    // <ItemBrowser
+    //   label="script"
+    //   items={scripts}
+    //   folders={scriptsFolders}
+    //   activeItemId={runScript}
+    //   editCallback={editCallback}
+    //   editPropsCallback={editPropsCallback}
+    //   duplicateCallback={duplicateCallback}
+    //   deleteCallback={deleteCallback}
+    //   itemLabelComponent={ScriptLabel}
+    //   itemSecondaryLabelComponent={ScriptSecondaryLabel}
+    //   enableDelete={!isContentRunning}
+    // />
   );
 }
